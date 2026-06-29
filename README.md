@@ -4,6 +4,8 @@
 
 Dice Forge est une application web monopage qui permet de simuler des lancers de dés pour vos parties de jeux de rôle. Elle propose des dés 3D animés, un générateur aléatoire cryptographique, des effets sonores, et un mode multijoueur en temps réel via Supabase.
 
+🔗 **Site en ligne :** [https://kithain.github.io/Dice-Forge/](https://kithain.github.io/Dice-Forge/)
+
 ---
 
 ## ✨ Fonctionnalités
