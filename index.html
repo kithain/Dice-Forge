@@ -279,6 +279,36 @@ h1{
 .dice-3d-container canvas{width:100%;height:100%;border-radius:8px}
 .result-area{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center}
 
+/* ——— room / live ——— */
+.room-panel{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem}
+.room-row{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap}
+.room-field{display:flex;flex-direction:column;gap:.3rem}
+.room-field label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txd)}
+.room-input{background:var(--s2);border:1px solid var(--brd2);color:var(--txt);font-family:Georgia,serif;font-size:.9rem;padding:.5rem .7rem;border-radius:5px;outline:none;width:140px}
+.room-input:focus{border-color:var(--gold)}
+.room-input.wide{width:200px}
+.room-btn{background:var(--purp);color:#fff;border:none;border-radius:5px;padding:.55rem 1.2rem;font-family:'Cinzel',serif;font-size:.82rem;cursor:pointer;transition:all .18s;letter-spacing:.06em}
+.room-btn:hover{background:var(--purp2)}
+.room-btn:disabled{opacity:.4;cursor:not-allowed}
+.room-status{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.room-badge{font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;color:var(--gold);background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.3);padding:.3rem .8rem;border-radius:4px}
+.room-leave{background:none;border:1px solid var(--brd2);color:var(--txd);font-size:.72rem;padding:.25rem .6rem;border-radius:3px;cursor:pointer;transition:all .18s}
+.room-leave:hover{border-color:var(--red);color:var(--red)}
+.live-feed{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem;max-height:320px;overflow-y:auto}
+.live-feed:empty{display:none}
+.live-title{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--txd);margin-bottom:.7rem}
+.live-item{display:flex;align-items:center;gap:.7rem;padding:.5rem .7rem;background:var(--s2);border:1px solid var(--brd);border-radius:5px;margin-bottom:.4rem;animation:liveIn .3s ease-out}
+@keyframes liveIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.live-player{font-family:'Cinzel',serif;font-size:.78rem;color:var(--purp2);min-width:80px;flex-shrink:0}
+.live-expr{font-size:.78rem;color:var(--txd);flex-shrink:0}
+.live-rolls{font-size:.72rem;color:var(--txm);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-tot{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);min-width:2.5em;text-align:right;flex-shrink:0}
+.live-tot.crit{color:var(--yel)}
+.live-tot.fail{color:var(--red)}
+.live-time{font-size:.65rem;color:var(--txm);flex-shrink:0}
+.live-self{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.05)}
+.live-empty{text-align:center;color:var(--txm);font-style:italic;font-size:.82rem;padding:.8rem 0}
+
 /* ——— responsive ——— */
 @media(max-width:580px){
   header{padding:1.75rem 0 1.25rem}
@@ -288,7 +318,10 @@ h1{
 }
 </style>
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" } }
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+  "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/module/index.js"
+} }
 </script>
 </head>
 <body>
@@ -311,6 +344,35 @@ h1{
     <div class="tog on" id="tog-sound"></div>
     <span class="tog-lbl">Son MP3</span>
   </div>
+</div>
+
+<div class="room-panel" id="room-panel">
+  <div id="room-join">
+    <div class="room-row">
+      <div class="room-field">
+        <label>Nom du joueur</label>
+        <input class="room-input wide" id="player-name" placeholder="Gandalf" maxlength="20">
+      </div>
+      <div class="room-field">
+        <label>Code de la partie</label>
+        <input class="room-input" id="room-code" placeholder="ABCD" maxlength="6" style="text-transform:uppercase">
+      </div>
+      <button class="room-btn" id="join-btn" onclick="joinRoom()">Rejoindre</button>
+      <button class="room-btn" id="create-btn" onclick="createRoom()" style="background:var(--goldd)">Créer</button>
+    </div>
+  </div>
+  <div id="room-connected" style="display:none">
+    <div class="room-status">
+      <span class="room-badge" id="room-badge-text">Room: —</span>
+      <span class="room-badge" id="player-badge-text">Joueur: —</span>
+      <button class="room-leave" onclick="leaveRoom()">Quitter</button>
+    </div>
+  </div>
+</div>
+
+<div class="live-feed" id="live-feed" style="display:none">
+  <div class="live-title">Jets en direct</div>
+  <div id="live-list"></div>
 </div>
 
 <div class="quick-wrap">
@@ -354,6 +416,190 @@ h1{
 </div>
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio> </audio>
+
+<script src="supabase-config.js"></script>
+<script type="module">
+import { createClient } from '@supabase/supabase-js';
+
+// ▼▼▼ Config chargée depuis supabase-config.js (gitignored) ▼▼▼
+const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || 'https://VOTRE_PROJET.supabase.co';
+const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || 'VOTRE_CLE_ANON';
+// ▲▲▲ ▲▲▲
+
+let sb = null;
+let roomState = { code: null, player: null, connected: false };
+let liveSub = null;
+
+function sbInit() {
+  if (sb) return;
+  if (SUPABASE_URL.includes('VOTRE_PROJET')) {
+    console.warn('Supabase: configure SUPABASE_URL et SUPABASE_ANON_KEY');
+    return;
+  }
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c = '';
+  for (let i = 0; i < 4; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  return c;
+}
+
+window.joinRoom = async function() {
+  const name = document.getElementById('player-name').value.trim();
+  const code = document.getElementById('room-code').value.trim().toUpperCase();
+  if (!name) { alert('Entre ton nom de joueur'); return; }
+  if (!code) { alert('Entre le code de la partie'); return; }
+  sbInit();
+  if (!sb) { alert('Supabase non configuré. Voir instructions.'); return; }
+
+  const { data, error } = await sb.from('rolls')
+    .select('id')
+    .eq('room_code', code)
+    .limit(1);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  if (!data.length) { alert('Aucune partie trouvée avec ce code'); return; }
+
+  roomState = { code, player: name, connected: true };
+  localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+  showConnected();
+  subscribeLive(code, name);
+  await loadRecent(code, name);
+};
+
+window.createRoom = async function() {
+  const name = document.getElementById('player-name').value.trim();
+  if (!name) { alert('Entre ton nom de joueur'); return; }
+  sbInit();
+  if (!sb) { alert('Supabase non configuré. Voir instructions.'); return; }
+
+  const code = genCode();
+  const { error } = await sb.from('rolls').insert({
+    room_code: code,
+    player_name: name,
+    expression: '— Partie créée —',
+    rolls_detail: '',
+    total: 0,
+    is_crit: false,
+    is_fail: false
+  });
+  if (error) { alert('Erreur: ' + error.message); return; }
+
+  roomState = { code, player: name, connected: true };
+  localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+  document.getElementById('room-code').value = code;
+  showConnected();
+  subscribeLive(code, name);
+  await loadRecent(code, name);
+};
+
+window.leaveRoom = function() {
+  if (liveSub) { liveSub.unsubscribe(); liveSub = null; }
+  roomState = { code: null, player: null, connected: false };
+  localStorage.removeItem('diceforge_room');
+  document.getElementById('room-join').style.display = '';
+  document.getElementById('room-connected').style.display = 'none';
+  document.getElementById('live-feed').style.display = 'none';
+  document.getElementById('live-list').innerHTML = '';
+};
+
+function showConnected() {
+  document.getElementById('room-join').style.display = 'none';
+  document.getElementById('room-connected').style.display = '';
+  document.getElementById('room-badge-text').textContent = 'Room: ' + roomState.code;
+  document.getElementById('player-badge-text').textContent = 'Joueur: ' + roomState.player;
+  document.getElementById('live-feed').style.display = '';
+}
+
+function subscribeLive(code, selfName) {
+  if (liveSub) liveSub.unsubscribe();
+  liveSub = sb.channel('rolls:' + code)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'rolls', filter: 'room_code=eq.' + code },
+      (payload) => {
+        const r = payload.new;
+        if (r.expression === '— Partie créée —') return;
+        addLiveItem(r, r.player_name === selfName);
+      }
+    )
+    .subscribe();
+}
+
+async function loadRecent(code, selfName) {
+  const { data } = await sb.from('rolls')
+    .select('*')
+    .eq('room_code', code)
+    .neq('expression', '— Partie créée —')
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (!data) return;
+  const list = document.getElementById('live-list');
+  list.innerHTML = '';
+  data.reverse().forEach(r => addLiveItem(r, r.player_name === selfName, true));
+}
+
+function addLiveItem(r, isSelf, prepend) {
+  const list = document.getElementById('live-list');
+  if (!list.children.length) list.innerHTML = '';
+  const cls = isSelf ? 'live-self' : '';
+  const tCls = r.is_crit ? 'crit' : r.is_fail ? 'fail' : '';
+  const time = new Date(r.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const html = `<div class="live-item ${cls}">
+    <span class="live-player">${esc(r.player_name)}</span>
+    <span class="live-expr">${esc(r.expression)}</span>
+    <span class="live-rolls">${esc(r.rolls_detail)}</span>
+    <span class="live-tot ${tCls}">${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}</span>
+    <span class="live-time">${time}</span>
+  </div>`;
+  if (prepend || !list.children.length) {
+    list.insertAdjacentHTML('afterbegin', html);
+  } else {
+    list.insertAdjacentHTML('beforeend', html);
+  }
+  list.parentElement.scrollTop = 0;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail) {
+  if (!roomState.connected || !sb) return;
+  await sb.from('rolls').insert({
+    room_code: roomState.code,
+    player_name: roomState.player,
+    expression: expr,
+    rolls_detail: rollsDetail,
+    total: total,
+    is_crit: isCrit,
+    is_fail: isFail
+  });
+};
+
+// auto-restore session
+(function() {
+  const saved = localStorage.getItem('diceforge_room');
+  if (saved) {
+    try {
+      const r = JSON.parse(saved);
+      if (r.code && r.player) {
+        roomState = { code: r.code, player: r.player, connected: true };
+        document.getElementById('player-name').value = r.player;
+        document.getElementById('room-code').value = r.code;
+        sbInit();
+        if (sb) {
+          showConnected();
+          subscribeLive(r.code, r.player);
+          loadRecent(r.code, r.player);
+        }
+      }
+    } catch(e) {}
+  }
+})();
+</script>
 
 <script type="module">
 import * as THREE from 'three';
@@ -842,6 +1088,8 @@ function finalize(groups,mod){
   if(window.D3D)window.D3D.hide();
 
   const exprStr=groups.map(g=>`${g.rolls.length}D${g.type}`).join(' + ')+(mod!==0?(mod>=0?` + ${mod}`:` − ${Math.abs(mod)}`): '');
+  const rollsStr=groups.map(g=>`[${g.rolls.map(r=>r.val).join(', ')}]`).join(' ');
+  if(window.sendRoll)window.sendRoll(exprStr,rollsStr,total,hasCrit,hasFail);
 }
 
 function disableQuick(disabled){
