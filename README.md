@@ -96,7 +96,9 @@ Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager v
 
    > ⚠️ **Sécurité** : `supabase-config.js` contient votre clé anon (publique). Ne committez **jamais** votre clé `service_role`. La clé anon est conçue pour être exposée côté client, mais pensez à configurer les **Row Level Security (RLS)** policies sur votre table `rolls` selon vos besoins.
 
-4. Activer le **Realtime** sur la table `rolls` dans Supabase (Dashboard → Database → Replication → activer `rolls`).
+4. Activer le **Realtime** sur la table `rolls` pour que les jets soient envoyés en temps réel aux autres joueurs. Deux options :
+   - **Option A (SQL)** — Dans **SQL Editor**, exécuter : `alter publication supabase_realtime add table rolls;`
+   - **Option B (Interface)** — Dans **Database** → **Publications**, trouver `supabase_realtime`, cliquer sur `...` → **Add tables**, cocher `rolls` et valider.
 
 ### Créer une salle
 
