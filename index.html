@@ -189,21 +189,60 @@ h1{
 
 /* ——— result area ——— */
 .result-area{margin-bottom:1.75rem}
-.dice-display{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;min-height:110px;align-items:center;margin-bottom:1.25rem}
+.dice-display{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;min-height:110px;align-items:center;margin-bottom:1.25rem;perspective:800px}
 .dgroup{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;justify-content:center}
 .gplus{font-size:1.4rem;color:var(--txd);margin:0 .2rem}
 .die-item{display:flex;flex-direction:column;align-items:center;gap:.3rem}
-.dsvg-wrap{width:78px;height:78px;display:flex;align-items:center;justify-content:center;position:relative}
+.dsvg-wrap{width:78px;height:78px;display:flex;align-items:center;justify-content:center;position:relative;perspective:200px}
 .dsvg-wrap svg{width:78px;height:78px;transition:filter .3s}
-.dsvg-wrap.rolling svg{animation:droll .25s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(168,85,247,.8))}
-@keyframes droll{0%{transform:rotate(-12deg) scale(.94)}25%{transform:rotate(6deg) scale(1.06)}50%{transform:rotate(-6deg) scale(.96)}75%{transform:rotate(9deg) scale(1.04)}100%{transform:rotate(-12deg) scale(.94)}}
-.dsvg-wrap.s-norm svg{animation:sbounce .4s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 5px rgba(201,162,39,.35))}
-.dsvg-wrap.s-high svg{animation:sbounce .4s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 9px rgba(201,162,39,.65))}
-.dsvg-wrap.s-low svg{animation:sbounce .4s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 7px rgba(220,38,38,.55))}
-.dsvg-wrap.s-crit svg{animation:scrittle .6s ease-out forwards;filter:drop-shadow(0 0 14px rgba(251,191,36,1)) drop-shadow(0 0 28px rgba(201,162,39,.5))}
-.dsvg-wrap.s-fail svg{animation:sbounce .4s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 12px rgba(220,38,38,.85))}
-@keyframes sbounce{0%{transform:scale(1.22) rotate(6deg)}40%{transform:scale(.88) rotate(-2deg)}70%{transform:scale(1.06) rotate(1deg)}100%{transform:scale(1) rotate(0)}}
-@keyframes scrittle{0%{transform:scale(1.45) rotate(12deg)}30%{transform:scale(.82) rotate(-6deg)}60%{transform:scale(1.18) rotate(3deg)}80%{transform:scale(.96) rotate(-1deg)}100%{transform:scale(1) rotate(0)}}
+
+/* rolling — 3D tumble (WAAPI driven on .die-3d) */
+.dsvg-wrap.rolling::before{content:'';position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.28),transparent 70%);pointer-events:none;animation:glowPulse .6s ease-in-out infinite alternate;z-index:0}
+@keyframes glowPulse{0%{opacity:.4;transform:scale(.85)}100%{opacity:.9;transform:scale(1.15)}}
+.die-3d{position:relative;width:100%;height:100%;transform-style:preserve-3d}
+.die-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden}
+.die-face.die-back{transform:rotateY(180deg)}
+.dsvg-wrap.rolling .die-face svg{filter:blur(1.5px)}
+
+/* settle — multi-step bounce */
+.dsvg-wrap.s-norm svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 5px rgba(201,162,39,.35));animation-delay:var(--d,0s)}
+.dsvg-wrap.s-high svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 9px rgba(201,162,39,.65));animation-delay:var(--d,0s)}
+.dsvg-wrap.s-low svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 7px rgba(220,38,38,.55));animation-delay:var(--d,0s)}
+.dsvg-wrap.s-crit svg{animation:scrittle2 .7s ease-out forwards;filter:drop-shadow(0 0 14px rgba(251,191,36,1)) drop-shadow(0 0 28px rgba(201,162,39,.5));animation-delay:var(--d,0s)}
+.dsvg-wrap.s-fail svg{animation:sfail .55s ease-out forwards;filter:drop-shadow(0 0 12px rgba(220,38,38,.85));animation-delay:var(--d,0s)}
+
+/* impact ring on settle */
+.dsvg-wrap.s-norm::after,.dsvg-wrap.s-high::after,.dsvg-wrap.s-low::after,.dsvg-wrap.s-fail::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(201,162,39,.35);animation:impact .45s ease-out forwards;animation-delay:var(--d,0s);pointer-events:none}
+.dsvg-wrap.s-crit::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(251,191,36,.6);animation:critburst .8s ease-out forwards;animation-delay:var(--d,0s);pointer-events:none}
+.dsvg-wrap.s-fail::after{border-color:rgba(220,38,38,.5)}
+
+@keyframes sbounce2{
+  0%{transform:translateY(-28px) scale(1.25) rotate(8deg);filter:blur(.5px) drop-shadow(0 0 5px rgba(201,162,39,.35))}
+  30%{transform:translateY(0) scale(.85) rotate(-3deg)}
+  50%{transform:translateY(-10px) scale(1.08) rotate(2deg)}
+  70%{transform:translateY(0) scale(.96) rotate(-1deg)}
+  85%{transform:translateY(-3px) scale(1.02) rotate(.5deg)}
+  100%{transform:translateY(0) scale(1) rotate(0)}
+}
+@keyframes scrittle2{
+  0%{transform:translateY(-38px) scale(1.45) rotate(15deg);filter:blur(1px) drop-shadow(0 0 14px rgba(251,191,36,1))}
+  25%{transform:translateY(0) scale(.8) rotate(-8deg)}
+  45%{transform:translateY(-14px) scale(1.18) rotate(5deg)}
+  65%{transform:translateY(0) scale(.92) rotate(-2deg)}
+  80%{transform:translateY(-5px) scale(1.06) rotate(1deg)}
+  100%{transform:translateY(0) scale(1) rotate(0)}
+}
+@keyframes sfail{
+  0%{transform:translateY(-18px) scale(1.15) rotate(0)}
+  20%{transform:translateY(0) scale(.9) rotate(-5deg)}
+  30%{transform:translateX(-8px) rotate(-3deg)}
+  45%{transform:translateX(8px) rotate(3deg)}
+  60%{transform:translateX(-5px) rotate(-2deg)}
+  75%{transform:translateX(3px) rotate(1deg)}
+  100%{transform:translateX(0) translateY(0) scale(1) rotate(0)}
+}
+@keyframes impact{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.8);opacity:0}}
+@keyframes critburst{0%{transform:scale(0);opacity:1}40%{transform:scale(1.3);opacity:.9}100%{transform:scale(2.5);opacity:0}}
 .dval{font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;text-align:center;min-height:1.1em}
 .dval.crit{color:var(--yel)}
 .dval.fail{color:var(--red)}
@@ -234,23 +273,11 @@ h1{
 .crit-msg.fail{color:var(--red);border:1px solid rgba(220,38,38,.4);background:rgba(220,38,38,.08)}
 .rand-badge{margin-top:.5rem;font-size:.68rem;color:var(--txm);font-style:italic;display:flex;align-items:center;justify-content:center;gap:.35rem}
 
-/* ——— history ——— */
-.hist-box{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem}
-.hist-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
-.hist-title{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--txd)}
-.hist-clear{background:none;border:1px solid var(--brd2);color:var(--txd);font-size:.7rem;padding:.18rem .5rem;border-radius:3px;cursor:pointer;transition:all .18s}
-.hist-clear:hover{border-color:var(--red);color:var(--red)}
-.hist-list{display:flex;flex-direction:column;gap:.4rem}
-.hist-item{
-  display:flex;align-items:center;gap:.8rem;padding:.5rem .7rem;
-  background:var(--s2);border:1px solid var(--brd);border-radius:5px;
-  animation:happ .25s ease-out;
-}
-@keyframes happ{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
-.hist-expr{font-family:'Cinzel',serif;font-size:.72rem;color:var(--txd);flex-shrink:0}
-.hist-rolls{font-size:.78rem;color:var(--txm);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist-tot{font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;color:var(--gold);min-width:2.8em;text-align:right;flex-shrink:0}
-.hist-empty{text-align:center;color:var(--txm);font-style:italic;font-size:.88rem;padding:1.25rem 0}
+/* ——— 3D dice ——— */
+.dice-stage{position:relative;width:100%;min-height:280px;margin-bottom:1.25rem}
+.dice-3d-container{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
+.dice-3d-container canvas{width:100%;height:100%;border-radius:8px}
+.result-area{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center}
 
 /* ——— responsive ——— */
 @media(max-width:580px){
@@ -260,6 +287,9 @@ h1{
   .dsvg-wrap,.dsvg-wrap svg{width:64px;height:64px}
 }
 </style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" } }
+</script>
 </head>
 <body>
 <div class="stars"></div>
@@ -316,39 +346,281 @@ h1{
   <button class="roll-btn" id="roll-btn" onclick="rollAll()" disabled>⚔️ &nbsp; Lancer les Dés</button>
 </div>
 
-<div class="result-area" id="result-area"></div>
-
-<div class="hist-box">
-  <div class="hist-hdr">
-    <span class="hist-title">Historique des jets</span>
-    <button class="hist-clear" onclick="clearHist()">Effacer</button>
-  </div>
-  <div class="hist-list" id="hist-list"><div class="hist-empty">Aucun jet effectué.</div></div>
+<div class="dice-stage">
+  <div class="dice-3d-container" id="dice-3d-container"><canvas id="dice-3d-canvas"></canvas></div>
+  <div class="result-area" id="result-area"></div>
 </div>
 
 </div>
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio> </audio>
 
+<script type="module">
+import * as THREE from 'three';
+
+window.D3D = (function(){
+  let scene,cam,rend,canvas,container;
+  let dice=[]; let rafId=null; let onDone=null; let ready=false;
+
+  function init(){
+    if(ready)return; ready=true;
+    container=document.getElementById('dice-3d-container');
+    canvas=document.getElementById('dice-3d-canvas');
+    scene=new THREE.Scene();
+    cam=new THREE.PerspectiveCamera(40,2,0.1,100);
+    cam.position.set(0,7,11); cam.lookAt(0,0,0);
+    rend=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+    rend.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    scene.add(new THREE.AmbientLight(0x555577,0.7));
+    const d1=new THREE.DirectionalLight(0xffffff,1.0); d1.position.set(5,12,8); scene.add(d1);
+    const d2=new THREE.DirectionalLight(0xa855f7,0.5); d2.position.set(-6,4,-5); scene.add(d2);
+    const d3=new THREE.DirectionalLight(0xc9a227,0.3); d3.position.set(0,-5,5); scene.add(d3);
+  }
+
+  function faceTex(num,type){
+    const c=document.createElement('canvas'); c.width=c.height=256;
+    const x=c.getContext('2d');
+    x.fillStyle='#0d0d28'; x.fillRect(0,0,256,256);
+    const g=x.createRadialGradient(90,70,10,128,128,200);
+    g.addColorStop(0,'rgba(255,255,255,0.12)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g; x.fillRect(0,0,256,256);
+    x.strokeStyle='rgba(201,162,39,0.25)'; x.lineWidth=3; x.strokeRect(10,10,236,236);
+    const dn=type===100&&num===100?'00':type===100&&num<10?'0'+num:''+num;
+    const fs=dn.length>=3?80:dn.length>=2?110:130;
+    x.font=`bold ${fs}px Cinzel,serif`; x.textAlign='center'; x.textBaseline='middle';
+    x.fillStyle='#ede0c8'; x.fillText(dn,128,140);
+    const t=new THREE.CanvasTexture(c); t.anisotropy=4; return t;
+  }
+
+  function trapezo(n=5){
+    const g=new THREE.BufferGeometry();
+    const pos=[[0,1.3,0]];
+    for(let i=0;i<n;i++){const a=i/n*Math.PI*2;pos.push([Math.cos(a)*.85,.35,Math.sin(a)*.85]);}
+    for(let i=0;i<n;i++){const a=(i+.5)/n*Math.PI*2;pos.push([Math.cos(a)*.85,-.35,Math.sin(a)*.85]);}
+    pos.push([0,-1.3,0]);
+    const idx=[];
+    for(let i=0;i<n;i++){
+      const ui=1+i,ui2=1+(i+1)%n,li=1+n+i,li2=1+n+(i+1)%n;
+      idx.push(0,li,ui, 0,ui2,li);
+      idx.push(2*n+1,li,ui2, 2*n+1,ui2,li2);
+      g.addGroup(i*12,6,i);
+      g.addGroup(i*12+6,6,n+i);
+    }
+    g.setAttribute('position',new THREE.Float32BufferAttribute(pos.flat(),3));
+    g.setIndex(idx); g.computeVertexNormals(); return g;
+  }
+
+  function makeGeo(type){
+    const r=1;
+    if(type===4)return new THREE.TetrahedronGeometry(r*1.2,0);
+    if(type===6)return new THREE.BoxGeometry(r*1.5,r*1.5,r*1.5);
+    if(type===8)return new THREE.OctahedronGeometry(r*1.1,0);
+    if(type===10||type===100)return trapezo(5);
+    if(type===12)return new THREE.DodecahedronGeometry(r,0);
+    if(type===20)return new THREE.IcosahedronGeometry(r,0);
+    return new THREE.BoxGeometry(r,r,r);
+  }
+
+  function faceInfo(geo){
+    const pos=geo.attributes.position, faces=[];
+    if(geo.index&&geo.groups.length){
+      const ind=geo.index;
+      for(const g of geo.groups){
+        const a=ind.getX(g.start),b=ind.getX(g.start+1),c=ind.getX(g.start+2);
+        const va=new THREE.Vector3().fromBufferAttribute(pos,a);
+        const vb=new THREE.Vector3().fromBufferAttribute(pos,b);
+        const vc=new THREE.Vector3().fromBufferAttribute(pos,c);
+        const n=new THREE.Vector3().subVectors(vb,va).cross(new THREE.Vector3().subVectors(vc,va)).normalize();
+        faces.push({normal:n,matIdx:g.materialIndex});
+      }
+    } else {
+      const triCount=Math.floor(pos.count/3);
+      for(let i=0;i<triCount;i++){
+        const va=new THREE.Vector3().fromBufferAttribute(pos,i*3);
+        const vb=new THREE.Vector3().fromBufferAttribute(pos,i*3+1);
+        const vc=new THREE.Vector3().fromBufferAttribute(pos,i*3+2);
+        const n=new THREE.Vector3().subVectors(vb,va).cross(new THREE.Vector3().subVectors(vc,va)).normalize();
+        faces.push({normal:n,matIdx:i});
+        geo.addGroup(i*3,3,i);
+      }
+    }
+    return faces;
+  }
+
+  function makeDie(type){
+    const geo=makeGeo(type), fi=faceInfo(geo), nF=fi.length, mats=[], vals=[];
+    for(let i=0;i<nF;i++){
+      const v=i+1; vals.push(v);
+      mats.push(new THREE.MeshStandardMaterial({
+        map:faceTex(v,type),color:0x1a1a3f,metalness:0.35,roughness:0.45,flatShading:true
+      }));
+    }
+    const m=new THREE.Mesh(geo,mats);
+    m.userData={type,faceInfo:fi,faceVals:vals};
+    return m;
+  }
+
+  function targetQuat(die,value){
+    const {faceInfo,faceVals}=die.userData;
+    const idx=faceVals.indexOf(value);
+    if(idx<0)return new THREE.Quaternion();
+    const fn=faceInfo[idx].normal.clone();
+    const camDir=new THREE.Vector3(0,0.8,0.6).normalize();
+    const q=new THREE.Quaternion().setFromUnitVectors(fn,camDir);
+    q.multiply(new THREE.Quaternion().setFromAxisAngle(camDir,(Math.random()-0.5)*0.6));
+    return q;
+  }
+
+  function roll(groups,duration,callback){
+    init();
+    dice.forEach(d=>{scene.remove(d);d.geometry.dispose();
+      if(Array.isArray(d.material))d.material.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});});
+    dice=[]; onDone=callback;
+    let count=0; groups.forEach(g=>count+=g.rolls.length);
+    const sp=Math.min(2.8,18/Math.max(count,1));
+    let di=0;
+    groups.forEach(g=>{
+      g.rolls.forEach(r=>{
+        const m=makeDie(g.type);
+        m.position.set((di-(count-1)/2)*sp,0,0);
+        m.rotation.set(Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2);
+        m.userData.avel=new THREE.Vector3((Math.random()-0.5)*25,(Math.random()-0.5)*25,(Math.random()-0.5)*25);
+        m.userData.targetVal=r.finalVal!==undefined?r.finalVal:r.val;
+        m.userData.sQ=null; m.userData.tQ=null;
+        scene.add(m); dice.push(m); di++;
+      });
+    });
+    const width=Math.max(count*sp+2,8);
+    cam.position.set(0,7,Math.max(11,width*0.9)); cam.lookAt(0,0,0);
+    container.style.display='flex';
+    const w=container.clientWidth||600, h=container.clientHeight||280;
+    rend.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix();
+    const start=performance.now();
+    loop(start,duration);
+  }
+
+  function loop(start,dur){
+    const el=performance.now()-start, t=Math.min(el/dur,1);
+    if(t>=1){
+      dice.forEach(d=>{d.position.y=0;});
+      rend.render(scene,cam);
+      rafId=null; if(onDone){const cb=onDone;onDone=null;cb();} return;
+    }
+    rafId=requestAnimationFrame(()=>loop(start,dur));
+    if(t<0.7){
+      const decay=1-Math.pow(t/0.7,1.5);
+      dice.forEach(d=>{
+        const av=d.userData.avel;
+        d.rotation.x+=av.x*0.016*decay;
+        d.rotation.y+=av.y*0.016*decay;
+        d.rotation.z+=av.z*0.016*decay;
+        d.position.y=Math.abs(Math.sin(el*0.008+d.id))*0.6*decay;
+      });
+    } else if(t<1){
+      const st=(t-0.7)/0.3, ease=1-Math.pow(1-st,3);
+      dice.forEach(d=>{
+        if(!d.userData.tQ){
+          d.userData.sQ=d.quaternion.clone();
+          d.userData.tQ=targetQuat(d,d.userData.targetVal);
+        }
+        d.quaternion.slerpQuaternions(d.userData.sQ,d.userData.tQ,ease);
+        d.position.y*=(1-ease);
+      });
+    }
+    rend.render(scene,cam);
+  }
+
+  function hide(){ if(container)container.style.display='none'; }
+  function dispose(){
+    if(rafId)cancelAnimationFrame(rafId);
+    dice.forEach(d=>{scene.remove(d);d.geometry.dispose();
+      if(Array.isArray(d.material))d.material.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});});
+    dice=[];
+  }
+  window.addEventListener('resize',()=>{
+    if(!ready||!container||container.style.display==='none')return;
+    const w=container.clientWidth,h=container.clientHeight;
+    rend.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix();
+  });
+
+  return {roll,hide,dispose,get ready(){return ready;}};
+})();
+</script>
 <script>
 // ——— config ———
 const DTYPES = [4,6,8,10,12,20,100];
 
 const SHAPES = {
-  4: {type:'poly',pts:'50,8 92,84 8,84',stroke:'#c9a227'},
-  6: {type:'rect',x:9,y:9,w:82,h:82,rx:10,stroke:'#c9a227'},
-  8: {type:'poly',pts:'50,5 95,50 50,95 5,50',stroke:'#a855f7'},
-  10:{type:'poly',pts:'50,6 89,41 74,90 26,90 11,41',stroke:'#a855f7'},
-  12:{type:'poly',pts:'50,5 93,36 76,87 24,87 7,36',stroke:'#c9a227'},
-  20:{type:'poly',pts:'50,5 95,82 5,82',stroke:'#c9a227'},
-  100:{type:'circle',cx:50,cy:50,r:44,stroke:'#a855f7'}
+  4:{
+    stroke:'#c9a227',outline:'50,8 90,85 10,85',
+    faces:[{pts:'50,8 90,85 10,85',shade:0.55}],
+    edges:['50,8 50,85'],center:{x:50,y:60}
+  },
+  6:{
+    stroke:'#c9a227',outline:'50,8 78,24 78,66 50,82 22,66 22,24',
+    faces:[
+      {pts:'50,8 78,24 50,40 22,24',shade:0.95},
+      {pts:'22,24 50,40 50,82 22,66',shade:0.55},
+      {pts:'78,24 50,40 50,82 78,66',shade:0.3},
+    ],
+    edges:[],center:{x:50,y:52}
+  },
+  8:{
+    stroke:'#a855f7',outline:'50,5 95,50 50,95 5,50',
+    faces:[
+      {pts:'50,5 95,50 5,50',shade:0.75},
+      {pts:'50,95 95,50 5,50',shade:0.4},
+    ],
+    edges:['50,5 50,95'],center:{x:50,y:54}
+  },
+  10:{
+    stroke:'#a855f7',outline:'50,6 89,41 74,90 26,90 11,41',
+    faces:[
+      {pts:'50,6 89,41 50,48 11,41',shade:0.75},
+      {pts:'89,41 74,90 50,48',shade:0.5},
+      {pts:'74,90 26,90 50,48',shade:0.3},
+      {pts:'26,90 11,41 50,48',shade:0.5},
+    ],
+    edges:[],center:{x:50,y:52}
+  },
+  12:{
+    stroke:'#c9a227',outline:'50,5 93,36 76,87 24,87 7,36',
+    faces:[
+      {pts:'50,5 93,36 50,50 7,36',shade:0.75},
+      {pts:'93,36 76,87 50,50',shade:0.5},
+      {pts:'76,87 24,87 50,50',shade:0.3},
+      {pts:'24,87 7,36 50,50',shade:0.5},
+    ],
+    edges:[],center:{x:50,y:52}
+  },
+  20:{
+    stroke:'#c9a227',outline:'50,5 95,82 5,82',
+    faces:[
+      {pts:'50,5 72,44 50,56',shade:0.7},
+      {pts:'50,5 50,56 28,44',shade:0.8},
+      {pts:'72,44 95,82 50,82',shade:0.45},
+      {pts:'28,44 5,82 50,82',shade:0.55},
+      {pts:'72,44 50,82 50,56',shade:0.5},
+      {pts:'28,44 50,56 50,82',shade:0.4},
+    ],
+    edges:[],center:{x:50,y:54}
+  },
+  100:{
+    stroke:'#a855f7',outline:'50,6 89,41 74,90 26,90 11,41',
+    faces:[
+      {pts:'50,6 89,41 50,48 11,41',shade:0.75},
+      {pts:'89,41 74,90 50,48',shade:0.5},
+      {pts:'74,90 26,90 50,48',shade:0.3},
+      {pts:'26,90 11,41 50,48',shade:0.5},
+    ],
+    edges:[],center:{x:50,y:52}
+  }
 };
 
 // ——— state ———
 let expr = {};   // {4:0,6:0,...}
 DTYPES.forEach(t => expr[t]=0);
 let results = null;
-let hist = [];
 let rolling = false;
 let cfg = {anim:true,sound:true};
 let rollTimer = null;
@@ -402,36 +674,54 @@ function sndFail(){
 }
 
 // ——— SVG generation ———
-function makeSVG(type,val,state,size=80){
+let svgIdCt=0;
+function shadeFill(shade,state){
+  let r,g,b;
+  if(state==='s-crit'){r=Math.round(25+shade*35);g=Math.round(18+shade*28);b=Math.round(8+shade*15);}
+  else if(state==='s-fail'){r=Math.round(28+shade*30);g=Math.round(10+shade*12);b=Math.round(12+shade*18);}
+  else if(state==='rolling'){r=Math.round(15+shade*18);g=Math.round(10+shade*14);b=Math.round(35+shade*50);}
+  else{r=Math.round(10+shade*20);g=Math.round(10+shade*20);b=Math.round(35+shade*55);}
+  return `rgb(${r},${g},${b})`;
+}
+function makeSVG(type,val,state,size){
   const s=SHAPES[type];
-  const fill='#0d0d28';
   let stroke=s.stroke;
   if(state==='rolling')stroke='#a855f7';
   if(state==='s-crit')stroke='#fbbf24';
   if(state==='s-fail')stroke='#dc2626';
+  const gid='dg'+(++svgIdCt);
 
-  let shape='';
-  if(s.type==='poly')
-    shape=`<polygon points="${s.pts}" fill="${fill}" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round"/>`;
-  else if(s.type==='rect')
-    shape=`<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="${s.rx}" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
-  else
-    shape=`<circle cx="${s.cx}" cy="${s.cy}" r="${s.r}" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+  let faces='';
+  s.faces.forEach(f=>{
+    faces+=`<polygon points="${f.pts}" fill="${shadeFill(f.shade,state)}" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round"/>`;
+  });
 
-  let extra='';
-  if(type===20)extra=`<polygon points="50,26 73,68 27,68" fill="none" stroke="${stroke}" stroke-width="1" opacity=".35"/>`;
-  if(type===4)extra=`<line x1="50" y1="8" x2="50" y2="84" stroke="${stroke}" stroke-width=".8" opacity=".3"/>`;
+  let edges='';
+  (s.edges||[]).forEach(e=>{
+    const p=e.match(/\d+/g);
+    edges+=`<line x1="${p[0]}" y1="${p[1]}" x2="${p[2]}" y2="${p[3]}" stroke="${stroke}" stroke-width=".8" opacity=".35"/>`;
+  });
 
-  const dispVal = val===null?'' : (type===100 && val===100?'00': type===100 && val<10?'0'+val : val);
-  const fs = String(dispVal).length>=3?18 : String(dispVal).length>=2?24:28;
+  let outline='';
+  if(s.outline)
+    outline=`<polygon points="${s.outline}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  const dispVal=val===null?'':(type===100&&val===100?'00':type===100&&val<10?'0'+val:val);
+  const fs=String(dispVal).length>=3?18:String(dispVal).length>=2?24:28;
   let tc='#ede0c8';
   if(state==='s-crit')tc='#fbbf24';
   if(state==='s-fail')tc='#ef4444';
   if(state==='rolling')tc='#c084fc';
+  const c=s.center||{x:50,y:54};
 
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    ${shape}${extra}
-    <text x="50" y="54" text-anchor="middle" dominant-baseline="middle"
+    <defs><radialGradient id="${gid}" cx="36%" cy="20%" r="58%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.14)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient></defs>
+    ${faces}${edges}${outline}
+    <rect x="0" y="0" width="100" height="100" fill="url(#${gid})" pointer-events="none"/>
+    <text x="${c.x}" y="${c.y}" text-anchor="middle" dominant-baseline="middle"
       font-family="Cinzel,serif" font-size="${fs}" font-weight="700"
       fill="${tc}">${dispVal}</text>
   </svg>`;
@@ -509,18 +799,15 @@ function rollAll(){
   disableQuick(true);
 
   sndRoll();
-  renderResult();
 
-  const dur=cfg.anim?1500:0;
+  const dur=cfg.anim?1800:0;
 
-  if(cfg.anim){
-    const iv=setInterval(()=>{
-      groups.forEach(g=>g.rolls.forEach(r=>{r.val=rnd(1,g.type);r.state='rolling'}));
-      results={groups,total:null,mod};
-      renderResult();
-    },70);
-    rollTimer=iv;
-    setTimeout(()=>{clearInterval(iv);finalize(groups,mod);},dur);
+  if(cfg.anim&&window.D3D){
+    groups.forEach(g=>g.rolls.forEach(r=>{r.val=rnd(1,g.type);r.state='rolling';}));
+    groups.forEach(g=>g.rolls.forEach(r=>{r.finalVal=rnd(1,g.type);}));
+    document.getElementById('result-area').style.visibility='hidden';
+    renderResult();
+    window.D3D.roll(groups,dur,()=>finalize(groups,mod));
   } else {
     finalize(groups,mod);
   }
@@ -529,7 +816,7 @@ function rollAll(){
 function finalize(groups,mod){
   groups.forEach(g=>{
     g.rolls.forEach(r=>{
-      r.val=rnd(1,g.type);
+      r.val=r.finalVal!==undefined?r.finalVal:rnd(1,g.type);
       const ratio=r.val/g.type;
       if(g.type===20&&r.val===20)r.state='s-crit';
       else if(g.type===20&&r.val===1)r.state='s-fail';
@@ -550,11 +837,11 @@ function finalize(groups,mod){
   document.getElementById('roll-btn').classList.remove('rolling');
   document.getElementById('roll-btn').disabled=false;
   disableQuick(false);
+  document.getElementById('result-area').style.visibility='';
   renderResult();
+  if(window.D3D)window.D3D.hide();
 
   const exprStr=groups.map(g=>`${g.rolls.length}D${g.type}`).join(' + ')+(mod!==0?(mod>=0?` + ${mod}`:` − ${Math.abs(mod)}`): '');
-  const rollsStr=groups.map(g=>`[${g.rolls.map(r=>r.val).join(', ')}]`).join(' ');
-  addHist(exprStr,rollsStr,total,hasCrit,hasFail);
 }
 
 function disableQuick(disabled){
@@ -575,7 +862,7 @@ function renderResult(){
       const cls=cfg.anim?r.state:'';
       const vc=r.state==='s-crit'?'crit':r.state==='s-fail'?'fail':'norm';
       html+=`<div class="die-item">
-        <div class="dsvg-wrap ${cls}">
+        <div class="dsvg-wrap ${cls}" style="--d:${(ri*0.08).toFixed(2)}s">
           ${makeSVG(g.type,r.val,r.state)}
         </div>
         <div class="dval ${vc}">${r.val!==null?r.val:''}</div>
@@ -625,28 +912,9 @@ function quickMulti(list){
   renderGrid();renderExBar();rollAll();
 }
 
-// ——— history ———
-function addHist(expr,rolls,total,crit,fail){
-  hist.unshift({expr,rolls,total,crit,fail});
-  if(hist.length>10)hist.pop();
-  renderHist();
-}
-function clearHist(){hist=[];renderHist();}
-function renderHist(){
-  const el=document.getElementById('hist-list');
-  if(!hist.length){el.innerHTML='<div class="hist-empty">Aucun jet effectué.</div>';return;}
-  el.innerHTML=hist.map(h=>`
-    <div class="hist-item">
-      <span class="hist-expr">${h.expr}</span>
-      <span class="hist-rolls">${h.rolls}</span>
-      <span class="hist-tot" style="${h.crit?'color:var(--yel)':h.fail?'color:var(--red)':''}">${h.total}${h.crit?' ★':h.fail?' ✗':''}</span>
-    </div>`).join('');
-}
-
 // ——— init ———
 renderGrid();
 renderExBar();
-renderHist();
 </script>
 </body>
 </html>
