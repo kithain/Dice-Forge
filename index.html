@@ -370,11 +370,6 @@ h1{
   </div>
 </div>
 
-<div class="live-feed" id="live-feed" style="display:none">
-  <div class="live-title">Jets en direct</div>
-  <div id="live-list"></div>
-</div>
-
 <div class="quick-wrap">
   <div class="slabel">Lancer rapide</div>
   <div class="quick-row" id="quick-row">
@@ -411,6 +406,11 @@ h1{
 <div class="dice-stage">
   <div class="dice-3d-container" id="dice-3d-container"><canvas id="dice-3d-canvas"></canvas></div>
   <div class="result-area" id="result-area"></div>
+</div>
+
+<div class="live-feed" id="live-feed" style="display:none">
+  <div class="live-title">Jets en direct</div>
+  <div id="live-list"></div>
 </div>
 
 </div>
@@ -536,7 +536,7 @@ async function loadRecent(code, selfName) {
   if (!data) return;
   const list = document.getElementById('live-list');
   list.innerHTML = '';
-  data.reverse().forEach(r => addLiveItem(r, r.player_name === selfName, true));
+  data.forEach(r => addLiveItem(r, r.player_name === selfName, true));
 }
 
 function addLiveItem(r, isSelf, prepend) {
@@ -552,11 +552,7 @@ function addLiveItem(r, isSelf, prepend) {
     <span class="live-tot ${tCls}">${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}</span>
     <span class="live-time">${time}</span>
   </div>`;
-  if (prepend || !list.children.length) {
-    list.insertAdjacentHTML('afterbegin', html);
-  } else {
-    list.insertAdjacentHTML('beforeend', html);
-  }
+  list.insertAdjacentHTML('afterbegin', html);
   list.parentElement.scrollTop = 0;
 }
 
