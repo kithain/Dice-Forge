@@ -1,77 +1,100 @@
 # ⚔️ Dice Forge
 
-**Lanceur de dés 3D pour jeux de rôle (JDR) — 100 % navigateur, sans installation.**
-
-Dice Forge est une application web monopage qui permet de simuler des lancers de dés pour vos parties de jeux de rôle. Elle propose des dés 3D animés, un générateur aléatoire cryptographique, des effets sonores, et un mode multijoueur en temps réel via Supabase.
+Dice Forge est un lanceur de dés virtuel pour jeux de rôle (JDR), accessible directement dans un navigateur web. Il permet de simuler des lancers de dés avec des animations 3D, un générateur aléatoire cryptographique, des effets sonores, et un mode multijoueur en temps réel pour partager ses jets avec sa table.
 
 🔗 **Site en ligne :** [https://kithain.github.io/Dice-Forge/](https://kithain.github.io/Dice-Forge/)
 
 ---
 
-## ✨ Fonctionnalités
+## 🛠️ Technologies
 
-- **7 types de dés** : D4, D6, D8, D10, D12, D20, D100
-- **Lancer rapide** : boutons pré-configurés (D20, D6, D100, 3D6, 1D20 + 2D6, etc.)
-- **Compositeur de jet** : sélectionnez le nombre de dés de chaque type, ajoutez un modificateur (+/−)
-- **Animation 3D** : dés en trois dimensions avec tumbling physique (Three.js)
-- **Affichage SVG** : rendu vectoriel des dés avec ombrage et couleurs par état
-- **Aléatoire cryptographique** : utilise `crypto.getRandomValues()` pour un tirage truly random
-- **Critiques & échecs** : détection automatique des coups critiques (20) et échecs critiques (1) sur D20
-- **Effets sonores** : son de lancer (MP3), jingle de critique, son d'échec (Web Audio API)
-- **Toggles** : activation/désactivation des animations et du son
-- **Multijoueur en temps réel** : création/rejoindre de salles de partie avec flux live des jets via Supabase
-- **Sauvegarde de session** : reconnexion automatique à la dernière salle (localStorage)
-- **Design responsive** : s'adapte aux mobiles et tablettes
+| Technologie | Rôle |
+|-------------|------|
+| **HTML5 / CSS3 / JavaScript (ES Modules)** | Application monopage, toute la logique est dans `index.html` |
+| **Three.js** (v0.160) | Rendu 3D des dés via WebGL — polyèdres, textures de faces, animation de roulement |
+| **Supabase** (v2.39) | Backend temps réel — stockage des jets et diffusion en direct via WebSockets |
+| **Web Crypto API** | Génération aléatoire cryptographique (`crypto.getRandomValues()`) pour un tirage truly random |
+| **Web Audio API** | Synthèse sonore pour les jingles de coup critique et d'échec critique |
+| **Google Fonts** (Cinzel / Cinzel Decorative) | Typographie thématique fantasy |
 
 ---
 
-## 🎲 Utilisation
+## 🎲 Fonctionnement de l'application
 
-### Lancer rapide
+### Lancer de dés
 
-Cliquez sur l'un des boutons de la section **Lancer rapide** pour effectuer un jet immédiat :
+L'application supporte 7 types de dés : **D4, D6, D8, D10, D12, D20, D100**.
 
-| Bouton | Jet |
-|--------|-----|
-| D20 | 1 × D20 |
-| D6 | 1 × D6 |
-| D100 | 1 × D100 |
-| D4 / D8 / D10 / D12 | 1 dé du type correspondant |
-| 3D6 | 3 × D6 |
-| 1D20 + 2D6 | 1 × D20 + 2 × D6 |
-| 2D8 | 2 × D8 |
+Deux façons de lancer :
 
-### Composer un jet personnalisé
+- **Lancer rapide** — boutons pré-configurés pour les jets courants (D20, D6, D100, 3D6, 1D20 + 2D6, 2D8, etc.)
+- **Compositeur de jet** — sélectionnez le nombre de dés de chaque type (1 à 10) via les boutons +/−, ajoutez un modificateur (+/−), puis cliquez sur **Lancer les Dés**
 
-1. Dans la section **Composer votre jet**, utilisez les boutons **+** et **−** sous chaque type de dé pour définir la quantité (1 à 10).
-2. Saisissez un **modificateur** dans le champ prévu (ex. `+5` pour Force, `−2` pour un malus).
-3. L'expression s'affiche en temps réel dans la barre d'aperçu (ex. `2D6 + 1D8 + 5`).
-4. Cliquez sur **⚔️ Lancer les Dés**.
+L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 + 1D8 + 5`).
 
-### Lire les résultats
+### Animation et résultats
 
-- Chaque dé s'affiche individuellement avec sa valeur.
-- Le **total** calculé (somme des dés + modificateur) s'affiche en grand.
-- Un **détail** du calcul est visible sous le total (ex. `3 + 5 + 1 + 2 = 11`).
-- Les états spéciaux sont mis en évidence :
-  - **⭐ Coup Critique** : un D20 affiche 20 (effet sonore + animation dorée)
-  - **💀 Échec Critique** : un D20 affiche 1 (effet sonore + animation rouge)
+- Les dés s'animent en 3D avec un effet de tumbling physique (Three.js)
+- Chaque dé s'affiche ensuite avec sa valeur finale
+- Le **total** (somme des dés + modificateur) s'affiche en grand
+- Un **détail** du calcul est visible sous le total (ex. `3 + 5 + 1 + 2 = 11`)
+- États spéciaux détectés automatiquement sur le D20 :
+  - **Coup Critique** (20) — animation dorée + jingle
+  - **Échec Critique** (1) — animation rouge + son d'échec
 
 ### Paramètres
 
-- **Animations** : active/désactive l'animation 3D des dés
-- **Son MP3** : active/désactive les effets sonores
+- **Animations** — active/désactive l'animation 3D des dés
+- **Son MP3** — active/désactive les effets sonores
+
+### Mode multijoueur
+
+Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager ses jets en temps réel avec les autres joueurs de la table.
+
+**Créer une salle :**
+1. Saisir un nom de joueur
+2. Cliquer sur **Créer** — un code à 4 caractères est généré (ex. `ABCD`)
+3. Partager le code avec les autres joueurs
+
+**Rejoindre une salle :**
+1. Saisir un nom de joueur
+2. Saisir le code de la partie
+3. Cliquer sur **Rejoindre**
+
+**Flux en direct :**
+- Tous les jets des joueurs de la salle s'affichent en temps réel (du plus récent au plus ancien)
+- Les 20 derniers jets sont chargés à la connexion
+- Ses propres jets sont mis en évidence
+- La session est sauvegardée (localStorage) — reconnexion automatique au prochain chargement
+
+**Purger une salle :**
+- Le créateur de la salle dispose d'un bouton **Purger** qui supprime tous les jets de la room
+- Ce bouton n'est visible que par le joueur qui a créé la partie
+
+**Quitter une salle :**
+- Cliquer sur **Quitter** pour se déconnecter de la salle
 
 ---
 
-## 🌐 Mode multijoueur (Supabase)
+## 🗂️ Structure du projet
 
-Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager vos jets en temps réel avec d'autres joueurs.
+```text
+Dice-Forge/
+├── index.html              # Application complète (HTML + CSS + JS)
+├── supabase-config.js      # Configuration Supabase (URL + clé anon)
+├── audio/
+│   └── dice.mp3            # Son de lancer de dés
+└── README.md
+```
 
-### Configuration Supabase
+---
 
-1. Créer un projet gratuit sur [supabase.com](https://supabase.com).
-2. Dans le tableau de bord, créer une table `rolls` avec le schéma suivant :
+## 🌐 Configuration Supabase
+
+Le mode multijoueur nécessite un backend Supabase.
+
+1. Créer un projet gratuit sur [supabase.com](https://supabase.com)
+2. Créer une table `rolls` avec le schéma suivant :
 
    | Colonne | Type | Description |
    |---------|------|-------------|
@@ -85,7 +108,7 @@ Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager v
    | `is_crit` | `boolean` (default: `false`) | Coup critique |
    | `is_fail` | `boolean` (default: `false`) | Échec critique |
 
-3. Renseigner vos identifiants dans `supabase-config.js` :
+3. Renseigner les identifiants dans `supabase-config.js` :
 
    ```javascript
    window.SUPABASE_CONFIG = {
@@ -94,48 +117,17 @@ Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager v
    };
    ```
 
-   > ⚠️ **Sécurité** : `supabase-config.js` contient votre clé anon (publique). Ne committez **jamais** votre clé `service_role`. La clé anon est conçue pour être exposée côté client, mais pensez à configurer les **Row Level Security (RLS)** policies sur votre table `rolls` selon vos besoins.
-
-4. Activer le **Realtime** sur la table `rolls` pour que les jets soient envoyés en temps réel aux autres joueurs. Deux options :
+4. Activer le **Realtime** sur la table `rolls` :
    - **Option A (SQL)** — Dans **SQL Editor**, exécuter : `alter publication supabase_realtime add table rolls;`
-   - **Option B (Interface)** — Dans **Database** → **Publications**, trouver `supabase_realtime`, cliquer sur `...` → **Add tables**, cocher `rolls` et valider.
+   - **Option B (Interface)** — Dans **Database** → **Publications**, trouver `supabase_realtime`, cliquer sur `...` → **Add tables**, cocher `rolls` et valider
 
-### Créer une salle
+5. Configurer les **Row Level Security (RLS)** policies selon vos besoins. Exemple minimal pour autoriser lecture, insertion et suppression :
 
-1. Saisissez votre **nom de joueur**.
-2. Cliquez sur **Créer**.
-3. Un code à 4 caractères est généré automatiquement (ex. `ABCD`).
-4. Partagez ce code avec vos joueurs.
+   ```sql
+   create policy "Allow all on rolls" on rolls for all to anon using (true) with check (true);
+   ```
 
-### Rejoindre une salle
-
-1. Saisissez votre **nom de joueur**.
-2. Saisissez le **code de la partie** fourni par le créateur.
-3. Cliquez sur **Rejoindre**.
-
-### Flux en direct
-
-- Tous les jets effectués par les joueurs de la salle s'affichent en temps réel dans la section **Jets en direct**.
-- Les 20 derniers jets sont chargés automatiquement à la connexion.
-- Vos propres jets sont mis en évidence.
-- La session est sauvegardée : vous êtes automatiquement reconnecté à la même salle au prochain chargement.
-
-### Quitter une salle
-
-Cliquez sur **Quitter** dans le panneau de salle pour vous déconnecter.
-
----
-
-## �️ Structure du projet
-
-```text
-dice-forge/
-├── index.html              # Application complète (HTML + CSS + JS)
-├── supabase-config.js      # Configuration Supabase (URL + clé anon)
-├── audio/
-│   └── dice.mp3            # Son de lancer de dés
-└── README.md
-```
+   > ⚠️ La clé anon est publique par design (exposée côté client). Ne jamais committer la clé `service_role`.
 
 ---
 
@@ -143,23 +135,13 @@ dice-forge/
 
 | Problème | Solution |
 |----------|----------|
-| Le son ne se lance pas | Cliquez une fois dans la page avant de lancer un dé (politique autoplay des navigateurs) |
-| Les dés 3D ne s'affichent pas | Vérifiez que WebGL est activé dans votre navigateur, ou désactivez les animations |
-| Le mode multijoueur ne fonctionne pas | Vérifiez que `supabase-config.js` est correctement renseigné et que Realtime est activé |
-
----
-
-## 🛠️ Technologies utilisées
-
-- **HTML5 / CSS3 / JavaScript (ES Modules)** — application monopage
-- **Three.js** (v0.160) — rendu 3D des dés via WebGL
-- **Supabase** (v2.39) — backend temps réel pour le multijoueur
-- **Web Crypto API** — génération aléatoire cryptographique
-- **Web Audio API** — synthèse sonore pour critiques et échecs
-- **Google Fonts** — typographie Cinzel / Cinzel Decorative
+| Le son ne se lance pas | Cliquer une fois dans la page avant de lancer un dé (politique autoplay des navigateurs) |
+| Les dés 3D ne s'affichent pas | Vérifier que WebGL est activé dans le navigateur, ou désactiver les animations |
+| Le mode multijoueur ne fonctionne pas | Vérifier que `supabase-config.js` est correctement renseigné et que Realtime est activé |
+| Le bouton Purger ne fonctionne pas | Vérifier que la RLS policy autorise les `DELETE` sur la table `rolls` |
 
 ---
 
 ## 📄 Licence
 
-Projet personnel. Ajoutez une licence si le dépôt doit être partagé ou réutilisé publiquement.
+Projet personnel.
