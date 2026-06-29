@@ -365,7 +365,7 @@ h1{
     <div class="room-status">
       <span class="room-badge" id="room-badge-text">Room: —</span>
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
-      <button class="room-leave" onclick="purgeRoom()">Purger</button>
+      <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
     </div>
   </div>
@@ -465,6 +465,7 @@ window.joinRoom = async function() {
   roomState = { code, player: name, connected: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   showConnected();
+  await checkCreator(code, name);
   subscribeLive(code, name);
   await loadRecent(code, name);
 };
@@ -487,10 +488,11 @@ window.createRoom = async function() {
   });
   if (error) { alert('Erreur: ' + error.message); return; }
 
-  roomState = { code, player: name, connected: true };
+  roomState = { code, player: name, connected: true, isCreator: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   document.getElementById('room-code').value = code;
   showConnected();
+  document.getElementById('purge-btn').style.display = '';
   subscribeLive(code, name);
   await loadRecent(code, name);
 };
@@ -521,6 +523,19 @@ function showConnected() {
   document.getElementById('room-badge-text').textContent = 'Room: ' + roomState.code;
   document.getElementById('player-badge-text').textContent = 'Joueur: ' + roomState.player;
   document.getElementById('live-feed').style.display = '';
+  if (!roomState.isCreator) document.getElementById('purge-btn').style.display = 'none';
+}
+
+async function checkCreator(code, name) {
+  const { data } = await sb.from('rolls')
+    .select('player_name')
+    .eq('room_code', code)
+    .eq('expression', '— Partie créée —')
+    .limit(1);
+  const isCreator = data && data.length && data[0].player_name === name;
+  roomState.isCreator = !!isCreator;
+  localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+  document.getElementById('purge-btn').style.display = isCreator ? '' : 'none';
 }
 
 function subscribeLive(code, selfName) {
@@ -593,12 +608,13 @@ window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail) {
     try {
       const r = JSON.parse(saved);
       if (r.code && r.player) {
-        roomState = { code: r.code, player: r.player, connected: true };
+        roomState = { code: r.code, player: r.player, connected: true, isCreator: r.isCreator || false };
         document.getElementById('player-name').value = r.player;
         document.getElementById('room-code').value = r.code;
         sbInit();
         if (sb) {
           showConnected();
+          checkCreator(r.code, r.player);
           subscribeLive(r.code, r.player);
           loadRecent(r.code, r.player);
         }
