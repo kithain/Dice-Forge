@@ -54,16 +54,7 @@ Après le déploiement, le site sera disponible à une adresse de ce type :
 https://TON-NOM-GITHUB.github.io/dice-forge/
 ```
 
-## Commandes Git utiles
 
-```bash
-git init
-git add index.html audio/ README.md
-git commit -m "Ajoute la version web de Dice Forge"
-git branch -M main
-git remote add origin https://github.com/TON-NOM-GITHUB/dice-forge.git
-git push -u origin main
-```
 
 ## Problèmes fréquents
 
