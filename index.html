@@ -365,6 +365,7 @@ h1{
     <div class="room-status">
       <span class="room-badge" id="room-badge-text">Room: —</span>
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
+      <button class="room-leave" onclick="purgeRoom()">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
     </div>
   </div>
@@ -492,6 +493,16 @@ window.createRoom = async function() {
   showConnected();
   subscribeLive(code, name);
   await loadRecent(code, name);
+};
+
+window.purgeRoom = async function() {
+  if (!roomState.connected || !sb) return;
+  if (!confirm('Supprimer tous les jets de cette partie ?')) return;
+  const { error } = await sb.from('rolls')
+    .delete()
+    .eq('room_code', roomState.code);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  document.getElementById('live-list').innerHTML = '';
 };
 
 window.leaveRoom = function() {
