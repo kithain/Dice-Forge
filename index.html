@@ -344,6 +344,10 @@ h1{
     <div class="tog on" id="tog-sound"></div>
     <span class="tog-lbl">Son MP3</span>
   </div>
+  <div class="tog-wrap" onclick="toggleSetting('hide')">
+    <div class="tog" id="tog-hide"></div>
+    <span class="tog-lbl">🎭 Cacher mes jets (MJ)</span>
+  </div>
 </div>
 
 <div class="room-panel" id="room-panel">
@@ -351,7 +355,7 @@ h1{
     <div class="room-row">
       <div class="room-field">
         <label>Nom du joueur</label>
-        <input class="room-input wide" id="player-name" placeholder="Gandalf" maxlength="20">
+        <input class="room-input wide" id="player-name" placeholder="Nom..." maxlength="20" onfocus="if(!this.value)this.placeholder=randomFantasyName()">
       </div>
       <div class="room-field">
         <label>Code de la partie</label>
@@ -430,6 +434,24 @@ const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anon
 let sb = null;
 let roomState = { code: null, player: null, connected: false };
 let liveSub = null;
+
+const FANTASY_NAMES = [
+  'Thalindra','Kaelen','Brynhild','Draven','Isolde','Grimjaw','Nyx','Orin',
+  'Faelar','Morrigan','Zephyrion','Sylvara','Thoradin','Elowen','Ragnor','Vesper',
+  'Aldric','Cyneth','Lyraelle','Balthor','Ythera','Corvyn','Maelis','Drusk',
+  'Sariel','Wrenna','Malachar','Ondine','Fenwick','Astrid','Torvik','Rowanna',
+  'Erevan','Sindri','Marwenna','Kethric','Ilyara','Bramwell','Nerissa','Skarn'
+];
+
+window.randomFantasyName = function() {
+  return FANTASY_NAMES[Math.floor(Math.random() * FANTASY_NAMES.length)];
+};
+
+function initPlaceholder() {
+  const el = document.getElementById('player-name');
+  if (el && !el.value) el.placeholder = randomFantasyName();
+}
+initPlaceholder();
 
 function sbInit() {
   if (sb) return;
@@ -569,13 +591,19 @@ function addLiveItem(r, isSelf, prepend) {
   const list = document.getElementById('live-list');
   if (!list.children.length) list.innerHTML = '';
   const cls = isSelf ? 'live-self' : '';
-  const tCls = r.is_crit ? 'crit' : r.is_fail ? 'fail' : '';
   const time = new Date(r.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const masked = r.is_hidden && !isSelf;
+
+  const tCls = masked ? '' : (r.is_crit ? 'crit' : r.is_fail ? 'fail' : '');
+  const hiddenTag = r.is_hidden ? ' <span title="Jet caché par le joueur">🔒</span>' : '';
+  const rollsOut = masked ? '???' : esc(r.rolls_detail);
+  const totOut = masked ? '?' : `${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}`;
+
   const html = `<div class="live-item ${cls}">
-    <span class="live-player">${esc(r.player_name)}</span>
+    <span class="live-player">${esc(r.player_name)}${hiddenTag}</span>
     <span class="live-expr">${esc(r.expression)}</span>
-    <span class="live-rolls">${esc(r.rolls_detail)}</span>
-    <span class="live-tot ${tCls}">${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}</span>
+    <span class="live-rolls">${rollsOut}</span>
+    <span class="live-tot ${tCls}">${totOut}</span>
     <span class="live-time">${time}</span>
   </div>`;
   list.insertAdjacentHTML('afterbegin', html);
@@ -588,7 +616,7 @@ function esc(s) {
   return d.innerHTML;
 }
 
-window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail) {
+window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail, isHidden) {
   if (!roomState.connected || !sb) return;
   await sb.from('rolls').insert({
     room_code: roomState.code,
@@ -597,7 +625,8 @@ window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail) {
     rolls_detail: rollsDetail,
     total: total,
     is_crit: isCrit,
-    is_fail: isFail
+    is_fail: isFail,
+    is_hidden: !!isHidden
   });
 };
 
@@ -891,7 +920,7 @@ let expr = {};   // {4:0,6:0,...}
 DTYPES.forEach(t => expr[t]=0);
 let results = null;
 let rolling = false;
-let cfg = {anim:true,sound:true};
+let cfg = {anim:true,sound:true,hide:false};
 let rollTimer = null;
 
 // ——— crypto random ———
@@ -1112,7 +1141,7 @@ function finalize(groups,mod){
 
   const exprStr=groups.map(g=>`${g.rolls.length}D${g.type}`).join(' + ')+(mod!==0?(mod>=0?` + ${mod}`:` − ${Math.abs(mod)}`): '');
   const rollsStr=groups.map(g=>`[${g.rolls.map(r=>r.val).join(', ')}]`).join(' ');
-  if(window.sendRoll)window.sendRoll(exprStr,rollsStr,total,hasCrit,hasFail);
+  if(window.sendRoll)window.sendRoll(exprStr,rollsStr,total,hasCrit,hasFail,cfg.hide);
 }
 
 function disableQuick(disabled){
