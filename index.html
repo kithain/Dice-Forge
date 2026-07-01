@@ -606,8 +606,8 @@ function addLiveItem(r, isSelf, prepend) {
     <span class="live-tot ${tCls}">${totOut}</span>
     <span class="live-time">${time}</span>
   </div>`;
-  list.insertAdjacentHTML('afterbegin', html);
-  list.parentElement.scrollTop = 0;
+  list.insertAdjacentHTML(prepend ? 'beforeend' : 'afterbegin', html);
+  if (!prepend) list.parentElement.scrollTop = 0;
 }
 
 function esc(s) {
@@ -618,7 +618,7 @@ function esc(s) {
 
 window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail, isHidden) {
   if (!roomState.connected || !sb) return;
-  await sb.from('rolls').insert({
+  const { error } = await sb.from('rolls').insert({
     room_code: roomState.code,
     player_name: roomState.player,
     expression: expr,
@@ -628,6 +628,7 @@ window.sendRoll = async function(expr, rollsDetail, total, isCrit, isFail, isHid
     is_fail: isFail,
     is_hidden: !!isHidden
   });
+  if (error) console.error('Erreur envoi du jet (vérifie la colonne is_hidden sur la table rolls):', error.message);
 };
 
 // auto-restore session
