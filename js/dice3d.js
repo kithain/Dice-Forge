@@ -1,55 +1,252 @@
-// ——— 3D dice rendering (Three.js) ———
+// 3D dice rendering (Three.js).
 import * as THREE from 'three';
 
 let scene, cam, rend, canvas, container;
-let dice = []; let rafId = null; let onDone = null; let ready = false;
+let dice = [];
+let rafId = null;
+let onDone = null;
+let ready = false;
+
+const STYLE_BY_TYPE = {
+  4: { base: '#100d20', mid: '#302342', high: '#7d6637', accent: '#c9a227', text: '#fff0c2', material: 0x2b2140, emissive: 0x261634 },
+  6: { base: '#0e1224', mid: '#24364d', high: '#5f728a', accent: '#d8b95e', text: '#fff4c8', material: 0x1f2c42, emissive: 0x101d32 },
+  8: { base: '#100d2a', mid: '#392263', high: '#7753a8', accent: '#c084fc', text: '#f4ddff', material: 0x34205c, emissive: 0x261046 },
+  10: { base: '#111027', mid: '#30265b', high: '#6c4f93', accent: '#a855f7', text: '#f2ddff', material: 0x33225a, emissive: 0x250e46 },
+  12: { base: '#11121e', mid: '#333045', high: '#8d7040', accent: '#e1bd62', text: '#fff0c2', material: 0x343047, emissive: 0x2a1f28 },
+  20: { base: '#0b1021', mid: '#2e294d', high: '#8a6e36', accent: '#f0c766', text: '#fff0bd', material: 0x30284a, emissive: 0x2f2114 },
+  100: { base: '#111027', mid: '#30265b', high: '#6c4f93', accent: '#a855f7', text: '#f2ddff', material: 0x33225a, emissive: 0x250e46 }
+};
 
 function init() {
-  if (ready) return; ready = true;
+  if (ready) return;
+  ready = true;
+
   container = document.getElementById('dice-3d-container');
   canvas = document.getElementById('dice-3d-canvas');
   scene = new THREE.Scene();
-  cam = new THREE.PerspectiveCamera(40, 2, 0.1, 100);
-  cam.position.set(0, 7, 11); cam.lookAt(0, 0, 0);
+
+  cam = new THREE.PerspectiveCamera(38, 2, 0.1, 100);
+  cam.position.set(0, 6.5, 10.5);
+  cam.lookAt(0, 0, 0);
+
   rend = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   rend.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  scene.add(new THREE.AmbientLight(0x555577, 0.7));
-  const d1 = new THREE.DirectionalLight(0xffffff, 1.0); d1.position.set(5, 12, 8); scene.add(d1);
-  const d2 = new THREE.DirectionalLight(0xa855f7, 0.5); d2.position.set(-6, 4, -5); scene.add(d2);
-  const d3 = new THREE.DirectionalLight(0xc9a227, 0.3); d3.position.set(0, -5, 5); scene.add(d3);
+  rend.outputColorSpace = THREE.SRGBColorSpace;
+  rend.toneMapping = THREE.ACESFilmicToneMapping;
+  rend.toneMappingExposure = 1.2;
+
+  scene.add(new THREE.HemisphereLight(0xffefd2, 0x080518, 0.55));
+
+  const key = new THREE.DirectionalLight(0xfff2cf, 1.4);
+  key.position.set(5.5, 10, 7);
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight(0xa855f7, 0.82);
+  fill.position.set(-7, 4, -5);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight(0x7dd3fc, 0.45);
+  rim.position.set(0, 5, -9);
+  scene.add(rim);
+
+  const goldGlow = new THREE.PointLight(0xf0c766, 1.4, 18);
+  goldGlow.position.set(0, 3.2, 4.2);
+  scene.add(goldGlow);
+
+  const purpleGlow = new THREE.PointLight(0x8b5cf6, 1.1, 16);
+  purpleGlow.position.set(-4.5, 1.8, 2);
+  scene.add(purpleGlow);
 }
 
-function faceTex(num, type) {
-  const c = document.createElement('canvas'); c.width = c.height = 256;
+function styleFor(type) {
+  return STYLE_BY_TYPE[type] || STYLE_BY_TYPE[20];
+}
+
+function makeRng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+function faceLabel(num, type) {
+  if (type === 100) return num === 100 ? '00' : String(num).padStart(2, '0');
+  return String(num);
+}
+
+function drawTextureNoise(x, rng, count, w, h) {
+  for (let i = 0; i < count; i++) {
+    const px = rng() * w;
+    const py = rng() * h;
+    const r = 0.6 + rng() * 1.8;
+    const light = rng() > 0.55 ? 255 : 0;
+    x.fillStyle = `rgba(${light},${light},${light},${0.018 + rng() * 0.045})`;
+    x.beginPath();
+    x.arc(px, py, r, 0, Math.PI * 2);
+    x.fill();
+  }
+}
+
+function drawRunes(x, style) {
+  x.save();
+  x.translate(256, 256);
+  x.strokeStyle = style.accent;
+  x.fillStyle = style.accent;
+  x.globalAlpha = 0.38;
+  x.lineWidth = 3;
+  for (let i = 0; i < 8; i++) {
+    x.rotate(Math.PI / 4);
+    x.beginPath();
+    x.moveTo(0, -188);
+    x.lineTo(8, -174);
+    x.lineTo(-8, -174);
+    x.closePath();
+    x.stroke();
+    x.fillRect(-2, -214, 4, 18);
+  }
+  x.restore();
+}
+
+function faceTex(num, type, faceIndex = 0) {
+  const style = styleFor(type);
+  const label = faceLabel(num, type);
+  const rng = makeRng(type * 997 + faceIndex * 53 + num * 17);
+
+  const c = document.createElement('canvas');
+  c.width = c.height = 512;
   const x = c.getContext('2d');
-  x.fillStyle = '#0d0d28'; x.fillRect(0, 0, 256, 256);
-  const g = x.createRadialGradient(90, 70, 10, 128, 128, 200);
-  g.addColorStop(0, 'rgba(255,255,255,0.12)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
-  x.strokeStyle = 'rgba(201,162,39,0.25)'; x.lineWidth = 3; x.strokeRect(10, 10, 236, 236);
-  const dn = type === 100 && num === 100 ? '00' : type === 100 && num < 10 ? '0' + num : '' + num;
-  const fs = dn.length >= 3 ? 80 : dn.length >= 2 ? 110 : 130;
-  x.font = `bold ${fs}px Cinzel,serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.fillStyle = '#ede0c8'; x.fillText(dn, 128, 140);
-  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+
+  const base = x.createLinearGradient(0, 0, 512, 512);
+  base.addColorStop(0, style.high);
+  base.addColorStop(0.32, style.mid);
+  base.addColorStop(1, style.base);
+  x.fillStyle = base;
+  x.fillRect(0, 0, 512, 512);
+
+  const glow = x.createRadialGradient(150, 110, 20, 240, 230, 410);
+  glow.addColorStop(0, 'rgba(255,255,255,0.26)');
+  glow.addColorStop(0.46, 'rgba(255,255,255,0.06)');
+  glow.addColorStop(1, 'rgba(0,0,0,0.28)');
+  x.fillStyle = glow;
+  x.fillRect(0, 0, 512, 512);
+
+  drawTextureNoise(x, rng, 260, 512, 512);
+
+  x.strokeStyle = 'rgba(255,246,210,0.2)';
+  x.lineWidth = 8;
+  x.strokeRect(24, 24, 464, 464);
+  x.strokeStyle = style.accent;
+  x.globalAlpha = 0.46;
+  x.lineWidth = 3;
+  x.strokeRect(42, 42, 428, 428);
+  x.globalAlpha = 1;
+
+  x.save();
+  x.strokeStyle = 'rgba(255,246,210,0.12)';
+  x.lineWidth = 2;
+  for (let i = 0; i < 7; i++) {
+    const sx = 60 + rng() * 390;
+    const sy = 60 + rng() * 390;
+    x.beginPath();
+    x.moveTo(sx, sy);
+    x.quadraticCurveTo(sx + rng() * 42 - 21, sy + rng() * 52 - 26, sx + rng() * 90 - 45, sy + rng() * 90 - 45);
+    x.stroke();
+  }
+  x.restore();
+
+  drawRunes(x, style);
+
+  const fs = label.length >= 3 ? 142 : label.length >= 2 ? 178 : 214;
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.font = `900 ${fs}px Cinzel, Georgia, serif`;
+  x.lineJoin = 'round';
+  x.shadowColor = 'rgba(0,0,0,0.75)';
+  x.shadowBlur = 18;
+  x.shadowOffsetY = 10;
+  x.strokeStyle = 'rgba(0,0,0,0.78)';
+  x.lineWidth = 20;
+  x.strokeText(label, 256, 276);
+  x.shadowBlur = 0;
+  x.shadowOffsetY = 0;
+  x.strokeStyle = style.accent;
+  x.lineWidth = 8;
+  x.strokeText(label, 256, 276);
+  x.fillStyle = style.text;
+  x.fillText(label, 256, 276);
+  x.fillStyle = 'rgba(255,255,255,0.35)';
+  x.font = `900 ${Math.floor(fs * 0.96)}px Cinzel, Georgia, serif`;
+  x.fillText(label, 254, 268);
+
+  const b = document.createElement('canvas');
+  b.width = b.height = 512;
+  const bx = b.getContext('2d');
+  bx.fillStyle = '#808080';
+  bx.fillRect(0, 0, 512, 512);
+  drawTextureNoise(bx, makeRng(type * 661 + faceIndex * 31), 340, 512, 512);
+  bx.strokeStyle = '#b5b5b5';
+  bx.lineWidth = 9;
+  bx.strokeRect(24, 24, 464, 464);
+  bx.font = `900 ${fs}px Cinzel, Georgia, serif`;
+  bx.textAlign = 'center';
+  bx.textBaseline = 'middle';
+  bx.strokeStyle = '#303030';
+  bx.lineWidth = 18;
+  bx.strokeText(label, 256, 276);
+  bx.fillStyle = '#1f1f1f';
+  bx.fillText(label, 256, 276);
+
+  const color = new THREE.CanvasTexture(c);
+  color.colorSpace = THREE.SRGBColorSpace;
+  color.anisotropy = 8;
+
+  const bump = new THREE.CanvasTexture(b);
+  bump.anisotropy = 4;
+
+  return { color, bump };
 }
 
 function trapezo(n = 5) {
   const g = new THREE.BufferGeometry();
-  const pos = [[0, 1.3, 0]];
-  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; pos.push([Math.cos(a) * .85, .35, Math.sin(a) * .85]); }
-  for (let i = 0; i < n; i++) { const a = (i + .5) / n * Math.PI * 2; pos.push([Math.cos(a) * .85, -.35, Math.sin(a) * .85]); }
-  pos.push([0, -1.3, 0]);
+
+  const tipY = 1.15;    // hauteur des pointes
+  const beltY = 0.32;   // hauteur des anneaux centraux
+  const radius = 1.0;   // largeur du dé
+
+  const pos = [[0, tipY, 0]];
+
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2;
+    pos.push([Math.cos(a) * radius, beltY, Math.sin(a) * radius]);
+  }
+
+  for (let i = 0; i < n; i++) {
+    const a = (i + 0.5) / n * Math.PI * 2;
+    pos.push([Math.cos(a) * radius, -beltY, Math.sin(a) * radius]);
+  }
+
+  pos.push([0, -tipY, 0]);
+
   const idx = [];
   for (let i = 0; i < n; i++) {
-    const ui = 1 + i, ui2 = 1 + (i + 1) % n, li = 1 + n + i, li2 = 1 + n + (i + 1) % n;
+    const ui = 1 + i;
+    const ui2 = 1 + (i + 1) % n;
+    const li = 1 + n + i;
+    const li2 = 1 + n + (i + 1) % n;
     idx.push(0, li, ui, 0, ui2, li);
     idx.push(2 * n + 1, li, ui2, 2 * n + 1, ui2, li2);
     g.addGroup(i * 12, 6, i);
     g.addGroup(i * 12 + 6, 6, n + i);
   }
+
+  const uv = pos.map(([x, y, z]) => [0.5 + x * 0.42, 0.5 - z * 0.42]);
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos.flat(), 3));
-  g.setIndex(idx); g.computeVertexNormals(); return g;
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv.flat(), 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  return g;
 }
 
 function makeGeo(type) {
@@ -63,17 +260,39 @@ function makeGeo(type) {
   return new THREE.BoxGeometry(r, r, r);
 }
 
+function ensureUv(geo) {
+  if (geo.attributes.uv) return geo;
+  geo.computeBoundingBox();
+  const box = geo.boundingBox;
+  const yRange = Math.max(0.001, box.max.y - box.min.y);
+  const pos = geo.attributes.position;
+  const uv = [];
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    const u = 0.5 + Math.atan2(z, x) / (Math.PI * 2);
+    const v = (y - box.min.y) / yRange;
+    uv.push(u, v);
+  }
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  return geo;
+}
+
 function faceInfo(geo) {
-  const pos = geo.attributes.position, faces = [];
+  const pos = geo.attributes.position;
+  const faces = [];
   if (geo.index && geo.groups.length) {
     const ind = geo.index;
-    for (const g of geo.groups) {
-      const a = ind.getX(g.start), b = ind.getX(g.start + 1), c = ind.getX(g.start + 2);
+    for (const group of geo.groups) {
+      const a = ind.getX(group.start);
+      const b = ind.getX(group.start + 1);
+      const c = ind.getX(group.start + 2);
       const va = new THREE.Vector3().fromBufferAttribute(pos, a);
       const vb = new THREE.Vector3().fromBufferAttribute(pos, b);
       const vc = new THREE.Vector3().fromBufferAttribute(pos, c);
       const n = new THREE.Vector3().subVectors(vb, va).cross(new THREE.Vector3().subVectors(vc, va)).normalize();
-      faces.push({ normal: n, matIdx: g.materialIndex });
+      faces.push({ normal: n, matIdx: group.materialIndex });
     }
   } else {
     const triCount = Math.floor(pos.count / 3);
@@ -89,40 +308,88 @@ function faceInfo(geo) {
   return faces;
 }
 
+function valueForFace(type, index, faceCount) {
+  if (type === 100) return ((index % 10) + 1) * 10;
+  if (type === 12 && faceCount > 12) {
+    return Math.floor(index / Math.max(1, Math.round(faceCount / 12))) % 12 + 1;
+  }
+  return index % type + 1;
+}
+
+function valueForTarget(type, value) {
+  if (type === 100) return Math.min(100, Math.max(10, Math.ceil(value / 10) * 10));
+  return value;
+}
+
+function disposeMaterial(material) {
+  if (!material) return;
+  ['map', 'bumpMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap'].forEach((key) => {
+    if (material[key]) material[key].dispose();
+  });
+  material.dispose();
+}
+
+function disposeDie(die) {
+  scene.remove(die);
+  die.geometry.dispose();
+  if (Array.isArray(die.material)) die.material.forEach(disposeMaterial);
+  else disposeMaterial(die.material);
+}
+
 function makeDie(type) {
-  const geo = makeGeo(type), fi = faceInfo(geo), nF = fi.length, mats = [], vals = [];
+  const geo = ensureUv(makeGeo(type));
+  const fi = faceInfo(geo);
+  const nF = fi.length;
+  const mats = [];
+  const vals = [];
+  const style = styleFor(type);
+
   for (let i = 0; i < nF; i++) {
-    const v = i + 1; vals.push(v);
+    const v = valueForFace(type, i, nF);
+    vals.push(v);
+    const tex = faceTex(v, type, i);
     mats.push(new THREE.MeshStandardMaterial({
-      map: faceTex(v, type), color: 0x1a1a3f, metalness: 0.35, roughness: 0.45, flatShading: true
+      map: tex.color,
+      bumpMap: tex.bump,
+      bumpScale: 0.055,
+      color: 0xffffff,
+      emissive: style.emissive,
+      emissiveIntensity: 0.22,
+      metalness: 0.28,
+      roughness: 0.36,
+      flatShading: true
     }));
   }
+
   const m = new THREE.Mesh(geo, mats);
-  m.userData = { type, faceInfo: fi, faceVals: vals };
+  m.castShadow = true;
+  m.userData = { type, faceInfo: fi, faceVals: vals, glowBase: type === 8 || type === 10 || type === 100 ? 0.16 : 0.1 };
   return m;
 }
 
 function targetQuat(die, value) {
-  const { faceInfo, faceVals } = die.userData;
-  const idx = faceVals.indexOf(value);
-  if (idx < 0) return new THREE.Quaternion();
+  const { type, faceInfo, faceVals } = die.userData;
+  const targetValue = valueForTarget(type, value);
+  let idx = faceVals.indexOf(targetValue);
+  if (idx < 0) idx = Math.abs((value || 1) - 1) % faceInfo.length;
   const fn = faceInfo[idx].normal.clone();
-  const camDir = new THREE.Vector3(0, 0.8, 0.6).normalize();
+  const camDir = new THREE.Vector3(0, 0.78, 0.64).normalize();
   const q = new THREE.Quaternion().setFromUnitVectors(fn, camDir);
-  q.multiply(new THREE.Quaternion().setFromAxisAngle(camDir, (Math.random() - 0.5) * 0.6));
+  q.multiply(new THREE.Quaternion().setFromAxisAngle(camDir, (Math.random() - 0.5) * 0.48));
   return q;
 }
 
 export function roll(groups, duration, callback) {
   init();
-  dice.forEach(d => {
-    scene.remove(d); d.geometry.dispose();
-    if (Array.isArray(d.material)) d.material.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); });
-  });
-  dice = []; onDone = callback;
-  let count = 0; groups.forEach(g => count += g.rolls.length);
+  dice.forEach(disposeDie);
+  dice = [];
+  onDone = callback;
+
+  let count = 0;
+  groups.forEach(g => count += g.rolls.length);
   const sp = Math.min(2.8, 18 / Math.max(count, 1));
   let di = 0;
+
   groups.forEach(g => {
     g.rolls.forEach(r => {
       const m = makeDie(g.type);
@@ -130,26 +397,53 @@ export function roll(groups, duration, callback) {
       m.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
       m.userData.avel = new THREE.Vector3((Math.random() - 0.5) * 25, (Math.random() - 0.5) * 25, (Math.random() - 0.5) * 25);
       m.userData.targetVal = r.finalVal !== undefined ? r.finalVal : r.val;
-      m.userData.sQ = null; m.userData.tQ = null;
-      scene.add(m); dice.push(m); di++;
+      m.userData.sQ = null;
+      m.userData.tQ = null;
+      scene.add(m);
+      dice.push(m);
+      di++;
     });
   });
+
   const width = Math.max(count * sp + 2, 8);
-  cam.position.set(0, 7, Math.max(11, width * 0.9)); cam.lookAt(0, 0, 0);
+  cam.position.set(0, 6.5, Math.max(10.5, width * 0.88));
+  cam.lookAt(0, 0, 0);
   container.style.display = 'flex';
-  const w = container.clientWidth || 600, h = container.clientHeight || 280;
-  rend.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  const w = container.clientWidth || 600;
+  const h = container.clientHeight || 280;
+  rend.setSize(w, h, false);
+  cam.aspect = w / h;
+  cam.updateProjectionMatrix();
   const start = performance.now();
   loop(start, duration);
 }
 
-function loop(start, dur) {
-  const el = performance.now() - start, t = Math.min(el / dur, 1);
-  if (t >= 1) {
-    dice.forEach(d => { d.position.y = 0; });
-    rend.render(scene, cam);
-    rafId = null; if (onDone) { const cb = onDone; onDone = null; cb(); } return;
+function pulseMaterials(die, elapsed) {
+  const pulse = die.userData.glowBase + Math.sin(elapsed * 0.006 + die.id) * 0.035;
+  if (Array.isArray(die.material)) {
+    die.material.forEach((m) => { m.emissiveIntensity = pulse; });
   }
+}
+
+function loop(start, dur) {
+  const elapsed = performance.now() - start;
+  const t = Math.min(elapsed / dur, 1);
+
+  if (t >= 1) {
+    dice.forEach(d => {
+      d.position.y = 0;
+      pulseMaterials(d, elapsed);
+    });
+    rend.render(scene, cam);
+    rafId = null;
+    if (onDone) {
+      const cb = onDone;
+      onDone = null;
+      cb();
+    }
+    return;
+  }
+
   rafId = requestAnimationFrame(() => loop(start, dur));
   if (t < 0.7) {
     const decay = 1 - Math.pow(t / 0.7, 1.5);
@@ -158,10 +452,12 @@ function loop(start, dur) {
       d.rotation.x += av.x * 0.016 * decay;
       d.rotation.y += av.y * 0.016 * decay;
       d.rotation.z += av.z * 0.016 * decay;
-      d.position.y = Math.abs(Math.sin(el * 0.008 + d.id)) * 0.6 * decay;
+      d.position.y = Math.abs(Math.sin(elapsed * 0.008 + d.id)) * 0.72 * decay;
+      pulseMaterials(d, elapsed);
     });
-  } else if (t < 1) {
-    const st = (t - 0.7) / 0.3, ease = 1 - Math.pow(1 - st, 3);
+  } else {
+    const st = (t - 0.7) / 0.3;
+    const ease = 1 - Math.pow(1 - st, 3);
     dice.forEach(d => {
       if (!d.userData.tQ) {
         d.userData.sQ = d.quaternion.clone();
@@ -169,26 +465,32 @@ function loop(start, dur) {
       }
       d.quaternion.slerpQuaternions(d.userData.sQ, d.userData.tQ, ease);
       d.position.y *= (1 - ease);
+      pulseMaterials(d, elapsed);
     });
   }
+
   rend.render(scene, cam);
 }
 
-export function hide() { if (container) container.style.display = 'none'; }
+export function hide() {
+  if (container) container.style.display = 'none';
+}
 
 export function dispose() {
   if (rafId) cancelAnimationFrame(rafId);
-  dice.forEach(d => {
-    scene.remove(d); d.geometry.dispose();
-    if (Array.isArray(d.material)) d.material.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); });
-  });
+  dice.forEach(disposeDie);
   dice = [];
 }
 
-export function isReady() { return ready; }
+export function isReady() {
+  return ready;
+}
 
 window.addEventListener('resize', () => {
   if (!ready || !container || container.style.display === 'none') return;
-  const w = container.clientWidth, h = container.clientHeight;
-  rend.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  rend.setSize(w, h, false);
+  cam.aspect = w / h;
+  cam.updateProjectionMatrix();
 });

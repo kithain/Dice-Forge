@@ -1,6 +1,6 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
-import * as D3D from './dice3d.js';
+import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
 import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260705-character-tests';
 import { showToast } from './toast.js?v=20260705-character-tests';
 
