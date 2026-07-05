@@ -16,6 +16,7 @@ Dice Forge est un lanceur de dés virtuel pour jeux de rôle (JDR), accessible d
 | **Web Crypto API** | Génération aléatoire cryptographique (`crypto.getRandomValues()`) pour un tirage truly random |
 | **Web Audio API** | Synthèse sonore pour les jingles de coup critique et d'échec critique |
 | **Google Fonts** (Cinzel / Cinzel Decorative) | Typographie thématique fantasy |
+| **Game-icons.net** | SVG 2D illustrés pour les dés du sélecteur |
 
 ---
 
@@ -176,3 +177,5 @@ Le mode multijoueur nécessite un backend Supabase.
 ## 📄 Licence
 
 Projet personnel.
+
+Les icônes SVG 2D des dés proviennent de **Game-icons.net**, sous licence CC BY 3.0.

@@ -181,65 +181,6 @@ h1{
 
 /* ——— result area ——— */
 .result-area{margin-bottom:1.75rem}
-.dice-display{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center;min-height:110px;align-items:center;margin-bottom:1.25rem;perspective:800px}
-.dgroup{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;justify-content:center}
-.gplus{font-size:1.4rem;color:var(--txd);margin:0 .2rem}
-.die-item{display:flex;flex-direction:column;align-items:center;gap:.3rem}
-.dsvg-wrap{width:78px;height:78px;display:flex;align-items:center;justify-content:center;position:relative;perspective:200px}
-.dsvg-wrap svg{width:78px;height:78px;transition:filter .3s}
-
-/* rolling — 3D tumble (WAAPI driven on .die-3d) */
-.dsvg-wrap.rolling::before{content:'';position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.28),transparent 70%);pointer-events:none;animation:glowPulse .6s ease-in-out infinite alternate;z-index:0}
-@keyframes glowPulse{0%{opacity:.4;transform:scale(.85)}100%{opacity:.9;transform:scale(1.15)}}
-.die-3d{position:relative;width:100%;height:100%;transform-style:preserve-3d}
-.die-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden}
-.die-face.die-back{transform:rotateY(180deg)}
-.dsvg-wrap.rolling .die-face svg{filter:blur(1.5px)}
-
-/* settle — multi-step bounce */
-.dsvg-wrap.s-norm svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 5px rgba(201,162,39,.35));animation-delay:var(--d,0s)}
-.dsvg-wrap.s-high svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 9px rgba(201,162,39,.65));animation-delay:var(--d,0s)}
-.dsvg-wrap.s-low svg{animation:sbounce2 .55s cubic-bezier(.36,.07,.19,.97) forwards;filter:drop-shadow(0 0 7px rgba(220,38,38,.55));animation-delay:var(--d,0s)}
-.dsvg-wrap.s-crit svg{animation:scrittle2 .7s ease-out forwards;filter:drop-shadow(0 0 14px rgba(251,191,36,1)) drop-shadow(0 0 28px rgba(201,162,39,.5));animation-delay:var(--d,0s)}
-.dsvg-wrap.s-fail svg{animation:sfail .55s ease-out forwards;filter:drop-shadow(0 0 12px rgba(220,38,38,.85));animation-delay:var(--d,0s)}
-
-/* impact ring on settle */
-.dsvg-wrap.s-norm::after,.dsvg-wrap.s-high::after,.dsvg-wrap.s-low::after,.dsvg-wrap.s-fail::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(201,162,39,.35);animation:impact .45s ease-out forwards;animation-delay:var(--d,0s);pointer-events:none}
-.dsvg-wrap.s-crit::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(251,191,36,.6);animation:critburst .8s ease-out forwards;animation-delay:var(--d,0s);pointer-events:none}
-.dsvg-wrap.s-fail::after{border-color:rgba(220,38,38,.5)}
-
-@keyframes sbounce2{
-  0%{transform:translateY(-28px) scale(1.25) rotate(8deg);filter:blur(.5px) drop-shadow(0 0 5px rgba(201,162,39,.35))}
-  30%{transform:translateY(0) scale(.85) rotate(-3deg)}
-  50%{transform:translateY(-10px) scale(1.08) rotate(2deg)}
-  70%{transform:translateY(0) scale(.96) rotate(-1deg)}
-  85%{transform:translateY(-3px) scale(1.02) rotate(.5deg)}
-  100%{transform:translateY(0) scale(1) rotate(0)}
-}
-@keyframes scrittle2{
-  0%{transform:translateY(-38px) scale(1.45) rotate(15deg);filter:blur(1px) drop-shadow(0 0 14px rgba(251,191,36,1))}
-  25%{transform:translateY(0) scale(.8) rotate(-8deg)}
-  45%{transform:translateY(-14px) scale(1.18) rotate(5deg)}
-  65%{transform:translateY(0) scale(.92) rotate(-2deg)}
-  80%{transform:translateY(-5px) scale(1.06) rotate(1deg)}
-  100%{transform:translateY(0) scale(1) rotate(0)}
-}
-@keyframes sfail{
-  0%{transform:translateY(-18px) scale(1.15) rotate(0)}
-  20%{transform:translateY(0) scale(.9) rotate(-5deg)}
-  30%{transform:translateX(-8px) rotate(-3deg)}
-  45%{transform:translateX(8px) rotate(3deg)}
-  60%{transform:translateX(-5px) rotate(-2deg)}
-  75%{transform:translateX(3px) rotate(1deg)}
-  100%{transform:translateX(0) translateY(0) scale(1) rotate(0)}
-}
-@keyframes impact{0%{transform:scale(.7);opacity:1}100%{transform:scale(1.8);opacity:0}}
-@keyframes critburst{0%{transform:scale(0);opacity:1}40%{transform:scale(1.3);opacity:.9}100%{transform:scale(2.5);opacity:0}}
-.dval{font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;text-align:center;min-height:1.1em}
-.dval.crit{color:var(--yel)}
-.dval.fail{color:var(--red)}
-.dval.norm{color:var(--txt)}
-
 /* ——— total ——— */
 .total-box{
   background:var(--s1);border:1px solid var(--brd);border-radius:8px;
@@ -393,5 +334,4 @@ h1{
   header{padding:1.75rem 0 1.25rem}
   .dgrid{grid-template-columns:repeat(4,1fr)}
   .roll-btn{padding:.8rem 1.8rem;font-size:.95rem}
-  .dsvg-wrap,.dsvg-wrap svg{width:64px;height:64px}
 }

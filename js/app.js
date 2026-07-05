@@ -1,5 +1,5 @@
 // ——— Main application: dice state, rolling logic, rendering ———
-import { makeSVG } from './dice-shapes.js';
+import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d.js';
 import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260705-character-tests';
 import { showToast } from './toast.js?v=20260705-character-tests';
@@ -397,25 +397,10 @@ async function submitCharacterSheet() {
 function renderResult() {
   const el = document.getElementById('result-area');
   if (!results) { el.innerHTML = ''; return; }
-  const { groups, total, rawTotal, mod, characterTest } = results;
+  const { groups, total, mod, characterTest } = results;
+  if (total === null) { el.innerHTML = ''; return; }
 
-  let html = '<div class="dice-display">';
-  groups.forEach((g, gi) => {
-    if (gi > 0) html += '<span class="gplus">+</span>';
-    html += '<div class="dgroup">';
-    g.rolls.forEach((r, ri) => {
-      const cls = cfg.anim ? r.state : '';
-      const vc = characterTest && r.val !== null ? (characterTest.success ? 'crit' : 'fail') : (r.state === 's-crit' ? 'crit' : r.state === 's-fail' ? 'fail' : 'norm');
-      html += `<div class="die-item">
-        <div class="dsvg-wrap ${cls}" style="--d:${(ri * 0.08).toFixed(2)}s">
-          ${makeSVG(g.type, r.val, r.state)}
-        </div>
-        <div class="dval ${vc}">${r.val !== null ? r.val : ''}</div>
-      </div>`;
-    });
-    html += '</div>';
-  });
-  html += '</div>';
+  let html = '';
 
   if (total !== null) {
     const hasCrit = groups.length === 1 && groups[0].type === 20 && groups[0].rolls.some(r => r.val === 20);
