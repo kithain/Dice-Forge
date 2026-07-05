@@ -27,10 +27,22 @@ L'application supporte 7 types de dés : **D4, D6, D8, D10, D12, D20, D100**.
 
 Deux façons de lancer :
 
-- **Lancer rapide** — boutons pré-configurés pour les jets courants (D20, D6, D100, 3D6, 1D20 + 2D6, 2D8, etc.)
+- **Lancer rapide** — boutons pré-configurés pour les jets courants (`D20`, `D6`, `D100`) et les tests de caractéristiques (`FOR`, `CON`, `TAI`, `INT`, `POU`, `DEX`, `APP`)
 - **Compositeur de jet** — sélectionnez le nombre de dés de chaque type (1 à 10) via les boutons +/−, ajoutez un modificateur (+/−), puis cliquez sur **Lancer les Dés**
 
 L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 + 1D8 + 5`).
+
+### Fiches de personnage
+
+L'onglet **Fiche personnage** permet de créer une fiche avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Apparence**.
+
+- **FOR**, **CON**, **POU**, **DEX** et **APP** sont générées avec `3D6`
+- **TAI** et **INT** sont générées avec `2D6 + 6`
+- Le joueur peut relancer la série jusqu'à **2 fois** ; chaque relance remplace la série précédente
+- Le joueur peut déplacer jusqu'à **3 points** au total entre les caractéristiques
+- La fiche finale est enregistrée dans Supabase dans la table `personnages`
+- À la connexion d'un joueur dans une salle, l'application récupère automatiquement la fiche liée à son `player_name`
+- Les boutons de test lancent `D100` contre `caractéristique × 5` en pourcentage de réussite
 
 ### Animation et résultats
 
@@ -108,7 +120,26 @@ Le mode multijoueur nécessite un backend Supabase.
    | `is_crit` | `boolean` (default: `false`) | Coup critique |
    | `is_fail` | `boolean` (default: `false`) | Échec critique |
 
-3. Renseigner les identifiants dans `supabase-config.js` :
+3. Créer une table `personnages` pour les fiches de personnage. Le script prêt à exécuter est fourni dans [`supabase-personnages.sql`](supabase-personnages.sql).
+
+   | Colonne | Type | Description |
+   |---------|------|-------------|
+   | `player_name` | `text` (PK) | Nom du joueur, identique à `rolls.player_name` |
+   | `nom` | `text` | Nom du personnage |
+   | `force` | `integer` | Score de Force |
+   | `constitution` | `integer` | Score de Constitution |
+   | `taille` | `integer` | Score de Taille |
+   | `intelligence` | `integer` | Score d'Intelligence |
+   | `pouvoir` | `integer` | Score de Pouvoir |
+   | `dexterite` | `integer` | Score de Dextérité |
+   | `apparence` | `integer` | Score d'Apparence |
+   | `created_at` | `timestamptz` (default: `now()`) | Date de création |
+
+   `player_name` est la clé primaire de `personnages`. La liaison avec les jets se fait par `personnages.player_name = rolls.player_name`. Le script crée aussi une vue `rolls_personnages` pour lire les jets avec la fiche associée.
+
+   Une contrainte FK stricte `rolls.player_name -> personnages.player_name` n'est pas ajoutée par défaut, car elle empêcherait un joueur de créer une salle ou de lancer un jet tant qu'il n'a pas encore de fiche personnage.
+
+4. Renseigner les identifiants dans `supabase-config.js` :
 
    ```javascript
    window.SUPABASE_CONFIG = {
@@ -117,11 +148,11 @@ Le mode multijoueur nécessite un backend Supabase.
    };
    ```
 
-4. Activer le **Realtime** sur la table `rolls` :
+5. Activer le **Realtime** sur la table `rolls` :
    - **Option A (SQL)** — Dans **SQL Editor**, exécuter : `alter publication supabase_realtime add table rolls;`
    - **Option B (Interface)** — Dans **Database** → **Publications**, trouver `supabase_realtime`, cliquer sur `...` → **Add tables**, cocher `rolls` et valider
 
-5. Configurer les **Row Level Security (RLS)** policies selon vos besoins. Exemple minimal pour autoriser lecture, insertion et suppression :
+6. Configurer les **Row Level Security (RLS)** policies selon vos besoins. Exemple minimal pour autoriser lecture, insertion et suppression :
 
    ```sql
    create policy "Allow all on rolls" on rolls for all to anon using (true) with check (true);

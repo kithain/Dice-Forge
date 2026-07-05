@@ -62,22 +62,35 @@
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
     </div>
+    <div class="room-character-card" id="room-character-card" style="display:none">
+      <div class="room-character-head">
+        <span class="room-character-label">Fiche liée</span>
+        <span class="room-character-name" id="room-character-name">Aucune fiche</span>
+      </div>
+      <div class="room-character-stats" id="room-character-stats"></div>
+    </div>
   </div>
 </div>
 
+<div class="tabs" role="tablist" aria-label="Navigation principale">
+  <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
+  <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
+</div>
+
+<section class="tab-panel active" id="panel-dice" role="tabpanel" aria-labelledby="tab-dice">
 <div class="quick-wrap">
   <div class="slabel">Lancer rapide</div>
   <div class="quick-row" id="quick-row">
     <button class="qbtn feat" onclick="quickRoll(20)">🎲 D20</button>
     <button class="qbtn feat" onclick="quickRoll(6)">🎲 D6</button>
     <button class="qbtn feat" onclick="quickRoll(100)">🎲 D100</button>
-    <button class="qbtn" onclick="quickRoll(4)">D4</button>
-    <button class="qbtn" onclick="quickRoll(8)">D8</button>
-    <button class="qbtn" onclick="quickRoll(10)">D10</button>
-    <button class="qbtn" onclick="quickRoll(12)">D12</button>
-    <button class="qbtn" onclick="quickMulti([{t:6,n:3}])">3D6</button>
-    <button class="qbtn" onclick="quickMulti([{t:20,n:1},{t:6,n:2}])">1D20 + 2D6</button>
-    <button class="qbtn" onclick="quickMulti([{t:8,n:2}])">2D8</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('force')">Test FOR</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('constitution')">Test CON</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('taille')">Test TAI</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('intelligence')">Test INT</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('pouvoir')">Test POU</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('dexterite')">Test DEX</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('apparence')">Test APP</button>
   </div>
 </div>
 
@@ -107,12 +120,38 @@
   <div class="live-title">Jets en direct</div>
   <div id="live-list"></div>
 </div>
+</section>
+
+<section class="tab-panel" id="panel-character" role="tabpanel" aria-labelledby="tab-character">
+  <div class="character-panel">
+    <div class="slabel">Fiche personnage</div>
+    <div class="character-form">
+      <div class="room-field character-name-field">
+        <label>Nom du personnage</label>
+        <input class="room-input wide" id="character-name" placeholder="Nom..." maxlength="40" oninput="characterNameChanged()">
+      </div>
+      <div class="char-actions">
+        <button class="room-btn" id="char-generate-btn" type="button" onclick="generateCharacterStats()">Générer</button>
+        <button class="room-leave char-secondary" id="char-reroll-btn" type="button" onclick="rerollCharacterStats()" disabled>Relancer</button>
+        <button class="room-btn" id="char-save-btn" type="button" onclick="submitCharacterSheet()" disabled>Enregistrer</button>
+        <button class="room-leave char-secondary" id="char-new-btn" type="button" onclick="resetCharacterSheet()" disabled>Nouvelle fiche</button>
+      </div>
+    </div>
+    <div class="char-meta">
+      <span class="room-badge" id="char-rerolls">Relances restantes: 2</span>
+      <span class="room-badge" id="char-moved">Points déplacés: 0/3</span>
+      <span class="room-badge" id="char-reserve">Réserve: 0</span>
+    </div>
+    <div class="char-empty" id="char-empty">Aucune série générée.</div>
+    <div class="char-grid" id="character-grid"></div>
+  </div>
+</section>
 
 </div>
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="js/app.js?v=20260705-character-tests"></script>
 </body>
 </html>

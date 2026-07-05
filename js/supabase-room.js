@@ -10,6 +10,7 @@ const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anon
 let sb = null;
 let roomState = { code: null, player: null, connected: false };
 let liveSub = null;
+let currentPlayerCharacter = null;
 
 const FANTASY_NAMES = [
   'Thalindra', 'Kaelen', 'Brynhild', 'Draven', 'Isolde', 'Grimjaw', 'Nyx', 'Orin',
@@ -17,6 +18,15 @@ const FANTASY_NAMES = [
   'Aldric', 'Cyneth', 'Lyraelle', 'Balthor', 'Ythera', 'Corvyn', 'Maelis', 'Drusk',
   'Sariel', 'Wrenna', 'Malachar', 'Ondine', 'Fenwick', 'Astrid', 'Torvik', 'Rowanna',
   'Erevan', 'Sindri', 'Marwenna', 'Kethric', 'Ilyara', 'Bramwell', 'Nerissa', 'Skarn'
+];
+const CHARACTER_FIELDS = [
+  ['FOR', 'force'],
+  ['CON', 'constitution'],
+  ['TAI', 'taille'],
+  ['INT', 'intelligence'],
+  ['POU', 'pouvoir'],
+  ['DEX', 'dexterite'],
+  ['APP', 'apparence']
 ];
 
 export function randomFantasyName() {
@@ -26,6 +36,10 @@ export function randomFantasyName() {
 export function initPlaceholder() {
   const el = document.getElementById('player-name');
   if (el && !el.value) el.placeholder = randomFantasyName();
+}
+
+export function getPlayerCharacter() {
+  return currentPlayerCharacter;
 }
 
 function sbInit() {
@@ -62,6 +76,7 @@ export async function joinRoom() {
   roomState = { code, player: name, connected: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   showConnected();
+  await loadPlayerCharacter(name);
   await checkCreator(code, name);
   subscribeLive(code, name);
   await loadRecent(code, name);
@@ -90,6 +105,7 @@ export async function createRoom() {
   document.getElementById('room-code').value = code;
   showConnected();
   document.getElementById('purge-btn').style.display = '';
+  await loadPlayerCharacter(name);
   subscribeLive(code, name);
   await loadRecent(code, name);
 }
@@ -114,6 +130,7 @@ export function leaveRoom() {
   document.getElementById('room-connected').style.display = 'none';
   document.getElementById('live-feed').style.display = 'none';
   document.getElementById('live-list').innerHTML = '';
+  clearPlayerCharacter();
 }
 
 function showConnected() {
@@ -123,6 +140,55 @@ function showConnected() {
   document.getElementById('player-badge-text').textContent = 'Joueur: ' + roomState.player;
   document.getElementById('live-feed').style.display = '';
   if (!roomState.isCreator) document.getElementById('purge-btn').style.display = 'none';
+}
+
+function clearPlayerCharacter() {
+  currentPlayerCharacter = null;
+  const card = document.getElementById('room-character-card');
+  if (card) card.style.display = 'none';
+}
+
+function renderPlayerCharacter(character) {
+  const card = document.getElementById('room-character-card');
+  const nameEl = document.getElementById('room-character-name');
+  const statsEl = document.getElementById('room-character-stats');
+  if (!card || !nameEl || !statsEl) return;
+
+  card.style.display = '';
+  if (!character) {
+    currentPlayerCharacter = null;
+    nameEl.textContent = 'Aucune fiche';
+    statsEl.innerHTML = '<span class="room-character-empty">Aucune fiche personnage enregistrée pour ce joueur.</span>';
+    return;
+  }
+
+  currentPlayerCharacter = character;
+  nameEl.textContent = character.nom;
+  statsEl.innerHTML = CHARACTER_FIELDS.map(([code, key]) =>
+    `<span class="room-character-stat">${code} ${esc(character[key])}</span>`
+  ).join('');
+}
+
+async function loadPlayerCharacter(playerName = roomState.player) {
+  if (!playerName) { clearPlayerCharacter(); return null; }
+  sbInit();
+  if (!sb) { clearPlayerCharacter(); return null; }
+
+  const { data, error } = await sb.from('personnages')
+    .select('player_name, nom, force, constitution, taille, intelligence, pouvoir, dexterite, apparence')
+    .eq('player_name', playerName)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (error) {
+    renderPlayerCharacter(null);
+    console.error('Erreur chargement fiche personnage:', error.message);
+    return null;
+  }
+
+  const character = data && data.length ? data[0] : null;
+  renderPlayerCharacter(character);
+  return character;
 }
 
 async function checkCreator(code, name) {
@@ -208,6 +274,80 @@ export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidde
   if (error) console.error('Erreur envoi du jet (vérifie la colonne is_hidden sur la table rolls):', error.message);
 }
 
+export async function saveCharacterSheet(nom, stats) {
+  const fallbackPlayer = document.getElementById('player-name')?.value.trim();
+  const playerName = roomState.connected && roomState.player ? roomState.player : fallbackPlayer;
+  if (!playerName) { showToast('Entre ton nom de joueur avant d’enregistrer', 'error'); return false; }
+
+  sbInit();
+  if (!sb) { showToast('Supabase non configuré. Voir instructions.', 'error'); return false; }
+
+  const payload = {
+    player_name: playerName,
+    nom,
+    force: stats.force,
+    constitution: stats.constitution,
+    taille: stats.taille,
+    intelligence: stats.intelligence,
+    pouvoir: stats.pouvoir,
+    dexterite: stats.dexterite,
+    apparence: stats.apparence
+  };
+
+  const characterColumns = 'player_name, nom, force, constitution, taille, intelligence, pouvoir, dexterite, apparence';
+  const existing = await sb.from('personnages')
+    .select('player_name')
+    .eq('player_name', playerName)
+    .limit(1);
+
+  if (existing.error) {
+    const missingTable = /personnages|schema cache|not find/i.test(existing.error.message);
+    const hint = missingTable ? 'Table personnages introuvable. Exécute le SQL fourni dans Supabase.' : existing.error.message;
+    showToast('Erreur: ' + hint, 'error');
+    return false;
+  }
+
+  let data = null;
+  let error = null;
+  if (existing.data && existing.data.length) {
+    const updateResult = await sb.from('personnages')
+      .update(payload)
+      .eq('player_name', playerName)
+      .select(characterColumns)
+      .single();
+    data = updateResult.data;
+    error = updateResult.error;
+  } else {
+    const insertResult = await sb.from('personnages')
+      .insert(payload)
+      .select(characterColumns)
+      .single();
+    data = insertResult.data;
+    error = insertResult.error;
+
+    if (error && (error.code === '23505' || /duplicate key|conflict/i.test(error.message))) {
+      const updateResult = await sb.from('personnages')
+        .update(payload)
+        .eq('player_name', playerName)
+        .select(characterColumns)
+        .single();
+      data = updateResult.data;
+      error = updateResult.error;
+    }
+  }
+
+  if (error) {
+    const missingTable = /personnages|schema cache|not find/i.test(error.message);
+    const hint = missingTable ? 'Table personnages introuvable. Exécute le SQL fourni dans Supabase.' : error.message;
+    showToast('Erreur: ' + hint, 'error');
+    return false;
+  }
+
+  showToast('Fiche personnage enregistrée', 'success');
+  renderPlayerCharacter(data || payload);
+  return true;
+}
+
 export function restoreSession() {
   const saved = localStorage.getItem('diceforge_room');
   if (saved) {
@@ -220,6 +360,7 @@ export function restoreSession() {
         sbInit();
         if (sb) {
           showConnected();
+          loadPlayerCharacter(r.player);
           checkCreator(r.code, r.player);
           subscribeLive(r.code, r.player);
           loadRecent(r.code, r.player);
