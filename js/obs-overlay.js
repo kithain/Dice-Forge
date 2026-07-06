@@ -5,6 +5,7 @@ const room = (params.get('room') || params.get('code') || '').trim().toUpperCase
 const limit = clampInt(params.get('limit'), 1, 12, 5);
 const showHistory = params.get('history') !== '0';
 const preview = params.get('bg') === '1' || params.get('preview') === '1';
+const wide = params.get('wide') === '1' || params.get('layout') === 'wide';
 
 const statusEl = document.getElementById('obs-status');
 const listEl = document.getElementById('obs-list');
@@ -14,6 +15,7 @@ let supabase = null;
 let sub = null;
 
 if (preview) document.body.classList.add('preview');
+if (wide) document.body.classList.add('wide');
 roomEl.textContent = room ? `Room ${room}` : 'Room --';
 
 boot();

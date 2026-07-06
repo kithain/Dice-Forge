@@ -8,6 +8,8 @@
   --panel: rgba(9, 9, 28, .72);
   --panel-strong: rgba(14, 14, 42, .9);
   --border: rgba(201, 162, 39, .34);
+  --obs-panel-width: min(440px, calc(100vw - 24px));
+  --obs-shell-padding: clamp(8px, 2vw, 18px);
 }
 
 *,
@@ -40,11 +42,11 @@ body.preview {
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  padding: clamp(18px, 3vw, 42px);
+  padding: var(--obs-shell-padding);
 }
 
 .obs-panel {
-  width: min(760px, 92vw);
+  width: var(--obs-panel-width);
   border: 1px solid var(--border);
   border-radius: 8px;
   background:
@@ -57,12 +59,17 @@ body.preview {
   overflow: hidden;
 }
 
+body.wide {
+  --obs-panel-width: min(760px, 92vw);
+  --obs-shell-padding: clamp(18px, 3vw, 42px);
+}
+
 .obs-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
-  padding: 18px 22px 12px;
+  gap: 10px;
+  padding: 12px 14px 9px;
   border-bottom: 1px solid rgba(201, 162, 39, .2);
 }
 
@@ -77,14 +84,14 @@ body.preview {
 }
 
 .obs-kicker {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--muted);
 }
 
 h1 {
   margin: 2px 0 0;
   font-family: "Cinzel", Georgia, serif;
-  font-size: clamp(24px, 3vw, 34px);
+  font-size: clamp(18px, 4vw, 24px);
   line-height: 1;
   color: var(--gold2);
   text-shadow: 0 0 16px rgba(201, 162, 39, .32);
@@ -94,26 +101,26 @@ h1 {
   color: var(--gold);
   border: 1px solid rgba(201, 162, 39, .34);
   border-radius: 5px;
-  padding: 7px 12px;
+  padding: 6px 8px;
   background: rgba(201, 162, 39, .08);
-  font-size: 13px;
+  font-size: 10px;
   white-space: nowrap;
 }
 
 .obs-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  gap: 6px;
+  padding: 10px;
 }
 
 .roll-card {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) minmax(150px, 1.4fr) auto;
+  grid-template-columns: minmax(82px, 1fr) minmax(112px, 1.25fr) auto;
   align-items: center;
-  gap: 14px;
-  min-height: 64px;
-  padding: 10px 14px;
+  gap: 8px;
+  min-height: 52px;
+  padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 7px;
   background: rgba(12, 12, 40, .78);
@@ -141,7 +148,7 @@ h1 {
 
 .roll-name {
   font-family: "Cinzel", Georgia, serif;
-  font-size: clamp(16px, 2vw, 22px);
+  font-size: clamp(13px, 3.2vw, 17px);
   font-weight: 700;
   color: var(--purple);
   overflow: hidden;
@@ -150,9 +157,9 @@ h1 {
 }
 
 .roll-time {
-  margin-top: 3px;
+  margin-top: 2px;
   color: rgba(255, 243, 212, .46);
-  font-size: 11px;
+  font-size: 9px;
 }
 
 .roll-body {
@@ -161,26 +168,26 @@ h1 {
 
 .roll-expr {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .roll-detail {
-  margin-top: 4px;
+  margin-top: 2px;
   color: rgba(255, 243, 212, .5);
-  font-size: 14px;
+  font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .roll-total {
-  min-width: 86px;
+  min-width: 54px;
   text-align: right;
   font-family: "Cinzel", Georgia, serif;
-  font-size: clamp(38px, 6vw, 58px);
+  font-size: clamp(28px, 8vw, 40px);
   line-height: .95;
   font-weight: 900;
   color: var(--gold2);
@@ -198,16 +205,17 @@ h1 {
 }
 
 .obs-status {
-  min-height: 30px;
-  padding: 0 18px 14px;
+  min-height: 24px;
+  padding: 0 12px 10px;
   color: rgba(255, 243, 212, .55);
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .obs-setup {
-  padding: 18px 22px 22px;
+  padding: 14px;
   line-height: 1.45;
   color: var(--muted);
+  font-size: 13px;
 }
 
 .obs-setup code {
@@ -231,7 +239,7 @@ h1 {
 
 @media (max-width: 620px) {
   .obs-shell {
-    padding: 14px;
+    padding: 8px;
   }
 
   .roll-card {
