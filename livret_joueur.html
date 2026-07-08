@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livret du Joueur — Création de Personnage Médiéval-Fantastique</title>
+<style>
+@page { size: A4; margin: 15mm; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #2b2b2b;
+    background: #f5f0e8;
+}
+.cover {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #e0d8c8;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    page-break-after: always;
+}
+.cover h1 { font-size: 32px; margin-bottom: 10px; color: #f0c040; text-shadow: 2px 2px 4px #000; }
+.cover h2 { font-size: 18px; margin-bottom: 30px; color: #a0b0d0; font-weight: normal; font-style: italic; }
+.cover p { font-size: 13px; max-width: 500px; margin: 10px auto; color: #c0c0d0; }
+.cover .races { font-size: 16px; margin-top: 40px; color: #f0c040; letter-spacing: 3px; }
+
+h1.chapter {
+    font-size: 22px;
+    color: #1a1a2e;
+    border-bottom: 3px solid #0f3460;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    page-break-before: always;
+}
+h2 {
+    font-size: 15px;
+    color: #0f3460;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    border-left: 4px solid #0f3460;
+    padding-left: 8px;
+}
+h3 {
+    font-size: 13px;
+    color: #16213e;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+p { margin-bottom: 8px; text-align: justify; }
+ul, ol { padding-left: 20px; margin-bottom: 8px; }
+li { margin-bottom: 3px; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 10px;
+}
+th, td {
+    border: 1px solid #888;
+    padding: 4px 6px;
+    text-align: left;
+}
+th {
+    background: #0f3460;
+    color: #fff;
+    font-weight: bold;
+}
+tr:nth-child(even) { background: #e8e0d0; }
+.page { max-width: 800px; margin: 0 auto; padding: 20px; }
+.formula {
+    background: #d4edda;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    margin: 6px 0;
+    font-size: 12px;
+}
+.note { font-style: italic; color: #555; font-size: 10px; }
+.warning { background: #fff3cd; padding: 6px 10px; border-radius: 4px; margin: 8px 0; }
+.race-box {
+    border: 2px solid #0f3460;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin: 12px 0;
+    background: #faf8f0;
+    page-break-inside: avoid;
+}
+.race-box h2 { border-left: none; margin-top: 0; }
+.race-box .modifiers {
+    display: inline-block;
+    background: #0f3460;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.spell-list { font-size: 10px; }
+.spell-list td:nth-child(1) { font-weight: bold; width: 20%; }
+.spell-list td:nth-child(2) { text-align: center; width: 9%; }
+.spell-list td:nth-child(4) { text-align: center; width: 14%; font-size: 9px; }
+.spell-list th:nth-child(4) { text-align: center; width: 14%; }
+.prof-tag { display: inline-block; background: #6f42c1; color: #fff; padding: 0 3px; border-radius: 2px; font-size: 8px; font-weight: bold; margin: 0 1px; }
+.prof-tag-p { background: #007bff; }
+.prof-tag-c { background: #28a745; }
+.prof-tag-e { background: #fd7e14; }
+.prof-tag-s { background: #6f42c1; }
+.step {
+    background: #e8e0d0;
+    border-left: 5px solid #0f3460;
+    padding: 8px 12px;
+    margin: 10px 0;
+    border-radius: 0 4px 4px 0;
+}
+.step h3 { margin-top: 0; color: #0f3460; }
+.tag {
+    display: inline-block;
+    background: #0f3460;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: bold;
+}
+.tag-spec { background: #28a745; }
+.tag-magic { background: #6f42c1; }
+hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
+.two-col { column-count: 2; column-gap: 15px; }
+.two-col table { font-size: 9px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============ COUVERTURE ============ -->
+<div class="cover">
+    <h1>BRP — ORC</h1>
+    <h2>Livret du Joueur</h2>
+    <p>Création de personnage pour un univers Médiéval-Fantastique</p>
+    <p>Magie, épées, donjons et dragons — un guide complet pour créer votre héros</p>
+    <div class="races">Humains · Nains · Elfes · Demi-Elfes · Demi-Orcs</div>
+</div>
+
+<!-- ============ CHAPITRE 1 : ESPÈCES ============ -->
+<h1 class="chapter">1. Espèces Jouables</h1>
+
+<p>Cinq espèces sont disponibles pour les personnages joueurs dans cet univers. Chaque espèce possède des modificateurs de caractéristiques reflétant sa nature. Les valeurs indiquées sont des <b>modificateurs appliqués après le jet de dés</b>. Aucune caractéristique ne peut dépasser 21 ni descendre sous 3 après modification.</p>
+
+<div class="race-box">
+<h2>Humain</h2>
+<span class="modifiers">Aucun modificateur</span>
+<p>Les humains sont l'espèce la plus répandue et la plus adaptable. Ils n'ont ni les grâces des elfes, ni la robustesse des nains, mais leur polyvalence et leur ambition les mènent partout. Toutes les professions leur sont ouvertes.</p>
+<ul>
+<li><b>Caractéristiques :</b> Standard (FOR 3D6, CON 3D6, TAI 2D6+6, INT 2D6+6, POU 3D6, DEX 3D6, CHA 3D6)</li>
+<li><b>Mouvement :</b> 10</li>
+<li><b>Professions suggérées :</b> Toutes</li>
+<li><b>Traits suggérés :</b> Ambitieux, adaptable, déterminé</li>
+</ul>
+</div>
+
+<div class="race-box">
+<h2>Nain</h2>
+<span class="modifiers">+1D6 CON, +1D6 FOR, −1D6 DEX, −1D6 CHA</span>
+<p>Les nains sont un peuple robuste et fier, vivant dans les montagnes et les profondeurs de la terre. Ils sont réputés pour leur artisanat, leur courage au combat et leur mémoire longue des griefs. Les nains sont petits et trapus, mais extrêmement solides.</p>
+<ul>
+<li><b>Caractéristiques :</b> FOR 2d6+6, CON 3d6+6, TAI 2d6, INT 2d6+6, POU 3d6, DEX 3d6, CHA 3d6</li>
+<li><b>Mouvement :</b> 8</li>
+<li><b>Vision nocturne :</b> Les nains voient dans l'obscurité totale jusqu'à 30 mètres (seulement en noir et blanc).</li>
+<li><b>Professions suggérées :</b> Guerrier, Artisan, Soldat, Chasseur, Érudit, Prêtre</li>
+<li><b>Compétences culturelles :</b> Artisanat (Forge ou Maçonnerie) +10%, Connaissance (Géologie) +10%, Observation (Souterrains) +10%</li>
+<li><b>Traits suggérés :</b> Rancunier, loyal, travailleur, têtu</li>
+</ul>
+</div>
+
+<div class="race-box">
+<h2>Elfe</h2>
+<span class="modifiers">+1D6 DEX, +1D6 CHA, −1D6 CON, −1D6 TAI</span>
+<p>Les elfes sont un peuple ancien et gracieux, lié à la magie et aux forêts. Ils vivent des siècles et voient le monde avec une perspective que les humains ne peuvent qu'imaginer. Ils sont agiles, beaux et magiquement doués, mais frêles.</p>
+<ul>
+<li><b>Caractéristiques :</b> FOR 3d6, CON 2d6+6, TAI 2d6+4, INT 2d6+6, POU 3d6, DEX 3d6+6, CHA 3d6+6</li>
+<li><b>Mouvement :</b> 12</li>
+<li><b>Vision nocturne :</b> Les elfes voient dans l'obscurité totale jusqu'à 60 mètres.</li>
+<li><b>Professions suggérées :</b> Sorcier, Érudit, Guerrier, Chasseur, Amuseur, Prêtre</li>
+<li><b>Compétences culturelles :</b> Arme de mêlée (Épée ou Arc) +10%, Discrétion (Forêt) +10%, Connaissance (Histoire) +10%</li>
+<li><b>Spécial :</b> Les elfes commencent avec la capacité d'apprendre la magie. S'ils choisissent la profession de Sorcier, ils connaissent un sort supplémentaire au départ.</li>
+<li><b>Traits suggérés :</b> Serein, mélancolique, élégant, distant</li>
+</ul>
+</div>
+
+<div class="race-box">
+<h2>Demi-Elfe</h2>
+<span class="modifiers">+1D6 DEX, +1D6 CHA, −1D6 CON</span>
+<p>Nés de l'union d'un humain et d'un elfe, les demi-elfes combinent l'adaptabilité humaine avec la grâce elfique. Ils appartiennent à deux mondes mais ne sont pleinement acceptés dans aucun, ce qui forge des personnalités indépendantes et nuancées.</p>
+<ul>
+<li><b>Caractéristiques :</b> FOR 3d6, CON 3d6, TAI 2d6+6, INT 2d6+6, POU 3d6, DEX 3d6+6, CHA 3d6+6</li>
+<li><b>Mouvement :</b> 11</li>
+<li><b>Vision nocturne :</b> Les demi-elfes voient dans l'obscurité totale jusqu'à 30 mètres.</li>
+<li><b>Professions suggérées :</b> Toutes (particulièrement Sorcier, Guerrier, Voleur, Érudit, Explorateur)</li>
+<li><b>Compétences culturelles :</b> Une compétence au choix +10% (reflétant leur éducation humaine ou elfique)</li>
+<li><b>Spécial :</b> Les demi-elfes peuvent choisir un sort de magie supplémentaire s'ils prennent la profession de Sorcier.</li>
+<li><b>Traits suggérés :</b> Indépendant, charismatique, entre-deux-mondes</li>
+</ul>
+</div>
+
+<div class="race-box">
+<h2>Demi-Orc</h2>
+<span class="modifiers">+1D6 FOR, +1D6 CON, −1D6 INT, −1D6 CHA</span>
+<p>Les demi-orcs sont nés de l'union violente ou improbable entre humains et orcs. Ils sont plus grands et plus forts que les humains, avec une endurance remarquable, mais souvent rejetés par les deux cultures. Ils survivent par leur force et leur détermination brute.</p>
+<ul>
+<li><b>Caractéristiques :</b> FOR 3d6+6, CON 3d6+6, TAI 2d6+6, INT 2d6+6, POU 3d6, DEX 3d6, CHA 3d6</li>
+<li><b>Mouvement :</b> 10</li>
+<li><b>Vision nocturne :</b> Les demi-orcs voient dans l'obscurité totale jusqu'à 15 mètres.</li>
+<li><b>Professions suggérées :</b> Guerrier, Soldat, Chasseur, Tribual, Assassin, Voleur</li>
+<li><b>Compétences culturelles :</b> Bagarre +10%, Pistage +10%, Intimidation (Baratin ou Persuasion) +10%</li>
+<li><b>Traits suggérés :</b> Brutal, direct, marginal, colérique</li>
+</ul>
+</div>
+
+<!-- ============ CHAPITRE 2 : CRÉATION DE PERSONNAGE ============ -->
+<h1 class="chapter">2. Création de Personnage — Étape par Étape</h1>
+
+<p>Suivez ces étapes dans l'ordre pour créer votre personnage. Le niveau de pouvoir recommandé pour un univers médiéval-fantastique est <b>Héroïque</b> (325 points de compétence professionnels, 6 sorts pour un magicien).</p>
+
+<div class="step">
+<h3>Étape 1 — Nom et Caractéristiques</h3>
+<ol>
+<li>Choisissez le nom et le genre de votre personnage.</li>
+<li>Choisissez votre espèce (voir Chapitre 1).</li>
+<li>Lancez les caractéristiques selon votre espèce :
+<ul>
+<li><b>FOR, CON, POU, DEX, CHA :</b> 3D6 (ou selon modificateurs d'espèce)</li>
+<li><b>INT, TAI :</b> 2D6+6 (ou selon modificateurs d'espèce)</li>
+</ul></li>
+<li>Appliquez les modificateurs d'espèce.</li>
+<li>Redistribuez jusqu'à <b>3 points</b> entre vos caractéristiques (aucune ne peut dépasser 21 ni être inférieure à 3).</li>
+</ol>
+<p class="note">Option : Lancez 3D6 sept fois et répartissez les résultats où vous le souhaitez. TAI et INT ne peuvent pas être inférieurs à 8.</p>
+</div>
+
+<div class="step">
+<h3>Étape 2 — Pouvoirs (Magie)</h3>
+<p>Si votre personnage utilise la magie (professions : Sorcier, Prêtre, Chaman, Étudiant en arts arcaniques), déterminez vos sorts initiaux :</p>
+<ul>
+<li><b>Niveau Normal :</b> 4 sorts, compétence = INT × 1</li>
+<li><b>Niveau Héroïque (recommandé) :</b> 6 sorts, compétence = INT × 1</li>
+<li><b>Niveau Épique :</b> 8 sorts, compétence = INT × 1 (+ familier gratuit)</li>
+</ul>
+<p>Choisissez vos sorts dans la liste du Chapitre 4, <b>parmi ceux disponibles pour votre profession</b> (voir la colonne « Prof. » du tableau des sorts). Plusieurs professions peuvent partager les mêmes sorts, mais aucune profession n'a accès à tous les sorts. Tous les sorts connus sont inscrits dans votre grimoire. Vous pouvez mémoriser un nombre de sorts égal à votre INT.</p>
+</div>
+
+<div class="step">
+<h3>Étape 3 — Âge</h3>
+<p>Âge par défaut : <b>17 + 1D6</b> ans (pour les humains et demi-orcs). Les elfes peuvent commencer à 50 + 2D10 ans, les demi-elfes à 20 + 1D10 ans, les nains à 30 + 2D6 ans.</p>
+<ul>
+<li>+10 ans au-dessus de l'âge de départ : +20 points de compétence professionnels (Héroïque)</li>
+<li>50 ans et +10 ans : −1 à une caractéristique physique (FOR, CON, DEX ou CHA au choix)</li>
+</ul>
+</div>
+
+<div class="step">
+<h3>Étape 4 — Jets de Caractéristique</h3>
+<p>Multipliez chaque caractéristique par 5 pour obtenir les jets de caractéristique :</p>
+<table>
+<tr><th>Caractéristique</th><th>Jet</th><th>Usage</th></tr>
+<tr><td>FOR × 5</td><td>Effort</td><td>Forcer, soulever, briser</td></tr>
+<tr><td>CON × 5</td><td>Endurance</td><td>Résister au poison, maladie, fatigue</td></tr>
+<tr><td>INT × 5</td><td>Idée</td><td>Déduire, comprendre, résoudre</td></tr>
+<tr><td>POU × 5</td><td>Chance</td><td>Tirage aléatoire, éviter la malchance</td></tr>
+<tr><td>DEX × 5</td><td>Agilité</td><td>Éviter, réagir vite</td></tr>
+<tr><td>CHA × 5</td><td>Charme</td><td>Séduire, impressionner</td></tr>
+</table>
+</div>
+
+<div class="step">
+<h3>Étape 5 — Caractéristiques Dérivées</h3>
+<table>
+<tr><th>Caractéristique</th><th>Calcul</th></tr>
+<tr><td><b>Points de vie (PV)</b></td><td>(CON + TAI) / 2, arrondi au supérieur</td></tr>
+<tr><td><b>Seuil de blessure majeure</b></td><td>½ PV total, arrondi au supérieur</td></tr>
+<tr><td><b>Points de pouvoir (PP)</b></td><td>Égal à POU (max temporaire = 2 × POU)</td></tr>
+<tr><td><b>Modificateur de dégâts</b></td><td>Voir table ci-dessous (FOR + TAI)</td></tr>
+<tr><td><b>Bonus d'expérience</b></td><td>INT / 2, arrondi au supérieur</td></tr>
+<tr><td><b>Mouvement (MOV)</b></td><td>Selon l'espèce (Humain : 10, Nain : 8, Elfe : 12, etc.)</td></tr>
+</table>
+
+<h3>Table des modificateurs de dégâts</h3>
+<table>
+<tr><th>FOR+TAI</th><th>Mod.</th><th>FOR+TAI</th><th>Mod.</th></tr>
+<tr><td>2–12</td><td>−1D6</td><td>73–88</td><td>+4D6</td></tr>
+<tr><td>13–16</td><td>−1D4</td><td>89–104</td><td>+5D6</td></tr>
+<tr><td>17–24</td><td>Aucun</td><td>105–120</td><td>+6D6</td></tr>
+<tr><td>25–32</td><td>+1D4</td><td>121–136</td><td>+7D6</td></tr>
+<tr><td>33–40</td><td>+1D6</td><td>137–152</td><td>+8D6</td></tr>
+<tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
+<tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
+</table>
+<p class="note">Armes de jet : mod. positif ÷ 2 (arr. sup.). Armes à feu : pas de modificateur.</p>
+</div>
+
+<div class="step">
+<h3>Étape 6 — Personnalité (Option)</h3>
+<p>Choisissez ou lancez 1D4 pour déterminer la personnalité de votre personnage. Ajoutez <b>20 points</b> à chacune des 13 compétences indiquées.</p>
+<table>
+<tr><th>D4</th><th>Type</th><th>Description</th></tr>
+<tr><td>1</td><td><b>Brutal</b></td><td>Force avant tout. Bagarre, Escalade, Esquive, Lutte, Intuition, Saut, Équitation, Sens, Discrétion, Nage, Lancer + 2 compétences de Combat</td></tr>
+<tr><td>2</td><td><b>Habile</b></td><td>Technique et expertise. Estimation, Art, Déguisement, Esquive, Manipulation Fine, Premiers Secours, Connaissance, Navigation, Pilotage, Équitation, Tour de main, Discrétion + 1 Combat</td></tr>
+<tr><td>3</td><td><b>Rusé</b></td><td>Intelligence d'abord. Estimation, Marchandage, Déguisement, Intuition, 2 Connaissances, Écouter, Recherche, Sens, Observation, Discrétion, Technique + 1 Combat</td></tr>
+<tr><td>4</td><td><b>Charmant</b></td><td>Persuasion. Estimation, Marchandage, Commandement, Étiquette, Baratin, Intuition, Représentation, Persuasion, Langue (Autre), Langue (Natale), Sens, Statut + 1 Combat</td></tr>
+</table>
+</div>
+
+<div class="step">
+<h3>Étape 7 — Profession et Compétences</h3>
+<p>Choisissez une profession (voir Chapitre 3). Déterminez vos pools de points de compétence :</p>
+<table>
+<tr><th>Niveau</th><th>Points professionnels</th><th>Limite par compétence</th><th>Points personnels</th></tr>
+<tr><td>Normal</td><td>250</td><td>75 %</td><td>INT × 10</td></tr>
+<tr><td><b>Héroïque (recommandé)</b></td><td><b>325</b></td><td><b>90 %</b></td><td><b>INT × 10</b></td></tr>
+<tr><td>Épique</td><td>400</td><td>101 %</td><td>INT × 10</td></tr>
+</table>
+<ol>
+<li>Distribuez les points professionnels parmi les compétences de votre profession.</li>
+<li>Calculez vos points personnels : <b>INT × 10</b>. Dépensez-les sur n'importe quelle compétence (avec l'accord du MJ).</li>
+<li>Ajoutez tous les bonus (base + personnalité + professionnel + personnel + culturels).</li>
+</ol>
+</div>
+
+<div class="step">
+<h3>Étape 8 — Possessions</h3>
+<p>Votre personnage commence avec :</p>
+<ul>
+<li>Un ensemble de vêtements approprié</li>
+<li>Argent de poche et économies selon votre niveau de richesse</li>
+<li>Un objet personnel (héritage, souvenir, bibelot)</li>
+<li>Outils de métier appropriés</li>
+<li>Toute arme dans laquelle vous avez 50 % ou plus</li>
+<li>Éventuellement une monture (cheval, mule) selon la profession et le Statut</li>
+</ul>
+</div>
+
+<div class="step">
+<h3>Étape 9 — Taille et Traits Distinctifs</h3>
+<p>Déterminez la taille et le poids selon la TAI (10–13 = moyenne humaine). Choisissez 1D3 traits distinctifs (cicatrices, tatouages, particularités physiques, manies, etc.) qui rendent votre personnage mémorable.</p>
+</div>
+
+<div class="step">
+<h3>Étape 10 — Touches Finales</h3>
+<p>Définissez l'apparence, le passé, la famille, les motivations et les liens de votre personnage. Répondez à quelques questions :</p>
+<ul>
+<li>Où a-t-il grandi ?</li>
+<li>Qui est sa famille ?</li>
+<li>Qu'a-t-il accompli ou subi ?</li>
+<li>Que veut-il accomplir ?</li>
+<li>A-t-il des amis ? Des ennemis ?</li>
+</ul>
+</div>
+
+<!-- ============ CHAPITRE 3 : PROFESSIONS ============ -->
+<h1 class="chapter">3. Professions Médiéval-Fantastiques</h1>
+
+<p>Voici les professions les plus adaptées à un univers médiéval-fantastique. Chaque profession liste ses compétences (10 compétences) et son niveau de richesse suggéré. Distribuez vos points de compétence professionnels parmi ces compétences.</p>
+
+<div class="two-col">
+
+<h3>Guerrier <span class="tag">Combat</span></h3>
+<p>Combattant individuel, mercenaire, chevalier ou barbare.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Moyen</li>
+<li><b>Compétences :</b> Bagarre, Esquive, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Arts Martiaux, Équitation, Observation, Discrétion, Nage, Lancer, Pistage</li>
+</ul>
+
+<h3>Sorcier <span class="tag tag-magic">Magie</span></h3>
+<p>Magicien ou sorcier, maître des sorts et du grimoire.</p>
+<ul>
+<li><b>Richesse :</b> Aisé</li>
+<li><b>Compétences :</b> Artisanat (au choix), Intuition, Connaissance (Occulte), 2 autres Connaissances, Langue (Autre), Écouter, Représentation (Rituels), Persuasion, Recherche</li>
+<li><b>Spécial :</b> Accès à la magie arcane. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage. <b>Ne peut pas apprendre :</b> Soins, Guérison Supérieure, Bénédiction, Malédiction, Sanctifier, Renaissance, Transe, Esprit Gardien.</li>
+</ul>
+
+<h3>Prêtre <span class="tag tag-magic">Magie</span></h3>
+<p>Serviteur d'une divinité, prédicateur et guérisseur.</p>
+<ul>
+<li><b>Richesse :</b> Moyen</li>
+<li><b>Compétences :</b> Baratin, Intuition, Connaissance (Histoire), Connaissance (Philosophie), Connaissance (Religion), Langue (Natale), Représentation (Rituels), Persuasion + 2 parmi : Connaissance (Occulte), Langue (Autre), Écouter, Alphabétisation, Représentation (Éloquence), Recherche, Statut, Enseignement</li>
+<li><b>Spécial :</b> Accès à la magie divine. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Bénédiction, Malédiction, Guérison Supérieure, Sanctifier, Renaissance. <b>Ne peut pas apprendre :</b> Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Contrôle, Illusion, Émoussement, Affûtage, Conjurer Élémentaire, Transe, Esprit Gardien. Peut utiliser l'allégeance divine (voir Chapitre 4).</li>
+</ul>
+
+<h3>Voleur <span class="tag">Ruse</span></h3>
+<p>Pickpocket, brigand, ou voleur d'aventure.</p>
+<ul>
+<li><b>Richesse :</b> Variable</li>
+<li><b>Compétences :</b> Estimation, Esquive, Baratin, Se cacher, Discrétion + 5 parmi : Marchandage, Bagarre, Escalade, Déguisement, Manipulation Fine, Lutte, Intuition, Écouter, Saut, Connaissance (Droit), Persuasion, Observation</li>
+</ul>
+
+<h3>Chasseur</h3>
+<p>Traqueur, chasseur, pister des proies ou des ennemis.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Moyen</li>
+<li><b>Compétences :</b> Escalade, Esquive, Se cacher, Connaissance (Histoire Naturelle), Écouter, Observation, Pistage, Arme de jet (Arc), Discrétion + 1 parmi : Bagarre, Premiers Secours, Saut, Équitation, Nage</li>
+</ul>
+
+<h3>Artisan</h3>
+<p>Forgeron, menuisier, tanneur, fabricant d'armes.</p>
+<ul>
+<li><b>Richesse :</b> Moyen</li>
+<li><b>Compétences :</b> Estimation, Art (au choix), Marchandage, 2 Artisanats (au choix), Observation, Recherche, Statut + 2 parmi : Manipulation Fine, Machine Lourde, Réparation (au choix)</li>
+</ul>
+
+<h3>Noble</h3>
+<p>Aristocrate, seigneur, courtisan.</p>
+<ul>
+<li><b>Richesse :</b> Aisé à Riche</li>
+<li><b>Compétences :</b> Marchandage, Étiquette, Baratin, Intuition, Connaissance (Histoire), Persuasion, Statut, Arme de mêlée (au choix) + 2 parmi : Connaissance (Droit), Écouter, Langue (Autre), Représentation (Éloquence), Recherche, Équitation</li>
+</ul>
+
+<h3>Chaman <span class="tag tag-magic">Magie</span></h3>
+<p>Magicien tribal, lien avec les esprits.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre (niveau tribal)</li>
+<li><b>Compétences :</b> Art (au choix), Intuition, Connaissance (Histoire), Connaissance (Occulte), Langue (Natale), Écouter, Représentation (Rituels), Persuasion + 2 parmi : Artisanat, Baratin, Premiers Secours, Se cacher, Connaissance (Anthropologie), Langue (Autre), Médecine, Statut</li>
+<li><b>Spécial :</b> Accès à la magie spirituelle. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Transe, Esprit Gardien. <b>Ne peut pas apprendre :</b> Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage, Scellement, Déscelement, Bénédiction, Malédiction, Guérison Supérieure, Sanctifier, Renaissance.</li>
+</ul>
+
+<h3>Érudit</h3>
+<p>Savant, bibliothécaire, sage.</p>
+<ul>
+<li><b>Richesse :</b> Moyen</li>
+<li><b>Compétences :</b> Langue (Autre), Langue (Natale), Persuasion, Recherche, Enseignement + 5 compétences de Connaissance ou Science appropriées</li>
+</ul>
+
+<h3>Assassin</h3>
+<p>Tueur à gages, ombre silencieuse.</p>
+<ul>
+<li><b>Richesse :</b> Aisé</li>
+<li><b>Compétences :</b> Esquive, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Arts Martiaux, Équitation, Lancer, Pistage</li>
+</ul>
+
+<h3>Soldat</h3>
+<p>Militaire, garde, mercenaire en groupe.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Moyen</li>
+<li><b>Compétences :</b> Bagarre, Escalade, Esquive, Premiers Secours + 6 parmi : Commandement, Arme de mêlée (au choix), Arme de jet (au choix), Se cacher, Écouter, Saut, Équitation, Observation, Discrétion, Lancer</li>
+</ul>
+
+<h3>Amuseur</h3>
+<p>Barde, ménestrel, jongleur, conteur.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Aisé</li>
+<li><b>Compétences :</b> Art (au choix), Déguisement, Baratin, Manipulation Fine, Intuition, Langue (Autre), Écouter, Représentation (au choix), Persuasion + 1 au choix</li>
+</ul>
+
+<h3>Explorateur</h3>
+<p>Aventurier, cartographe, découvreur.</p>
+<ul>
+<li><b>Richesse :</b> Moyen</li>
+<li><b>Compétences :</b> Escalade, Langue (Autre), Persuasion, Recherche, Observation + 4 parmi : Connaissance (Histoire, Monde Naturel, ou Région), Baratin, Arme de jet (au choix), Navigation, Équitation, Nage, Pistage</li>
+</ul>
+
+<h3>Fermier</h3>
+<p>Cultivateur, éleveur, homme du peuple.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Moyen</li>
+<li><b>Compétences :</b> Marchandage, Artisanat (au choix), Connaissance (Histoire Naturelle), Écouter, Observation + 5 parmi : Bagarre, Premiers Secours, Connaissance (Histoire), Équitation, Pistage, Arme de mêlée (au choix), Arme de jet (au choix)</li>
+</ul>
+
+<h3>Tribual</h3>
+<p>Membre d'une tribu primitive, chasseur-cueilleur.</p>
+<ul>
+<li><b>Richesse :</b> Indigent à Pauvre</li>
+<li><b>Compétences :</b> Artisanat (au choix), Esquive, Lutte, Se cacher, Connaissance (Histoire Naturelle), Observation, Lancer, Pistage + 2 parmi : Bagarre, Escalade, Premiers Secours, Écouter, Saut, Arme de mêlée (Lance ou Matraque), Arme de jet (Arc), Équitation, Discrétion, Nage</li>
+</ul>
+
+<h3>Marchand</h3>
+<p>Commerçant, négociant, caravanier.</p>
+<ul>
+<li><b>Richesse :</b> Moyen à Riche</li>
+<li><b>Compétences :</b> Estimation, Marchandage, Baratin, Intuition, Langue (Autre), Langue (Natale), Persuasion, Statut, Observation + 1 au choix</li>
+</ul>
+
+<h3>Étudiant <span class="tag tag-magic">Magie</span></h3>
+<p>Apprenti mage, élève d'académie, novice.</p>
+<ul>
+<li><b>Richesse :</b> Pauvre à Moyen</li>
+<li><b>Compétences :</b> Langue (Natale), Recherche + 8 au choix parmi : Art, Artisanat, Premiers Secours, Intuition, Connaissance (au choix), Langue (Autre), Écouter, Médecine, Représentation, Persuasion, Science (au choix)</li>
+<li><b>Spécial :</b> Accès limité à la magie. Commence avec 4 sorts (niveau Héroïque : 6 sorts). <b>Sorts disponibles :</b> Blessure, Soins, Protection, Illusion, Lévitation, Perception, Parole mentale, Lumière, Scellement, Déscelement. <b>Ne peut pas apprendre les sorts exclusifs des autres professions.</b></li>
+</ul>
+
+</div>
+
+<!-- ============ CHAPITRE 4 : MAGIE ============ -->
+<h1 class="chapter">4. La Magie</h1>
+
+<h2>Principes généraux</h2>
+<p>La magie est traitée comme une compétence : chaque sort connu est une compétence distincte avec un pourcentage de succès. Le magicien dépense des <b>points de pouvoir (PP)</b> pour lancer ses sorts. Les PP sont égaux à la POU du personnage et se régénèrent avec le repos.</p>
+
+<div class="formula">Lancer un sort = Jet de compétence (D100 ≤ score du sort)</div>
+
+<h2>Coûts et temps d'incantation</h2>
+<ul>
+<li>Chaque sort a un <b>coût en PP par niveau</b> (voir la liste des sorts).</li>
+<li>Un sort de niveau 1 se lance au <b>rang de DEX − 1</b> dans le round de combat.</li>
+<li>Chaque niveau supplémentaire baisse le rang de DEX de <b>−1</b>.</li>
+<li>Limite de niveaux : <b>½ INT</b> (arrondi au supérieur).</li>
+<li>En cas d'<b>échec</b> : 1 PP est perdu, le sort n'a aucun effet.</li>
+<li>En cas de <b>maladresse</b> : tous les PP investis sont perdus + le magicien ne peut pas utiliser ce sort au round suivant.</li>
+</ul>
+
+<h2>Niveaux de succès des sorts</h2>
+<table>
+<tr><th>Résultat</th><th>Effet</th></tr>
+<tr><td><b>Critique</b></td><td>Le sort fonctionne parfaitement. Dégâts max, ignore l'armure. Ou double l'efficacité d'un aspect du sort.</td></tr>
+<tr><td><b>Spéciale</b></td><td>Efficacité accrue. Dégâts spéciaux si applicable. Ou 150 % d'effet / niveau × 1,5 pour les jets de résistance.</td></tr>
+<tr><td><b>Réussite</b></td><td>Le sort fonctionne normalement.</td></tr>
+<tr><td><b>Échec</b></td><td>1 PP perdu, aucun effet.</td></tr>
+<tr><td><b>Maladresse</b></td><td>Tous les PP perdus. Jet de Chance : succès = échec simple ; échec = le sort frappe une cible involontaire !</td></tr>
+</table>
+
+<h2>Récupération des points de pouvoir</h2>
+<table>
+<tr><th>PP Max</th><th>Endormi</th><th>Éveillé</th></tr>
+<tr><td>1–4</td><td>1/heure</td><td>1/2 heures</td></tr>
+<tr><td>5–8</td><td>2/heure</td><td>1/heure</td></tr>
+<tr><td>9–12</td><td>3/heure</td><td>1/40 min</td></tr>
+<tr><td>13–16</td><td>4/heure</td><td>1/30 min</td></tr>
+<tr><td>17+</td><td>+1/heure</td><td>temps ÷ 2</td></tr>
+</table>
+<p class="note">PP = 0 → évanouissement. Max temporaire = 2 × POU. Activité pénible = pas de récupération.</p>
+
+<h2>Grimoire et mémorisation</h2>
+<ul>
+<li>Le grimoire contient tous les sorts connus du magicien.</li>
+<li>Le magicien peut mémoriser un nombre de sorts égal à son <b>INT</b>.</li>
+<li>Les sorts mémorisés peuvent être lancés directement.</li>
+<li>Changer un sort mémorisé prend <b>10 minutes</b> par sort.</li>
+<li>Un magicien peut librement ajouter un sort mémorisé à son grimoire.</li>
+</ul>
+
+<h2>Apprendre de nouveaux sorts</h2>
+<ul>
+<li><b>À partir d'un grimoire ou parchemin :</b> 1 mois d'étude par sort, puis jet d'INT+POU. Succès = sort appris à INT×1.</li>
+<li><b>Inventer un nouveau sort :</b> 6 mois de recherche, jet d'INT+POU chaque mois. 6 réussites nécessaires.</li>
+<li><b>Non-magiciens :</b> Peuvent apprendre jusqu'à ¼ de leur INT en sorts, à INT×1. Temps d'apprentissage : 30 − INT en semaines.</li>
+</ul>
+
+<h2>Gagner de la POU</h2>
+<p>Quand un magicien réussit un jet de résistance de POU contre une POU <b>égale ou supérieure</b>, il coche une expérience sur POU. Lors de la vérification d'expérience, la POU peut augmenter de <b>1D3−1</b> points. Une seule coche par aventure.</p>
+
+<h2>Liste des sorts de magie</h2>
+<p>Portée standard : <b>100 mètres</b> (sauf indication contraire). La cible doit être en ligne de vue.</p>
+<p><b>Légende des professions :</b> <span class="prof-tag prof-tag-s">S</span> Sorcier · <span class="prof-tag prof-tag-p">P</span> Prêtre · <span class="prof-tag prof-tag-c">C</span> Chaman · <span class="prof-tag prof-tag-e">E</span> Étudiant</p>
+
+<table class="spell-list">
+<tr><th>Sort</th><th>Coût/niv.</th><th>Effet (par niveau)</th><th>Prof.</th></tr>
+<tr><td><b>Blessure</b></td><td>3 PP</td><td>Inflige 1D6 points de dégâts par niveau</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Déflagration</b></td><td>3 PP</td><td>Rayon d'énergie, 1D6 dégâts/niv. Esquivable, armure absorbe</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Feu</b></td><td>3 PP</td><td>1D6 dégâts de feu/niv. Peut enflammer</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Foudre</b></td><td>3 PP</td><td>1D6 dégâts de foudre/niv.</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Givre</b></td><td>3 PP</td><td>1D6 dégâts de froid/niv. Peut geler</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Soins</b></td><td>3 PP</td><td>Soigne 1D6 PV/niv. Sur une créature vivante</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Guérison Supérieure</b></td><td>3 PP</td><td>Soigne 2D6 PV/niv. + guérit maladie et poison</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Contrôle</b></td><td>3 PP</td><td>Contrôle l'esprit d'un être intelligent. Jet POU vs POU. 1 cible/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Protection</b></td><td>1 PP</td><td>+1 point d'armure/niv. contre attaques physiques</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Contre-magie</b></td><td>1 PP</td><td>Renvoie les sorts entrants vers leur lanceur</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Dissipation</b></td><td>1 PP</td><td>Élimine les effets de sorts existants, bannit êtres surnaturels</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Métamorphose</b></td><td>1 PP</td><td>Transforme 3 points de TAI/niv. Durée : 15 min</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Illusion</b></td><td>1 PP</td><td>Crée 3 points de TAI d'illusion/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Invisibilité</b></td><td>1 PP</td><td>Rend 3 points de TAI invisible/niv.</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Lévitation</b></td><td>1 PP</td><td>Soulève 3 points de TAI/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Téléportation</b></td><td>1 PP</td><td>Téléporte 3 points de TAI/niv. dans la portée</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Diminution</b></td><td>1 PP</td><td>−1 à une caractéristique/niv. de la cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Amélioration</b></td><td>1 PP</td><td>+1 à une caractéristique/niv. de la cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Perception</b></td><td>1 PP</td><td>Détecte une chose dans la portée</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Vision</b></td><td>1 PP</td><td>Voir ailleurs ou dans le passé</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Parole mentale</b></td><td>1 PP</td><td>Communication mentale avec une cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Lumière</b></td><td>1 PP</td><td>Remplit une zone de lumière</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Ténèbres</b></td><td>1 PP</td><td>Remplit une zone de ténèbres</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Mur</b></td><td>1 PP</td><td>Crée une barrière protectrice</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Garde</b></td><td>1 PP</td><td>Zone protégée par Déflagration et Contre-magie</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Résistance</b></td><td>1 PP</td><td>−1 dégât de chaleur/froid/niv.</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Émoussement</b></td><td>1 PP</td><td>Réduit chance d'attaque et dégâts d'une arme</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Affûtage</b></td><td>1 PP</td><td>Augmente chance d'attaque et dégâts d'une arme</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
+<tr><td><b>Scellement</b></td><td>1 PP</td><td>Joint deux objets inanimés</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Déscelement</b></td><td>1 PP</td><td>Sépare deux objets connectés</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
+<tr><td><b>Conjurer Élémentaire</b></td><td>1 PP/POU</td><td>Invoque un élémentaire (Air, Terre, Feu, Eau). Durée : 10 rounds</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Bénédiction</b></td><td>1 PP</td><td>+10 % à un jet de compétence/niv. Durée : 1 combat</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Malédiction</b></td><td>1 PP</td><td>−10 % à un jet de compétence de la cible/niv. Durée : 1 combat</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Sanctifier</b></td><td>1 PP</td><td>Zone bénie de 3 m/niv. Maléfices repoussés, sorts hostiles −20 %</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Exorcisme</b></td><td>2 PP</td><td>Bannit un esprit ou démon d'un hôte. Jet POU vs POU</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Renaissance</b></td><td>5 PP</td><td>Ressuscite un mort depuis ≤ 1 heure/niv. Coûte 1 POU permanent</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
+<tr><td><b>Transe</b></td><td>1 PP</td><td>Communication avec esprits et ancêtres. Durée : 10 min/niv.</td><td><span class="prof-tag prof-tag-c">C</span></td></tr>
+<tr><td><b>Esprit Gardien</b></td><td>1 PP</td><td>Invoque un esprit protecteur. +1D4 PV temporaires/niv. pendant 1 heure</td><td><span class="prof-tag prof-tag-c">C</span></td></tr>
+</table>
+
+<h2>Résumé des sorts par profession</h2>
+<table>
+<tr><th>Profession</th><th>Nb. sorts</th><th>Sorts exclusifs</th><th>Style de magie</th></tr>
+<tr><td><b>Sorcier</b> <span class="prof-tag prof-tag-s">S</span></td><td>28</td><td>Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage</td><td>Arcane : offensif, transformation, utilitaire</td></tr>
+<tr><td><b>Prêtre</b> <span class="prof-tag prof-tag-p">P</span></td><td>19</td><td>Guérison Supérieure, Bénédiction, Malédiction, Sanctifier, Renaissance</td><td>Divin : guérison, protection, soutien, allégeance</td></tr>
+<tr><td><b>Chaman</b> <span class="prof-tag prof-tag-c">C</span></td><td>15</td><td>Transe, Esprit Gardien</td><td>Spirituel : éléments, esprits, nature</td></tr>
+<tr><td><b>Étudiant</b> <span class="prof-tag prof-tag-e">E</span></td><td>10</td><td>Aucun (accès limité)</td><td>Arcane limité : bases polyvalentes</td></tr>
+</table>
+<p class="note">Aucune profession n'a accès aux 37 sorts. Les sorts partagés entre professions sont indiqués par plusieurs lettres dans la colonne « Prof. » du tableau ci-dessus.</p>
+
+<h2>Allégeance et magie divine (Prêtre)</h2>
+<p>Le prêtre tire une partie de son pouvoir de son allégeance à une divinité ou force divine. L'allégeance se mesure en <b>points d'allégeance</b>, gagnés en agissant selon les préceptes de la divinité (actions majeures : 3 pts, significatives : 2 pts, mineures : 1 pt).</p>
+
+<h3>Allégeance de départ</h3>
+<ul>
+<li>Lancez 1D6−1 (minimum 0) pour les points d'allégeance initiaux.</li>
+<li>Un prêtre ajoute <b>½ POU</b> (arrondi au supérieur) points d'allégeance supplémentaires distribués selon ses choix.</li>
+<li>Le personnage est considéré <b>allié</b> si son score d'allégeance dépasse de 20+ celui de toute autre allégeance.</li>
+</ul>
+
+<h3>Avantages de l'allégeance</h3>
+<ul>
+<li><b>Points de pouvoir supplémentaires :</b> Quand les PP sont épuisés, un jet d'allégeance réussi octroie jusqu'à 10 % du score d'allégeance en PP supplémentaires. Jusqu'à 3 fois par séance.</li>
+<li><b>Points de vie temporaires :</b> Un jet d'allégeance réussi octroie jusqu'à 20 % du score d'allégeance en PV temporaires, 1 fois par séance. Ces PV sont dépensés en premier et ne se régénèrent pas.</li>
+<li><b>Bonus de compétence :</b> Un jet d'allégeance réussi permet de créer un pool égal au score d'allégeance en points de compétence bonus pour des jets spécifiques. Jusqu'à 3 fois par séance. Déclarer avant le jet de dés.</li>
+<li><b>Intervention divine :</b> Un personnage allié peut demander une intervention divine. Chance de réussite = <b>critique</b> (1/20 du score d'allégeance). En cas de succès, la divinité intervient directement ou par proxy.</li>
+</ul>
+
+<h3>Apothéose</h3>
+<p>Si le personnage atteint <b>100+ points d'allégeance</b> et est allié, il peut être appelé à devenir l'apothéose de cette force — son avatar vivant. Avantages possibles :</p>
+<ul>
+<li>Immortalité limitée (pas de vieillissement ni maladie)</li>
+<li>PV permanents doublés (CON+TAI)</li>
+<li>Triple score de trois compétences appropriées</li>
+<li>Artefact divin fourni par la divinité</li>
+<li>PP maximum doublé (POU reste inchangé)</li>
+<li>Chance de POU×3 de communication directe avec la force divine</li>
+</ul>
+<p class="note">L'apothéose n'est pas automatique : le personnage doit la mériter par sa foi et ses actes. Il garde son libre arbitre et peut même trahir la force qu'il sert.</p>
+
+<h3>Passion : Dévotion (divinité)</h3>
+<p>La <b>Dévotion</b> est une passion évaluée comme une compétence (D100). Un jet réussi rend le personnage <b>inspiré</b> : ses actions sont chargées par sa foi, lui permettant un effort surhumain. Un échec peut mener au <b>désespoir</b>. La dévotion représente la dédication personnelle et émotionnelle envers une divinité ou force divine.</p>
+
+<h2>Le familier du magicien</h2>
+<p>Un magicien peut lier un animal comme familier. Conditions :</p>
+<ul>
+<li>TAI de la créature ≤ ¼ POU du magicien</li>
+<li>3 mois de cohabitation (pas de séparation > 1 jour)</li>
+<li>Coût : <b>1 point de POU permanent</b></li>
+<li>Jet de résistance POU vs POU à la fin du rituel</li>
+</ul>
+<p><b>Avantages :</b> Drainer les PP du familier, voir par ses yeux, communiquer télépathiquement, parler par sa bouche, défendre avec son INT/POU. Portée : POU du magicien en mètres.</p>
+
+<h2>Le bâton du sorcier</h2>
+<p>Un bâton de sorcier est un focus magique et un réservoir de points de pouvoir. Fabrication :</p>
+<ul>
+<li>6 mois de travail à temps plein</li>
+<li>Coût financier : très élevé (à la discrétion du MJ, équivalent à l'achat d'un cheval de guerre ou d'une armure complète de plate)</li>
+<li>Coût : <b>1 point de POU permanent</b></li>
+<li>Stocke jusqu'à POU−1 points de pouvoir</li>
+<li>Récupère ses PP au même taux qu'un personnage</li>
+<li>En combat : 1D8 + mod. dégâts + 1D6 si PP du bâton > PP de la cible (coûte 1 PP)</li>
+<li>20 PV. Si brisé, devient inutile.</li>
+</ul>
+
+<!-- ============ CHAPITRE 5 : RÉSUMÉ DES RÈGLES ============ -->
+<h1 class="chapter">5. Résumé des Règles Clés</h1>
+
+<!-- 
+<h2>Niveaux de réussite</h2>
+<table>
+<tr><th>Résultat</th><th>Condition</th><th>Effet</th></tr>
+<tr><td>Critique</td><td>≤ 1/20 du score</td><td>Meilleur résultat possible</td></tr>
+<tr><td>Spéciale</td><td>≤ 1/5 du score</td><td>Résultat supérieur</td></tr>
+<tr><td>Réussite</td><td>≤ score</td><td>Résultat normal</td></tr>
+<tr><td>Échec</td><td>&gt; score, &lt; maladresse</td><td>Échec. Auto sur 96+</td></tr>
+<tr><td>Maladresse</td><td>Voir table</td><td>Échec spectaculaire. 00 = toujours</td></tr>
+</table>
+-->
+<h2>Modificateurs de difficulté</h2>
+<table>
+<tr><th>Niveau</th><th>Modificateur</th></tr>
+<tr><td>Automatique</td><td>Aucun jet requis</td></tr>
+<tr><td>Facile</td><td>×2 (double le score)</td></tr>
+<tr><td>Moyen</td><td>Normal (×1)</td></tr>
+<tr><td>Difficile</td><td>÷2 (arrondi au supérieur)</td></tr>
+<tr><td>Impossible</td><td>Échec automatique</td></tr>
+</table>
+
+<h2>Points de vie et blessures</h2>
+<ul>
+<li><b>PV ≤ 2 :</b> Perte de connaissance</li>
+<li><b>PV = 0 :</b> Mort à la fin du round suivant</li>
+<li><b>Blessure majeure :</b> Dégâts ≥ ½ PV en un coup → jet sur la Table des blessures majeures</li>
+<li><b>Guérison naturelle :</b> 1D3 PV / semaine</li>
+<li><b>Premiers Secours réussis :</b> +1D3 PV par blessure (immédiat, 1 fois/blessure)</li>
+</ul>
+
+<h2>Table de résistance</h2>
+<div class="formula">Base = 50 + (Actif × 5) − (Passif × 5)</div>
+<p>Écart de 10+ = réussite/échec automatique. Lancez 1D100 ≤ la valeur indiquée.</p>
+
+<h2>Combat — résumé</h2>
+<ul>
+<li><b>Round de combat :</b> 4 phases — Déclarations, Pouvoirs, Action, Résolution</li>
+<li><b>Ordre d'action :</b> Rang de DEX décroissant</li>
+<li><b>Attaque :</b> Jet de compétence d'arme. Réussite = dégâts (armure soustraite)</li>
+<li><b>Parade/Esquive :</b> Jet de compétence opposé à l'attaque</li>
+<li><b>Esquive multiple :</b> −30 % cumulatif par tentative supplémentaire</li>
+<li><b>Critique :</b> Dégâts maximum + mod. dégâts normal, ignore l'armure</li>
+<li><b>Spéciale :</b> Dégâts spéciaux selon le type d'arme (saignement, écrasement, empalement, renversement, entrave)</li>
+</ul>
+
+<h2>Amélioration par l'expérience</h2>
+<ul>
+<li>Cochez une compétence après une réussite significative durant la partie.</li>
+<li>À la fin de la session (ou de l'aventure), faites un jet d'apprentissage pour chaque coche :</li>
+<li><b>Jet d'apprentissage :</b> D100 + Bonus d'expérience (INT/2). Si le résultat &gt; score actuel, la compétence augmente de 1D6 points.</li>
+<li>La POU peut augmenter via les jets de résistance de POU réussis contre une POU égale ou supérieure.</li>
+</ul>
+
+<hr>
+<p style="text-align: center; font-style: italic; color: #666; margin-top: 20px;">Bon jeu, et que les dés soient avec vous !</p>
+
+</div>
+</body>
+</html>

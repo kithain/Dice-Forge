@@ -28,22 +28,30 @@ L'application supporte 7 types de dés : **D4, D6, D8, D10, D12, D20, D100**.
 
 Deux façons de lancer :
 
-- **Lancer rapide** — boutons pré-configurés pour les jets courants (`D20`, `D6`, `D100`) et les tests de caractéristiques (`FOR`, `CON`, `TAI`, `INT`, `POU`, `DEX`, `APP`)
+- **Lancer rapide** — boutons pré-configurés pour les jets courants (`D20`, `D6`, `D100`) et les jets BRP-ORC (`Effort FOR`, `Endurance CON`, `Idée INT`, `Chance POU`, `Agilité DEX`, `Charme CHA`)
+- **Test BRP** — champ générique pour compétences, sorts, résistances ou jets libres avec score en %, difficulté (`Automatique`, `Facile ×2`, `Moyen ×1`, `Difficile ÷2`, `Impossible`) et niveau de réussite automatique
 - **Compositeur de jet** — sélectionnez le nombre de dés de chaque type (1 à 10) via les boutons +/−, ajoutez un modificateur (+/−), puis cliquez sur **Lancer les Dés**
 
 L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 + 1D8 + 5`).
 
 ### Fiches de personnage
 
-L'onglet **Fiche personnage** permet de créer une fiche avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Apparence**.
+L'onglet **Fiche personnage** permet de créer une fiche BRP-ORC médiéval-fantastique avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Charisme**.
 
-- **FOR**, **CON**, **POU**, **DEX** et **APP** sont générées avec `3D6`
+- **FOR**, **CON**, **POU**, **DEX** et **CHA** sont générées avec `3D6`
 - **TAI** et **INT** sont générées avec `2D6 + 6`
+- Les espèces du `livret_joueur.html` sont disponibles : Humain, Nain, Elfe, Demi-Elfe, Demi-Orc
+- L'espèce choisie applique ses modificateurs raciaux après le tirage BRP standard et son `MOV`
+- Les professions du `livret_joueur.html` sont disponibles en liste, avec richesse et compétences de profession affichées dans la fiche
+- Un champ **Détail des calculs** récapitule les jets, les modificateurs d'espèce, les dérivées et les points de compétences
 - Le joueur peut relancer la série jusqu'à **2 fois** ; chaque relance remplace la série précédente
-- Le joueur peut déplacer jusqu'à **3 points** au total entre les caractéristiques
+- Le joueur peut déplacer jusqu'à **3 points** au total entre les caractéristiques, avec un plafond de départ à `21`
+- La fiche calcule les dérivées BRP-ORC : bonus aux dégâts, points de vie, seuil de blessure majeure, points de pouvoir, bonus d'expérience, mouvement, fatigue optionnelle et santé mentale optionnelle
 - La fiche finale est enregistrée dans Supabase dans la table `personnages`
+- Une fiche peut être exportée en JSON puis importée dans une autre salle ; après import, le joueur clique sur **Enregistrer** pour l'associer à son `player_name` courant
 - À la connexion d'un joueur dans une salle, l'application récupère automatiquement la fiche liée à son `player_name`
-- Les boutons de test lancent `D100` contre `caractéristique × 5` en pourcentage de réussite
+- Les boutons de test lancent `D100` contre `caractéristique × 5` et affichent réussite critique, réussite spéciale, échec ou maladresse
+- Les tests BRP libres appliquent les mêmes niveaux de réussite aux compétences et aux sorts
 
 ### Animation et résultats
 
@@ -139,13 +147,20 @@ Le mode multijoueur nécessite un backend Supabase.
    |---------|------|-------------|
    | `player_name` | `text` (PK) | Nom du joueur, identique à `rolls.player_name` |
    | `nom` | `text` | Nom du personnage |
+   | `espece` | `text` | Espèce du personnage |
+   | `genre` | `text` | Genre du personnage |
+   | `age` | `integer` | Âge du personnage |
+   | `profession` | `text` | Profession BRP-ORC |
+   | `richesse` | `text` | Niveau de richesse |
+   | `traits` | `text` | Traits distinctifs |
+   | `notes` | `text` | Notes libres |
    | `force` | `integer` | Score de Force |
    | `constitution` | `integer` | Score de Constitution |
    | `taille` | `integer` | Score de Taille |
    | `intelligence` | `integer` | Score d'Intelligence |
    | `pouvoir` | `integer` | Score de Pouvoir |
    | `dexterite` | `integer` | Score de Dextérité |
-   | `apparence` | `integer` | Score d'Apparence |
+   | `charisme` | `integer` | Score de Charisme |
    | `created_at` | `timestamptz` (default: `now()`) | Date de création |
 
    `player_name` est la clé primaire de `personnages`. La liaison avec les jets se fait par `personnages.player_name = rolls.player_name`. Le script crée aussi une vue `rolls_personnages` pour lire les jets avec la fiche associée.

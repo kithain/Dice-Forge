@@ -85,13 +85,46 @@
     <button class="qbtn feat" onclick="quickRoll(20)">🎲 D20</button>
     <button class="qbtn feat" onclick="quickRoll(6)">🎲 D6</button>
     <button class="qbtn feat" onclick="quickRoll(100)">🎲 D100</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('force')">Test FOR</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('constitution')">Test CON</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('taille')">Test TAI</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('intelligence')">Test INT</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('pouvoir')">Test POU</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('dexterite')">Test DEX</button>
-    <button class="qbtn stat-test" onclick="quickCharacteristicTest('apparence')">Test APP</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('force')">Effort FOR</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('constitution')">Endurance CON</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('intelligence')">Idée INT</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('pouvoir')">Chance POU</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('dexterite')">Agilité DEX</button>
+    <button class="qbtn stat-test" onclick="quickCharacteristicTest('charisme')">Charme CHA</button>
+  </div>
+</div>
+
+<div class="brp-test-panel">
+  <div class="slabel">Test BRP</div>
+  <div class="brp-test-form">
+    <div class="room-field">
+      <label>Type</label>
+      <select class="room-input" id="brp-test-type">
+        <option value="Compétence">Compétence</option>
+        <option value="Sort">Sort</option>
+        <option value="Résistance">Résistance</option>
+        <option value="Jet libre">Jet libre</option>
+      </select>
+    </div>
+    <div class="room-field brp-test-name-field">
+      <label>Nom</label>
+      <input class="room-input wide" id="brp-test-name" placeholder="Ex. Survie" maxlength="40">
+    </div>
+    <div class="room-field">
+      <label>Score %</label>
+      <input class="room-input small" id="brp-test-score" type="number" min="1" max="300" step="1" value="50">
+    </div>
+    <div class="room-field">
+      <label>Difficulté</label>
+      <select class="room-input wide" id="brp-test-difficulty">
+        <option value="normal">Moyen ×1</option>
+        <option value="easy">Facile ×2</option>
+        <option value="hard">Difficile ÷2</option>
+        <option value="auto">Automatique</option>
+        <option value="impossible">Impossible</option>
+      </select>
+    </div>
+    <button class="room-btn brp-test-btn" type="button" onclick="rollBrpPercentileTest()">Tester</button>
   </div>
 </div>
 
@@ -131,10 +164,35 @@
         <label>Nom du personnage</label>
         <input class="room-input wide" id="character-name" placeholder="Nom..." maxlength="40" oninput="characterNameChanged()">
       </div>
+      <div class="character-identity">
+        <div class="room-field">
+          <label>Espèce</label>
+          <select class="room-input wide" id="character-species" data-character-field="espece" onchange="characterProfileChanged('species')"></select>
+        </div>
+        <div class="room-field">
+          <label>Genre</label>
+          <input class="room-input" data-character-field="genre" maxlength="40" oninput="characterNameChanged()">
+        </div>
+        <div class="room-field">
+          <label>Âge</label>
+          <input class="room-input small" data-character-field="age" type="number" min="0" max="999" step="1" oninput="characterNameChanged()">
+        </div>
+        <div class="room-field">
+          <label>Profession</label>
+          <select class="room-input wide" id="character-profession" data-character-field="profession" onchange="characterProfileChanged()"></select>
+        </div>
+        <div class="room-field">
+          <label>Richesse</label>
+          <input class="room-input" data-character-field="richesse" maxlength="60" oninput="characterNameChanged()">
+        </div>
+      </div>
       <div class="char-actions">
         <button class="room-btn" id="char-generate-btn" type="button" onclick="generateCharacterStats()">Générer</button>
         <button class="room-leave char-secondary" id="char-reroll-btn" type="button" onclick="rerollCharacterStats()" disabled>Relancer</button>
         <button class="room-btn" id="char-save-btn" type="button" onclick="submitCharacterSheet()" disabled>Enregistrer</button>
+        <button class="room-leave char-secondary" id="char-export-btn" type="button" onclick="exportCharacterSheet()">Exporter</button>
+        <button class="room-leave char-secondary" id="char-import-btn" type="button" onclick="document.getElementById('char-import-file').click()">Importer</button>
+        <input class="char-file-input" id="char-import-file" type="file" accept="application/json,.json" onchange="importCharacterSheet(event)">
         <button class="room-leave char-secondary" id="char-new-btn" type="button" onclick="resetCharacterSheet()" disabled>Nouvelle fiche</button>
       </div>
     </div>
@@ -143,8 +201,24 @@
       <span class="room-badge" id="char-moved">Points déplacés: 0/3</span>
       <span class="room-badge" id="char-reserve">Réserve: 0</span>
     </div>
+    <div class="char-notes">
+      <div class="room-field">
+        <label>Traits distinctifs</label>
+        <textarea class="room-input text" data-character-field="traits" maxlength="500" oninput="characterNameChanged()"></textarea>
+      </div>
+      <div class="room-field">
+        <label>Notes</label>
+        <textarea class="room-input text" data-character-field="notes" maxlength="900" oninput="characterNameChanged()"></textarea>
+      </div>
+    </div>
     <div class="char-empty" id="char-empty">Aucune série générée.</div>
     <div class="char-grid" id="character-grid"></div>
+    <div class="char-derived" id="character-derived" style="display:none"></div>
+    <div class="char-reference" id="character-reference"></div>
+    <div class="char-calculations">
+      <div class="slabel">Détail des calculs</div>
+      <textarea class="room-input text calc-output" id="character-calculations" readonly></textarea>
+    </div>
   </div>
 </section>
 
@@ -153,6 +227,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260706-d100-two-dice-box-v2"></script>
+<script type="module" src="js/app.js?v=20260708-brp-orc-brp-tests"></script>
 </body>
 </html>

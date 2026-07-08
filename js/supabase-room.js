@@ -1,6 +1,7 @@
 // ——— Supabase multiplayer room logic ———
 import { createClient } from '@supabase/supabase-js';
 import { showToast, showConfirm } from './toast.js';
+import { speciesByName } from './brp-data.js?v=20260708-livret-joueur';
 
 // ▼▼▼ Config chargée depuis supabase-config.js (gitignored) ▼▼▼
 const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || 'https://VOTRE_PROJET.supabase.co';
@@ -26,8 +27,27 @@ const CHARACTER_FIELDS = [
   ['INT', 'intelligence'],
   ['POU', 'pouvoir'],
   ['DEX', 'dexterite'],
-  ['APP', 'apparence']
+  ['CHA', 'charisme']
 ];
+const CHARACTER_COLUMNS = [
+  'player_name',
+  'nom',
+  'espece',
+  'genre',
+  'age',
+  'profession',
+  'richesse',
+  'traits',
+  'notes',
+  'force',
+  'constitution',
+  'taille',
+  'intelligence',
+  'pouvoir',
+  'dexterite',
+  'charisme',
+  'created_at'
+].join(', ');
 
 export function randomFantasyName() {
   return FANTASY_NAMES[Math.floor(Math.random() * FANTASY_NAMES.length)];
@@ -163,10 +183,48 @@ function renderPlayerCharacter(character) {
   }
 
   currentPlayerCharacter = character;
-  nameEl.textContent = character.nom;
-  statsEl.innerHTML = CHARACTER_FIELDS.map(([code, key]) =>
+  const heading = [character.nom, character.espece, character.profession].filter(Boolean).join(' · ');
+  nameEl.textContent = heading || character.nom;
+  const stats = CHARACTER_FIELDS.map(([code, key]) =>
     `<span class="room-character-stat">${code} ${esc(character[key])}</span>`
-  ).join('');
+  );
+  const derived = characterDerivedSummary(character).map(([code, value]) =>
+    `<span class="room-character-stat derived">${code} ${esc(value)}</span>`
+  );
+  statsEl.innerHTML = stats.concat(derived).join('');
+}
+
+function damageBonus(forcePlusTaille) {
+  if (forcePlusTaille <= 12) return '-1D6';
+  if (forcePlusTaille <= 16) return '-1D4';
+  if (forcePlusTaille <= 24) return 'Aucun';
+  if (forcePlusTaille <= 32) return '+1D4';
+  if (forcePlusTaille <= 40) return '+1D6';
+  if (forcePlusTaille <= 56) return '+2D6';
+  if (forcePlusTaille <= 72) return '+3D6';
+  if (forcePlusTaille <= 88) return '+4D6';
+  if (forcePlusTaille <= 104) return '+5D6';
+  if (forcePlusTaille <= 120) return '+6D6';
+  if (forcePlusTaille <= 136) return '+7D6';
+  if (forcePlusTaille <= 152) return '+8D6';
+  return `+${9 + Math.floor((forcePlusTaille - 153) / 16)}D6`;
+}
+
+function characterDerivedSummary(character) {
+  const force = Number(character.force);
+  const constitution = Number(character.constitution);
+  const taille = Number(character.taille);
+  const pouvoir = Number(character.pouvoir);
+  if (![force, constitution, taille, pouvoir].every(Number.isFinite)) return [];
+
+  const hitPoints = Math.ceil((constitution + taille) / 2);
+  return [
+    ['PV', hitPoints],
+    ['BM', Math.ceil(hitPoints / 2)],
+    ['PP', pouvoir],
+    ['MOV', speciesByName(character.espece).mov],
+    ['BD', damageBonus(force + taille)]
+  ];
 }
 
 async function loadPlayerCharacter(playerName = roomState.player) {
@@ -175,7 +233,7 @@ async function loadPlayerCharacter(playerName = roomState.player) {
   if (!sb) { clearPlayerCharacter(); return null; }
 
   const { data, error } = await sb.from('personnages')
-    .select('player_name, nom, force, constitution, taille, intelligence, pouvoir, dexterite, apparence')
+    .select(CHARACTER_COLUMNS)
     .eq('player_name', playerName)
     .order('created_at', { ascending: false })
     .limit(1);
@@ -274,7 +332,22 @@ export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidde
   if (error) console.error('Erreur envoi du jet (vérifie la colonne is_hidden sur la table rolls):', error.message);
 }
 
-export async function saveCharacterSheet(nom, stats) {
+function emptyToNull(value) {
+  return value && value.trim ? value.trim() || null : value || null;
+}
+
+function parseOptionalInt(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const parsed = parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export async function saveCharacterSheet(nom, details, stats) {
+  if (!stats) {
+    stats = details || {};
+    details = {};
+  }
+
   const fallbackPlayer = document.getElementById('player-name')?.value.trim();
   const playerName = roomState.connected && roomState.player ? roomState.player : fallbackPlayer;
   if (!playerName) { showToast('Entre ton nom de joueur avant d’enregistrer', 'error'); return false; }
@@ -285,16 +358,22 @@ export async function saveCharacterSheet(nom, stats) {
   const payload = {
     player_name: playerName,
     nom,
+    espece: emptyToNull(details.espece),
+    genre: emptyToNull(details.genre),
+    age: parseOptionalInt(details.age),
+    profession: emptyToNull(details.profession),
+    richesse: emptyToNull(details.richesse),
+    traits: emptyToNull(details.traits),
+    notes: emptyToNull(details.notes),
     force: stats.force,
     constitution: stats.constitution,
     taille: stats.taille,
     intelligence: stats.intelligence,
     pouvoir: stats.pouvoir,
     dexterite: stats.dexterite,
-    apparence: stats.apparence
+    charisme: stats.charisme
   };
 
-  const characterColumns = 'player_name, nom, force, constitution, taille, intelligence, pouvoir, dexterite, apparence';
   const existing = await sb.from('personnages')
     .select('player_name')
     .eq('player_name', playerName)
@@ -313,14 +392,14 @@ export async function saveCharacterSheet(nom, stats) {
     const updateResult = await sb.from('personnages')
       .update(payload)
       .eq('player_name', playerName)
-      .select(characterColumns)
+      .select(CHARACTER_COLUMNS)
       .single();
     data = updateResult.data;
     error = updateResult.error;
   } else {
     const insertResult = await sb.from('personnages')
       .insert(payload)
-      .select(characterColumns)
+      .select(CHARACTER_COLUMNS)
       .single();
     data = insertResult.data;
     error = insertResult.error;
@@ -329,7 +408,7 @@ export async function saveCharacterSheet(nom, stats) {
       const updateResult = await sb.from('personnages')
         .update(payload)
         .eq('player_name', playerName)
-        .select(characterColumns)
+        .select(CHARACTER_COLUMNS)
         .single();
       data = updateResult.data;
       error = updateResult.error;
