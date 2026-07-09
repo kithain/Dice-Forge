@@ -168,6 +168,7 @@
         <div class="room-field">
           <label>Âge</label>
           <input class="room-input small" data-character-field="age" type="number" min="0" max="999" step="1" oninput="characterNameChanged()">
+          <span class="field-hint" id="character-age-band">Âge relatif selon l'espèce.</span>
         </div>
         <div class="room-field">
           <label>Profession</label>
@@ -219,6 +220,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260709-brp-ui-simple"></script>
+<script type="module" src="js/app.js?v=20260709-species-age"></script>
 </body>
 </html>

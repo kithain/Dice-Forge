@@ -42,6 +42,7 @@ L'onglet **Fiche personnage** permet de créer une fiche BRP-ORC médiéval-fant
 - **TAI** et **INT** sont générées avec `2D6 + 6`
 - Les espèces du `livret_joueur.html` sont disponibles : Humain, Nain, Elfe, Demi-Elfe, Demi-Orc
 - L'espèce choisie applique ses modificateurs raciaux après le tirage BRP standard et son `MOV`
+- L'âge saisi reste numérique, mais la fiche affiche aussi l'âge relatif selon l'espèce (par exemple 75 ans n'a pas le même sens pour un humain, un nain ou un elfe)
 - Les professions du `livret_joueur.html` sont disponibles en liste, avec richesse et compétences de profession affichées dans la fiche
 - Un champ **Détail des calculs** récapitule les jets, les modificateurs d'espèce, les dérivées et les points de compétences
 - Le joueur peut relancer la série jusqu'à **2 fois** ; chaque relance remplace la série précédente

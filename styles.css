@@ -232,6 +232,7 @@ h1{
 .room-row{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap}
 .room-field{display:flex;flex-direction:column;gap:.3rem}
 .room-field label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txd)}
+.field-hint{font-size:.72rem;color:var(--txm);line-height:1.25}
 .room-input{background:var(--s2);border:1px solid var(--brd2);color:var(--txt);font-family:Georgia,serif;font-size:.9rem;padding:.5rem .7rem;border-radius:5px;outline:none;width:140px}
 .room-input:focus{border-color:var(--gold)}
 select.room-input{appearance:none}

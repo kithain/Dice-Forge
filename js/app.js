@@ -165,6 +165,29 @@ function currentSpecies() {
   return speciesByName(document.getElementById('character-species')?.value);
 }
 
+function currentCharacterAge() {
+  const ageInput = document.querySelector('[data-character-field="age"]');
+  const age = parseInt(ageInput?.value, 10);
+  return Number.isFinite(age) && age >= 0 ? age : null;
+}
+
+function ageBandForSpecies(age = currentCharacterAge(), species = currentSpecies()) {
+  if (age === null) return null;
+  const band = species.ageBands?.find(item => item.max === null || age <= item.max);
+  return band?.label || null;
+}
+
+function formatSpeciesAge(age = currentCharacterAge(), species = currentSpecies()) {
+  const band = ageBandForSpecies(age, species);
+  if (age === null || !band) return 'Âge relatif selon l’espèce.';
+  return `${age} ans · ${species.name} : ${band}`;
+}
+
+function renderCharacterAgeHint() {
+  const hint = document.getElementById('character-age-band');
+  if (hint) hint.textContent = formatSpeciesAge();
+}
+
 function currentProfession() {
   return professionByName(document.getElementById('character-profession')?.value);
 }
@@ -731,6 +754,7 @@ function renderCharacterSheet() {
   const reserve = characterReserve();
   const canSave = characterState.generated && hasName && reserve === 0 && !characterState.saved;
 
+  renderCharacterAgeHint();
   document.getElementById('char-generate-btn').disabled = characterState.generated;
   document.getElementById('char-reroll-btn').disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS;
   document.getElementById('char-save-btn').disabled = !canSave;
@@ -809,11 +833,14 @@ function renderCharacterCalculations(calculationsEl) {
 
   const species = currentSpecies();
   const profession = currentProfession();
+  const age = currentCharacterAge();
+  const ageBand = ageBandForSpecies(age, species);
   if (!characterState.generated) {
     calculationsEl.value = [
       `Espèce sélectionnée : ${species.name}`,
       `Modificateurs : ${species.modifierText}`,
       `MOV : ${species.mov}`,
+      age !== null ? `Âge : ${age} ans (${species.name} : ${ageBand})` : 'Âge : non défini',
       profession ? `Profession : ${profession.name} · Richesse : ${profession.richesse}` : 'Profession : non sélectionnée',
       '',
       'Générez une série pour afficher le détail des jets et des caractéristiques dérivées.'
@@ -829,6 +856,7 @@ function renderCharacterCalculations(calculationsEl) {
     `Espèce : ${species.name} (${species.modifierText})`,
     `Profession : ${profession ? profession.name : 'non sélectionnée'}`,
     `Richesse : ${profession ? profession.richesse : (document.querySelector('[data-character-field="richesse"]')?.value || 'non définie')}`,
+    age !== null ? `Âge : ${age} ans (${species.name} : ${ageBand})` : 'Âge : non défini',
     '',
     'Caractéristiques'
   ];
@@ -882,6 +910,8 @@ function renderCharacterReference(referenceEl) {
   const profession = currentProfession();
   const scores = characterState.generated ? characterScores() : null;
   const personalPoints = scores ? scores.intelligence * 10 : null;
+  const age = currentCharacterAge();
+  const ageBand = ageBandForSpecies(age, species);
 
   referenceEl.innerHTML = `<div class="slabel">Références du livret</div>
     <div class="reference-grid">
@@ -889,6 +919,7 @@ function renderCharacterReference(referenceEl) {
         <div class="reference-title">${species.name}</div>
         <div class="reference-line"><b>Mod.</b> ${species.modifierText}</div>
         <div class="reference-line"><b>MOV</b> ${species.mov}</div>
+        ${age !== null ? `<div class="reference-line"><b>Âge</b> ${age} ans : ${ageBand}</div>` : ''}
         ${species.culturalSkills ? `<div class="reference-line"><b>Culture</b> ${species.culturalSkills}</div>` : ''}
         <div class="reference-line"><b>Prof.</b> ${species.suggestedProfessions}</div>
         ${species.special ? `<div class="reference-note">${species.special}</div>` : ''}

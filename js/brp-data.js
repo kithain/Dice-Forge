@@ -7,7 +7,15 @@ export const BRP_SPECIES = [
     suggestedProfessions: 'Toutes',
     culturalSkills: '',
     traits: 'Ambitieux, adaptable, déterminé',
-    special: ''
+    special: '',
+    ageBands: [
+      { max: 12, label: 'enfance' },
+      { max: 17, label: 'adolescence' },
+      { max: 39, label: 'jeune adulte' },
+      { max: 59, label: 'adulte' },
+      { max: 74, label: 'âge avancé' },
+      { max: null, label: 'fin de vie' }
+    ]
   },
   {
     name: 'Nain',
@@ -22,7 +30,15 @@ export const BRP_SPECIES = [
     suggestedProfessions: 'Guerrier, Artisan, Soldat, Chasseur, Érudit, Prêtre',
     culturalSkills: 'Artisanat (Forge ou Maçonnerie) +10%, Connaissance (Géologie) +10%, Observation (Souterrains) +10%',
     traits: 'Rancunier, loyal, travailleur, têtu',
-    special: 'Vision nocturne 30 m.'
+    special: 'Vision nocturne 30 m.',
+    ageBands: [
+      { max: 30, label: 'enfance' },
+      { max: 75, label: 'adolescence tardive' },
+      { max: 149, label: 'jeune adulte' },
+      { max: 249, label: 'adulte' },
+      { max: 349, label: 'âge avancé' },
+      { max: null, label: 'vénérable' }
+    ]
   },
   {
     name: 'Elfe',
@@ -37,7 +53,14 @@ export const BRP_SPECIES = [
     suggestedProfessions: 'Sorcier, Érudit, Guerrier, Chasseur, Amuseur, Prêtre',
     culturalSkills: 'Arme de mêlée (Épée ou Arc) +10%, Discrétion (Forêt) +10%, Connaissance (Histoire) +10%',
     traits: 'Serein, mélancolique, élégant, distant',
-    special: 'Vision nocturne 60 m. Peut apprendre la magie. Sorcier elfe : 1 sort supplémentaire.'
+    special: 'Vision nocturne 60 m. Peut apprendre la magie. Sorcier elfe : 1 sort supplémentaire.',
+    ageBands: [
+      { max: 50, label: 'enfance' },
+      { max: 120, label: 'jeune' },
+      { max: 400, label: 'adulte' },
+      { max: 700, label: 'âge avancé' },
+      { max: null, label: 'vénérable' }
+    ]
   },
   {
     name: 'Demi-Elfe',
@@ -51,7 +74,15 @@ export const BRP_SPECIES = [
     suggestedProfessions: 'Toutes, surtout Sorcier, Guerrier, Voleur, Érudit, Explorateur',
     culturalSkills: 'Une compétence au choix +10%',
     traits: 'Indépendant, charismatique, entre-deux-mondes',
-    special: 'Vision nocturne 30 m. Sorcier demi-elfe : 1 sort supplémentaire.'
+    special: 'Vision nocturne 30 m. Sorcier demi-elfe : 1 sort supplémentaire.',
+    ageBands: [
+      { max: 15, label: 'enfance' },
+      { max: 30, label: 'adolescence' },
+      { max: 90, label: 'jeune adulte' },
+      { max: 150, label: 'adulte' },
+      { max: 220, label: 'âge avancé' },
+      { max: null, label: 'vénérable' }
+    ]
   },
   {
     name: 'Demi-Orc',
@@ -66,7 +97,15 @@ export const BRP_SPECIES = [
     suggestedProfessions: 'Guerrier, Soldat, Chasseur, Tribual, Assassin, Voleur',
     culturalSkills: 'Bagarre +10%, Pistage +10%, Intimidation (Baratin ou Persuasion) +10%',
     traits: 'Brutal, direct, marginal, colérique',
-    special: 'Vision nocturne 15 m.'
+    special: 'Vision nocturne 15 m.',
+    ageBands: [
+      { max: 9, label: 'enfance' },
+      { max: 14, label: 'adolescence' },
+      { max: 29, label: 'jeune adulte' },
+      { max: 44, label: 'adulte' },
+      { max: 59, label: 'âge avancé' },
+      { max: null, label: 'fin de vie' }
+    ]
   }
 ];
 
