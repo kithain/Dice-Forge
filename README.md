@@ -6,6 +6,15 @@ Dice Forge est un lanceur de dés virtuel pour jeux de rôle (JDR), accessible d
 
 ---
 
+## 📚 Références HTML
+
+- **Livret du joueur :** [livret_joueur.html](https://kithain.github.io/Dice-Forge/livret_joueur.html)
+- **BRP-ORC — traduction FR complète :** [BRP_ORC_traduction_FR_complete.html](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html)
+- **Écran MJ BRP-ORC :** [ecran_MJ_BRP_ORC.html](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html)
+- **Écran joueur BRP-ORC :** [ecran_joueur_BRP_ORC.html](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html)
+
+---
+
 ## 🛠️ Technologies
 
 | Technologie | Rôle |
