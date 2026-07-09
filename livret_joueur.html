@@ -134,6 +134,15 @@ tr:nth-child(even) { background: #e8e0d0; }
 hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 .two-col { column-count: 2; column-gap: 15px; }
 .two-col table { font-size: 9px; }
+.origin-table {
+    font-size: 8.6px;
+    line-height: 1.35;
+}
+.origin-table th:nth-child(1) { width: 10%; }
+.origin-table th:nth-child(2) { width: 18%; }
+.origin-table th:nth-child(3) { width: 36%; }
+.origin-table th:nth-child(4) { width: 36%; }
+.origin-table td { vertical-align: top; }
 </style>
 </head>
 <body>
@@ -245,7 +254,49 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 2 — Pouvoirs (Magie)</h3>
+<h3>Étape 2 — Origine et raison de partir à l’aventure</h3>
+<p>Choisissez un background lié à Valombre ou utilisez ces entrées comme inspiration pour définir d’où vient le personnage et pourquoi il quitte sa vie ordinaire.</p>
+<table class="origin-table">
+<tr><th>Espèce</th><th>Background</th><th>Origine + lien avec Valombre</th><th>Raison de partir à l’aventure</th></tr>
+<tr><td>Humains</td><td>Étudiant recalé de l’Université</td><td>Ancien étudiant de l’Université Arcanique. Il a quitté les cours après un échec public ou une exclusion discrète.</td><td>Il cherche une preuve de compétence que l’Université ne pourra pas ignorer.</td></tr>
+<tr><td>Humains</td><td>Héritier d’une petite maison marchande</td><td>Issu d’une famille de marchands modestes des Hauteurs. Sa maison dépend des routes commerciales et des mines.</td><td>Les affaires familiales déclinent depuis la mort d'un de ses parents. Il cherche à sauver la maison.</td></tr>
+<tr><td>Humains</td><td>Garde civique démissionnaire</td><td>Ancien membre de la Garde civique. Il connaît les postes de garde, les patrouilles et les méthodes de la Prévôté.</td><td>Il a refusé un ordre jugé injuste et cherche maintenant à agir hors de la hiérarchie.</td></tr>
+<tr><td>Humains</td><td>Apprenti du clergé de Saint-Aldric</td><td>Formé dans les bâtiments religieux du Centre Civique. Il a servi lors de cérémonies publiques.</td><td>Il veut confronter sa foi à la réalité des rues, des morts et des injustices.</td></tr>
+<tr><td>Humains</td><td>Descendant d’un survivant de Nyx</td><td>Sa famille vivait près du quartier touché par la catastrophe de Nyx. Depuis, elle évite d’en parler.</td><td>Il veut comprendre pourquoi sa famille garde le silence.</td></tr>
+<tr><td>Humains</td><td>Employé de bibliothèque</td><td>Il travaillait comme copiste, aide-archiviste ou porteur de livres dans le Quartier du Savoir.</td><td>Il a perdu son poste après avoir consulté un document non autorisé.</td></tr>
+<tr><td>Humains</td><td>Artisan ruiné</td><td>Ancien artisan du Centre Civique ou de la Vieille Ville. Il a perdu son atelier dans un incendie, peut-être lié à une dette.</td><td>Il cherche l’argent, la protection ou la réputation nécessaires pour se reconstruire.</td></tr>
+<tr><td>Nains</td><td>Enfant des Terrasses</td><td>Né dans les Terrasses Naines. Sa famille vit entre la Place des Terrasses, le Temple-Forgeron et la Mine d’Argent.</td><td>Il veut défendre les intérêts nains hors du quartier.</td></tr>
+<tr><td>Nains</td><td>Apprenti du Temple-Forgeron</td><td>Formé aux rites de la forge.</td><td>Il doit prouver sa valeur avant de recevoir un vrai rôle religieux ou clanique.</td></tr>
+<tr><td>Nains</td><td>Héritier de contremaître</td><td>Sa famille travaille pour la Guilde des Mineurs depuis plusieurs générations.</td><td>Il refuse de n’être qu’un héritier de guilde.</td></tr>
+<tr><td>Nains</td><td>Forgeron sans atelier</td><td>Artisan nain des Terrasses.</td><td>Il cherche les moyens d'acheter un atelier.</td></tr>
+<tr><td>Nains</td><td>Gardien de tombe</td><td>Sa famille entretient depuis longtemps une partie du Cimetière des Terrasses.</td><td>Une profanation récente l’a convaincu qu'il fallait enquêter.</td></tr>
+<tr><td>Nains</td><td>Nain sans clan</td><td>Né nain, mais grandi dans un quartier humain. Il connaît mal les coutumes de son peuple.</td><td>Il veut choisir lui-même ce que signifie être nain à Valombre.</td></tr>
+<tr><td>Nains</td><td>Parent d’un notable nain</td><td>Il appartient à une famille impliquée dans les relations entre les Terrasses et le Conseil.</td><td>Il veut se faire un nom sur le terrain avant d'entrer dans les débats politiques.</td></tr>
+<tr><td>Demi-orcs</td><td>Manœuvre</td><td>Employé comme force de travail dans les galeries, les entrepôts ou les chantiers.</td><td>Il veut sortir des tâches les plus dangereuses et être reconnu autrement que par sa force.</td></tr>
+<tr><td>Demi-orcs</td><td>Garde</td><td>Recruté pour garder une maison, un entrepôt ou un poste de contrôle.</td><td>Il a perdu son poste car il a laissé passer quelqu’un qu’il n’aurait pas dû.</td></tr>
+<tr><td>Demi-orcs</td><td>Ancien videur de la Vieille Ville</td><td>Gros bras dans une auberge, une maison de jeu ou un entrepôt douteux.</td><td>Il a vu trop de violence gratuite.</td></tr>
+<tr><td>Demi-orcs</td><td>Protégé d’un sergent</td><td>Recruté jeune par un sergent de la Garde civique qui lui a donné une chance.</td><td>Son protecteur a été muté, arrêté ou tué.</td></tr>
+<tr><td>Demi-orcs</td><td>Porteur de cadavres</td><td>Employé pour déplacer les morts après épidémies, accidents de mine ou violences de quartier.</td><td>Il cherche de meilleures conditions sociales.</td></tr>
+<tr><td>Demi-orcs</td><td>Travailleur des égouts</td><td>Affecté à l’entretien des conduits, pompes et quais souterrains.</td><td>Il veut échapper à un travail au taux de mortalité très élevé.</td></tr>
+<tr><td>Demi-orcs</td><td>Fossoyeur occasionnel</td><td>Il a travaillé près du cimetière comme porteur, terrassier ou gardien temporaire.</td><td>Il est soupçonné à tort d’avoir profané une tombe.</td></tr>
+<tr><td>Elfes</td><td>Guérisseur clandestin</td><td>Soigne les pauvres, les malades et les fugitifs dans les bas-fonds.</td><td>Il veut obtenir le droit d'étudier dans le Quartier du Savoir.</td></tr>
+<tr><td>Elfes</td><td>Musicien des tavernes basses</td><td>Joue dans les auberges et salles communes de la Vieille Ville.</td><td>Une chanson qu’il connaît attire l’attention de gens dangereux. Il a besoin de protection.</td></tr>
+<tr><td>Elfes</td><td>Archiviste sans poste</td><td>A travaillé comme lecteur, traducteur ou copiste indépendant sans être accepté par l’Université.</td><td>Il cherche un texte rare qui pourrait lui ouvrir les portes du Quartier du Savoir.</td></tr>
+<tr><td>Elfes</td><td>Contrebandier</td><td>Transporte herbes, fioles et remèdes entre la Vieille Ville et les quartiers plus riches.</td><td>Il doit rembourser une dette auprès d'un client important.</td></tr>
+<tr><td>Elfes</td><td>Ancien serviteur des Hauteurs</td><td>A servi dans une maison noble ou marchande avant d’être renvoyé.</td><td>Il cherche à récupérer une preuve de son innocence.</td></tr>
+<tr><td>Elfes</td><td>Orphelin</td><td>A grandi parmi les malades, les pauvres et les exclus de la Vieille Ville.</td><td>Il veut savoir pourquoi certains malades disparaissent.</td></tr>
+<tr><td>Elfes</td><td>Éclaireur des toits</td><td>Connaît les toits, passerelles et cours intérieures de la Vieille Ville.</td><td>Il a la garde à ses trousses. Travailler pour le Quartier du Savoir lui permet d'échapper à la prison.</td></tr>
+<tr><td>Demi-elfes</td><td>Apprenti refusé par l’Université</td><td>Possède un talent magique reconnu, mais pas les soutiens nécessaires pour intégrer durablement l’Université.</td><td>Il cherche un maître.</td></tr>
+<tr><td>Demi-elfes</td><td>Bâtard d’une famille des Hauteurs</td><td>Enfant non reconnu d’une maison marchande ou noble.</td><td>Il veut obtenir reconnaissance ou héritage.</td></tr>
+<tr><td>Demi-elfes</td><td>Aide d’apothicaire</td><td>Travaille dans une boutique de remèdes, herbes ou fioles de la Vieille Ville.</td><td>Un remède vendu légalement a eu un effet indésirable. L’apothicaire l'a licencié.</td></tr>
+<tr><td>Demi-elfes</td><td>Faux noble</td><td>Se fait passer pour un petit noble ou un agent de maison afin de circuler entre quartiers.</td><td>Son mensonge commence à attirer de vrais ennemis.</td></tr>
+<tr><td>Demi-elfes</td><td>Contrebandier</td><td>Il transmet parfois messages, nourriture ou médicaments entre la Vieille Ville et les autres quartiers.</td><td>Une livraison a mal tourné et il veut comprendre qui l’a trahi.</td></tr>
+<tr><td>Demi-elfes</td><td>Survivant d’un rituel raté</td><td>A été entraîné jeune dans une pratique occulte de quartier, sans en comprendre la portée.</td><td>Des signes de ce rituel réapparaissent autour de lui.</td></tr>
+</table>
+</div>
+
+<div class="step">
+<h3>Étape 3 — Pouvoirs (Magie)</h3>
 <p>Si votre personnage utilise la magie (professions : Sorcier, Prêtre, Chaman, Étudiant en arts arcaniques), déterminez vos sorts initiaux :</p>
 <ul>
 <li><b>Niveau Normal :</b> 4 sorts, compétence = INT × 1</li>
@@ -256,7 +307,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 3 — Âge</h3>
+<h3>Étape 4 — Âge</h3>
 <p>Âge par défaut : <b>17 + 1D6</b> ans (pour les humains et demi-orcs). Les elfes peuvent commencer à 50 + 2D10 ans, les demi-elfes à 20 + 1D10 ans, les nains à 30 + 2D6 ans.</p>
 <ul>
 <li>+10 ans au-dessus de l'âge de départ : +20 points de compétence professionnels (Héroïque)</li>
@@ -265,7 +316,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 4 — Jets de Caractéristique</h3>
+<h3>Étape 5 — Jets de Caractéristique</h3>
 <p>Multipliez chaque caractéristique par 5 pour obtenir les jets de caractéristique :</p>
 <table>
 <tr><th>Caractéristique</th><th>Jet</th><th>Usage</th></tr>
@@ -279,7 +330,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 5 — Caractéristiques Dérivées</h3>
+<h3>Étape 6 — Caractéristiques Dérivées</h3>
 <table>
 <tr><th>Caractéristique</th><th>Calcul</th></tr>
 <tr><td><b>Points de vie (PV)</b></td><td>(CON + TAI) / 2, arrondi au supérieur</td></tr>
@@ -305,7 +356,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 6 — Personnalité (Option)</h3>
+<h3>Étape 7 — Personnalité (Option)</h3>
 <p>Choisissez ou lancez 1D4 pour déterminer la personnalité de votre personnage. Ajoutez <b>20 points</b> à chacune des 13 compétences indiquées.</p>
 <table>
 <tr><th>D4</th><th>Type</th><th>Description</th></tr>
@@ -317,7 +368,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 7 — Profession et Compétences</h3>
+<h3>Étape 8 — Profession et Compétences</h3>
 <p>Choisissez une profession (voir Chapitre 3). Déterminez vos pools de points de compétence :</p>
 <table>
 <tr><th>Niveau</th><th>Points professionnels</th><th>Limite par compétence</th><th>Points personnels</th></tr>
@@ -333,7 +384,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 8 — Possessions</h3>
+<h3>Étape 9 — Possessions</h3>
 <p>Votre personnage commence avec :</p>
 <ul>
 <li>Un ensemble de vêtements approprié</li>
@@ -346,12 +397,12 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <div class="step">
-<h3>Étape 9 — Taille et Traits Distinctifs</h3>
+<h3>Étape 10 — Taille et Traits Distinctifs</h3>
 <p>Déterminez la taille et le poids selon la TAI (10–13 = moyenne humaine). Choisissez 1D3 traits distinctifs (cicatrices, tatouages, particularités physiques, manies, etc.) qui rendent votre personnage mémorable.</p>
 </div>
 
 <div class="step">
-<h3>Étape 10 — Touches Finales</h3>
+<h3>Étape 11 — Touches Finales</h3>
 <p>Définissez l'apparence, le passé, la famille, les motivations et les liens de votre personnage. Répondez à quelques questions :</p>
 <ul>
 <li>Où a-t-il grandi ?</li>
