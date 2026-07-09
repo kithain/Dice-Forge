@@ -1,9 +1,9 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260709-species-age';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260709-canon-age-bands';
 import { showToast } from './toast.js?v=20260708-brp-orc';
-import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-fantasy-age';
+import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
 
 // ——— config ———
 const DTYPES = [4, 6, 8, 10, 12, 20, 100];
@@ -173,7 +173,11 @@ function currentCharacterAge() {
 
 function ageBandForSpecies(age = currentCharacterAge(), species = currentSpecies()) {
   if (age === null) return null;
-  const band = species.ageBands?.find(item => item.max === null || age <= item.max);
+  const band = species.ageBands?.find(item => {
+    const min = item.min ?? 0;
+    const max = item.max ?? null;
+    return age >= min && (max === null || age <= max);
+  });
   return band?.label || null;
 }
 

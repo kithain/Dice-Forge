@@ -9,13 +9,12 @@ export const BRP_SPECIES = [
     traits: 'Ambitieux, adaptable, déterminé',
     special: '',
     ageBands: [
-      { max: 12, label: 'enfance' },
-      { max: 17, label: 'adolescence' },
-      { max: 29, label: 'jeune adulte' },
-      { max: 49, label: 'adulte' },
-      { max: 64, label: 'âge mûr' },
-      { max: 74, label: 'âge avancé' },
-      { max: null, label: 'fin de vie' }
+      { min: 0, max: 15, label: 'Trop jeune' },
+      { min: 16, max: 25, label: 'Jeune adulte' },
+      { min: 26, max: 35, label: 'Adulte' },
+      { min: 36, max: 50, label: 'Vétéran' },
+      { min: 51, max: 70, label: 'Ancien' },
+      { min: 71, max: 999, label: 'Vénérable' }
     ]
   },
   {
@@ -33,13 +32,13 @@ export const BRP_SPECIES = [
     traits: 'Rancunier, loyal, travailleur, têtu',
     special: 'Vision nocturne 30 m.',
     ageBands: [
-      { max: 20, label: 'enfance' },
-      { max: 49, label: 'adolescence' },
-      { max: 99, label: 'jeune adulte' },
-      { max: 199, label: 'adulte' },
-      { max: 299, label: 'âge mûr' },
-      { max: 399, label: 'ancien' },
-      { max: null, label: 'vénérable' }
+      { min: 0, max: 24, label: 'trop jeune' },
+      { min: 25, max: 69, label: 'Jeune Barbe' },
+      { min: 70, max: 119, label: 'Adulte' },
+      { min: 120, max: 149, label: 'Vétéran' },
+      { min: 150, max: 199, label: 'Ancien' },
+      { min: 200, max: 399, label: 'Longue-barbe' },
+      { min: 400, max: 9999, label: 'Vénérable-ancien' }
     ]
   },
   {
@@ -57,12 +56,12 @@ export const BRP_SPECIES = [
     traits: 'Serein, mélancolique, élégant, distant',
     special: 'Vision nocturne 60 m. Peut apprendre la magie. Sorcier elfe : 1 sort supplémentaire.',
     ageBands: [
-      { max: 50, label: 'enfance' },
-      { max: 99, label: 'jeunesse elfique' },
-      { max: 199, label: 'jeune adulte' },
-      { max: 499, label: 'adulte' },
-      { max: 699, label: 'ancien' },
-      { max: null, label: 'vénérable' }
+      { min: 0, max: 39, label: 'trop jeune' },
+      { min: 40, max: 99, label: 'Jeune Asrai' },
+      { min: 100, max: 299, label: 'Adulte' },
+      { min: 300, max: 999, label: 'Vétéran' },
+      { min: 1000, max: 5999, label: 'Ancien' },
+      { min: 6000, max: 99999, label: 'Mémoire de la forêt' }
     ]
   },
   {
@@ -79,12 +78,13 @@ export const BRP_SPECIES = [
     traits: 'Indépendant, charismatique, entre-deux-mondes',
     special: 'Vision nocturne 30 m. Sorcier demi-elfe : 1 sort supplémentaire.',
     ageBands: [
-      { max: 16, label: 'enfance' },
-      { max: 24, label: 'adolescence' },
-      { max: 59, label: 'jeune adulte' },
-      { max: 119, label: 'adulte' },
-      { max: 169, label: 'âge avancé' },
-      { max: null, label: 'vénérable' }
+      { min: 0, max: 15, label: 'trop jeune' },
+      { min: 16, max: 25, label: 'Jeune adulte' },
+      { min: 26, max: 50, label: 'Adulte' },
+      { min: 51, max: 90, label: 'Vétéran' },
+      { min: 91, max: 150, label: 'Ancien' },
+      { min: 151, max: 250, label: 'Relique' },
+      { min: 251, max: 999, label: 'Âge presque impossible' }
     ]
   },
   {
@@ -102,12 +102,12 @@ export const BRP_SPECIES = [
     traits: 'Brutal, direct, marginal, colérique',
     special: 'Vision nocturne 15 m.',
     ageBands: [
-      { max: 8, label: 'enfance' },
-      { max: 13, label: 'adolescence' },
-      { max: 24, label: 'jeune adulte' },
-      { max: 39, label: 'adulte' },
-      { max: 54, label: 'âge avancé' },
-      { max: null, label: 'fin de vie' }
+      { min: 0, max: 11, label: 'trop jeune' },
+      { min: 12, max: 17, label: 'Jeune brute' },
+      { min: 18, max: 30, label: 'Adulte' },
+      { min: 31, max: 45, label: 'Vétéran' },
+      { min: 46, max: 60, label: 'Ancien' },
+      { min: 61, max: 999, label: 'Survivant' }
     ]
   }
 ];
