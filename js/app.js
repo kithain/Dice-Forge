@@ -1,9 +1,9 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260708-brp-orc';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260709-species-age';
 import { showToast } from './toast.js?v=20260708-brp-orc';
-import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260708-livret-joueur';
+import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-fantasy-age';
 
 // ——— config ———
 const DTYPES = [4, 6, 8, 10, 12, 20, 100];
@@ -179,7 +179,8 @@ function ageBandForSpecies(age = currentCharacterAge(), species = currentSpecies
 
 function formatSpeciesAge(age = currentCharacterAge(), species = currentSpecies()) {
   const band = ageBandForSpecies(age, species);
-  if (age === null || !band) return 'Âge relatif selon l’espèce.';
+  if (age === null) return 'Âge relatif selon l’espèce.';
+  if (!band) return `${age} ans · ${species.name} : tranche non définie`;
   return `${age} ans · ${species.name} : ${band}`;
 }
 
@@ -834,13 +835,13 @@ function renderCharacterCalculations(calculationsEl) {
   const species = currentSpecies();
   const profession = currentProfession();
   const age = currentCharacterAge();
-  const ageBand = ageBandForSpecies(age, species);
+  const ageText = formatSpeciesAge(age, species);
   if (!characterState.generated) {
     calculationsEl.value = [
       `Espèce sélectionnée : ${species.name}`,
       `Modificateurs : ${species.modifierText}`,
       `MOV : ${species.mov}`,
-      age !== null ? `Âge : ${age} ans (${species.name} : ${ageBand})` : 'Âge : non défini',
+      age !== null ? `Âge : ${ageText}` : 'Âge : non défini',
       profession ? `Profession : ${profession.name} · Richesse : ${profession.richesse}` : 'Profession : non sélectionnée',
       '',
       'Générez une série pour afficher le détail des jets et des caractéristiques dérivées.'
@@ -856,7 +857,7 @@ function renderCharacterCalculations(calculationsEl) {
     `Espèce : ${species.name} (${species.modifierText})`,
     `Profession : ${profession ? profession.name : 'non sélectionnée'}`,
     `Richesse : ${profession ? profession.richesse : (document.querySelector('[data-character-field="richesse"]')?.value || 'non définie')}`,
-    age !== null ? `Âge : ${age} ans (${species.name} : ${ageBand})` : 'Âge : non défini',
+    age !== null ? `Âge : ${ageText}` : 'Âge : non défini',
     '',
     'Caractéristiques'
   ];
@@ -911,7 +912,7 @@ function renderCharacterReference(referenceEl) {
   const scores = characterState.generated ? characterScores() : null;
   const personalPoints = scores ? scores.intelligence * 10 : null;
   const age = currentCharacterAge();
-  const ageBand = ageBandForSpecies(age, species);
+  const ageText = formatSpeciesAge(age, species);
 
   referenceEl.innerHTML = `<div class="slabel">Références du livret</div>
     <div class="reference-grid">
@@ -919,7 +920,7 @@ function renderCharacterReference(referenceEl) {
         <div class="reference-title">${species.name}</div>
         <div class="reference-line"><b>Mod.</b> ${species.modifierText}</div>
         <div class="reference-line"><b>MOV</b> ${species.mov}</div>
-        ${age !== null ? `<div class="reference-line"><b>Âge</b> ${age} ans : ${ageBand}</div>` : ''}
+        ${age !== null ? `<div class="reference-line"><b>Âge</b> ${ageText}</div>` : ''}
         ${species.culturalSkills ? `<div class="reference-line"><b>Culture</b> ${species.culturalSkills}</div>` : ''}
         <div class="reference-line"><b>Prof.</b> ${species.suggestedProfessions}</div>
         ${species.special ? `<div class="reference-note">${species.special}</div>` : ''}

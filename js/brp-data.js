@@ -11,8 +11,9 @@ export const BRP_SPECIES = [
     ageBands: [
       { max: 12, label: 'enfance' },
       { max: 17, label: 'adolescence' },
-      { max: 39, label: 'jeune adulte' },
-      { max: 59, label: 'adulte' },
+      { max: 29, label: 'jeune adulte' },
+      { max: 49, label: 'adulte' },
+      { max: 64, label: 'âge mûr' },
       { max: 74, label: 'âge avancé' },
       { max: null, label: 'fin de vie' }
     ]
@@ -32,11 +33,12 @@ export const BRP_SPECIES = [
     traits: 'Rancunier, loyal, travailleur, têtu',
     special: 'Vision nocturne 30 m.',
     ageBands: [
-      { max: 30, label: 'enfance' },
-      { max: 75, label: 'adolescence tardive' },
-      { max: 149, label: 'jeune adulte' },
-      { max: 249, label: 'adulte' },
-      { max: 349, label: 'âge avancé' },
+      { max: 20, label: 'enfance' },
+      { max: 49, label: 'adolescence' },
+      { max: 99, label: 'jeune adulte' },
+      { max: 199, label: 'adulte' },
+      { max: 299, label: 'âge mûr' },
+      { max: 399, label: 'ancien' },
       { max: null, label: 'vénérable' }
     ]
   },
@@ -56,9 +58,10 @@ export const BRP_SPECIES = [
     special: 'Vision nocturne 60 m. Peut apprendre la magie. Sorcier elfe : 1 sort supplémentaire.',
     ageBands: [
       { max: 50, label: 'enfance' },
-      { max: 120, label: 'jeune' },
-      { max: 400, label: 'adulte' },
-      { max: 700, label: 'âge avancé' },
+      { max: 99, label: 'jeunesse elfique' },
+      { max: 199, label: 'jeune adulte' },
+      { max: 499, label: 'adulte' },
+      { max: 699, label: 'ancien' },
       { max: null, label: 'vénérable' }
     ]
   },
@@ -76,11 +79,11 @@ export const BRP_SPECIES = [
     traits: 'Indépendant, charismatique, entre-deux-mondes',
     special: 'Vision nocturne 30 m. Sorcier demi-elfe : 1 sort supplémentaire.',
     ageBands: [
-      { max: 15, label: 'enfance' },
-      { max: 30, label: 'adolescence' },
-      { max: 90, label: 'jeune adulte' },
-      { max: 150, label: 'adulte' },
-      { max: 220, label: 'âge avancé' },
+      { max: 16, label: 'enfance' },
+      { max: 24, label: 'adolescence' },
+      { max: 59, label: 'jeune adulte' },
+      { max: 119, label: 'adulte' },
+      { max: 169, label: 'âge avancé' },
       { max: null, label: 'vénérable' }
     ]
   },
@@ -99,11 +102,11 @@ export const BRP_SPECIES = [
     traits: 'Brutal, direct, marginal, colérique',
     special: 'Vision nocturne 15 m.',
     ageBands: [
-      { max: 9, label: 'enfance' },
-      { max: 14, label: 'adolescence' },
-      { max: 29, label: 'jeune adulte' },
-      { max: 44, label: 'adulte' },
-      { max: 59, label: 'âge avancé' },
+      { max: 8, label: 'enfance' },
+      { max: 13, label: 'adolescence' },
+      { max: 24, label: 'jeune adulte' },
+      { max: 39, label: 'adulte' },
+      { max: 54, label: 'âge avancé' },
       { max: null, label: 'fin de vie' }
     ]
   }

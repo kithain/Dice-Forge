@@ -1,7 +1,7 @@
 // ——— Supabase multiplayer room logic ———
 import { createClient } from '@supabase/supabase-js';
 import { showToast, showConfirm } from './toast.js';
-import { speciesByName } from './brp-data.js?v=20260708-livret-joueur';
+import { speciesByName } from './brp-data.js?v=20260709-fantasy-age';
 
 // ▼▼▼ Config chargée depuis supabase-config.js (gitignored) ▼▼▼
 const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || 'https://VOTRE_PROJET.supabase.co';
