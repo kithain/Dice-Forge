@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter } from './supabase-room.js?v=20260709-canon-age-bands';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260709-canon-age-bands';
 import { showToast } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
 
@@ -46,9 +46,14 @@ function rnd(min, max) {
   return min + (v % range);
 }
 
+// ——— blind roll (jet caché, résultat visible uniquement par le MJ) ———
+function isBlindRoll() {
+  return cfg.hide && isRoomConnected() && !isRoomCreator();
+}
+
 // ——— sound ———
-function sndRoll() {
-  if (!cfg.sound) return;
+function sndRoll(force) {
+  if (!cfg.sound && !force) return;
   try {
     const audio = document.getElementById('roll-sfx');
     if (!audio) return;
@@ -232,11 +237,13 @@ function rollAll() {
   document.getElementById('roll-btn').disabled = true;
   disableQuick(true);
 
-  sndRoll();
+  const blind = isBlindRoll();
+  sndRoll(blind);
 
-  const dur = cfg.anim ? 1800 : 0;
+  const anim = cfg.anim && !blind;
+  const dur = anim ? 1800 : 0;
 
-  if (cfg.anim) {
+  if (anim) {
     groups.forEach(g => g.rolls.forEach(r => { r.val = rnd(1, g.type); r.state = 'rolling'; }));
     groups.forEach(g => g.rolls.forEach(r => { r.finalVal = rnd(1, g.type); }));
     document.getElementById('result-area').style.visibility = 'hidden';
@@ -263,10 +270,13 @@ function finalize(groups, mod) {
   const total = rawTotal + mod;
   const hasCrit = groups.some(g => g.type === 20 && g.rolls.some(r => r.val === 20));
   const hasFail = groups.some(g => g.type === 20 && g.rolls.some(r => r.val === 1));
-  if (hasCrit) sndCrit();
-  else if (hasFail) sndFail();
+  const blind = isBlindRoll();
+  if (!blind) {
+    if (hasCrit) sndCrit();
+    else if (hasFail) sndFail();
+  }
 
-  results = { groups, total, rawTotal, mod };
+  results = { groups, total, rawTotal, mod, blind };
   rolling = false;
   document.getElementById('roll-btn').classList.remove('rolling');
   document.getElementById('roll-btn').disabled = false;
@@ -1075,6 +1085,15 @@ function renderResult() {
   const { groups, total, mod, characterTest } = results;
   if (total === null) { el.innerHTML = ''; return; }
 
+  if (results.blind) {
+    el.innerHTML = `<div class="total-box blind-box">
+      <div class="total-lbl">🎭 Jet caché</div>
+      <div class="total-num blind-q">?</div>
+      <div class="total-brkd">Jet envoyé — résultat visible uniquement par le MJ</div>
+    </div>`;
+    return;
+  }
+
   let html = '';
 
   if (total !== null) {
@@ -1173,7 +1192,7 @@ function rollBrpPercentileTest() {
 
   if (test.automatic) {
     const resolved = automaticPercentileResult(test);
-    results = { groups: [], total: resolved.success ? 0 : 100, rawTotal: null, mod: 0, characterTest: resolved };
+    results = { groups: [], total: resolved.success ? 0 : 100, rawTotal: null, mod: 0, characterTest: resolved, blind: isBlindRoll() };
     renderResult();
     sendPercentileTest(resolved, resolved.success ? 0 : 100);
     return;
@@ -1190,10 +1209,12 @@ function startPercentileRoll(test) {
 
   setRollingUi(true);
   results = { groups, total: null, rawTotal: null, mod: 0, characterTest: test };
-  sndRoll();
+  const blind = isBlindRoll();
+  sndRoll(blind);
 
-  const dur = cfg.anim ? 1800 : 0;
-  if (cfg.anim) {
+  const anim = cfg.anim && !blind;
+  const dur = anim ? 1800 : 0;
+  if (anim) {
     groups[0].rolls[0].val = rnd(1, 100);
     groups[0].rolls[0].finalVal = rnd(1, 100);
     document.getElementById('result-area').style.visibility = 'hidden';
@@ -1210,7 +1231,7 @@ function finalizePercentileTest(groups, test) {
   Object.assign(test, evaluatePercentile(test.threshold, roll.val));
   roll.state = test.success ? 's-high' : 's-low';
 
-  results = { groups, total: roll.val, rawTotal: roll.val, mod: 0, characterTest: test };
+  results = { groups, total: roll.val, rawTotal: roll.val, mod: 0, characterTest: test, blind: isBlindRoll() };
   finishRollingUi();
   renderResult();
 

@@ -62,6 +62,14 @@ export function getPlayerCharacter() {
   return currentPlayerCharacter;
 }
 
+export function isRoomConnected() {
+  return !!roomState.connected;
+}
+
+export function isRoomCreator() {
+  return !!roomState.isCreator;
+}
+
 function sbInit() {
   if (sb) return;
   if (SUPABASE_URL.includes('VOTRE_PROJET')) {
@@ -293,10 +301,10 @@ function addLiveItem(r, isSelf, prepend) {
   if (!list.children.length) list.innerHTML = '';
   const cls = isSelf ? 'live-self' : '';
   const time = new Date(r.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const masked = r.is_hidden && !isSelf;
+  const masked = r.is_hidden && !roomState.isCreator;
 
   const tCls = masked ? '' : (r.is_crit ? 'crit' : r.is_fail ? 'fail' : '');
-  const hiddenTag = r.is_hidden ? ' <span title="Jet caché par le joueur">🔒</span>' : '';
+  const hiddenTag = r.is_hidden ? ' <span title="Jet caché — visible uniquement par le MJ">🔒</span>' : '';
   const rollsOut = masked ? '???' : esc(r.rolls_detail);
   const totOut = masked ? '?' : `${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}`;
 
@@ -440,9 +448,10 @@ export function restoreSession() {
         if (sb) {
           showConnected();
           loadPlayerCharacter(r.player);
-          checkCreator(r.code, r.player);
-          subscribeLive(r.code, r.player);
-          loadRecent(r.code, r.player);
+          checkCreator(r.code, r.player).then(() => {
+            subscribeLive(r.code, r.player);
+            loadRecent(r.code, r.player);
+          });
         }
       }
     } catch (e) {}

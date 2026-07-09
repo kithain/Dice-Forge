@@ -79,12 +79,18 @@
 </div>
 
 <section class="tab-panel active" id="panel-dice" role="tabpanel" aria-labelledby="tab-dice">
+<div class="dice-layout">
+<div class="dice-controls">
+
 <div class="quick-wrap">
   <div class="slabel">Lancer rapide</div>
   <div class="quick-row" id="quick-row">
     <button class="qbtn feat" onclick="quickRoll(20)">🎲 D20</button>
     <button class="qbtn feat" onclick="quickRoll(6)">🎲 D6</button>
     <button class="qbtn feat" onclick="quickRoll(100)">🎲 D100</button>
+  </div>
+  <div class="quick-sub">Tests de caractéristique</div>
+  <div class="quick-row">
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('force')">Effort FOR</button>
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('constitution')">Endurance CON</button>
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('intelligence')">Idée INT</button>
@@ -126,11 +132,14 @@
     <input class="mod-input" id="mod-input" type="number" value="0" min="-99" max="99" step="1" onchange="renderExBar()">
     <span class="mod-tip">ex. +5 (Force), −2 (malus)</span>
   </div>
+  <div class="roll-area">
+    <button class="roll-btn" id="roll-btn" onclick="rollAll()" disabled>⚔️ &nbsp; Lancer les Dés</button>
+  </div>
 </div>
 
-<div class="roll-area">
-  <button class="roll-btn" id="roll-btn" onclick="rollAll()" disabled>⚔️ &nbsp; Lancer les Dés</button>
 </div>
+
+<div class="dice-output">
 
 <div class="dice-stage">
   <div class="dice-3d-container" id="dice-3d-container"><canvas id="dice-3d-canvas"></canvas></div>
@@ -140,6 +149,9 @@
 <div class="live-feed" id="live-feed" style="display:none">
   <div class="live-title">Jets en direct</div>
   <div id="live-list"></div>
+</div>
+
+</div>
 </div>
 </section>
 
