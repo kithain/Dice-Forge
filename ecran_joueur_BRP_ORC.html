@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Écran du Joueur — BRP ORC</title>
+<style>
+@page { size: A4 landscape; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 9px;
+    line-height: 1.35;
+    color: #1a1a1a;
+    background: #444;
+}
+.screen {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 297mm;
+    margin: 0 auto;
+    background: #fff;
+}
+.panel {
+    width: 25%;
+    min-height: 210mm;
+    padding: 8px 10px;
+    border-right: 2px solid #333;
+    background: #f8f6f0;
+    overflow: hidden;
+}
+.panel:last-child { border-right: none; }
+.panel:nth-child(even) { background: #f0ede5; }
+h1 {
+    font-size: 13px;
+    text-align: center;
+    background: #1a4a2e;
+    color: #fff;
+    padding: 4px 6px;
+    margin-bottom: 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+h2 {
+    font-size: 10px;
+    color: #1a4a2e;
+    border-bottom: 2px solid #1a4a2e;
+    padding-bottom: 2px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+h3 {
+    font-size: 9px;
+    color: #333;
+    margin-top: 5px;
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+    font-size: 8px;
+}
+th, td {
+    border: 1px solid #999;
+    padding: 2px 3px;
+    text-align: center;
+}
+th {
+    background: #1a4a2e;
+    color: #fff;
+    font-weight: bold;
+}
+tr:nth-child(even) { background: #e8e4d8; }
+ul, ol { padding-left: 14px; margin-bottom: 4px; }
+li { margin-bottom: 1px; }
+p { margin-bottom: 3px; }
+.formula {
+    background: #d4edda;
+    padding: 3px 6px;
+    border-radius: 3px;
+    text-align: center;
+    font-weight: bold;
+    margin: 3px 0;
+    font-size: 10px;
+}
+.note { font-style: italic; color: #555; font-size: 8px; }
+.compact td, .compact th { padding: 1px 2px; font-size: 7px; }
+.tag {
+    display: inline-block;
+    background: #1a4a2e;
+    color: #fff;
+    padding: 0 4px;
+    border-radius: 2px;
+    font-size: 7px;
+    font-weight: bold;
+}
+.tag-easy { background: #28a745; }
+.tag-hard { background: #dc3545; }
+.tag-magic { background: #6f42c1; }
+.resistance-table { font-size: 7px; }
+.resistance-table th, .resistance-table td { padding: 1px; min-width: 18px; }
+</style>
+</head>
+<body>
+<div class="screen">
+
+<!-- ============ PANNEAU 1 : Résolution ============ -->
+<div class="panel">
+<h1>Panneau 1 — Jets &amp; Succès</h1>
+
+<h2>Niveaux de réussite</h2>
+<table>
+<tr><th>Résultat</th><th>Condition</th><th>Effet</th></tr>
+<tr><td><b>Critique</b></td><td>≤ 1/20 du score</td><td>Meilleur résultat. Combat : dégâts max + mod. dégâts, ignore l'armure</td></tr>
+<tr><td><b>Spéciale</b></td><td>≤ 1/5 du score</td><td>Résultat supérieur. Combat : dégâts spéciaux selon l'arme</td></tr>
+<tr><td><b>Réussite</b></td><td>≤ score</td><td>Résultat normal</td></tr>
+<tr><td><b>Échec</b></td><td>&gt; score, &lt; maladresse</td><td>Échec simple. Échec auto sur 96+</td></tr>
+<tr><td><b>Maladresse</b></td><td>Voir table</td><td>Échec spectaculaire. 00 = toujours maladresse</td></tr>
+</table>
+
+<h2>Table des résultats de compétence</h2>
+<table class="compact">
+<tr><th>Base</th><th>Crit.</th><th>Spéc.</th><th>Malad.</th></tr>
+<tr><td>01–05</td><td>01</td><td>01</td><td>96–100</td></tr>
+<tr><td>06–10</td><td>01</td><td>01–02</td><td>96–100</td></tr>
+<tr><td>11–15</td><td>01</td><td>01–03</td><td>96–100</td></tr>
+<tr><td>16–20</td><td>01</td><td>01–04</td><td>96–100</td></tr>
+<tr><td>21–25</td><td>01–02</td><td>01–05</td><td>97–100</td></tr>
+<tr><td>26–30</td><td>01–02</td><td>01–06</td><td>97–100</td></tr>
+<tr><td>31–35</td><td>01–02</td><td>01–07</td><td>97–100</td></tr>
+<tr><td>36–40</td><td>01–02</td><td>01–08</td><td>97–100</td></tr>
+<tr><td>41–45</td><td>01–03</td><td>01–09</td><td>98–100</td></tr>
+<tr><td>46–50</td><td>01–03</td><td>01–10</td><td>98–100</td></tr>
+<tr><td>51–55</td><td>01–03</td><td>01–11</td><td>98–100</td></tr>
+<tr><td>56–60</td><td>01–03</td><td>01–12</td><td>98–100</td></tr>
+<tr><td>61–65</td><td>01–04</td><td>01–13</td><td>99–100</td></tr>
+<tr><td>66–70</td><td>01–04</td><td>01–14</td><td>99–100</td></tr>
+<tr><td>71–75</td><td>01–04</td><td>01–15</td><td>99–100</td></tr>
+<tr><td>76–80</td><td>01–04</td><td>01–16</td><td>99–100</td></tr>
+<tr><td>81–85</td><td>01–05</td><td>01–17</td><td>00</td></tr>
+<tr><td>86–90</td><td>01–05</td><td>01–18</td><td>00</td></tr>
+<tr><td>91–95</td><td>01–05</td><td>01–19</td><td>00</td></tr>
+<tr><td>96–100</td><td>01–05</td><td>01–20</td><td>00</td></tr>
+</table>
+
+<h2>Modificateurs de difficulté</h2>
+<table class="compact">
+<tr><th>Niveau</th><th>Modificateur</th><th>Exemple</th></tr>
+<tr><td><span class="tag">Auto</span></td><td>Aucun jet</td><td>Action banale</td></tr>
+<tr><td><span class="tag tag-easy">Facile</span></td><td>×2</td><td>Tir à bout portant</td></tr>
+<tr><td><span class="tag">Moyen</span></td><td>Normal</td><td>Action standard</td></tr>
+<tr><td><span class="tag tag-hard">Difficile</span></td><td>÷2</td><td>Combattre un invisible</td></tr>
+</table>
+<p class="note">Jets de caractéristique : Facile = ×10, Moyen = ×5.</p>
+
+<h2>Modificateurs situationnels</h2>
+<table class="compact">
+<tr><th>Condition</th><th>Modif.</th></tr>
+<tr><td>Aucun équipement / environnement extrême / hors portée</td><td>−50 %</td></tr>
+<tr><td>Équipement médiocre / conditions désagréables / pressé</td><td>−20 %</td></tr>
+<tr><td>Équipement supérieur / conditions favorables / à loisir</td><td>+20 %</td></tr>
+<tr><td>Équipement excellent / environnement idéal / routinier</td><td>+50 %</td></tr>
+</table>
+
+<h2>Jets de caractéristique</h2>
+<table class="compact">
+<tr><th>Jet</th><th>Base</th><th>Usage</th></tr>
+<tr><td>Effort</td><td>FOR × 5</td><td>Forcer, soulever, briser</td></tr>
+<tr><td>Endurance</td><td>CON × 5</td><td>Poison, maladie, fatigue</td></tr>
+<tr><td>Idée</td><td>INT × 5</td><td>Déduire, comprendre</td></tr>
+<tr><td>Chance</td><td>POU × 5</td><td>Éviter la malchance</td></tr>
+<tr><td>Agilité</td><td>DEX × 5</td><td>Éviter, réagir vite</td></tr>
+<tr><td>Charme</td><td>CHA × 5</td><td>Séduire, impressionner</td></tr>
+</table>
+
+<h2>Table de résistance</h2>
+<p class="formula">Base = 50 + (Actif × 5) − (Passif × 5)</p>
+<p class="note">Écart de 10+ = réussite/échec automatique. 01/00 peuvent toujours inverser.</p>
+<table class="resistance-table">
+<tr><th>Passif \ Actif</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th></tr>
+<tr><td><b>1</b></td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>2</b></td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>3</b></td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>4</b></td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>5</b></td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>6</b></td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>7</b></td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>8</b></td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>9</b></td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td></tr>
+<tr><td><b>10</b></td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td></tr>
+<tr><td><b>11</b></td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td></tr>
+<tr><td><b>12</b></td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td></tr>
+<tr><td><b>13</b></td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td></tr>
+<tr><td><b>14</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td></tr>
+<tr><td><b>15</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td></tr>
+<tr><td><b>16</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td></tr>
+<tr><td><b>17</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td></tr>
+<tr><td><b>18</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td></tr>
+<tr><td><b>19</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td></tr>
+<tr><td><b>20</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td></tr>
+</table>
+
+<h2>Expérience</h2>
+<ul>
+<li>Cochez une compétence après une réussite significative en jeu</li>
+<li><b>Jet d'apprentissage :</b> D100 + bonus d'expérience (INT/2)</li>
+<li>Si résultat &gt; score actuel × 5 → +1D6 points à la compétence</li>
+<li><b>POU :</b> Coche après jet de résistance POU vs POU ≥ réussi. Gain : 1D3−1</li>
+</ul>
+
+</div>
+
+<!-- ============ PANNEAU 2 : Combat ============ -->
+<div class="panel">
+<h1>Panneau 2 — Combat</h1>
+
+<h2>Phases du round</h2>
+<ol>
+<li><b>Déclarations :</b> Intentions en ordre de DEX décroissant</li>
+<li><b>Pouvoirs :</b> Sorts/pouvoirs instantanés en ordre d'INT décroissant</li>
+<li><b>Action :</b> Actions en ordre de DEX décroissant</li>
+<li><b>Résolution :</b> Appliquer les résultats</li>
+</ol>
+
+<h2>Mes actions par round</h2>
+<ul>
+<li><b>À mon rang de DEX :</b> Attaquer, se déplacer, action non combattante, engager/désengager</li>
+<li><b>À tout moment :</b> Parer, Esquiver, combattre défensivement, parler</li>
+<li><b>Attaque + déplacement :</b> Jusqu'à 5 m</li>
+<li><b>Attaques multiples :</b> −5 rangs de DEX par attaque successive</li>
+<li><b>Esquive/parade multiple :</b> −30 % cumulatif par tentative supplémentaire</li>
+<li><b>Combattre défensivement :</b> Renoncer à l'attaque → esquive supplémentaire sans pénalité</li>
+</ul>
+
+<h2>Matrice attaque / défense</h2>
+<table class="compact">
+<tr><th>Mon attaque</th><th>Sa parade/esquive</th><th>Résultat</th></tr>
+<tr><td>Critique</td><td>Critique</td><td>Je touche (dégâts normaux)</td></tr>
+<tr><td>Critique</td><td>Spéciale/Normale/Échec</td><td>Je touche (dégâts critiques, ignore armure)</td></tr>
+<tr><td>Spéciale</td><td>Spéciale</td><td>Je touche (dégâts normaux)</td></tr>
+<tr><td>Spéciale</td><td>Normale/Échec</td><td>Je touche (dégâts spéciaux)</td></tr>
+<tr><td>Réussite</td><td>Réussite</td><td>Coup dévié/esquivé</td></tr>
+<tr><td>Réussite</td><td>Échec</td><td>Défenseur touché, perd des PV</td></tr>
+<tr><td>Échec</td><td>—</td><td>Défenseur maintient sa garde</td></tr>
+<tr><td>Maladresse</td><td>—</td><td>Je lance sur la table des maladresses</td></tr>
+</table>
+
+<h2>Modificateurs de portée (armes de jet)</h2>
+<table class="compact">
+<tr><th>Portée</th><th>Modificateur</th></tr>
+<tr><td>Bout portant (&lt; DEX/3 m)</td><td><span class="tag tag-easy">Facile</span> (×2)</td></tr>
+<tr><td>Portée normale</td><td>Normal</td></tr>
+<tr><td>Portée moyenne (×2)</td><td><span class="tag tag-hard">Difficile</span> (÷2)</td></tr>
+<tr><td>Longue portée (×4)</td><td>÷5</td></tr>
+<tr><td>Cible en mouvement</td><td>−20 %</td></tr>
+<tr><td>Cible à terre (distance)</td><td><span class="tag tag-hard">Difficile</span></td></tr>
+<tr><td>Cible dissimulée / couvert</td><td><span class="tag tag-hard">Difficile</span></td></tr>
+<tr><td>Équipement de visée (1 round)</td><td>Modificateurs ÷2</td></tr>
+</table>
+
+<h2>Localisation des touches (D20)</h2>
+<table class="compact">
+<tr><th>D20</th><th>Localisation</th><th>PV (option)</th></tr>
+<tr><td>1–3</td><td>Jambe droite</td><td>⅓ PV</td></tr>
+<tr><td>4–7</td><td>Jambe gauche</td><td>⅓ PV</td></tr>
+<tr><td>8–11</td><td>Abdomen</td><td>⅓ PV</td></tr>
+<tr><td>12</td><td>Poitrine</td><td>4/10 PV</td></tr>
+<tr><td>13–15</td><td>Bras droit</td><td>¼ PV</td></tr>
+<tr><td>16–18</td><td>Bras gauche</td><td>¼ PV</td></tr>
+<tr><td>19–20</td><td>Tête</td><td>⅓ PV</td></tr>
+</table>
+
+<h2>Dégâts spéciaux (réussite spéciale)</h2>
+<table class="compact">
+<tr><th>Type</th><th>Armes</th><th>Effet</th></tr>
+<tr><td><b>Saignement</b></td><td>Tranchantes</td><td>−1 PV/rnd. Arrêt : Endurance ou Premiers Secours</td></tr>
+<tr><td><b>Écrasement</b></td><td>Contondantes</td><td>Étourdissement : jet CON ou perte d'action</td></tr>
+<tr><td><b>Entrave</b></td><td>Flexibles, filets</td><td>Immobilise le membre/cible. DEX vs DEX+TAI pour libération</td></tr>
+<tr><td><b>Empalement</b></td><td>Perforantes, arcs</td><td>Arme plantée. Dégâts max. +1 PV/rnd si arrachée</td></tr>
+<tr><td><b>Renversement</b></td><td>Mains nues, bouclier</td><td>Cible à terre. Jet d'Agilité ou 1 PV</td></tr>
+</table>
+
+<h2>À terre</h2>
+<ul>
+<li>−50 % aux attaques et parades</li>
+<li>Esquive normale</li>
+<li>Se relever : action complète</li>
+</ul>
+
+<h2>Assommer / Étourdir</h2>
+<ul>
+<li><b>Assommer :</b> Par-derrière ou à la tête. Dégâts vs CON (résistance). Succès = inconscient 1D3 rounds</li>
+<li><b>Étourdir (écrasement) :</b> Jet CON vs niveau d'attaque. Échec = étourdi 1D3 rounds, actions <span class="tag tag-hard">Difficiles</span></li>
+</ul>
+
+</div>
+
+<!-- ============ PANNEAU 3 : Personnage ============ -->
+<div class="panel">
+<h1>Panneau 3 — Personnage</h1>
+
+<h2>Modificateur de dégâts (FOR+TAI)</h2>
+<table class="compact">
+<tr><th>FOR+TAI</th><th>Mod.</th><th>FOR+TAI</th><th>Mod.</th></tr>
+<tr><td>2–12</td><td>−1D6</td><td>73–88</td><td>+4D6</td></tr>
+<tr><td>13–16</td><td>−1D4</td><td>89–104</td><td>+5D6</td></tr>
+<tr><td>17–24</td><td>Aucun</td><td>105–120</td><td>+6D6</td></tr>
+<tr><td>25–32</td><td>+1D4</td><td>121–136</td><td>+7D6</td></tr>
+<tr><td>33–40</td><td>+1D6</td><td>137–152</td><td>+8D6</td></tr>
+<tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
+<tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
+</table>
+<p class="note">Armes de jet : mod. positif ÷2 (arr. sup.). Armes à feu : pas de mod.</p>
+
+<h2>Points de vie</h2>
+<div class="formula">PV = (CON + TAI) / 2 (arrondi sup.)</div>
+<ul>
+<li><b>PV ≤ 2 :</b> Perte de connaissance</li>
+<li><b>PV = 0 :</b> Mort à la fin du round suivant</li>
+<li><b>Blessure majeure :</b> Dégâts ≥ ½ PV en un coup → jet sur Table des blessures majeures</li>
+<li><b>Seuil de blessure majeure :</b> ½ PV total (arrondi sup.)</li>
+</ul>
+
+<h2>Guérison</h2>
+<table class="compact">
+<tr><th>Méthode</th><th>Récupération</th></tr>
+<tr><td>Guérison naturelle</td><td>1D3 PV / semaine</td></tr>
+<tr><td>Premiers Secours réussis</td><td>+1D3 PV/blessure (immédiat, 1 fois/blessure)</td></tr>
+<tr><td>Médecine</td><td>Compense blessures majeures</td></tr>
+</table>
+<h3>Conditions de soins</h3>
+<table class="compact">
+<tr><th>Conditions</th><th>Effet</th></tr>
+<tr><td>Combat / voyage rude</td><td>Jet <span class="tag tag-hard">Difficile</span> requis. Échec = 0 guérison</td></tr>
+<tr><td>Repos décent</td><td>1D3 PV/semaine normal</td></tr>
+<tr><td>Repos au lit + soins</td><td>1D3 PV + bonus Premiers Secours/Médecine</td></tr>
+</table>
+
+<h2>Localisation de touche — Dégâts ≥ PV localisation (option)</h2>
+<ul>
+<li><b>Jambe :</b> Inutile, à terre</li>
+<li><b>Abdomen :</b> 2 jambes inutiles, saigne à mort (−1 PV/rnd) sans soin</li>
+<li><b>Poitrine :</b> À terre, saigne à mort sans soin</li>
+<li><b>Bras :</b> Inutile, lâche ce qu'il porte</li>
+<li><b>Tête :</b> Assommé. Soin en 5 min ou jet d'Endurance, sinon mort</li>
+</ul>
+<p class="note">×2 PV localisation : membre sectionné / tête-poitrine-abdomen = inconscient, saigne. ×3 PV : mort instantanée.</p>
+
+<h2>Mouvement (MOV)</h2>
+<table class="compact">
+<tr><th>Action</th><th>Distance</th></tr>
+<tr><td>Marche</td><td>1 m / point de MOV</td></tr>
+<tr><td>Course</td><td>5 m / point de MOV</td></tr>
+<tr><td>Combat (par round)</td><td>3 m / unité de MOV</td></tr>
+</table>
+<p class="note">Humain : MOV 10. Nain : MOV 8. Elfe : MOV 12. Demi-Elfe : MOV 11. Demi-Orc : MOV 10.</p>
+
+<h2>Points de pouvoir (Max = POU)</h2>
+<table class="compact">
+<tr><th>PP Max</th><th>Endormi</th><th>Éveillé</th></tr>
+<tr><td>1–4</td><td>1/h</td><td>1/2h</td></tr>
+<tr><td>5–8</td><td>2/h</td><td>1/h</td></tr>
+<tr><td>9–12</td><td>3/h</td><td>1/40min</td></tr>
+<tr><td>13–16</td><td>4/h</td><td>1/30min</td></tr>
+<tr><td>17+</td><td>+1/h</td><td>temps ÷2</td></tr>
+</table>
+<p class="note">PP = 0 → évanouissement. Max temporaire = 2× POU.</p>
+
+<h2>Points de destin (option)</h2>
+<table class="compact">
+<tr><th>Coût</th><th>Effet</th></tr>
+<tr><td>5 PP</td><td>Relancer un jet (résultat définitif)</td></tr>
+<tr><td>5 PP</td><td>Ignorer compétence → jet de Chance <span class="tag tag-hard">Difficile</span></td></tr>
+<tr><td>3 PP</td><td>Ignorer 1 point de dégât</td></tr>
+<tr><td>6 PP</td><td>Décaler résultat d'un niveau (maladresse→échec→réussite→spéciale→critique)</td></tr>
+</table>
+
+</div>
+
+<!-- ============ PANNEAU 4 : Magie ============ -->
+<div class="panel">
+<h1>Panneau 4 — Magie</h1>
+
+<h2>Lancer un sort</h2>
+<div class="formula">Jet de compétence D100 ≤ score du sort</div>
+<ul>
+<li><b>Coût :</b> PP par niveau (voir liste ci-dessous)</li>
+<li><b>Temps :</b> 1 sort/round. Rang de DEX −1/niveau</li>
+<li><b>Limite de niveaux :</b> ½ INT (arrondi sup.)</li>
+<li><b>Échec :</b> 1 PP perdu, aucun effet</li>
+<li><b>Maladresse :</b> Tous les PP perdus + jet de Chance (échec = cible involontaire touchée !)</li>
+<li><b>Spéciale :</b> Dégâts spéciaux ou 150 % d'effet</li>
+<li><b>Critique :</b> Dégâts max, ignore armure, ou double efficacité</li>
+</ul>
+
+<h2>Niveaux de succès des sorts</h2>
+<table class="compact">
+<tr><th>Résultat</th><th>Effet</th></tr>
+<tr><td>Critique</td><td>Parfait. Dégâts max, ignore armure. Ou ×2 efficacité</td></tr>
+<tr><td>Spéciale</td><td>Dégâts spéciaux. Ou 150 % d'effet / niveau ×1,5</td></tr>
+<tr><td>Réussite</td><td>Sort fonctionne normalement</td></tr>
+<tr><td>Échec</td><td>1 PP perdu, aucun effet</td></tr>
+<tr><td>Maladresse</td><td>Tous PP perdus. Chance : échec = cible involontaire !</td></tr>
+</table>
+
+<h2>Grimoire &amp; mémorisation</h2>
+<ul>
+<li>Le grimoire contient tous les sorts connus</li>
+<li>Sorts mémorisables = INT</li>
+<li>Changer un sort mémorisé : 10 min/sort</li>
+<li>Portée standard : 100 m (ligne de vue)</li>
+</ul>
+
+<h2>Liste des sorts</h2>
+<table class="compact">
+<tr><th>Sort</th><th>PP/niv.</th><th>Effet par niveau</th></tr>
+<tr><td><b>Blessure</b></td><td>3</td><td>1D6 dégâts</td></tr>
+<tr><td><b>Déflagration</b></td><td>3</td><td>1D6 dégâts magiques. Esquivable</td></tr>
+<tr><td><b>Feu</b></td><td>3</td><td>1D6 dégâts de feu</td></tr>
+<tr><td><b>Foudre</b></td><td>3</td><td>1D6 dégâts de foudre</td></tr>
+<tr><td><b>Givre</b></td><td>3</td><td>1D6 dégâts de froid</td></tr>
+<tr><td><b>Soins</b></td><td>3</td><td>Soigne 1D6 PV</td></tr>
+<tr><td><b>Contrôle</b></td><td>3</td><td>Contrôle esprit. POU vs POU. 1 cible/niv</td></tr>
+<tr><td><b>Protection</b></td><td>1</td><td>+1 armure/niv</td></tr>
+<tr><td><b>Contre-magie</b></td><td>1</td><td>Renvoie les sorts vers le lanceur</td></tr>
+<tr><td><b>Dissipation</b></td><td>1</td><td>Annule les sorts, bannit êtres surnaturels</td></tr>
+<tr><td><b>Métamorphose</b></td><td>1</td><td>Transforme 3 TAI/niv. Durée 15 min</td></tr>
+<tr><td><b>Illusion</b></td><td>1</td><td>3 TAI d'illusion/niv</td></tr>
+<tr><td><b>Invisibilité</b></td><td>1</td><td>3 TAI invisible/niv</td></tr>
+<tr><td><b>Lévitation</b></td><td>1</td><td>Soulève 3 TAI/niv</td></tr>
+<tr><td><b>Téléportation</b></td><td>1</td><td>Téléporte 3 TAI/niv dans la portée</td></tr>
+<tr><td><b>Diminution</b></td><td>1</td><td>−1 carac./niv de la cible</td></tr>
+<tr><td><b>Amélioration</b></td><td>1</td><td>+1 carac./niv de la cible</td></tr>
+<tr><td><b>Perception</b></td><td>1</td><td>Détecte une chose dans la portée</td></tr>
+<tr><td><b>Vision</b></td><td>1</td><td>Voir ailleurs ou dans le passé</td></tr>
+<tr><td><b>Parole mentale</b></td><td>1</td><td>Communication mentale</td></tr>
+<tr><td><b>Lumière</b></td><td>1</td><td>Éclaire une zone</td></tr>
+<tr><td><b>Ténèbres</b></td><td>1</td><td>Obscurcit une zone</td></tr>
+<tr><td><b>Mur</b></td><td>1</td><td>Barrière protectrice</td></tr>
+<tr><td><b>Garde</b></td><td>1</td><td>Zone protégée (Déflagration + Contre-magie)</td></tr>
+<tr><td><b>Résistance</b></td><td>1</td><td>−1 dégât chaleur/froid/niv</td></tr>
+<tr><td><b>Émoussement</b></td><td>1</td><td>Réduit attaque et dégâts d'une arme</td></tr>
+<tr><td><b>Affûtage</b></td><td>1</td><td>Augmente attaque et dégâts d'une arme</td></tr>
+<tr><td><b>Scellement</b></td><td>1</td><td>Joint deux objets inanimés</td></tr>
+<tr><td><b>Déscellement</b></td><td>1</td><td>Sépare deux objets</td></tr>
+<tr><td><b>Conjurer Élémentaire</b></td><td>1/POU</td><td>Invoque un élémentaire. 10 rounds</td></tr>
+</table>
+
+<h2>Familier</h2>
+<ul>
+<li>TAI ≤ ¼ POU du magicien</li>
+<li>3 mois de cohabitation + 1 POU permanent</li>
+<li><b>Avantages :</b> Drainer PP, voir par ses yeux, télépathie, parler par sa bouche</li>
+<li>Portée : POU en mètres</li>
+</ul>
+
+<h2>Bâton du sorcier</h2>
+<ul>
+<li>6 mois de fabrication + 1 POU permanent</li>
+<li>Stocke POU−1 points de pouvoir</li>
+<li>Combat : 1D8 + mod. dégâts + 1D6 si PP bâton > PP cible (coûte 1 PP)</li>
+<li>20 PV. Si brisé = inutile</li>
+</ul>
+
+</div>
+
+</div>
+</body>
+</html>
