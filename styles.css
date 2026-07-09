@@ -111,7 +111,7 @@ h1{
 .qbtn.stat-test{border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.06)}
 .qbtn:disabled{opacity:.45;cursor:not-allowed}
 .brp-test-panel{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem}
-.brp-test-form{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(180px,1.5fr) minmax(90px,.6fr) minmax(150px,1fr) auto;gap:.65rem;align-items:end}
+.brp-test-form{display:grid;grid-template-columns:minmax(90px,.6fr) minmax(150px,1fr) auto;gap:.65rem;align-items:end}
 .brp-test-form .room-input{width:100%}
 .brp-test-btn{height:36px;white-space:nowrap}
 

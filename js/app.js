@@ -1016,15 +1016,15 @@ function brpTestSummary(test) {
     return `${test.name} ${test.code} ${test.score} × 5 = ${test.threshold}% · jet ${test.rollLabel}`;
   }
 
-  const base = `${test.typeLabel} ${test.name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
+  const base = `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
   if (test.automatic) return `${base} => ${test.label}`;
   return `${base} => ${test.threshold}% · jet ${test.rollLabel}`;
 }
 
 function brpTestExpression(test) {
   if (test.kind === 'character') return `${test.name} ${test.code} ${test.score}×5 (${test.threshold}%)`;
-  if (test.automatic) return `${test.typeLabel} ${test.name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
-  return `${test.typeLabel} ${test.name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
+  if (test.automatic) return `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
+  return `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
 }
 
 function sendPercentileTest(test, totalValue) {
@@ -1115,11 +1115,8 @@ function quickCharacteristicTest(key) {
 function rollBrpPercentileTest() {
   if (rolling) return;
 
-  const typeLabel = document.getElementById('brp-test-type')?.value || 'Compétence';
-  const nameInput = document.getElementById('brp-test-name');
   const scoreInput = document.getElementById('brp-test-score');
   const difficulty = brpDifficulty(document.getElementById('brp-test-difficulty')?.value);
-  const name = (nameInput?.value || '').trim() || typeLabel;
   const score = clampPercentScore(parseInt(scoreInput?.value, 10) || 0);
 
   if (!scoreInput || !Number.isFinite(parseInt(scoreInput.value, 10)) || parseInt(scoreInput.value, 10) <= 0) {
@@ -1131,8 +1128,8 @@ function rollBrpPercentileTest() {
   const threshold = brpThresholdFor(score, difficulty);
   const test = createPercentileTest({
     kind: 'brp',
-    typeLabel,
-    name,
+    typeLabel: 'Test BRP',
+    name: 'Test BRP',
     score,
     threshold,
     difficulty

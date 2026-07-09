@@ -98,19 +98,6 @@
   <div class="slabel">Test BRP</div>
   <div class="brp-test-form">
     <div class="room-field">
-      <label>Type</label>
-      <select class="room-input" id="brp-test-type">
-        <option value="Compétence">Compétence</option>
-        <option value="Sort">Sort</option>
-        <option value="Résistance">Résistance</option>
-        <option value="Jet libre">Jet libre</option>
-      </select>
-    </div>
-    <div class="room-field brp-test-name-field">
-      <label>Nom</label>
-      <input class="room-input wide" id="brp-test-name" placeholder="Ex. Survie" maxlength="40">
-    </div>
-    <div class="room-field">
       <label>Score %</label>
       <input class="room-input small" id="brp-test-score" type="number" min="1" max="300" step="1" value="50">
     </div>
@@ -171,7 +158,12 @@
         </div>
         <div class="room-field">
           <label>Genre</label>
-          <input class="room-input" data-character-field="genre" maxlength="40" oninput="characterNameChanged()">
+          <select class="room-input" data-character-field="genre" onchange="characterNameChanged()">
+            <option value="">Genre...</option>
+            <option value="Masculin">Masculin</option>
+            <option value="Féminin">Féminin</option>
+            <option value="Neutre">Neutre</option>
+          </select>
         </div>
         <div class="room-field">
           <label>Âge</label>
@@ -227,6 +219,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260708-brp-orc-brp-tests"></script>
+<script type="module" src="js/app.js?v=20260709-brp-ui-simple"></script>
 </body>
 </html>

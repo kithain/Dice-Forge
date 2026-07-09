@@ -29,7 +29,7 @@ L'application supporte 7 types de dés : **D4, D6, D8, D10, D12, D20, D100**.
 Deux façons de lancer :
 
 - **Lancer rapide** — boutons pré-configurés pour les jets courants (`D20`, `D6`, `D100`) et les jets BRP-ORC (`Effort FOR`, `Endurance CON`, `Idée INT`, `Chance POU`, `Agilité DEX`, `Charme CHA`)
-- **Test BRP** — champ générique pour compétences, sorts, résistances ou jets libres avec score en %, difficulté (`Automatique`, `Facile ×2`, `Moyen ×1`, `Difficile ÷2`, `Impossible`) et niveau de réussite automatique
+- **Test BRP** — jet générique avec score en %, difficulté (`Automatique`, `Facile ×2`, `Moyen ×1`, `Difficile ÷2`, `Impossible`) et niveau de réussite automatique
 - **Compositeur de jet** — sélectionnez le nombre de dés de chaque type (1 à 10) via les boutons +/−, ajoutez un modificateur (+/−), puis cliquez sur **Lancer les Dés**
 
 L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 + 1D8 + 5`).
