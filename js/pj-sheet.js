@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
+if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+  document.body.classList.add('pj-embedded');
+}
+
 const STORAGE_KEY = 'dice-forge.pj-markdown.v1';
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const SUPABASE_URL = window.SUPABASE_CONFIG?.url || '';
@@ -21,10 +25,10 @@ const SKILLS = [
   ['Conduite (divers)', '20 % ou 01 %', 'Physique'], ['Arme à énergie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Étiquette (divers)', '05 %', 'Social & mental'], ['Baratin', '05 %', 'Social & mental'], ['Manipulation fine', '05 %', 'Pratique & divers'],
   ['Arme à feu (divers)', "Selon la spécialité d'arme", 'Combat'], ['Premiers secours', '30 %', 'Pratique & divers'],
-  ['Vol', 'DEX×4 ou ½ DEX', 'Physique'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'], ['Machine lourde (divers)', '01 %', 'Pratique & divers'],
+  ['Vol', '½ DEX', 'Magie & pouvoirs'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'], ['Machine lourde (divers)', '01 %', 'Pratique & divers'],
   ['Arme lourde (divers)', "Selon la spécialité d'arme", 'Combat'], ['Se cacher', '10 %', 'Physique'], ['Intuition', '05 %', 'Social & mental'],
   ['Saut', '25 %', 'Physique'], ['Connaissance (divers)', '05 % ou 00 %', 'Connaissances'], ['Langue (divers)', 'INT (ou ÉDU)×5 ou 00 %', 'Connaissances'],
-  ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', '00 % ou égale à Langue', 'Connaissances'], ['Arts martiaux', '01 %', 'Combat'],
+  ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'], ['Arts martiaux', '01 %', 'Combat'],
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
   ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Persuasion', '15 %', 'Social & mental'],
@@ -121,10 +125,17 @@ function automaticSkillBase(name, label) {
   const dex = numberValue('dexterite') || 0;
   const intelligence = numberValue('intelligence') || 0;
   const power = numberValue('pouvoir') || 0;
+  const profession = fieldValue('profession').toLocaleLowerCase('fr-FR');
   if (name === 'Esquive' || name === 'Projection') return dex * 2;
-  if (name === 'Vol') return dex * 4;
+  if (name === 'Vol') return Math.ceil(dex / 2);
   if (name === 'Jeux') return intelligence + power;
-  if (name === 'Langue (divers)' || name === 'Alphabétisation (option)') return intelligence * 5;
+  if (name === 'Langue (divers)') return intelligence * 5;
+  if (name === 'Alphabétisation (option)') {
+    if (profession.includes('érudit') || profession.includes('étudiant')) return intelligence * 5;
+    if (profession.includes('sorcier') || profession.includes('prêtre')) return intelligence * 4;
+    if (profession.includes('noble')) return intelligence * 3;
+    return 0;
+  }
   if (label.startsWith('Selon')) return 0;
   return parseInt(label, 10) || 0;
 }

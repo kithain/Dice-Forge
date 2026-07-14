@@ -619,6 +619,10 @@ function openMarkdownCharacterSheet() {
   return true;
 }
 
+function openMarkdownTab() {
+  openMarkdownCharacterSheet();
+}
+
 function readImportedFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1321,6 +1325,7 @@ window.shiftCharacterPoint = shiftCharacterPoint;
 window.submitCharacterSheet = submitCharacterSheet;
 window.exportCharacterSheet = exportCharacterSheet;
 window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
+window.openMarkdownTab = openMarkdownTab;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;

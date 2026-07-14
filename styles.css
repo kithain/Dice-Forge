@@ -304,6 +304,7 @@ select.room-input{appearance:none}
 .char-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .char-secondary{height:34px}
 .char-markdown-link{display:inline-flex;align-items:center;text-decoration:none;box-sizing:border-box}
+.tab-link{display:inline-flex;align-items:center;text-decoration:none;box-sizing:border-box}
 .char-file-input{display:none}
 .char-meta{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:.9rem}
 .char-notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.65rem;margin-bottom:.9rem}
