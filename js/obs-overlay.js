@@ -116,7 +116,7 @@ function showSetup() {
       Ajoute le code de salle dans l'URL OBS :<br>
       <code>http://127.0.0.1:8010/obs.html?room=ABCD</code><br><br>
       Optionnel : <code>&limit=3</code> pour limiter le nombre de jets affiches,
-      <code>&bg=1</code> pour afficher un fond de preview.
+      <code>&bg=1</code> pour afficher un fond de test hors OBS.
     </div>
   `;
   setStatus('En attente du code room');

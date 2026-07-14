@@ -114,7 +114,7 @@ Une vue overlay dediee permet d'afficher les jets en direct dans OBS, sur un por
 - Lancer le serveur OBS : `Run_OBS.bat`
 - Lancer directement une salle : `Run_OBS.bat ABCD`
 - URL OBS : `http://127.0.0.1:8010/obs.html?room=ABCD`
-- Options utiles : `&limit=3` pour limiter le nombre de jets visibles, `&bg=1` pour afficher un fond de preview hors OBS
+- Options utiles : `&limit=3` pour limiter le nombre de jets visibles, `&bg=1` pour afficher un fond de test hors OBS
 - Arreter le serveur OBS : `Stop_OBS.bat`
 
 ---
