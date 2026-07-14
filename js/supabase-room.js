@@ -144,7 +144,8 @@ export async function purgeRoom() {
   if (!confirmed) return;
   const { error } = await sb.from('rolls')
     .delete()
-    .eq('room_code', roomState.code);
+    .eq('room_code', roomState.code)
+    .neq('expression', '— Partie créée —');
   if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
   document.getElementById('live-list').innerHTML = '';
   showToast('Salle purgée', 'success');
@@ -438,7 +439,7 @@ export async function saveCharacterSheet(nom, details, stats) {
   return true;
 }
 
-export function restoreSession() {
+export async function restoreSession() {
   const saved = localStorage.getItem('diceforge_room');
   if (saved) {
     try {
@@ -449,12 +450,25 @@ export function restoreSession() {
         document.getElementById('room-code').value = r.code;
         sbInit();
         if (sb) {
+          const { data, error } = await sb.from('rolls')
+            .select('id')
+            .eq('room_code', r.code)
+            .limit(1);
+          if (error) {
+            showToast('Impossible de vérifier la partie: ' + error.message, 'error');
+            return;
+          }
+          if (!data.length) {
+            localStorage.removeItem('diceforge_room');
+            roomState = { code: null, player: null, connected: false };
+            showToast('Cette ancienne partie n’existe plus. Crée une nouvelle partie ou saisis un autre code.', 'error');
+            return;
+          }
           showConnected();
-          loadPlayerCharacter(r.player);
-          checkCreator(r.code, r.player).then(() => {
-            subscribeLive(r.code, r.player);
-            loadRecent(r.code, r.player);
-          });
+          await loadPlayerCharacter(r.player);
+          await checkCreator(r.code, r.player);
+          subscribeLive(r.code, r.player);
+          await loadRecent(r.code, r.player);
         }
       }
     } catch (e) {}

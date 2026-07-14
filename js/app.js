@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-character-hydration';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-room-purge-fix';
 import { showToast } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
 
@@ -10,6 +10,7 @@ const DTYPES = [4, 6, 8, 10, 12, 20, 100];
 const MAX_CHARACTER_MOVES = 3;
 const MAX_CHARACTER_REROLLS = 2;
 const CHARACTER_EXPORT_FORMAT = 'dice-forge.character.v1';
+const MARKDOWN_CHARACTER_DRAFT_KEY = 'dice-forge.pj-markdown.v1';
 const BRP_DIFFICULTIES = [
   { value: 'auto', label: 'Automatique', shortLabel: 'Automatique', mode: 'auto-success' },
   { value: 'easy', label: 'Facile ×2', shortLabel: 'Facile', multiplier: 2 },
@@ -568,6 +569,54 @@ function exportCharacterSheet() {
     character
   });
   showToast('Fiche personnage exportée', 'success');
+}
+
+function openMarkdownCharacterSheet() {
+  const character = exportPayloadFromCurrentSheet() || exportPayloadFromSavedCharacter(getPlayerCharacter());
+  if (!character) return true;
+
+  let draft = {};
+  try {
+    draft = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY)) || {};
+  } catch (error) {
+    console.warn('Brouillon Markdown illisible, une nouvelle fiche sera créée.', error);
+  }
+
+  const details = character.details || {};
+  const previousFields = draft.fields || {};
+  const playerName = document.getElementById('player-name')?.value.trim() || previousFields.player || '';
+  const extraNotes = [
+    details.genre ? `Genre : ${details.genre}` : '',
+    details.age ? `Âge : ${details.age}` : '',
+    details.traits ? `Traits distinctifs : ${details.traits}` : '',
+    details.notes || ''
+  ].filter(Boolean).join('\n');
+
+  draft.fields = {
+    ...previousFields,
+    name: character.nom || previousFields.name || '',
+    player: playerName,
+    profession: details.profession || previousFields.profession || '',
+    race: details.espece || previousFields.race || '',
+    movement: speciesByName(details.espece).mov,
+    equipment: previousFields.equipment || (details.richesse ? `Richesse : ${details.richesse}` : ''),
+    notes: previousFields.notes || extraNotes
+  };
+  draft.stats = {
+    ...(draft.stats || {}),
+    force: character.stats.force,
+    constitution: character.stats.constitution,
+    taille: character.stats.taille,
+    intelligence: character.stats.intelligence,
+    pouvoir: character.stats.pouvoir,
+    dexterite: character.stats.dexterite,
+    apparence: character.stats.charisme
+  };
+  draft.skills ||= [];
+  draft.weapons ||= [{}];
+
+  localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(draft));
+  return true;
 }
 
 function readImportedFile(file) {
@@ -1271,6 +1320,7 @@ window.renderCharacterSheet = renderCharacterSheet;
 window.shiftCharacterPoint = shiftCharacterPoint;
 window.submitCharacterSheet = submitCharacterSheet;
 window.exportCharacterSheet = exportCharacterSheet;
+window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Forge — Fiche de personnage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pj.css">
+  <script type="importmap">
+  { "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
+  } }
+  </script>
+</head>
+<body>
+  <div class="stars"></div>
+  <main class="wrap pj-page">
+    <nav class="pj-nav" aria-label="Navigation">
+      <a class="room-leave pj-back" href="index.html">← Retour à Dice Forge</a>
+      <span class="pj-save-state" id="pj-save-state" role="status">Brouillon local prêt</span>
+    </nav>
+
+    <header class="pj-header">
+      <p class="pj-kicker">BRP-ORC</p>
+      <h1>Fiche de personnage</h1>
+      <p>Modifiez la fiche puis enregistrez-la au format Markdown.</p>
+    </header>
+
+    <div class="pj-toolbar" aria-label="Actions de la fiche">
+      <button class="room-btn" id="pj-download" type="button">Enregistrer en .md</button>
+      <button class="room-btn pj-cloud" id="pj-cloud-save" type="button">Sauvegarder en ligne</button>
+      <button class="room-leave pj-secondary" id="pj-cloud-load" type="button">Charger depuis Supabase</button>
+      <button class="room-leave pj-secondary" id="pj-open" type="button">Ouvrir un .md</button>
+      <input id="pj-file" type="file" accept="text/markdown,text/plain,.md" hidden>
+      <button class="room-leave pj-secondary" id="pj-reset" type="button">Nouvelle fiche</button>
+      <span class="pj-filename">Fichier : <strong id="pj-filename">nom_du_perso.md</strong></span>
+    </div>
+
+    <form id="pj-form" class="pj-sheet" autocomplete="off">
+      <section class="pj-section pj-identity">
+        <label class="pj-field pj-name">Nom du personnage
+          <input id="pj-name" data-field="name" maxlength="80" placeholder="Nom du personnage">
+        </label>
+        <label class="pj-field">Joueur
+          <input data-field="player" maxlength="80" placeholder="Nom du joueur">
+        </label>
+        <label class="pj-field">Profession
+          <input data-field="profession" maxlength="80">
+        </label>
+        <label class="pj-field">Race
+          <input data-field="race" maxlength="80">
+        </label>
+      </section>
+
+      <section class="pj-section">
+        <h2>Caractéristiques</h2>
+        <div class="pj-table-wrap">
+          <table class="pj-table">
+            <thead><tr><th>Carac.</th><th>Score</th><th>Jet (×5)</th></tr></thead>
+            <tbody id="pj-stats"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="pj-section">
+        <h2>Attributs dérivés</h2>
+        <div class="pj-derived-grid">
+          <label class="pj-derived">Points de vie <input data-derived="hp" readonly></label>
+          <label class="pj-derived">Points de pouvoir <input data-derived="pp" readonly></label>
+          <label class="pj-derived">Bonus aux dégâts <input data-derived="damage" readonly></label>
+          <label class="pj-derived">Bonus d’expérience <input data-derived="experience" readonly></label>
+          <label class="pj-derived">Mouvement <input data-field="movement" type="number" value="10"></label>
+        </div>
+      </section>
+
+      <section class="pj-section">
+        <h2>Compétences</h2>
+        <p class="pj-help">Le score final correspond à la valeur de base, augmentée des points de compétence et des éventuels bonus de catégorie.</p>
+        <div class="pj-table-wrap pj-skills-wrap">
+          <table class="pj-table pj-skills-table">
+            <thead><tr><th>Compétence</th><th>Base</th><th>Score final</th><th>Coche</th></tr></thead>
+            <tbody id="pj-skills"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="pj-section">
+        <div class="pj-section-head">
+          <h2>Armes</h2>
+          <button class="pj-add" id="pj-add-weapon" type="button">+ Ajouter une arme</button>
+        </div>
+        <div class="pj-table-wrap">
+          <table class="pj-table">
+            <thead><tr><th>Arme</th><th>%</th><th>Dégâts</th><th>Portée</th><th>PA</th><th></th></tr></thead>
+            <tbody id="pj-weapons"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="pj-section pj-two-columns">
+        <div>
+          <h2>Armure</h2>
+          <label class="pj-field">Type <input data-field="armorType"></label>
+          <label class="pj-field">Points d’armure <input data-field="armorPoints"></label>
+        </div>
+        <div>
+          <h2>Sorts / pouvoirs</h2>
+          <textarea data-field="powers" rows="6" placeholder="Un élément par ligne"></textarea>
+        </div>
+      </section>
+
+      <section class="pj-section">
+        <h2>Équipement et richesse</h2>
+        <textarea data-field="equipment" rows="7" placeholder="Un élément par ligne"></textarea>
+      </section>
+
+      <section class="pj-section">
+        <h2>Histoire et liens</h2>
+        <div class="pj-history-grid">
+          <label class="pj-field">Origine <textarea data-field="origin" rows="3"></textarea></label>
+          <label class="pj-field">Liens avec les PNJ <textarea data-field="npcLinks" rows="3"></textarea></label>
+          <label class="pj-field">Liens avec les factions <textarea data-field="factionLinks" rows="3"></textarea></label>
+          <label class="pj-field">Motivation personnelle <textarea data-field="motivation" rows="3"></textarea></label>
+        </div>
+      </section>
+
+      <section class="pj-section">
+        <h2>Notes de jeu</h2>
+        <textarea data-field="notes" rows="9"></textarea>
+      </section>
+    </form>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script type="module" src="js/pj-sheet.js?v=20260714-supabase-sheet"></script>
+</body>
+</html>

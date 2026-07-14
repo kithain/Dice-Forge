@@ -196,6 +196,7 @@
         <button class="room-leave char-secondary" id="char-reroll-btn" type="button" onclick="rerollCharacterStats()" disabled>Relancer</button>
         <button class="room-btn" id="char-save-btn" type="button" onclick="submitCharacterSheet()" disabled>Enregistrer</button>
         <button class="room-leave char-secondary" id="char-export-btn" type="button" onclick="exportCharacterSheet()">Exporter</button>
+        <a class="room-leave char-secondary char-markdown-link" href="pj.html" onclick="return openMarkdownCharacterSheet()">Fiche Markdown</a>
         <button class="room-leave char-secondary" id="char-import-btn" type="button" onclick="document.getElementById('char-import-file').click()">Importer</button>
         <input class="char-file-input" id="char-import-file" type="file" accept="application/json,.json" onchange="importCharacterSheet(event)">
         <button class="room-leave char-secondary" id="char-new-btn" type="button" onclick="resetCharacterSheet()" disabled>Nouvelle fiche</button>
@@ -232,6 +233,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260714-character-hydration"></script>
+<script type="module" src="js/app.js?v=20260714-room-purge-fix"></script>
 </body>
 </html>

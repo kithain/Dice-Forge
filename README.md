@@ -48,6 +48,10 @@ L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 
 
 L'onglet **Fiche personnage** permet de créer une fiche BRP-ORC médiéval-fantastique avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Charisme**.
 
+Le bouton **Fiche Markdown** ouvre également une fiche complète fondée sur `pj_template.md`. Elle est modifiable dans le navigateur, conserve automatiquement un brouillon local, peut rouvrir un fichier `.md` et s'enregistre sous le nom du personnage (par exemple `eleonore_du_val.md`).
+
+La fiche Markdown peut aussi être sauvegardée intégralement dans Supabase et rechargée depuis n'importe quel navigateur pour le même joueur et le même code de partie. La table nécessaire est créée avec [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql).
+
 - **FOR**, **CON**, **POU**, **DEX** et **CHA** sont générées avec `3D6`
 - **TAI** et **INT** sont générées avec `2D6 + 6`
 - Les espèces du `livret_joueur.html` sont disponibles : Humain, Nain, Elfe, Demi-Elfe, Demi-Orc
