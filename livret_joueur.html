@@ -143,10 +143,37 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 .origin-table th:nth-child(3) { width: 36%; }
 .origin-table th:nth-child(4) { width: 36%; }
 .origin-table td { vertical-align: top; }
+.book-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 8px 10px;
+    border: 1px solid #b8a98e;
+    border-radius: 6px;
+    background: #fffaf0;
+}
+.book-nav a { color: #0f3460; font-weight: bold; text-decoration: none; }
+.book-nav a:hover { text-decoration: underline; }
+.skill-intro { background: #e8e0d0; border-left: 5px solid #0f3460; padding: 9px 12px; margin-bottom: 14px; }
+.skill-group-title { margin-top: 20px; padding: 6px 9px; color: #fff; background: #0f3460; border: 0; }
+.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 8px 0 14px; }
+.skill-entry { border: 1px solid #b8a98e; border-radius: 5px; padding: 7px 9px; background: #faf8f0; page-break-inside: avoid; }
+.skill-entry dt { color: #16213e; font-weight: bold; font-size: 11px; }
+.skill-entry dd { margin: 3px 0 0; font-size: 9.5px; line-height: 1.4; }
+.skill-base { float: right; color: #fff; background: #6f42c1; border-radius: 3px; padding: 1px 5px; font-size: 8px; }
+@media(max-width: 620px) { .skill-grid { grid-template-columns: 1fr; } }
+@media print { .book-nav { display: none; } }
 </style>
 </head>
 <body>
 <div class="page">
+
+<nav class="book-nav" aria-label="Navigation du livret">
+    <a href="index.html">← Dice Forge</a>
+    <a href="inventaire.html">Inventaire et équipement →</a>
+</nav>
 
 <!-- ============ COUVERTURE ============ -->
 <div class="cover">
@@ -546,7 +573,86 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </div>
 
 <!-- ============ CHAPITRE 4 : MAGIE ============ -->
-<h1 class="chapter">4. La Magie</h1>
+<!-- ============ CHAPITRE 4 : COMPÉTENCES ============ -->
+<h1 class="chapter" id="competences">4. Référence des Compétences</h1>
+
+<div class="skill-intro">
+<p><b>Score final = base + points répartis.</b> La base représente ce qu'un personnage non entraîné peut déjà accomplir. Les compétences d'arme utilisent la base de l'arme choisie. Les bases liées à une caractéristique sont recalculées quand celle-ci change.</p>
+<p class="note">Cette liste est adaptée à l'univers médiéval-fantastique du livret. Le MJ peut demander une spécialité précise, appliquer une difficulté ou déclarer une compétence indisponible selon la culture du personnage.</p>
+</div>
+
+<h2 class="skill-group-title">Combat</h2>
+<dl class="skill-grid">
+<div class="skill-entry" data-skill="Artillerie (divers)"><dt>Artillerie (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Manœuvrer et tirer avec un engin de siège comme une baliste, une catapulte ou un trébuchet. Un équipage et du temps de préparation sont généralement nécessaires.</dd></div>
+<div class="skill-entry" data-skill="Bagarre"><dt>Bagarre <span class="skill-base">25 %</span></dt><dd>Combattre sans arme avec coups de poing, coups de pied, morsures ou armes naturelles improvisées.</dd></div>
+<div class="skill-entry" data-skill="Lutte"><dt>Lutte <span class="skill-base">25 %</span></dt><dd>Saisir, immobiliser, renverser ou désarmer un adversaire au corps à corps.</dd></div>
+<div class="skill-entry" data-skill="Arts martiaux"><dt>Arts martiaux <span class="skill-base">01 %</span></dt><dd>Appliquer un style de combat formalisé. Cette compétence complète Bagarre, Lutte ou une compétence d'arme plutôt que de les remplacer.</dd></div>
+<div class="skill-entry" data-skill="Arme de mêlée (divers)"><dt>Arme de mêlée (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Attaquer avec une spécialité précise : épée, hache, lance, masse, dague, etc. Chaque famille peut constituer une compétence distincte.</dd></div>
+<div class="skill-entry" data-skill="Arme de jet (divers)"><dt>Arme de jet (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Utiliser arcs, arbalètes, frondes, javelots ou autres armes propulsées. Pour lancer un objet à la main, utilisez Lancer.</dd></div>
+<div class="skill-entry" data-skill="Parade (divers)"><dt>Parade (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Dévier ou bloquer une attaque avec une arme adaptée. Des parades supplémentaires dans le même round subissent une pénalité.</dd></div>
+<div class="skill-entry" data-skill="Bouclier"><dt>Bouclier <span class="skill-base">Selon le bouclier</span></dt><dd>Bloquer les attaques avec une rondache, un écu ou un pavois. Le type de bouclier détermine sa base et sa protection.</dd></div>
+</dl>
+
+<h2 class="skill-group-title">Physique</h2>
+<dl class="skill-grid">
+<div class="skill-entry" data-skill="Escalade"><dt>Escalade <span class="skill-base">40 %</span></dt><dd>Grimper sur murs, arbres, falaises ou cordages. La surface, la météo, l'équipement et la vitesse modifient la difficulté.</dd></div>
+<div class="skill-entry" data-skill="Esquive"><dt>Esquive <span class="skill-base">DEX×2</span></dt><dd>Éviter une attaque, un piège ou une chute d'objet par un déplacement rapide. Elle constitue la principale défense sans parade.</dd></div>
+<div class="skill-entry" data-skill="Conduite (divers)"><dt>Conduite (divers) <span class="skill-base">20 % ou 01 %</span></dt><dd>Diriger une carriole, un chariot, un traîneau ou un véhicule terrestre similaire. La base faible s'applique à un véhicule inconnu.</dd></div>
+<div class="skill-entry" data-skill="Vol"><dt>Vol <span class="skill-base">DEX×4 ou ½ DEX</span></dt><dd>Contrôler un déplacement aérien naturel ou magique. La seconde formule convient aux moyens de vol artificiels difficiles à manier.</dd></div>
+<div class="skill-entry" data-skill="Se cacher"><dt>Se cacher <span class="skill-base">10 %</span></dt><dd>Trouver une cachette, profiter du décor et rester hors de vue sans nécessairement se déplacer.</dd></div>
+<div class="skill-entry" data-skill="Saut"><dt>Saut <span class="skill-base">25 %</span></dt><dd>Franchir une distance, sauter en hauteur ou amortir une chute. L'élan et l'encombrement influencent le jet.</dd></div>
+<div class="skill-entry" data-skill="Pilotage (divers)"><dt>Pilotage (divers) <span class="skill-base">01 %</span></dt><dd>Manœuvrer une embarcation complexe, un navire ou un moyen de transport fantastique nécessitant une formation spécialisée.</dd></div>
+<div class="skill-entry" data-skill="Projection"><dt>Projection <span class="skill-base">DEX×2</span></dt><dd>Viser une attaque produite par un pouvoir ou un sort lorsque celui-ci exige un jet pour toucher.</dd></div>
+<div class="skill-entry" data-skill="Équitation (divers)"><dt>Équitation (divers) <span class="skill-base">05 %</span></dt><dd>Monter, guider et calmer une espèce de monture, notamment pendant une poursuite ou un combat.</dd></div>
+<div class="skill-entry" data-skill="Discrétion"><dt>Discrétion <span class="skill-base">10 %</span></dt><dd>Se déplacer silencieusement et sans attirer l'attention. Elle s'oppose généralement à Écouter ou Observation.</dd></div>
+<div class="skill-entry" data-skill="Nage"><dt>Nage <span class="skill-base">25 %</span></dt><dd>Se déplacer dans l'eau, résister au courant et éviter la noyade malgré l'armure ou la fatigue.</dd></div>
+<div class="skill-entry" data-skill="Lancer"><dt>Lancer <span class="skill-base">25 %</span></dt><dd>Lancer avec précision une pierre, une corde, une torche, une fiole ou une arme improvisée.</dd></div>
+</dl>
+
+<h2 class="skill-group-title">Social &amp; mental</h2>
+<dl class="skill-grid">
+<div class="skill-entry" data-skill="Marchandage"><dt>Marchandage <span class="skill-base">05 %</span></dt><dd>Négocier un prix ou un compromis quand chaque partie doit céder quelque chose.</dd></div>
+<div class="skill-entry" data-skill="Commandement"><dt>Commandement <span class="skill-base">05 %</span></dt><dd>Donner des ordres clairs, coordonner un groupe et maintenir sa discipline sous pression.</dd></div>
+<div class="skill-entry" data-skill="Déguisement"><dt>Déguisement <span class="skill-base">01 %</span></dt><dd>Modifier son apparence, sa voix et son comportement pour passer pour quelqu'un d'autre.</dd></div>
+<div class="skill-entry" data-skill="Étiquette (divers)"><dt>Étiquette (divers) <span class="skill-base">05 %</span></dt><dd>Connaître les usages d'une cour, d'une guilde, d'un temple ou d'une culture afin d'éviter les impairs.</dd></div>
+<div class="skill-entry" data-skill="Baratin"><dt>Baratin <span class="skill-base">05 %</span></dt><dd>Tromper ou convaincre rapidement par le bagout. L'effet est immédiat mais résiste rarement à une vérification ultérieure.</dd></div>
+<div class="skill-entry" data-skill="Jeux"><dt>Jeux <span class="skill-base">INT+POU</span></dt><dd>Jouer aux dés, aux cartes ou aux jeux de stratégie, en combinant connaissance des règles, calcul et chance.</dd></div>
+<div class="skill-entry" data-skill="Intuition"><dt>Intuition <span class="skill-base">05 %</span></dt><dd>Pressentir les intentions, mensonges, émotions ou motivations d'une personne.</dd></div>
+<div class="skill-entry" data-skill="Écouter"><dt>Écouter <span class="skill-base">25 %</span></dt><dd>Percevoir et identifier des sons faibles, lointains ou dissimulés.</dd></div>
+<div class="skill-entry" data-skill="Représentation"><dt>Représentation <span class="skill-base">05 %</span></dt><dd>Chanter, danser, jouer d'un instrument, déclamer ou accomplir un rituel spectaculaire devant un public.</dd></div>
+<div class="skill-entry" data-skill="Persuasion"><dt>Persuasion <span class="skill-base">15 %</span></dt><dd>Faire évoluer durablement une opinion par des arguments, l'éloquence ou l'intimidation raisonnée.</dd></div>
+<div class="skill-entry" data-skill="Sens"><dt>Sens <span class="skill-base">10 %</span></dt><dd>Exploiter l'odorat, le goût et le toucher pour détecter un poison, une piste, une vibration ou une anomalie.</dd></div>
+<div class="skill-entry" data-skill="Observation"><dt>Observation <span class="skill-base">25 %</span></dt><dd>Repérer visuellement un détail, une embuscade, un mécanisme ou un indice dissimulé.</dd></div>
+<div class="skill-entry" data-skill="Statut"><dt>Statut <span class="skill-base">15 %</span></dt><dd>Faire valoir sa réputation, son rang social, ses titres ou ses relations pour obtenir accès, crédit ou respect.</dd></div>
+</dl>
+
+<h2 class="skill-group-title">Connaissances</h2>
+<dl class="skill-grid">
+<div class="skill-entry" data-skill="Connaissance (divers)"><dt>Connaissance (divers) <span class="skill-base">05 % ou 00 %</span></dt><dd>Maîtriser un domaine précis : histoire, religion, occultisme, droit, nature, région, monstres, etc.</dd></div>
+<div class="skill-entry" data-skill="Langue (divers)"><dt>Langue (divers) <span class="skill-base">INT×5 ou 00 %</span></dt><dd>Comprendre et parler une langue. La langue natale utilise normalement INT×5 ; une langue inconnue commence à 00 %.</dd></div>
+<div class="skill-entry" data-skill="Alphabétisation (option)"><dt>Alphabétisation (option) <span class="skill-base">00 % ou Langue</span></dt><dd>Lire et écrire une langue connue. Dans les sociétés peu lettrées, cette aptitude nécessite une formation distincte.</dd></div>
+<div class="skill-entry" data-skill="Médecine"><dt>Médecine <span class="skill-base">05 %</span></dt><dd>Diagnostiquer maladies et blessures graves, pratiquer une chirurgie et organiser des soins de longue durée.</dd></div>
+<div class="skill-entry" data-skill="Recherche"><dt>Recherche <span class="skill-base">25 %</span></dt><dd>Trouver une information dans des archives, une bibliothèque, des registres ou un ensemble de témoignages.</dd></div>
+<div class="skill-entry" data-skill="Science (divers)"><dt>Science (divers) <span class="skill-base">01 %</span></dt><dd>Appliquer un savoir savant adapté au monde : alchimie, herboristerie, astronomie, anatomie ou philosophie naturelle.</dd></div>
+<div class="skill-entry" data-skill="Stratégie"><dt>Stratégie <span class="skill-base">01 %</span></dt><dd>Planifier une bataille, évaluer le terrain, les ressources et les intentions adverses à l'échelle d'une armée.</dd></div>
+<div class="skill-entry" data-skill="Enseignement"><dt>Enseignement <span class="skill-base">10 %</span></dt><dd>Transmettre méthodiquement une compétence ou un savoir et aider un élève à progresser.</dd></div>
+</dl>
+
+<h2 class="skill-group-title">Pratique &amp; divers</h2>
+<dl class="skill-grid">
+<div class="skill-entry" data-skill="Estimation"><dt>Estimation <span class="skill-base">15 %</span></dt><dd>Évaluer la valeur, la qualité, l'âge ou l'authenticité d'un objet et reconnaître une contrefaçon.</dd></div>
+<div class="skill-entry" data-skill="Art (divers)"><dt>Art (divers) <span class="skill-base">05 %</span></dt><dd>Créer une œuvre dans une spécialité : peinture, sculpture, poésie, composition, enluminure, etc.</dd></div>
+<div class="skill-entry" data-skill="Artisanat (divers)"><dt>Artisanat (divers) <span class="skill-base">05 %</span></dt><dd>Fabriquer ou entretenir des objets dans un métier : forge, cuisine, maçonnerie, menuiserie, couture, poterie, etc.</dd></div>
+<div class="skill-entry" data-skill="Manipulation fine"><dt>Manipulation fine <span class="skill-base">05 %</span></dt><dd>Accomplir un travail manuel minutieux : crocheter une serrure, désamorcer un piège ou manipuler un petit mécanisme.</dd></div>
+<div class="skill-entry" data-skill="Premiers secours"><dt>Premiers secours <span class="skill-base">30 %</span></dt><dd>Stabiliser rapidement une blessure, arrêter un saignement et rendre immédiatement quelques points de vie.</dd></div>
+<div class="skill-entry" data-skill="Navigation"><dt>Navigation <span class="skill-base">10 %</span></dt><dd>Trouver son chemin grâce aux cartes, aux étoiles, au terrain, à une boussole ou à des repères mémorisés.</dd></div>
+<div class="skill-entry" data-skill="Réparation (divers)"><dt>Réparation (divers) <span class="skill-base">15 %</span></dt><dd>Remettre en état un objet, une arme, une armure, un chariot ou une structure avec les outils appropriés.</dd></div>
+<div class="skill-entry" data-skill="Tour de main"><dt>Tour de main <span class="skill-base">05 %</span></dt><dd>Dissimuler ou subtiliser un petit objet, tricher discrètement ou réaliser un geste de prestidigitation.</dd></div>
+<div class="skill-entry" data-skill="Pistage"><dt>Pistage <span class="skill-base">10 %</span></dt><dd>Suivre des traces, estimer leur ancienneté et déduire le nombre, l'allure ou l'état des créatures poursuivies.</dd></div>
+</dl>
+
+<!-- ============ CHAPITRE 5 : MAGIE ============ -->
+<h1 class="chapter">5. La Magie</h1>
 
 <h2>Principes généraux</h2>
 <p>La magie est traitée comme une compétence : chaque sort connu est une compétence distincte avec un pourcentage de succès. Le magicien dépense des <b>points de pouvoir (PP)</b> pour lancer ses sorts. Les PP sont égaux à la POU du personnage et se régénèrent avec le repos.</p>
@@ -715,7 +821,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </ul>
 
 <!-- ============ CHAPITRE 5 : RÉSUMÉ DES RÈGLES ============ -->
-<h1 class="chapter">5. Résumé des Règles Clés</h1>
+<h1 class="chapter">6. Résumé des Règles Clés</h1>
 
 <!-- 
 <h2>Niveaux de réussite</h2>

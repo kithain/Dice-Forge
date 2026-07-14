@@ -60,6 +60,7 @@ a { color: var(--gold-soft); }
   gap: 16px;
   margin-bottom: 24px;
 }
+.nav-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
 .back-link {
   display: inline-flex;
@@ -250,7 +251,10 @@ footer {
 <body>
 <main class="page">
   <nav class="topbar" aria-label="Navigation">
-    <a class="back-link" href="index.html">← Retour à Dice Forge</a>
+    <div class="nav-links">
+      <a class="back-link" href="index.html">← Retour à Dice Forge</a>
+      <a class="back-link" href="livret_joueur.html">← Retour au Livret du joueur</a>
+    </div>
     <button class="print-button" type="button" onclick="window.print()">Imprimer</button>
   </nav>
 
