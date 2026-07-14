@@ -20,6 +20,7 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 | Hache à deux mains | Lourde | 1d12 | 2 | Dévastatrice, encombrante | 30 po |
 | Masse d'armes | Martiale | 1d8 | 1 | Efficace contre les armures | 12 po |
 | Marteau de guerre | Martiale | 1d8 / 1d10 | 1 ou 2 | Brise-armure | 18 po |
+| Pioche de guerre naine | Martiale | 1d10 | 2 | Perforante, brise-armure, encombrante | 25 po |
 | Fléau | Martiale | 1d8 | 1 | Contourne partiellement les boucliers | 15 po |
 | Lance | Simple | 1d6 / 1d8 | 1 ou 2 | Allonge, peut être lancée | 3 po |
 | Hallebarde | Lourde | 1d10 | 2 | Allonge, crochet, anti-cavalerie | 20 po |
