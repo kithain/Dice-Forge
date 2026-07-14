@@ -254,6 +254,9 @@ async function loadPlayerCharacter(playerName = roomState.player) {
 
   const character = data && data.length ? data[0] : null;
   renderPlayerCharacter(character);
+  window.dispatchEvent(new CustomEvent('diceforge:character-loaded', {
+    detail: { character }
+  }));
   return character;
 }
 

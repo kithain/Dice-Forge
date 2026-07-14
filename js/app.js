@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260709-canon-age-bands';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-character-hydration';
 import { showToast } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
 
@@ -661,7 +661,7 @@ function importedStatsState(payload) {
   return stats;
 }
 
-function applyImportedCharacter(payload) {
+function applyCharacterToSheet(payload, { saved = false, openTab = false } = {}) {
   const nameInput = document.getElementById('character-name');
   if (nameInput) nameInput.value = payload.nom;
   CHARACTER_DETAIL_KEYS.forEach(key => setCharacterFieldValue(key, payload.details[key]));
@@ -671,10 +671,23 @@ function applyImportedCharacter(payload) {
     generated: true,
     rerollsUsed: Math.max(0, Math.min(MAX_CHARACTER_REROLLS, numericOrFallback(payload.generation?.rerollsUsed, 0))),
     stats: importedStatsState(payload),
-    saved: false
+    saved
   };
   renderCharacterSheet();
-  switchTab('character');
+  if (openTab) switchTab('character');
+}
+
+function applyImportedCharacter(payload) {
+  applyCharacterToSheet(payload, { saved: false, openTab: true });
+}
+
+function hydrateSavedCharacter(record) {
+  if (!record) return;
+  try {
+    applyCharacterToSheet(normalizeImportedCharacter(record), { saved: true });
+  } catch (error) {
+    console.error('Impossible de remplir la fiche personnage sauvegardée:', error);
+  }
 }
 
 async function importCharacterSheet(event) {
@@ -1266,6 +1279,9 @@ window.leaveRoom = leaveRoom;
 window.randomFantasyName = randomFantasyName;
 
 // ——— init ———
+window.addEventListener('diceforge:character-loaded', event => {
+  hydrateSavedCharacter(event.detail?.character);
+});
 initCharacterOptions();
 renderGrid();
 renderExBar();
