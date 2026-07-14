@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Catalogue médiéval-fantastique d'armes, d'armures et de protections pour jeux de rôle.">
+<title>Inventaire médiéval-fantastique — Dice Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --ink: #f2ead8;
+  --muted: #bdb39f;
+  --gold: #d7ad55;
+  --gold-soft: #f1d28a;
+  --panel: rgba(22, 22, 29, 0.94);
+  --panel-alt: rgba(35, 32, 35, 0.88);
+  --line: rgba(215, 173, 85, 0.32);
+  --bg: #0d0d13;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(94, 65, 25, 0.2), transparent 34rem),
+    radial-gradient(circle at 90% 30%, rgba(63, 48, 88, 0.18), transparent 30rem),
+    var(--bg);
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+a { color: var(--gold-soft); }
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-family: Cinzel, serif;
+  font-size: 13px;
+  letter-spacing: .06em;
+}
+
+.print-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--ink);
+  background: rgba(215, 173, 85, 0.08);
+  font: 600 12px Cinzel, serif;
+  letter-spacing: .05em;
+  cursor: pointer;
+}
+
+.print-button:hover { background: rgba(215, 173, 85, 0.16); }
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(34px, 7vw, 76px) clamp(22px, 7vw, 80px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(48, 38, 30, .95), rgba(17, 18, 28, .98));
+  box-shadow: 0 24px 70px rgba(0,0,0,.38);
+}
+
+.hero::after {
+  content: "⚔";
+  position: absolute;
+  right: -12px;
+  bottom: -82px;
+  color: rgba(215, 173, 85, 0.07);
+  font-size: 260px;
+  line-height: 1;
+  transform: rotate(-12deg);
+}
+
+.eyebrow {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 10px;
+  color: var(--gold);
+  font: 600 12px Cinzel, serif;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+h1, h2 { font-family: Cinzel, serif; }
+
+h1 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #fff8e7;
+  font-size: clamp(30px, 6vw, 58px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.intro {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 16px auto 0;
+  color: var(--muted);
+  font-size: clamp(17px, 2vw, 21px);
+}
+
+.currency {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: center;
+  margin: 22px 0 34px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(215, 173, 85, .07);
+}
+
+.currency-icon { color: var(--gold); font-size: 28px; }
+.currency p { margin: 0; }
+.currency strong { color: var(--gold-soft); }
+
+.catalogue { display: grid; gap: 28px; }
+
+.section {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 16px 40px rgba(0,0,0,.2);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(215, 173, 85, .13), transparent);
+}
+
+.section-heading span { color: var(--gold); font-size: 24px; }
+
+h2 {
+  margin: 0;
+  color: #fff4d7;
+  font-size: clamp(20px, 3vw, 27px);
+}
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(215, 173, 85, .13);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--gold-soft);
+  background: rgba(0,0,0,.2);
+  font: 600 12px Cinzel, serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody tr:nth-child(even) { background: rgba(255,255,255,.025); }
+tbody tr:hover { background: rgba(215, 173, 85, .07); }
+tbody tr:last-child td { border-bottom: 0; }
+td:first-child { color: #fff7e5; font-weight: 600; }
+td:last-child { color: var(--gold-soft); white-space: nowrap; }
+
+footer {
+  padding-top: 32px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .page { width: min(100% - 20px, 1180px); padding-top: 16px; }
+  .topbar { margin-bottom: 16px; }
+  .currency { grid-template-columns: 1fr; gap: 4px; }
+  .currency-icon { display: none; }
+  th, td { padding: 10px 12px; }
+}
+
+@media print {
+  :root { color-scheme: light; --ink: #211d17; --muted: #534b40; --gold: #785615; --gold-soft: #60430f; --panel: #fff; --line: #9c865e; --bg: #fff; }
+  body { background: #fff; font-size: 11px; }
+  body::before, .topbar { display: none; }
+  .page { width: 100%; padding: 0; }
+  .hero { padding: 22px; border-radius: 0; background: #f2eadb; box-shadow: none; }
+  .hero::after { display: none; }
+  h1 { color: #241b10; font-size: 30px; }
+  .currency { margin: 12px 0 16px; padding: 8px 10px; }
+  .catalogue { gap: 14px; }
+  .section { break-inside: avoid; border-radius: 0; box-shadow: none; }
+  .section-heading { padding: 8px 10px; }
+  h2 { color: #241b10; font-size: 16px; }
+  table { min-width: 0; font-size: 9px; }
+  th, td { padding: 4px 5px; }
+  th { font-size: 8px; }
+  td:first-child { color: #211d17; }
+  footer { display: none; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <nav class="topbar" aria-label="Navigation">
+    <a class="back-link" href="index.html">← Retour à Dice Forge</a>
+    <button class="print-button" type="button" onclick="window.print()">Imprimer</button>
+  </nav>
+
+  <header class="hero">
+    <p class="eyebrow">Catalogue d'équipement</p>
+    <h1>Inventaire médiéval-fantastique</h1>
+    <p class="intro">Armes, armures et protections génériques, prêtes à être adaptées à différents systèmes de jeu de rôle.</p>
+  </header>
+
+  <aside class="currency">
+    <div class="currency-icon" aria-hidden="true">◈</div>
+    <p><strong>Monnaie :</strong> 10 pièces d'argent (pa) = 1 pièce d'or (po). Les valeurs de protection représentent un bonus générique à la défense.</p>
+  </aside>
+
+  <div class="catalogue">
+    <section class="section">
+      <div class="section-heading"><span aria-hidden="true">⚔</span><h2>Armes de mêlée</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Arme</th><th>Catégorie</th><th>Dégâts</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
+          <tbody>
+            <tr><td>Dague</td><td>Légère</td><td>1d4</td><td>1</td><td>Discrète, peut être lancée</td><td>2 po</td></tr>
+            <tr><td>Gourdin</td><td>Légère</td><td>1d4</td><td>1</td><td>Facile à improviser</td><td>5 pa</td></tr>
+            <tr><td>Épée courte</td><td>Légère</td><td>1d6</td><td>1</td><td>Rapide, précise</td><td>8 po</td></tr>
+            <tr><td>Rapière</td><td>Fine</td><td>1d8</td><td>1</td><td>Perforante, élégante</td><td>20 po</td></tr>
+            <tr><td>Épée longue</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Polyvalente</td><td>15 po</td></tr>
+            <tr><td>Sabre</td><td>Martiale</td><td>1d8</td><td>1</td><td>Rapide, bonus à cheval</td><td>18 po</td></tr>
+            <tr><td>Hachette</td><td>Légère</td><td>1d6</td><td>1</td><td>Peut être lancée</td><td>5 po</td></tr>
+            <tr><td>Hache de bataille</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Efficace contre les boucliers</td><td>12 po</td></tr>
+            <tr><td>Hache à deux mains</td><td>Lourde</td><td>1d12</td><td>2</td><td>Dévastatrice, encombrante</td><td>30 po</td></tr>
+            <tr><td>Masse d'armes</td><td>Martiale</td><td>1d8</td><td>1</td><td>Efficace contre les armures</td><td>12 po</td></tr>
+            <tr><td>Marteau de guerre</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Brise-armure</td><td>18 po</td></tr>
+            <tr><td>Fléau</td><td>Martiale</td><td>1d8</td><td>1</td><td>Contourne partiellement les boucliers</td><td>15 po</td></tr>
+            <tr><td>Lance</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Allonge, peut être lancée</td><td>3 po</td></tr>
+            <tr><td>Hallebarde</td><td>Lourde</td><td>1d10</td><td>2</td><td>Allonge, crochet, anti-cavalerie</td><td>20 po</td></tr>
+            <tr><td>Pique</td><td>Lourde</td><td>1d10</td><td>2</td><td>Très longue, anti-charge</td><td>8 po</td></tr>
+            <tr><td>Bâton</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Défensif, focaliseur possible</td><td>1 po</td></tr>
+            <tr><td>Épée à deux mains</td><td>Lourde</td><td>2d6</td><td>2</td><td>Puissante, lente</td><td>40 po</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading"><span aria-hidden="true">➶</span><h2>Armes à distance</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Arme</th><th>Dégâts</th><th>Portée</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
+          <tbody>
+            <tr><td>Fronde</td><td>1d4</td><td>25 m</td><td>1</td><td>Munitions faciles à trouver</td><td>5 pa</td></tr>
+            <tr><td>Javelot</td><td>1d6</td><td>20 m</td><td>1</td><td>Utilisable au corps à corps</td><td>1 po</td></tr>
+            <tr><td>Arc court</td><td>1d6</td><td>60 m</td><td>2</td><td>Rapide et léger</td><td>15 po</td></tr>
+            <tr><td>Arc long</td><td>1d8</td><td>120 m</td><td>2</td><td>Grande portée, force requise</td><td>40 po</td></tr>
+            <tr><td>Arbalète légère</td><td>1d8</td><td>80 m</td><td>2</td><td>Perforante, rechargement lent</td><td>30 po</td></tr>
+            <tr><td>Arbalète lourde</td><td>1d12</td><td>120 m</td><td>2</td><td>Très perforante, lourde</td><td>60 po</td></tr>
+            <tr><td>Arbalète de poing</td><td>1d6</td><td>30 m</td><td>1</td><td>Discrète, rare</td><td>75 po</td></tr>
+            <tr><td>Sarbacane</td><td>1d2</td><td>15 m</td><td>2</td><td>Silencieuse, adaptée aux poisons</td><td>5 po</td></tr>
+            <tr><td>Arquebuse naine</td><td>2d8</td><td>70 m</td><td>2</td><td>Bruyante, rare, rechargement très lent</td><td>200 po</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading"><span aria-hidden="true">♜</span><h2>Armures</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Armure</th><th>Type</th><th>Protection</th><th>Mobilité</th><th>Discrétion</th><th>Prix</th></tr></thead>
+          <tbody>
+            <tr><td>Vêtements renforcés</td><td>Légère</td><td>+1</td><td>Excellente</td><td>Normale</td><td>2 po</td></tr>
+            <tr><td>Gambison</td><td>Légère</td><td>+2</td><td>Excellente</td><td>Normale</td><td>8 po</td></tr>
+            <tr><td>Armure de cuir</td><td>Légère</td><td>+2</td><td>Très bonne</td><td>Bonne</td><td>10 po</td></tr>
+            <tr><td>Cuir clouté</td><td>Légère</td><td>+3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
+            <tr><td>Peaux épaisses</td><td>Intermédiaire</td><td>+3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
+            <tr><td>Chemise de mailles</td><td>Intermédiaire</td><td>+4</td><td>Bonne</td><td>Mauvaise</td><td>50 po</td></tr>
+            <tr><td>Brigandine</td><td>Intermédiaire</td><td>+5</td><td>Moyenne</td><td>Mauvaise</td><td>80 po</td></tr>
+            <tr><td>Cotte de mailles</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>100 po</td></tr>
+            <tr><td>Armure d'écailles</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>120 po</td></tr>
+            <tr><td>Demi-plate</td><td>Lourde</td><td>+7</td><td>Faible</td><td>Très mauvaise</td><td>300 po</td></tr>
+            <tr><td>Harnois complet</td><td>Lourde</td><td>+8</td><td>Faible</td><td>Impossible</td><td>800 po</td></tr>
+            <tr><td>Robe runique</td><td>Magique</td><td>+3</td><td>Excellente</td><td>Normale</td><td>500 po</td></tr>
+            <tr><td>Cuir draconique</td><td>Magique</td><td>+5</td><td>Très bonne</td><td>Bonne</td><td>1 500 po</td></tr>
+            <tr><td>Armure de mithril</td><td>Magique</td><td>+7</td><td>Bonne</td><td>Normale</td><td>4 000 po</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading"><span aria-hidden="true">◉</span><h2>Boucliers et protections</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Équipement</th><th>Protection</th><th>Particularités</th><th>Prix</th></tr></thead>
+          <tbody>
+            <tr><td>Rondache</td><td>+1</td><td>Légère, laisse la main presque libre</td><td>5 po</td></tr>
+            <tr><td>Écu</td><td>+2</td><td>Protection équilibrée</td><td>12 po</td></tr>
+            <tr><td>Bouclier normand</td><td>+2</td><td>Bonus contre les projectiles</td><td>20 po</td></tr>
+            <tr><td>Pavois</td><td>+3</td><td>Couverture importante, très encombrant</td><td>40 po</td></tr>
+            <tr><td>Casque ouvert</td><td>+1 contre les coups critiques</td><td>Bonne visibilité</td><td>5 po</td></tr>
+            <tr><td>Heaume intégral</td><td>+2 contre les coups critiques</td><td>Vision et audition réduites</td><td>25 po</td></tr>
+            <tr><td>Bouclier runique</td><td>+2</td><td>Résistance magique limitée</td><td>600 po</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>Dice Forge · Référence d'équipement médiéval-fantastique</footer>
+</main>
+</body>
+</html>
