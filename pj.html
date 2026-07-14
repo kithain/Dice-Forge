@@ -77,10 +77,19 @@
 
       <section class="pj-section">
         <h2>Compétences</h2>
-        <p class="pj-help">Le score final correspond à la valeur de base, augmentée des points de compétence et des éventuels bonus de catégorie.</p>
+        <p class="pj-help">Répartissez les points disponibles. Le score final est calculé automatiquement : base + points répartis.</p>
+        <div class="pj-skill-budget">
+          <label class="pj-budget-edit">Pool professionnel
+            <input data-field="skillProfessionalPool" type="number" min="0" max="5000" value="325">
+          </label>
+          <div><span>Points personnels</span><strong id="pj-skill-personal">0</strong><small>INT × 10</small></div>
+          <div><span>Total disponible</span><strong id="pj-skill-total">325</strong></div>
+          <div><span>Points répartis</span><strong id="pj-skill-spent">0</strong></div>
+          <div id="pj-skill-remaining-card"><span>Points restants</span><strong id="pj-skill-remaining">325</strong></div>
+        </div>
         <div class="pj-table-wrap pj-skills-wrap">
           <table class="pj-table pj-skills-table">
-            <thead><tr><th>Compétence</th><th>Base</th><th>Score final</th><th>Coche</th></tr></thead>
+            <thead><tr><th>Compétence</th><th>Base</th><th>Points à répartir</th><th>Score final</th><th>Coche</th></tr></thead>
             <tbody id="pj-skills"></tbody>
           </table>
         </div>

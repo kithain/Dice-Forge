@@ -52,6 +52,10 @@ Le bouton **Fiche Markdown** ouvre également une fiche complète fondée sur `p
 
 La fiche Markdown peut aussi être sauvegardée intégralement dans Supabase et rechargée depuis n'importe quel navigateur pour le même joueur et le même code de partie. La table nécessaire est créée avec [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql).
 
+Les compétences y sont classées par rubrique. Le budget affiche les 325 points professionnels du niveau Héroïque (valeur modifiable), ajoute automatiquement les points personnels `INT × 10`, puis décompte chaque point réparti. Le score final de chaque compétence est calculé automatiquement avec `base + points répartis` ; les bases contextuelles restent modifiables.
+
+La liste de la fiche est adaptée au médiéval-fantastique : les compétences explicitement modernes ou futuristes du BRP générique (armes à feu/énergie, machine ou arme lourde moderne, démolition moderne, psychothérapie et compétence technique) n'y sont pas proposées.
+
 - **FOR**, **CON**, **POU**, **DEX** et **CHA** sont générées avec `3D6`
 - **TAI** et **INT** sont générées avec `2D6 + 6`
 - Les espèces du `livret_joueur.html` sont disponibles : Humain, Nain, Elfe, Demi-Elfe, Demi-Orc
