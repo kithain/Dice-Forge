@@ -68,7 +68,7 @@ function renderBaseFields() {
   skillsBody.innerHTML = SKILL_GROUPS.map(group => {
     const rows = ACTIVE_SKILLS.map(({ skill: [name, base, skillGroup], index }) => skillGroup === group ? `<tr>
       <td>${escapeHtml(name)}</td>
-      <td><div class="pj-base-wrap"><input type="number" min="0" max="999" data-skill-base="${index}" aria-label="Base ${escapeHtml(name)}"><span class="pj-base-hint">${escapeHtml(base)}</span></div></td>
+      <td><div class="pj-base-wrap"><input type="number" min="0" max="999" data-skill-base="${index}" aria-label="Base ${escapeHtml(name)}" readonly tabindex="-1"><span class="pj-base-hint">${escapeHtml(base)}</span></div></td>
       <td><input type="number" min="0" max="999" value="0" data-skill-points="${index}" aria-label="Points répartis ${escapeHtml(name)}"></td>
       <td class="pj-skill-final" data-skill-final="${index}">0</td>
       <td><input type="checkbox" data-skill-check="${index}" aria-label="Coche ${escapeHtml(name)}"></td>
@@ -134,7 +134,7 @@ function updateSkillCalculations() {
   ACTIVE_SKILLS.forEach(({ skill: [name, label], index }) => {
     const baseInput = form.querySelector(`[data-skill-base="${index}"]`);
     const pointsInput = form.querySelector(`[data-skill-points="${index}"]`);
-    if (!baseInput.dataset.manual) baseInput.value = automaticSkillBase(name, label);
+    baseInput.value = automaticSkillBase(name, label);
     const base = Math.max(0, parseInt(baseInput.value, 10) || 0);
     const points = Math.max(0, parseInt(pointsInput.value, 10) || 0);
     spent += points;
@@ -188,7 +188,6 @@ function applyData(data) {
     const base = form.querySelector(`[data-skill-base="${index}"]`);
     const points = form.querySelector(`[data-skill-points="${index}"]`);
     const check = form.querySelector(`[data-skill-check="${index}"]`);
-    if (base && skill.base !== undefined && skill.base !== '') { base.value = skill.base; base.dataset.manual = 'true'; }
     if (points) {
       const legacyPoints = skill.points === undefined ? Math.max(0, (parseInt(skill.score, 10) || 0) - (parseInt(base?.value, 10) || 0)) : skill.points;
       points.value = legacyPoints || 0;
@@ -363,10 +362,7 @@ async function openMarkdown(file) {
 renderBaseFields();
 try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) applyData(draft); } catch (error) { console.warn('Brouillon illisible', error); }
 updateDerived(); updateFilename();
-form.addEventListener('input', event => {
-  if (event.target.matches('[data-skill-base]')) event.target.dataset.manual = 'true';
-  changed();
-});
+form.addEventListener('input', changed);
 form.addEventListener('change', changed);
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
@@ -376,5 +372,5 @@ document.getElementById('pj-open').addEventListener('click', () => document.getE
 document.getElementById('pj-file').addEventListener('change', event => { const file = event.target.files[0]; if (file) openMarkdown(file).catch(() => alert('Ce fichier Markdown ne peut pas être ouvert.')); event.target.value = ''; });
 document.getElementById('pj-reset').addEventListener('click', () => {
   if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
-  localStorage.removeItem(STORAGE_KEY); form.reset(); form.querySelectorAll('[data-skill-base]').forEach(input => delete input.dataset.manual); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
+  localStorage.removeItem(STORAGE_KEY); form.reset(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });

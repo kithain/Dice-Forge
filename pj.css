@@ -32,6 +32,7 @@
 .pj-skills-wrap{max-height:650px}.pj-skills-table thead{position:sticky;top:0;z-index:2}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
 .pj-skill-group td{position:sticky;top:35px;z-index:1;background:#17172e!important;color:var(--gold)!important;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem!important}
 .pj-base-wrap{display:flex;flex-direction:column;gap:.18rem}.pj-base-hint{color:var(--txm);font-size:.62rem;line-height:1.2}.pj-skill-final{font-family:'Cinzel',serif;font-weight:700;color:var(--gold2)!important;text-align:center}
+.pj-base-wrap input[readonly]{cursor:not-allowed;color:var(--txd);background:rgba(7,7,26,.72);border-style:dashed;box-shadow:none}
 .pj-add,.pj-remove{border:1px solid var(--brd2);background:var(--s2);color:var(--gold2);border-radius:4px;cursor:pointer;padding:.38rem .6rem}.pj-remove{color:#fca5a5;padding:.3rem .55rem}
 .pj-two-columns,.pj-history-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}.pj-two-columns>div{min-width:0}.pj-two-columns .pj-field+.pj-field{margin-top:.65rem}
 @media(max-width:700px){.pj-identity,.pj-two-columns,.pj-history-grid{grid-template-columns:1fr}.pj-skill-budget{grid-template-columns:repeat(2,1fr)}.pj-filename{width:100%;margin-left:0}.pj-toolbar{position:static}.pj-nav{align-items:flex-start}.pj-save-state{text-align:right}}
