@@ -13,7 +13,7 @@ const STATS = [
   ['POU', 'pouvoir'], ['DEX', 'dexterite'], ['APP', 'apparence']
 ];
 
-const SKILL_GROUPS = ['Combat', 'Physique', 'Social & mental', 'Connaissances', 'Pratique & divers'];
+const SKILL_GROUPS = ['Combat', 'Physique', 'Magie & pouvoirs', 'Social & mental', 'Connaissances', 'Pratique & divers'];
 const SKILLS = [
   ['Estimation', '15 %', 'Pratique & divers'], ['Art (divers)', '05 %', 'Pratique & divers'], ['Artillerie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Marchandage', '05 %', 'Social & mental'], ['Bagarre', '25 %', 'Combat'], ['Escalade', '40 %', 'Physique'], ['Commandement', '05 %', 'Social & mental'],
@@ -28,7 +28,7 @@ const SKILLS = [
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
   ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Persuasion', '15 %', 'Social & mental'],
-  ['Pilotage (divers)', '01 %', 'Physique'], ['Projection', 'DEX×2', 'Physique'], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
+  ['Pilotage (divers)', '01 %', 'Physique'], ['Projection', 'DEX×2', 'Magie & pouvoirs'], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
   ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['Bouclier', 'Selon le type de bouclier', 'Combat'],
   ['Tour de main', '05 %', 'Pratique & divers'], ['Observation', '25 %', 'Social & mental'], ['Statut', '15 % ou variable', 'Social & mental'], ['Discrétion', '10 %', 'Physique'],
