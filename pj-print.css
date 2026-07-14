@@ -1,0 +1,44 @@
+:root{--ink:#17130f;--muted:#665f55;--line:#9b8c76;--paper:#fffdf7;--accent:#6b1f25;--accent-soft:#eee1d6}
+*{box-sizing:border-box}
+html{background:#29241f}
+body{margin:0;color:var(--ink);font-family:Georgia,"Times New Roman",serif;background:#29241f}
+.print-toolbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:1rem;padding:.75rem 1rem;background:#17130f;color:#f8ecd2;font-family:system-ui,sans-serif;font-size:.85rem;box-shadow:0 3px 14px #0008}
+.print-toolbar a,.print-toolbar button{border:1px solid #bda677;border-radius:5px;padding:.55rem .8rem;background:#302820;color:#fff3d6;text-decoration:none;cursor:pointer}
+.print-toolbar button{background:#8f2931;font-weight:700}
+.print-sheet{width:210mm;min-height:297mm;margin:18px auto;padding:10mm;background:var(--paper);box-shadow:0 8px 32px #0008}
+.print-empty{padding:2rem;border:1px dashed var(--line);text-align:center;color:var(--muted)}
+.sheet-title{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;border-bottom:3px double var(--accent);padding-bottom:4mm;margin-bottom:4mm}
+.sheet-title h1{margin:0;color:var(--accent);font-size:23pt;line-height:1}
+.sheet-title p{margin:1.5mm 0 0;color:var(--muted);font-size:8pt;letter-spacing:.16em;text-transform:uppercase}
+.sheet-meta{font-size:8pt;color:var(--muted);text-align:right}
+.identity{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2mm;margin-bottom:4mm}
+.identity .wide{grid-column:span 3}
+.field,.metric{border:1px solid var(--line);background:#fff;padding:2mm;min-height:11mm}
+.label{display:block;color:var(--accent);font-size:6.8pt;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:1mm}
+.value{font-size:10pt;white-space:pre-wrap;overflow-wrap:anywhere}
+.section-title{margin:4mm 0 2mm;padding:1.5mm 2mm;background:var(--accent);color:#fff;font-size:10pt;letter-spacing:.08em;text-transform:uppercase}
+.top-grids{display:grid;grid-template-columns:1.15fr 1fr;gap:3mm}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5mm}
+.stat{border:1px solid var(--line);text-align:center;padding:1.3mm}
+.stat b{display:block;color:var(--accent);font-size:7pt}.stat strong{font-size:14pt}.stat small{display:block;color:var(--muted);font-size:6.5pt}
+.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5mm}.metric{min-height:0}.metric .value{font-size:11pt;font-weight:700}
+.budget{display:grid;grid-template-columns:repeat(5,1fr);gap:1.5mm;margin-bottom:3mm}.budget .metric{text-align:center}.budget .value{font-size:12pt}
+.skill-columns{columns:2;column-gap:4mm}
+.skill-group{break-inside:avoid;margin:0 0 3mm}
+.skill-group h3{margin:0;padding:1.3mm 2mm;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-size:8pt;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:7.2pt}th,td{border:1px solid var(--line);padding:1.1mm 1.3mm;vertical-align:top}th{background:#f3ede4;color:var(--accent);text-align:left;font-size:6.5pt;text-transform:uppercase}td.num{text-align:center;width:12%}td.check{text-align:center;width:8%}
+.page-break{break-before:page;padding-top:1mm}
+.two-columns{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.text-box{border:1px solid var(--line);padding:2mm;min-height:18mm;font-size:8.5pt;white-space:pre-wrap;overflow-wrap:anywhere}
+.history{display:grid;grid-template-columns:1fr 1fr;gap:2mm}.history .text-box{min-height:24mm}
+.footer{margin-top:4mm;border-top:1px solid var(--line);padding-top:1.5mm;color:var(--muted);font-size:6.5pt;text-align:center}
+@page{size:A4 portrait;margin:10mm}
+@media print{
+  html,body{background:#fff}
+  .print-toolbar{display:none!important}
+  .print-sheet{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}
+  .print-empty{display:none}
+  .sheet-title{margin-top:0}
+  .footer{display:none}
+}
+@media(max-width:850px){.print-sheet{width:100%;margin:0;padding:5vw}.print-toolbar{position:static;flex-wrap:wrap}.skill-columns{columns:1}.top-grids,.two-columns,.history{grid-template-columns:1fr}}

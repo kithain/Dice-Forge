@@ -5,6 +5,7 @@ if (new URLSearchParams(window.location.search).get('embedded') === '1') {
 }
 
 const STORAGE_KEY = 'dice-forge.pj-markdown.v1';
+const PRINT_STORAGE_KEY = 'dice-forge.pj-print.v1';
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const SUPABASE_URL = window.SUPABASE_CONFIG?.url || '';
 const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG?.anonKey || '';
@@ -31,7 +32,7 @@ const SKILLS = [
   ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'], ['Arts martiaux', '01 %', 'Combat'],
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
-  ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Persuasion', '15 %', 'Social & mental'],
+  ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
   ['Pilotage (divers)', '01 %', 'Physique'], ['Projection', 'DEX×2', 'Magie & pouvoirs'], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
   ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['Bouclier', 'Selon le type de bouclier', 'Combat'],
@@ -326,6 +327,31 @@ function downloadMarkdown() {
   document.getElementById('pj-save-state').textContent = `Fiche enregistrée : ${filename()}`;
 }
 
+function openPdfPreview() {
+  updateDerived();
+  const data = collectData();
+  data.skillGroups = SKILL_GROUPS.map(group => ({
+    name: group,
+    skills: ACTIVE_SKILLS
+      .filter(({ skill: [, , skillGroup] }) => skillGroup === group)
+      .map(({ skill: [name], index }) => ({ name, ...(data.skills[index] || {}) }))
+  }));
+  data.derived = Object.fromEntries(['hp', 'pp', 'damage', 'experience'].map(key => [
+    key,
+    form.querySelector(`[data-derived="${key}"]`)?.value || ''
+  ]));
+  data.budget = {
+    professional: document.querySelector('[data-field="skillProfessionalPool"]')?.value || '0',
+    personal: document.getElementById('pj-skill-personal').textContent,
+    total: document.getElementById('pj-skill-total').textContent,
+    spent: document.getElementById('pj-skill-spent').textContent,
+    remaining: document.getElementById('pj-skill-remaining').textContent
+  };
+  data.generatedAt = new Date().toISOString();
+  localStorage.setItem(PRINT_STORAGE_KEY, JSON.stringify(data));
+  window.location.href = 'pj-print.html';
+}
+
 function valueAfter(label, text) {
   const match = text.match(new RegExp(`\\*\\*${label}\\s*:\\*\\*\\s*(.*)`));
   return match ? match[1].trim().replace(/  $/, '').replace(/<br\s*\/?>/gi, '\n') : '';
@@ -346,7 +372,8 @@ function parseMarkdown(text) {
   const skillSection = section(text, 'Compétences');
   data.fields.skillProfessionalPool = (skillSection.match(/\*\*Points professionnels\s*:\*\*\s*(\d+)/) || [])[1] || '325';
   data.skills = SKILLS.map(([name]) => {
-    const row = skillSection.split(/\r?\n/).find(line => line.split('|')[1]?.trim() === name), cells = row?.split('|') || [];
+    const importedNames = name === 'Intimidation/Persuasion' ? [name, 'Persuasion'] : [name];
+    const row = skillSection.split(/\r?\n/).find(line => importedNames.includes(line.split('|')[1]?.trim())), cells = row?.split('|') || [];
     const modern = cells.length >= 7;
     return modern
       ? { base: cells[2]?.trim() || '', points: cells[3]?.trim() || '0', score: cells[4]?.trim() || '', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') }
@@ -377,6 +404,7 @@ form.addEventListener('input', changed);
 form.addEventListener('change', changed);
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
+document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
 document.getElementById('pj-cloud-load').addEventListener('click', loadSheetFromSupabase);
 document.getElementById('pj-open').addEventListener('click', () => document.getElementById('pj-file').click());

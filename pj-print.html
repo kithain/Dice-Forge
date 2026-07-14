@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiche de personnage - PDF</title>
+  <link rel="stylesheet" href="pj-print.css">
+</head>
+<body>
+  <nav class="print-toolbar" aria-label="Actions PDF">
+    <a href="pj.html">← Retour à la fiche</a>
+    <span>Aperçu A4 créé depuis la fiche Markdown</span>
+    <button id="print-pdf" type="button">Imprimer / Enregistrer en PDF</button>
+  </nav>
+
+  <main id="print-sheet" class="print-sheet" aria-live="polite">
+    <p class="print-empty">Aucune fiche à imprimer. Revenez à la fiche, ouvrez un fichier .md puis cliquez sur « Créer le PDF ».</p>
+  </main>
+
+  <script src="js/pj-print.js?v=20260714-pdf-export"></script>
+</body>
+</html>

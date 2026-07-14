@@ -13,6 +13,8 @@
 .pj-secondary{height:34px}
 .pj-cloud{background:linear-gradient(135deg,#166534,#15803d);border-color:#22c55e}
 .pj-cloud:hover{border-color:#86efac;box-shadow:0 0 14px rgba(34,197,94,.2)}
+.pj-pdf{background:linear-gradient(135deg,#7f1d1d,#b91c1c);border-color:#ef4444}
+.pj-pdf:hover{border-color:#fca5a5;box-shadow:0 0 14px rgba(239,68,68,.2)}
 .pj-filename{margin-left:auto;color:var(--txm);font-size:.75rem}.pj-filename strong{color:var(--gold2)}
 .pj-sheet{display:grid;gap:1rem}
 .pj-section{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1rem}

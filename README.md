@@ -48,7 +48,9 @@ L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 
 
 L'onglet **Fiche personnage** permet de créer une fiche BRP-ORC médiéval-fantastique avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Charisme**.
 
-L'onglet **Fiche Markdown**, placé au même niveau que le lanceur de dés et la fiche de personnage, affiche une fiche complète fondée sur `pj_template.md`. Elle est modifiable dans le navigateur, conserve automatiquement un brouillon local, peut rouvrir un fichier `.md` et s'enregistre sous le nom du personnage (par exemple `eleonore_du_val.md`).
+Le faux onglet **Fiche Markdown**, placé au même niveau que le lanceur de dés et la fiche de personnage, ouvre une fiche complète fondée sur `pj_template.md`. Elle est modifiable dans le navigateur, conserve automatiquement un brouillon local, peut rouvrir un fichier `.md` et s'enregistre sous le nom du personnage (par exemple `eleonore_du_val.md`).
+
+Le bouton **Créer le PDF** transforme la fiche courante — y compris une fiche chargée depuis un `.md` — en aperçu A4 sans les contrôles d'édition. L'utilisateur peut ensuite l'imprimer ou l'enregistrer en PDF avec la boîte de dialogue du navigateur.
 
 La fiche Markdown peut aussi être sauvegardée intégralement dans Supabase et rechargée depuis n'importe quel navigateur pour le même joueur et le même code de partie. La table nécessaire est créée avec [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql).
 

@@ -75,7 +75,7 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Navigation | 10 % |              | [ ]   |
 | Parade (divers) | Selon la spécialité d'arme | | [ ] |
 | Représentation | 05 % |          | [ ]   |
-| Persuasion | 15 % |              | [ ]   |
+| Intimidation/Persuasion | 15 % |              | [ ]   |
 | Pilotage (divers) | 01 % |       | [ ]   |
 | Projection | DEX×2 |             | [ ]   |
 | Psychothérapie | 01 % ou 00 % |  | [ ]   |
