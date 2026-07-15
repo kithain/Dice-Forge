@@ -190,6 +190,10 @@ table {
   font-size: 16px;
 }
 
+.equipment-table { min-width: 1050px; }
+.equipment-table th:nth-child(2),
+.equipment-table td:nth-child(2) { min-width: 250px; }
+
 th, td {
   padding: 12px 15px;
   border-bottom: 1px solid rgba(215, 173, 85, .13);
@@ -228,6 +232,16 @@ td:last-child { color: var(--gold-soft); white-space: nowrap; }
   white-space: nowrap;
 }
 
+.table-note {
+  margin: 0;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(215, 173, 85, .05);
+}
+
+.table-note strong { color: var(--gold-soft); }
+
 footer {
   padding-top: 32px;
   color: var(--muted);
@@ -257,6 +271,8 @@ footer {
   .section-heading { padding: 8px 10px; }
   h2 { color: #241b10; font-size: 16px; }
   table { min-width: 0; font-size: 9px; }
+  .equipment-table { min-width: 0; }
+  .equipment-table th:nth-child(2), .equipment-table td:nth-child(2) { min-width: 0; }
   th, td { padding: 4px 5px; }
   th { font-size: 8px; }
   td:first-child { color: #211d17; }
@@ -307,28 +323,29 @@ footer {
 
     <section class="section">
       <div class="section-heading"><span aria-hidden="true">⚔</span><h2>Armes de mêlée</h2></div>
+      <p class="table-note"><strong>Dégâts X / Y :</strong> X à une main, Y à deux mains.</p>
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Arme</th><th>Catégorie</th><th>Dégâts</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
+        <table class="equipment-table">
+          <thead><tr><th>Arme</th><th>Description</th><th>Catégorie</th><th>Dégâts</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
           <tbody>
-            <tr><td>Dague</td><td>Légère</td><td>1d4</td><td>1</td><td>Discrète, peut être lancée</td><td>2 po</td></tr>
-            <tr><td>Gourdin</td><td>Légère</td><td>1d4</td><td>1</td><td>Facile à improviser</td><td>5 pa</td></tr>
-            <tr><td>Épée courte</td><td>Légère</td><td>1d6</td><td>1</td><td>Rapide, précise</td><td>8 po</td></tr>
-            <tr><td>Rapière</td><td>Fine</td><td>1d8</td><td>1</td><td>Perforante, élégante</td><td>20 po</td></tr>
-            <tr><td>Épée longue</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Polyvalente</td><td>15 po</td></tr>
-            <tr><td>Sabre</td><td>Martiale</td><td>1d8</td><td>1</td><td>Rapide, bonus à cheval</td><td>18 po</td></tr>
-            <tr><td>Hachette</td><td>Légère</td><td>1d6</td><td>1</td><td>Peut être lancée</td><td>5 po</td></tr>
-            <tr><td>Hache de bataille</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Efficace contre les boucliers</td><td>12 po</td></tr>
-            <tr><td>Hache à deux mains</td><td>Lourde</td><td>1d12</td><td>2</td><td>Dévastatrice, encombrante</td><td>30 po</td></tr>
-            <tr><td>Masse d'armes</td><td>Martiale</td><td>1d8</td><td>1</td><td>Efficace contre les armures</td><td>12 po</td></tr>
-            <tr><td>Marteau de guerre</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Brise-armure</td><td>18 po</td></tr>
-            <tr><td>Pioche</td><td>Martiale</td><td>1d10</td><td>2</td><td>Perforante, brise-armure, encombrante</td><td>25 po</td></tr>
-            <tr><td>Fléau</td><td>Martiale</td><td>1d8</td><td>1</td><td>Contourne partiellement les boucliers</td><td>15 po</td></tr>
-            <tr><td>Lance</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Allonge, peut être lancée</td><td>3 po</td></tr>
-            <tr><td>Hallebarde</td><td>Lourde</td><td>1d10</td><td>2</td><td>Allonge, crochet, anti-cavalerie</td><td>20 po</td></tr>
-            <tr><td>Pique</td><td>Lourde</td><td>1d10</td><td>2</td><td>Très longue, anti-charge</td><td>8 po</td></tr>
-            <tr><td>Bâton</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Défensif, focaliseur possible</td><td>1 po</td></tr>
-            <tr><td>Épée à deux mains</td><td>Lourde</td><td>2d6</td><td>2</td><td>Puissante, lente</td><td>40 po</td></tr>
+            <tr><td>Dague</td><td>Lame courte à double tranchant, facile à dissimuler.</td><td>Légère</td><td>1d4</td><td>1</td><td>Discrète, peut être lancée</td><td>2 po</td></tr>
+            <tr><td>Gourdin</td><td>Arme contondante rudimentaire en bois dur.</td><td>Légère</td><td>1d4</td><td>1</td><td>Facile à improviser</td><td>5 pa</td></tr>
+            <tr><td>Épée courte</td><td>Lame maniable adaptée aux espaces restreints.</td><td>Légère</td><td>1d6</td><td>1</td><td>Rapide, précise</td><td>8 po</td></tr>
+            <tr><td>Rapière</td><td>Lame longue et étroite conçue pour les coups d'estoc.</td><td>Fine</td><td>1d8</td><td>1</td><td>Perforante, élégante</td><td>20 po</td></tr>
+            <tr><td>Épée longue</td><td>Épée équilibrée pouvant se manier à une ou deux mains.</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Polyvalente</td><td>15 po</td></tr>
+            <tr><td>Sabre</td><td>Lame courbe favorisant les attaques de taille rapides.</td><td>Martiale</td><td>1d8</td><td>1</td><td>Rapide, bonus à cheval</td><td>18 po</td></tr>
+            <tr><td>Hachette</td><td>Petite hache légère utilisable au combat ou comme outil.</td><td>Légère</td><td>1d6</td><td>1</td><td>Peut être lancée</td><td>5 po</td></tr>
+            <tr><td>Hache de bataille</td><td>Hache robuste dotée d'un large tranchant.</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Efficace contre les boucliers</td><td>12 po</td></tr>
+            <tr><td>Hache à deux mains</td><td>Arme massive dont la puissance exige les deux mains.</td><td>Lourde</td><td>1d12</td><td>2</td><td>Dévastatrice, encombrante</td><td>30 po</td></tr>
+            <tr><td>Masse d'armes</td><td>Tête métallique lourde montée sur un manche court.</td><td>Martiale</td><td>1d8</td><td>1</td><td>Efficace contre les armures</td><td>12 po</td></tr>
+            <tr><td>Marteau de guerre</td><td>Marteau renforcé conçu pour déformer les protections.</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Brise-armure</td><td>18 po</td></tr>
+            <tr><td>Pioche</td><td>Bec métallique concentrant la force sur une pointe étroite.</td><td>Martiale</td><td>1d8 / 1d10</td><td>1 ou 2</td><td>Perforante, brise-armure</td><td>25 po</td></tr>
+            <tr><td>Fléau</td><td>Masse articulée reliée au manche par une chaîne.</td><td>Martiale</td><td>1d8</td><td>1</td><td>Contourne partiellement les boucliers</td><td>15 po</td></tr>
+            <tr><td>Lance</td><td>Pointe fixée sur une longue hampe, simple et polyvalente.</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Allonge, peut être lancée</td><td>3 po</td></tr>
+            <tr><td>Hallebarde</td><td>Arme d'hast combinant pointe, tranchant et crochet.</td><td>Lourde</td><td>1d10</td><td>2</td><td>Allonge, crochet, anti-cavalerie</td><td>20 po</td></tr>
+            <tr><td>Pique</td><td>Très longue hampe terminée par une pointe métallique.</td><td>Lourde</td><td>1d10</td><td>2</td><td>Très longue, anti-charge</td><td>8 po</td></tr>
+            <tr><td>Bâton</td><td>Long bâton de bois ferré ou renforcé.</td><td>Simple</td><td>1d6 / 1d8</td><td>1 ou 2</td><td>Défensif, focaliseur possible</td><td>1 po</td></tr>
+            <tr><td>Épée à deux mains</td><td>Immense lame offrant une grande portée et des coups puissants.</td><td>Lourde</td><td>2d6</td><td>2</td><td>Puissante, lente</td><td>40 po</td></tr>
           </tbody>
         </table>
       </div>
@@ -337,18 +354,18 @@ footer {
     <section class="section">
       <div class="section-heading"><span aria-hidden="true">➶</span><h2>Armes à distance</h2></div>
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Arme</th><th>Dégâts</th><th>Portée</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
+        <table class="equipment-table">
+          <thead><tr><th>Arme</th><th>Description</th><th>Dégâts</th><th>Portée</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
           <tbody>
-            <tr><td>Fronde</td><td>1d4</td><td>25 m</td><td>1</td><td>Munitions faciles à trouver</td><td>5 pa</td></tr>
-            <tr><td>Javelot</td><td>1d6</td><td>20 m</td><td>1</td><td>Utilisable au corps à corps</td><td>1 po</td></tr>
-            <tr><td>Arc court</td><td>1d6</td><td>60 m</td><td>2</td><td>Rapide et léger</td><td>15 po</td></tr>
-            <tr><td>Arc long</td><td>1d8</td><td>120 m</td><td>2</td><td>Grande portée, force requise</td><td>40 po</td></tr>
-            <tr><td>Arbalète légère</td><td>1d8</td><td>80 m</td><td>2</td><td>Perforante, rechargement lent</td><td>30 po</td></tr>
-            <tr><td>Arbalète lourde</td><td>1d12</td><td>120 m</td><td>2</td><td>Très perforante, lourde</td><td>60 po</td></tr>
-            <tr><td>Arbalète de poing</td><td>1d6</td><td>30 m</td><td>1</td><td>Discrète, rare</td><td>75 po</td></tr>
-            <tr><td>Sarbacane</td><td>1d2</td><td>15 m</td><td>2</td><td>Silencieuse, adaptée aux poisons</td><td>5 po</td></tr>
-            <tr><td>Arquebuse naine</td><td>2d8</td><td>70 m</td><td>2</td><td>Bruyante, rare, rechargement très lent</td><td>200 po</td></tr>
+            <tr><td>Fronde</td><td>Lanière de cuir projetant de petites pierres ou billes.</td><td>1d4</td><td>25 m</td><td>1</td><td>Munitions faciles à trouver</td><td>5 pa</td></tr>
+            <tr><td>Javelot</td><td>Lance courte équilibrée pour le lancer.</td><td>1d6</td><td>20 m</td><td>1</td><td>Utilisable au corps à corps</td><td>1 po</td></tr>
+            <tr><td>Arc court</td><td>Arc compact, pratique en forêt ou à cheval.</td><td>1d6</td><td>60 m</td><td>2</td><td>Rapide et léger</td><td>15 po</td></tr>
+            <tr><td>Arc long</td><td>Grand arc puissant destiné aux tirs à longue distance.</td><td>1d8</td><td>120 m</td><td>2</td><td>Grande portée, force requise</td><td>40 po</td></tr>
+            <tr><td>Arbalète légère</td><td>Arbalète maniable armée à la main ou au levier.</td><td>1d8</td><td>80 m</td><td>2</td><td>Perforante, rechargement lent</td><td>30 po</td></tr>
+            <tr><td>Arbalète lourde</td><td>Arbalète puissante nécessitant un mécanisme d'armement.</td><td>1d12</td><td>120 m</td><td>2</td><td>Très perforante, lourde</td><td>60 po</td></tr>
+            <tr><td>Arbalète de poing</td><td>Petite arbalète compacte facile à dissimuler.</td><td>1d6</td><td>30 m</td><td>1</td><td>Discrète, rare</td><td>75 po</td></tr>
+            <tr><td>Sarbacane</td><td>Tube léger projetant de petites fléchettes par le souffle.</td><td>1d2</td><td>15 m</td><td>2</td><td>Silencieuse, adaptée aux poisons</td><td>5 po</td></tr>
+            <tr><td>Arquebuse naine</td><td>Arme à poudre robuste fabriquée selon un savoir-faire rare.</td><td>2d8</td><td>70 m</td><td>2</td><td>Bruyante, rare, rechargement très lent</td><td>200 po</td></tr>
           </tbody>
         </table>
       </div>
@@ -357,23 +374,23 @@ footer {
     <section class="section">
       <div class="section-heading"><span aria-hidden="true">♜</span><h2>Armures</h2></div>
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Armure</th><th>Type</th><th>Protection</th><th>Mobilité</th><th>Discrétion</th><th>Prix</th></tr></thead>
+        <table class="equipment-table">
+          <thead><tr><th>Armure</th><th>Description</th><th>Type</th><th>Protection</th><th>Mobilité</th><th>Discrétion</th><th>Prix</th></tr></thead>
           <tbody>
-            <tr><td>Vêtements renforcés</td><td>Légère</td><td>+1</td><td>Excellente</td><td>Normale</td><td>2 po</td></tr>
-            <tr><td>Gambison</td><td>Légère</td><td>+2</td><td>Excellente</td><td>Normale</td><td>8 po</td></tr>
-            <tr><td>Armure de cuir</td><td>Légère</td><td>+2</td><td>Très bonne</td><td>Bonne</td><td>10 po</td></tr>
-            <tr><td>Armure de cuir clouté</td><td>Légère</td><td>+3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
-            <tr><td>Armure de cuir durci</td><td>Intermédiaire</td><td>+3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
-            <tr><td>Chemise de mailles</td><td>Intermédiaire</td><td>+4</td><td>Bonne</td><td>Mauvaise</td><td>50 po</td></tr>
-            <tr><td>Brigandine</td><td>Intermédiaire</td><td>+5</td><td>Moyenne</td><td>Mauvaise</td><td>80 po</td></tr>
-            <tr><td>Cotte de mailles</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>100 po</td></tr>
-            <tr><td>Armure d'écailles</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>120 po</td></tr>
-            <tr><td>Demi-plate</td><td>Lourde</td><td>+7</td><td>Faible</td><td>Très mauvaise</td><td>300 po</td></tr>
-            <tr><td>Harnois complet</td><td>Lourde</td><td>+8</td><td>Faible</td><td>Impossible</td><td>800 po</td></tr>
-            <tr><td>Robe runique</td><td>Magique</td><td>+3</td><td>Excellente</td><td>Normale</td><td>500 po</td></tr>
-            <tr><td>Cuir draconique</td><td>Magique</td><td>+5</td><td>Très bonne</td><td>Bonne</td><td>1 500 po</td></tr>
-            <tr><td>Armure de mithril</td><td>Magique</td><td>+7</td><td>Bonne</td><td>Normale</td><td>4 000 po</td></tr>
+            <tr><td>Vêtements renforcés</td><td>Habits épais doublés de cuir ou de tissu rembourré.</td><td>Légère</td><td>+1</td><td>Excellente</td><td>Normale</td><td>2 po</td></tr>
+            <tr><td>Gambison</td><td>Veste matelassée absorbant les chocs et les coupures.</td><td>Légère</td><td>+2</td><td>Excellente</td><td>Normale</td><td>8 po</td></tr>
+            <tr><td>Armure de cuir</td><td>Protection souple faite de plusieurs pièces de cuir.</td><td>Légère</td><td>+2</td><td>Très bonne</td><td>Bonne</td><td>10 po</td></tr>
+            <tr><td>Armure de cuir clouté</td><td>Cuir renforcé de rivets et de petites plaques métalliques.</td><td>Légère</td><td>+3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
+            <tr><td>Armure de cuir durci</td><td>Cuir épais moulé et traité pour former une coque rigide.</td><td>Intermédiaire</td><td>+3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
+            <tr><td>Chemise de mailles</td><td>Mailles courtes protégeant surtout le torse et les épaules.</td><td>Intermédiaire</td><td>+4</td><td>Bonne</td><td>Mauvaise</td><td>50 po</td></tr>
+            <tr><td>Brigandine</td><td>Petites plaques rivetées entre plusieurs couches de tissu.</td><td>Intermédiaire</td><td>+5</td><td>Moyenne</td><td>Mauvaise</td><td>80 po</td></tr>
+            <tr><td>Cotte de mailles</td><td>Long vêtement de mailles couvrant le torse, les bras et les cuisses.</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>100 po</td></tr>
+            <tr><td>Armure d'écailles</td><td>Plaques métalliques superposées et fixées sur un support souple.</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>120 po</td></tr>
+            <tr><td>Demi-plate</td><td>Plaques rigides protégeant les zones vitales sur une armure souple.</td><td>Lourde</td><td>+7</td><td>Faible</td><td>Très mauvaise</td><td>300 po</td></tr>
+            <tr><td>Harnois complet</td><td>Ensemble articulé de plaques enveloppant presque tout le corps.</td><td>Lourde</td><td>+8</td><td>Faible</td><td>Impossible</td><td>800 po</td></tr>
+            <tr><td>Robe runique</td><td>Vêtement enchanté dont les runes détournent les attaques.</td><td>Magique</td><td>+3</td><td>Excellente</td><td>Normale</td><td>500 po</td></tr>
+            <tr><td>Cuir draconique</td><td>Cuir surnaturellement résistant confectionné avec une peau de dragon.</td><td>Magique</td><td>+5</td><td>Très bonne</td><td>Bonne</td><td>1 500 po</td></tr>
+            <tr><td>Armure de mithril</td><td>Armure métallique exceptionnellement légère et résistante.</td><td>Magique</td><td>+7</td><td>Bonne</td><td>Normale</td><td>4 000 po</td></tr>
           </tbody>
         </table>
       </div>
@@ -382,16 +399,16 @@ footer {
     <section class="section">
       <div class="section-heading"><span aria-hidden="true">◉</span><h2>Boucliers et protections</h2></div>
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Équipement</th><th>Protection</th><th>Particularités</th><th>Prix</th></tr></thead>
+        <table class="equipment-table">
+          <thead><tr><th>Équipement</th><th>Description</th><th>Protection</th><th>Particularités</th><th>Prix</th></tr></thead>
           <tbody>
-            <tr><td>Rondache</td><td>+1</td><td>Légère, laisse la main presque libre</td><td>5 po</td></tr>
-            <tr><td>Écu</td><td>+2</td><td>Protection équilibrée</td><td>12 po</td></tr>
-            <tr><td>bouclier en amande</td><td>+2</td><td>Bonus contre les projectiles</td><td>20 po</td></tr>
-            <tr><td>Pavois</td><td>+3</td><td>Couverture importante, très encombrant</td><td>40 po</td></tr>
-            <tr><td>Casque ouvert</td><td>+1 contre les coups critiques</td><td>Bonne visibilité</td><td>5 po</td></tr>
-            <tr><td>Heaume intégral</td><td>+2 contre les coups critiques</td><td>Vision et audition réduites</td><td>25 po</td></tr>
-            <tr><td>Bouclier runique</td><td>+2</td><td>Résistance magique limitée</td><td>600 po</td></tr>
+            <tr><td>Rondache</td><td>Petit bouclier rond fixé à l'avant-bras ou tenu au poing.</td><td>+1</td><td>Légère, laisse la main presque libre</td><td>5 po</td></tr>
+            <tr><td>Écu</td><td>Bouclier de taille moyenne offrant un bon compromis défensif.</td><td>+2</td><td>Protection équilibrée</td><td>12 po</td></tr>
+            <tr><td>bouclier en amande</td><td>Bouclier allongé couvrant le combattant de l'épaule au genou.</td><td>+2</td><td>Bonus contre les projectiles</td><td>20 po</td></tr>
+            <tr><td>Pavois</td><td>Très grand bouclier pouvant former un couvert presque complet.</td><td>+3</td><td>Couverture importante, très encombrant</td><td>40 po</td></tr>
+            <tr><td>Casque ouvert</td><td>Casque protégeant le crâne tout en laissant le visage dégagé.</td><td>+1 contre les coups critiques</td><td>Bonne visibilité</td><td>5 po</td></tr>
+            <tr><td>Heaume intégral</td><td>Casque fermé enveloppant entièrement la tête et le visage.</td><td>+2 contre les coups critiques</td><td>Vision et audition réduites</td><td>25 po</td></tr>
+            <tr><td>Bouclier runique</td><td>Bouclier enchanté gravé de signes protecteurs.</td><td>+2</td><td>Résistance magique limitée</td><td>600 po</td></tr>
           </tbody>
         </table>
       </div>
