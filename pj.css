@@ -42,7 +42,7 @@
 .pj-skill-budget strong{font-family:'Cinzel',serif;color:var(--gold2);font-size:1.15rem}.pj-skill-budget small{color:var(--txm)}
 .pj-budget-edit input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--brd2);background:transparent;color:var(--gold2);font-family:'Cinzel',serif;font-size:1.1rem;outline:none}
 .pj-skill-budget .over-budget{border-color:rgba(220,38,38,.7);background:rgba(220,38,38,.08)}.pj-skill-budget .over-budget strong{color:#fca5a5}
-.pj-skills-wrap{max-height:650px}.pj-skills-table thead{position:sticky;top:0;z-index:2}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
+.pj-skills-wrap{max-height:650px}.pj-skills-table thead{position:sticky;top:0;z-index:2}.pj-skills-table thead th{background:#0f0f25;box-shadow:0 2px 0 var(--brd2),0 6px 12px rgba(0,0,0,.32)}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
 .pj-skill-group td{position:sticky;top:35px;z-index:1;background:#17172e!important;color:var(--gold)!important;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem!important}
 .pj-base-wrap{display:flex;flex-direction:column;gap:.18rem}.pj-base-hint{color:var(--txm);font-size:.62rem;line-height:1.2}.pj-skill-final{font-family:'Cinzel',serif;font-weight:700;color:var(--gold2)!important;text-align:center}
 .pj-base-wrap input[readonly]{cursor:not-allowed;color:var(--txd);background:rgba(7,7,26,.72);border-style:dashed;box-shadow:none}
