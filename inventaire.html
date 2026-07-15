@@ -242,6 +242,43 @@ td:last-child { color: var(--gold-soft); white-space: nowrap; }
 
 .table-note strong { color: var(--gold-soft); }
 
+.equipment-illustration {
+  margin: 0;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(0, 0, 0, .24);
+}
+
+.equipment-illustration-frame {
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-color: var(--gold) rgba(255,255,255,.06);
+}
+
+.equipment-illustration a {
+  display: block;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.equipment-illustration img {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: auto;
+  border: 1px solid rgba(215, 173, 85, .28);
+  border-radius: 6px;
+}
+
+.equipment-illustration figcaption {
+  margin-top: 9px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.equipment-illustration figcaption a { display: inline; }
+
 footer {
   padding-top: 32px;
   color: var(--muted);
@@ -269,6 +306,7 @@ footer {
   .catalogue { gap: 14px; }
   .section { break-inside: avoid; border-radius: 0; box-shadow: none; }
   .section-heading { padding: 8px 10px; }
+  .equipment-illustration { display: none; }
   h2 { color: #241b10; font-size: 16px; }
   table { min-width: 0; font-size: 9px; }
   .equipment-table { min-width: 0; }
@@ -361,8 +399,16 @@ footer {
       <p class="table-note"><strong>Utilisation :</strong> prenez le budget conseillé pour une création rapide. Le MJ peut choisir un montant compris dans la plage possible selon l'histoire et le Statut du personnage.</p>
     </section>
 
-    <section class="section">
+    <section class="section" id="armes-melee">
       <div class="section-heading"><span aria-hidden="true">⚔</span><h2>Armes de mêlée</h2></div>
+      <figure class="equipment-illustration">
+        <div class="equipment-illustration-frame">
+          <a href="img/Armes_melee.jpg" target="_blank" rel="noopener" aria-label="Ouvrir la planche des armes de mêlée en pleine taille">
+            <img src="img/Armes_melee.jpg" width="982" height="495" loading="lazy" decoding="async" alt="Planche illustrée des armes de mêlée disponibles dans le catalogue">
+          </a>
+        </div>
+        <figcaption>Faites défiler l'image si nécessaire ou <a href="img/Armes_melee.jpg" target="_blank" rel="noopener">ouvrez-la en pleine taille</a>.</figcaption>
+      </figure>
       <p class="table-note"><strong>Dégâts X / Y :</strong> X à une main, Y à deux mains.</p>
       <div class="table-wrap">
         <table class="equipment-table">
@@ -391,8 +437,16 @@ footer {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="armes-distance">
       <div class="section-heading"><span aria-hidden="true">➶</span><h2>Armes à distance</h2></div>
+      <figure class="equipment-illustration">
+        <div class="equipment-illustration-frame">
+          <a href="img/Armes_distance.jpg" target="_blank" rel="noopener" aria-label="Ouvrir la planche des armes à distance en pleine taille">
+            <img src="img/Armes_distance.jpg" width="542" height="494" loading="lazy" decoding="async" alt="Planche illustrée des armes à distance disponibles dans le catalogue">
+          </a>
+        </div>
+        <figcaption>Faites défiler l'image si nécessaire ou <a href="img/Armes_distance.jpg" target="_blank" rel="noopener">ouvrez-la en pleine taille</a>.</figcaption>
+      </figure>
       <div class="table-wrap">
         <table class="equipment-table">
           <thead><tr><th>Arme</th><th>Description</th><th>Dégâts</th><th>Portée</th><th>Mains</th><th>Particularités</th><th>Prix</th></tr></thead>
@@ -411,8 +465,16 @@ footer {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="armures">
       <div class="section-heading"><span aria-hidden="true">♜</span><h2>Armures</h2></div>
+      <figure class="equipment-illustration">
+        <div class="equipment-illustration-frame">
+          <a href="img/Armures.jpg" target="_blank" rel="noopener" aria-label="Ouvrir la planche des armures en pleine taille">
+            <img src="img/Armures.jpg" width="935" height="520" loading="lazy" decoding="async" alt="Planche illustrée des armures disponibles dans le catalogue">
+          </a>
+        </div>
+        <figcaption>Faites défiler l'image si nécessaire ou <a href="img/Armures.jpg" target="_blank" rel="noopener">ouvrez-la en pleine taille</a>.</figcaption>
+      </figure>
       <div class="table-wrap">
         <table class="equipment-table">
           <thead><tr><th>Armure</th><th>Description</th><th>Type</th><th>Protection</th><th>Mobilité</th><th>Discrétion</th><th>Prix</th></tr></thead>
@@ -436,8 +498,16 @@ footer {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="boucliers-protections">
       <div class="section-heading"><span aria-hidden="true">◉</span><h2>Boucliers et protections</h2></div>
+      <figure class="equipment-illustration">
+        <div class="equipment-illustration-frame">
+          <a href="img/Boucliers_protections.jpg" target="_blank" rel="noopener" aria-label="Ouvrir la planche des boucliers et protections en pleine taille">
+            <img src="img/Boucliers_protections.jpg" width="542" height="517" loading="lazy" decoding="async" alt="Planche illustrée des boucliers et protections disponibles dans le catalogue">
+          </a>
+        </div>
+        <figcaption>Faites défiler l'image si nécessaire ou <a href="img/Boucliers_protections.jpg" target="_blank" rel="noopener">ouvrez-la en pleine taille</a>.</figcaption>
+      </figure>
       <div class="table-wrap">
         <table class="equipment-table">
           <thead><tr><th>Équipement</th><th>Description</th><th>Protection</th><th>Particularités</th><th>Prix</th></tr></thead>

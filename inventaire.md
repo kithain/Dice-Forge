@@ -63,6 +63,8 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 
 ## Armes de mêlée
 
+[![Planche illustrée des armes de mêlée](img/Armes_melee.jpg)](img/Armes_melee.jpg)
+
 > **Dégâts X / Y :** X à une main, Y à deux mains.
 
 | Arme | Description | Catégorie | Dégâts | Mains | Particularités | Prix |
@@ -88,6 +90,8 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 
 ## Armes à distance
 
+[![Planche illustrée des armes à distance](img/Armes_distance.jpg)](img/Armes_distance.jpg)
+
 | Arme | Description | Dégâts | Portée | Mains | Particularités | Prix |
 |---|---|---:|---:|:---:|---|---:|
 | Fronde | Lanière de cuir projetant de petites pierres ou billes. | 1d4 | 25 m | 1 | Munitions faciles à trouver | 5 pa |
@@ -101,6 +105,8 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 | Arquebuse naine | Arme à poudre robuste fabriquée selon un savoir-faire rare. | 2d8 | 70 m | 2 | Bruyante, rare, rechargement très lent | 200 po |
 
 ## Armures
+
+[![Planche illustrée des armures](img/Armures.jpg)](img/Armures.jpg)
 
 | Armure | Description | Type | Protection | Mobilité | Discrétion | Prix |
 |---|---|---|---:|---|---|---:|
@@ -120,6 +126,8 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 | Armure de mithril | Armure métallique exceptionnellement légère et résistante. | Magique | +7 | Bonne | Normale | 4 000 po |
 
 ## Boucliers et protections
+
+[![Planche illustrée des boucliers et protections](img/Boucliers_protections.jpg)](img/Boucliers_protections.jpg)
 
 | Équipement | Description | Protection | Particularités | Prix |
 |---|---|---:|---|---:|
