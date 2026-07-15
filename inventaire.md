@@ -19,6 +19,48 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 
 > **Repère principal :** un homme du peuple stable touche en moyenne **3 po par mois**.
 
+## Budget d'équipement par tranche de revenu
+
+Le statut social détermine la valeur totale de l'équipement qu'un nouveau personnage peut choisir dans cet inventaire.
+
+| Tranche de revenu | Budget d'équipement initial |
+|---|---:|
+| Mendiant, malade, sans emploi fixe | 5 pa |
+| Misérable / travail très irrégulier | 2 po |
+| Journalier pauvre | 5 po |
+| Homme du peuple stable | 10 po |
+| Ouvrier qualifié / mineur / bon domestique | 20 po |
+| Artisan installé / contremaître | 40 po |
+| Marchand confortable / notable local | 80 po |
+
+## Budget d'équipement selon le niveau de Richesse
+
+À la création, le niveau de **Richesse** du personnage détermine la valeur totale de l'équipement qu'il peut choisir dans cet inventaire.
+
+| Richesse indiquée par la profession | Budget conseillé | Plage possible |
+|---|---:|---:|
+| Indigent à Pauvre | 5 po | 1 à 10 po |
+| Pauvre | 10 po | 10 po |
+| Pauvre à Moyen | 20 po | 10 à 30 po |
+| Pauvre à Aisé | 40 po | 10 à 75 po |
+| Moyen | 30 po | 30 po |
+| Moyen à Riche | 90 po | 30 à 150 po |
+| Aisé | 75 po | 75 po |
+| Aisé à Riche | 110 po | 75 à 150 po |
+| Variable | 30 po par défaut | 1 à 150 po, selon le MJ |
+
+> **Règles de création :** ce budget représente les possessions accumulées avant le début de l'aventure, et non une somme remise au personnage. Il sert uniquement à acheter son équipement initial. La monnaie non dépensée est perdue, sauf si le MJ autorise d'en conserver jusqu'à **10 %**. Les vêtements ordinaires, les petits effets personnels et les outils indispensables à la profession sont gratuits. Tout objet rare, magique ou culturellement restreint reste soumis à l'accord du MJ, même si le personnage peut en payer le prix.
+
+> **Utilisation :** prenez le budget conseillé pour une création rapide. Le MJ peut choisir un montant compris dans la plage possible selon l'histoire et le Statut du personnage.
+
+### Exemples
+
+- **Indigent (1 po) :** un gourdin et une fronde.
+- **Pauvre (10 po) :** un gambison et une dague, ou des vêtements renforcés, une lance et une rondache.
+- **Moyen (30 po) :** une armure de cuir, une épée courte et un écu.
+- **Aisé (75 po) :** une chemise de mailles, une épée courte, un écu et un casque ouvert.
+- **Riche (150 po) :** une armure d'écailles, une épée longue, un écu et jusqu'à 3 po d'autres effets.
+
 ## Armes de mêlée
 
 > **Dégâts X / Y :** X à une main, Y à deux mains.
