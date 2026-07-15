@@ -3,7 +3,7 @@ import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
 import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-room-purge-fix';
 import { showToast } from './toast.js?v=20260708-brp-orc';
-import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
+import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———
