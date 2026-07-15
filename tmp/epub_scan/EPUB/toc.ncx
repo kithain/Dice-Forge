@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta content="brp-orc-fr-2026" name="dtb:uid"/>
+    <meta content="0" name="dtb:depth"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>Basic Roleplaying — Moteur de jeu universel — Document de contenu ORC</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="chapter_1">
+      <navLabel>
+        <text>Crédits et Licence</text>
+      </navLabel>
+      <content src="chap_00.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_2">
+      <navLabel>
+        <text>1. Introduction</text>
+      </navLabel>
+      <content src="chap_01.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_3">
+      <navLabel>
+        <text>2. Personnages — Partie 1 : Niveaux de pouvoir et création de personnage</text>
+      </navLabel>
+      <content src="chap_02.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_4">
+      <navLabel>
+        <text>2. Personnages — Partie 2 : Caractéristiques, jets de caractéristique et caractéristiques dérivées</text>
+      </navLabel>
+      <content src="chap_03.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_5">
+      <navLabel>
+        <text>2. Personnages — Partie 3 : Traits distinctifs (suite) et professions</text>
+      </navLabel>
+      <content src="chap_04.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_6">
+      <navLabel>
+        <text>3. Compétences — Partie 1 : Définition, catégories et descriptions (A–C)</text>
+      </navLabel>
+      <content src="chap_05.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_7">
+      <navLabel>
+        <text>3. Compétences — Partie 2 : Descriptions (D–J)</text>
+      </navLabel>
+      <content src="chap_06.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_8">
+      <navLabel>
+        <text>3. Compétences — Partie 3 : Descriptions (K–Z)</text>
+      </navLabel>
+      <content src="chap_07.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_9">
+      <navLabel>
+        <text>4. Pouvoirs</text>
+      </navLabel>
+      <content src="chap_08.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_10">
+      <navLabel>
+        <text>4. Pouvoirs (2/4)</text>
+      </navLabel>
+      <content src="chap_09.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_11">
+      <navLabel>
+        <text>4. Pouvoirs (3/4)</text>
+      </navLabel>
+      <content src="chap_10.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_12">
+      <navLabel>
+        <text>4. Pouvoirs (4/4)</text>
+      </navLabel>
+      <content src="chap_11.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_13">
+      <navLabel>
+        <text>5. Système — Partie 1 : Actions et résolution</text>
+      </navLabel>
+      <content src="chap_12.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_14">
+      <navLabel>
+        <text>5. Système — Partie 2 : Modificateurs, destin, temps et mouvement</text>
+      </navLabel>
+      <content src="chap_13.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_15">
+      <navLabel>
+        <text>5. Système — Partie 3 : Amélioration du personnage</text>
+      </navLabel>
+      <content src="chap_14.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_16">
+      <navLabel>
+        <text>6. Combat — Partie 1 : Le round de combat, actions et résolution</text>
+      </navLabel>
+      <content src="chap_15.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_17">
+      <navLabel>
+        <text>6. Combat — Partie 2 : Tables de maladresses, dégâts spéciaux et règles optionnelles</text>
+      </navLabel>
+      <content src="chap_16.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_18">
+      <navLabel>
+        <text>6. Combat — Partie 3 : Armure, boucliers, armes de jet, dégâts, guérison et exemple</text>
+      </navLabel>
+      <content src="chap_17.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_19">
+      <navLabel>
+        <text>7. Règles ponctuelles — Partie 1 : Acide à Poursuites</text>
+      </navLabel>
+      <content src="chap_18.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_20">
+      <navLabel>
+        <text>7. Règles ponctuelles — Partie 2 : Problèmes de poursuite à Feu et chaleur</text>
+      </navLabel>
+      <content src="chap_19.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_21">
+      <navLabel>
+        <text>7. Règles ponctuelles — Partie 3 : Tir dans le combat à Apesanteur</text>
+      </navLabel>
+      <content src="chap_20.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_22">
+      <navLabel>
+        <text>8. Équipement</text>
+      </navLabel>
+      <content src="chap_21.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_23">
+      <navLabel>
+        <text>8. Équipement — Partie 2 : Classes d'Armes, Tables et Armes à Feu</text>
+      </navLabel>
+      <content src="chap_22.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_24">
+      <navLabel>
+        <text>8. Équipement — Partie 3 : Armes Avancées, Armures, Boucliers, Artillerie</text>
+      </navLabel>
+      <content src="chap_23.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_25">
+      <navLabel>
+        <text>8. Équipement — Partie 4 : Tables d'Artillerie, Explosifs, Robots, Véhicules, Autre Équipement</text>
+      </navLabel>
+      <content src="chap_24.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_26">
+      <navLabel>
+        <text>9. Mener le jeu — Partie 1 : Préparation et aventure</text>
+      </navLabel>
+      <content src="chap_25.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_27">
+      <navLabel>
+        <text>9. Mener le jeu — Partie 2 : PNJ, techniques et traits de personnalité</text>
+      </navLabel>
+      <content src="chap_26.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_28">
+      <navLabel>
+        <text>10. Cadres — Partie 1 : Décors et adaptation</text>
+      </navLabel>
+      <content src="chap_27.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_29">
+      <navLabel>
+        <text>10. Cadres — Partie 2 : Allégeance, passions, réputation et santé mentale</text>
+      </navLabel>
+      <content src="chap_28.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_30">
+      <navLabel>
+        <text>11. Créatures</text>
+      </navLabel>
+      <content src="chap_29.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_31">
+      <navLabel>
+        <text>11. Créatures — Partie 2 : Loup-garou à Créatures de Science Fiction</text>
+      </navLabel>
+      <content src="chap_30.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_32">
+      <navLabel>
+        <text>11. Créatures — Partie 3 : Robots, Digest de PNJ, Personnalisation</text>
+      </navLabel>
+      <content src="chap_31.xhtml"/>
+    </navPoint>
+    <navPoint id="chapter_33">
+      <navLabel>
+        <text>11. Créatures — Partie 4 : Tables de Localisation des Touches des Créatures</text>
+      </navLabel>
+      <content src="chap_32.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>

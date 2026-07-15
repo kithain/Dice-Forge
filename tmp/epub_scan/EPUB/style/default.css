@@ -1,0 +1,17 @@
+
+    body { font-family: serif; line-height: 1.6; margin: 5%; }
+    h1 { font-size: 1.8em; color: #333; border-bottom: 2px solid #333; padding-bottom: 0.3em; margin-top: 1.5em; }
+    h2 { font-size: 1.4em; color: #444; margin-top: 1.2em; }
+    h3 { font-size: 1.2em; color: #555; margin-top: 1em; }
+    h4 { font-size: 1.1em; color: #666; margin-top: 0.8em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.9em; }
+    th, td { border: 1px solid #999; padding: 0.4em 0.6em; text-align: left; }
+    th { background-color: #ddd; font-weight: bold; }
+    tr:nth-child(even) { background-color: #f0f0f0; }
+    code { font-family: monospace; background-color: #f4f4f4; padding: 0.1em 0.3em; }
+    em { font-style: italic; }
+    strong { font-weight: bold; }
+    ul, ol { padding-left: 1.5em; }
+    li { margin-bottom: 0.3em; }
+    blockquote { border-left: 3px solid #ccc; padding-left: 1em; color: #666; font-style: italic; }
+    

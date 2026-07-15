@@ -4,6 +4,7 @@ import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
 import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-room-purge-fix';
 import { showToast } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260709-canon-age-bands';
+import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———
 const DTYPES = [4, 6, 8, 10, 12, 20, 100];
@@ -19,15 +20,19 @@ const BRP_DIFFICULTIES = [
   { value: 'impossible', label: 'Impossible', shortLabel: 'Impossible', mode: 'auto-failure' }
 ];
 const CHARACTER_STATS = [
-  { key: 'force', code: 'FOR', label: 'Force', count: 3, type: 6, mod: 0, test: 'Effort' },
-  { key: 'constitution', code: 'CON', label: 'Constitution', count: 3, type: 6, mod: 0, test: 'Endurance' },
-  { key: 'taille', code: 'TAI', label: 'Taille', count: 2, type: 6, mod: 6, test: null },
-  { key: 'intelligence', code: 'INT', label: 'Intelligence', count: 2, type: 6, mod: 6, test: 'Idée' },
-  { key: 'pouvoir', code: 'POU', label: 'Pouvoir', count: 3, type: 6, mod: 0, test: 'Chance' },
-  { key: 'dexterite', code: 'DEX', label: 'Dextérité', count: 3, type: 6, mod: 0, test: 'Agilité' },
-  { key: 'charisme', code: 'CHA', label: 'Charisme', count: 3, type: 6, mod: 0, test: 'Charme' }
+  { key: 'force', code: 'FOR', label: 'Force', count: 3, type: 6, mod: 0, test: 'Effort', help: 'Puissance physique. Sert à soulever, pousser, briser ou retenir, et contribue au bonus aux dégâts.' },
+  { key: 'constitution', code: 'CON', label: 'Constitution', count: 3, type: 6, mod: 0, test: 'Endurance', help: 'Résistance du corps. Sert à supporter la fatigue, la maladie ou le poison, et contribue aux points de vie.' },
+  { key: 'taille', code: 'TAI', label: 'Taille', count: 2, type: 6, mod: 6, test: null, help: 'Masse et gabarit du personnage. Contribue aux points de vie et au bonus aux dégâts.' },
+  { key: 'intelligence', code: 'INT', label: 'Intelligence', count: 2, type: 6, mod: 6, test: 'Idée', help: 'Capacité à comprendre, raisonner et trouver des solutions. Détermine aussi les points de compétences personnels.' },
+  { key: 'pouvoir', code: 'POU', label: 'Pouvoir', count: 3, type: 6, mod: 0, test: 'Chance', help: 'Force mentale et spirituelle. Sert à la magie, à la chance, aux points de pouvoir et à la santé mentale.' },
+  { key: 'dexterite', code: 'DEX', label: 'Dextérité', count: 3, type: 6, mod: 0, test: 'Agilité', help: 'Vitesse, coordination et précision. Sert aux actions rapides et influence notamment Esquive, Projection et Vol.' },
+  { key: 'charisme', code: 'CHA', label: 'Charisme', count: 3, type: 6, mod: 0, test: 'Charme', help: 'Présence, allure et impact social. Sert à séduire, convaincre, impressionner ou inspirer.' }
 ];
 const CHARACTER_DETAIL_KEYS = ['espece', 'genre', 'age', 'profession', 'richesse', 'traits', 'notes'];
+
+function escapeAttribute(value) {
+  return String(value).replace(/[&<>\"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
+}
 
 // ——— state ———
 let expr = {};   // {4:0,6:0,...}
@@ -879,10 +884,10 @@ function renderCharacterSheet() {
       ? `<div class="stat-test-line">${def.test}: ${finalVal * 5}%</div>`
       : '<div class="stat-test-line muted">Pas de jet de caractéristique</div>';
 
-    return `<div class="stat-card">
+    return `<div class="stat-card has-tooltip" tabindex="0" data-tooltip="${escapeAttribute(def.help)}">
       <div class="stat-head">
         <span class="stat-code">${def.code}</span>
-        <span class="stat-name">${def.label}</span>
+        <span class="stat-name">${def.label} <span class="tooltip-hint" aria-hidden="true">?</span></span>
       </div>
       <div class="stat-score">${finalVal}</div>
       ${testLine}

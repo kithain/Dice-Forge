@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import './tooltips.js?v=20260715-character-help';
 
 if (new URLSearchParams(window.location.search).get('embedded') === '1') {
   document.body.classList.add('pj-embedded');
@@ -14,8 +15,13 @@ const supabase = SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('VO
   : null;
 
 const STATS = [
-  ['FOR', 'force'], ['CON', 'constitution'], ['TAI', 'taille'], ['INT', 'intelligence'],
-  ['POU', 'pouvoir'], ['DEX', 'dexterite'], ['APP', 'apparence']
+  ['FOR', 'force', 'Puissance physique : soulever, pousser, briser ou retenir. Contribue au bonus aux dégâts.'],
+  ['CON', 'constitution', 'Résistance du corps : fatigue, maladie et poison. Contribue aux points de vie.'],
+  ['TAI', 'taille', 'Masse et gabarit du personnage. Contribue aux points de vie et au bonus aux dégâts.'],
+  ['INT', 'intelligence', 'Capacité à comprendre, raisonner et trouver des solutions. Détermine les points personnels.'],
+  ['POU', 'pouvoir', 'Force mentale et spirituelle. Sert à la magie, à la chance et aux points de pouvoir.'],
+  ['DEX', 'dexterite', 'Vitesse, coordination et précision. Influence notamment Esquive, Projection et Vol.'],
+  ['APP', 'apparence', 'Apparence et présence visible du personnage. Influence sa première impression sociale.']
 ];
 
 const SKILL_GROUPS = ['Combat', 'Physique', 'Magie & pouvoirs', 'Social & mental', 'Connaissances', 'Pratique & divers'];
@@ -29,7 +35,7 @@ const SKILLS = [
   ['Vol', '½ DEX', 'Magie & pouvoirs'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'], ['Machine lourde (divers)', '01 %', 'Pratique & divers'],
   ['Arme lourde (divers)', "Selon la spécialité d'arme", 'Combat'], ['Se cacher', '10 %', 'Physique'], ['Intuition', '05 %', 'Social & mental'],
   ['Saut', '25 %', 'Physique'], ['Connaissance (divers)', '05 % ou 00 %', 'Connaissances'], ['Langue (divers)', 'INT (ou ÉDU)×5 ou 00 %', 'Connaissances'],
-  ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'], ['Arts martiaux', '01 %', 'Combat'],
+  ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'],
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
   ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
@@ -53,6 +59,58 @@ const ACTIVE_SKILLS = SKILLS
   .map((skill, index) => ({ skill, index }))
   .filter(({ skill }) => !NON_MEDFAN_SKILLS.has(skill[0]));
 
+const SKILL_HELP = {
+  'Estimation': "Évaluer la valeur, la qualité ou l'authenticité d'un objet.",
+  'Art (divers)': 'Créer ou interpréter une œuvre artistique dans une spécialité choisie.',
+  'Artillerie (divers)': "Utiliser une arme de siège ou une pièce d'artillerie adaptée à l'univers.",
+  'Marchandage': "Négocier un prix, un échange ou les conditions d'un accord.",
+  'Bagarre': 'Combattre à mains nues avec coups, prises simples et improvisation.',
+  'Escalade': 'Grimper sur une paroi, un mur, un arbre ou une surface difficile.',
+  'Commandement': 'Donner des ordres clairs, coordonner un groupe et maintenir son moral.',
+  'Artisanat (divers)': "Fabriquer, entretenir ou examiner des objets d'un métier précis.",
+  'Déguisement': "Modifier son apparence pour passer pour quelqu'un d'autre ou rester méconnaissable.",
+  'Esquive': 'Éviter une attaque, un projectile ou un danger soudain.',
+  'Conduite (divers)': 'Diriger un véhicule, un attelage ou une embarcation de la spécialité choisie.',
+  'Étiquette (divers)': 'Connaître les usages, titres et comportements attendus dans un milieu social.',
+  'Baratin': "Convaincre rapidement par l'assurance, l'improvisation ou un mensonge plausible.",
+  'Manipulation fine': 'Réaliser un geste précis : crochetage, mécanisme délicat ou travail minutieux.',
+  'Premiers secours': 'Stabiliser rapidement une blessure et prodiguer des soins immédiats.',
+  'Vol': "Se déplacer et manœuvrer en vol lorsqu'un pouvoir ou une capacité le permet.",
+  'Jeux': 'Connaître les règles, tactiques et astuces des jeux de hasard ou de stratégie.',
+  'Lutte': 'Saisir, immobiliser, projeter ou se libérer au corps à corps.',
+  'Se cacher': 'Trouver et utiliser une cachette pour ne pas être vu.',
+  'Intuition': 'Pressentir une intention, un danger ou ce qui ne va pas dans une situation.',
+  'Saut': 'Franchir une distance ou un obstacle et réceptionner une chute courte.',
+  'Connaissance (divers)': "Se rappeler des informations dans un domaine d'érudition choisi.",
+  'Langue (divers)': 'Comprendre, parler, lire ou écrire une langue selon le niveau atteint.',
+  'Écouter': 'Percevoir et identifier des sons faibles, lointains ou dissimulés.',
+  'Alphabétisation (option)': "Lire et écrire dans une culture où cette capacité n'est pas automatique.",
+  'Médecine': 'Diagnostiquer et traiter blessures, maladies ou empoisonnements sur la durée.',
+  'Arme de mêlée (divers)': 'Attaquer avec une arme de contact de la spécialité choisie.',
+  'Arme de jet (divers)': 'Attaquer à distance avec un arc, une fronde ou une arme lancée selon la spécialité.',
+  'Navigation': "S'orienter et tracer une route à l'aide du terrain, des cartes ou des astres.",
+  'Parade (divers)': "Bloquer ou dévier une attaque avec l'arme choisie.",
+  'Représentation': 'Captiver un public par le chant, la musique, le théâtre, la danse ou le rituel.',
+  'Intimidation/Persuasion': "Obtenir l'adhésion par la menace, l'autorité ou une argumentation directe.",
+  'Pilotage (divers)': 'Contrôler un appareil ou moyen de transport complexe de la spécialité choisie.',
+  'Projection': 'Projeter une force ou un effet magique à distance avec précision.',
+  'Réparation (divers)': 'Diagnostiquer une panne et remettre en état un objet ou mécanisme.',
+  'Recherche': 'Trouver une information dans des archives, une bibliothèque ou un ensemble de documents.',
+  'Équitation (divers)': 'Monter, guider et maîtriser une monture de la spécialité choisie.',
+  'Science (divers)': 'Appliquer une discipline scientifique ou savante à un problème précis.',
+  'Sens': 'Utiliser un sens particulier pour détecter, reconnaître ou analyser quelque chose.',
+  'Bouclier': 'Bloquer une attaque et se protéger avec un type de bouclier.',
+  'Tour de main': "Dissimuler ou subtiliser un petit objet par l'adresse et la distraction.",
+  'Observation': "Repérer un détail visible, un indice ou une anomalie dans l'environnement.",
+  'Statut': 'Utiliser sa position sociale, sa réputation ou ses relations pour obtenir un avantage.',
+  'Discrétion': 'Se déplacer silencieusement et rester inaperçu.',
+  'Stratégie': "Planifier une bataille, anticiper l'adversaire et employer au mieux ses forces.",
+  'Nage': "Se déplacer dans l'eau et résister à la noyade ou au courant.",
+  'Enseignement': "Transmettre efficacement un savoir ou entraîner quelqu'un dans une compétence.",
+  'Lancer': "Envoyer avec précision un objet qui n'est pas traité comme une arme spécialisée.",
+  'Pistage': "Suivre des traces et interpréter le passage d'une créature ou d'un groupe."
+};
+
 const form = document.getElementById('pj-form');
 const statsBody = document.getElementById('pj-stats');
 const skillsBody = document.getElementById('pj-skills');
@@ -64,15 +122,15 @@ function escapeHtml(value) {
 }
 
 function renderBaseFields() {
-  statsBody.innerHTML = STATS.map(([code, key]) => `<tr>
-    <td class="pj-stats-code">${code}</td>
+  statsBody.innerHTML = STATS.map(([code, key, help]) => `<tr>
+    <td class="pj-stats-code"><span class="pj-help-target has-tooltip" tabindex="0" data-tooltip="${escapeHtml(help)}">${code}<span class="tooltip-hint" aria-hidden="true">?</span></span></td>
     <td><input type="number" min="0" max="999" data-stat="${key}" aria-label="Score ${code}"></td>
     <td class="pj-stat-roll" data-stat-roll="${key}">—</td>
   </tr>`).join('');
 
   skillsBody.innerHTML = SKILL_GROUPS.map(group => {
     const rows = ACTIVE_SKILLS.map(({ skill: [name, base, skillGroup], index }) => skillGroup === group ? `<tr>
-      <td>${escapeHtml(name)}</td>
+      <td><span class="pj-help-target has-tooltip" tabindex="0" data-tooltip="${escapeHtml(SKILL_HELP[name] || `Utiliser ${name} dans une situation appropriée.`)}">${escapeHtml(name)}<span class="tooltip-hint" aria-hidden="true">?</span></span></td>
       <td><div class="pj-base-wrap"><input type="number" min="0" max="999" data-skill-base="${index}" aria-label="Base ${escapeHtml(name)}" readonly tabindex="-1"><span class="pj-base-hint">${escapeHtml(base)}</span></div></td>
       <td><input type="number" min="0" max="999" value="0" data-skill-points="${index}" aria-label="Points répartis ${escapeHtml(name)}"></td>
       <td class="pj-skill-final" data-skill-final="${index}">0</td>

@@ -117,7 +117,7 @@ export const BRP_PROFESSIONS = [
     name: 'Guerrier',
     tag: 'Combat',
     richesse: 'Pauvre à Moyen',
-    skills: 'Bagarre, Esquive, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Arts Martiaux, Équitation, Observation, Discrétion, Nage, Lancer, Pistage',
+    skills: 'Bagarre, Esquive, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Équitation, Observation, Discrétion, Nage, Lancer, Pistage',
     special: ''
   },
   {
@@ -180,7 +180,7 @@ export const BRP_PROFESSIONS = [
     name: 'Assassin',
     tag: '',
     richesse: 'Aisé',
-    skills: 'Esquive, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Arts Martiaux, Équitation, Lancer, Pistage',
+    skills: 'Esquive, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Équitation, Lancer, Pistage',
     special: ''
   },
   {

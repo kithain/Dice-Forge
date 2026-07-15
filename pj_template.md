@@ -68,7 +68,6 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Langue (divers) | INT (ou ÉDU)×5 ou 00 % | | [ ] |
 | Écouter | 25 % |                 | [ ]   |
 | Alphabétisation (option) | 00 % ou égale à Langue | | [ ] |
-| Arts martiaux | 01 % |           | [ ]   |
 | Médecine | 05 % |                | [ ]   |
 | Arme de mêlée (divers) | Selon la spécialité d'arme | | [ ] |
 | Arme de jet (divers) | Selon la spécialité d'arme | | [ ] |

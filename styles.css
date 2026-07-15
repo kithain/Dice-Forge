@@ -316,9 +316,12 @@ select.room-input{appearance:none}
 }
 .char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.65rem}
 .stat-card{background:var(--s2);border:1px solid var(--brd2);border-radius:6px;padding:.75rem;min-height:172px}
+.stat-card.has-tooltip{cursor:help;outline:none}.stat-card.has-tooltip:hover,.stat-card.has-tooltip:focus-visible{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.1)}
 .stat-head{display:flex;align-items:baseline;justify-content:space-between;gap:.65rem;margin-bottom:.45rem}
 .stat-code{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;color:var(--gold);letter-spacing:.12em}
 .stat-name{font-size:.75rem;color:var(--txd);text-align:right}
+.tooltip-hint{display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;margin-left:.22rem;border:1px solid var(--goldd);border-radius:50%;color:var(--gold);font-family:Georgia,serif;font-size:.68rem;font-weight:700;line-height:1;vertical-align:middle}
+.app-tooltip{position:fixed;z-index:2000;width:max-content;max-width:min(340px,calc(100vw - 20px));padding:.65rem .75rem;border:1px solid var(--goldd);border-radius:6px;background:#11112f;color:var(--txt);box-shadow:0 10px 30px rgba(0,0,0,.55);font-family:Georgia,'Times New Roman',serif;font-size:.82rem;line-height:1.45;pointer-events:none}.app-tooltip[hidden]{display:none}
 .stat-score{
   font-family:'Cinzel',serif;font-size:2.4rem;font-weight:900;line-height:1;
   color:var(--txt);text-align:center;margin:.35rem 0 .45rem;min-height:2.4rem;
