@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Notice d'utilisation de Dice Forge pour les joueurs.">
+  <title>Dice Forge — Aide joueurs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="help.css">
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+
+  <a class="help-skip" href="#contenu">Aller au contenu</a>
+
+  <header class="help-topbar">
+    <a class="room-leave help-back" href="index.html">← Retour à Dice Forge</a>
+    <span class="help-top-label">Guide joueurs</span>
+  </header>
+
+  <div class="wrap help-page">
+    <header class="help-hero">
+      <span class="help-rune" aria-hidden="true">⚔️</span>
+      <p class="help-kicker">Aide en ligne</p>
+      <h1>Comment utiliser Dice Forge ?</h1>
+      <p class="help-lead">Lancez des dés, partagez vos résultats avec la table et gérez votre personnage BRP-ORC directement dans le navigateur.</p>
+      <a class="room-btn help-start" href="#demarrage">Commencer</a>
+    </header>
+
+    <div class="help-layout">
+      <aside class="help-sidebar" aria-label="Sommaire">
+        <nav class="help-toc">
+          <strong>Sommaire</strong>
+          <a href="#demarrage">1. Démarrage rapide</a>
+          <a href="#partie">2. Rejoindre une partie</a>
+          <a href="#des">3. Lancer les dés</a>
+          <a href="#brp">4. Test BRP</a>
+          <a href="#personnage">5. Fiche personnage</a>
+          <a href="#markdown">6. Fiche Markdown</a>
+          <a href="#reglages">7. Réglages</a>
+          <a href="#depannage">8. Dépannage</a>
+        </nav>
+      </aside>
+
+      <main id="contenu" class="help-content">
+        <section class="help-section" id="demarrage">
+          <div class="help-section-title">
+            <span>01</span>
+            <div>
+              <p>Premiers pas</p>
+              <h2>Démarrage rapide</h2>
+            </div>
+          </div>
+          <p>Dice Forge fonctionne dans un navigateur récent. Aucun compte n'est nécessaire pour lancer des dés seul. Une connexion Internet est requise pour charger l'application et utiliser les fonctions en ligne.</p>
+
+          <ol class="help-steps">
+            <li><strong>Ouvrez Dice Forge.</strong><span>Revenez à l'application avec le bouton situé en haut de cette page.</span></li>
+            <li><strong>Choisissez votre usage.</strong><span>Lancez immédiatement des dés, ou rejoignez une salle pour jouer avec votre table.</span></li>
+            <li><strong>Effectuez votre jet.</strong><span>Utilisez un lancer rapide, un test BRP ou le compositeur de dés.</span></li>
+          </ol>
+
+          <div class="help-note"><strong>Astuce son</strong> Si aucun son ne démarre, cliquez une fois dans la page avant de relancer. Le navigateur peut bloquer le son avant la première interaction.</div>
+        </section>
+
+        <section class="help-section" id="partie">
+          <div class="help-section-title">
+            <span>02</span>
+            <div><p>Multijoueur</p><h2>Rejoindre une partie</h2></div>
+          </div>
+
+          <h3>Rejoindre une salle existante</h3>
+          <ol class="help-steps compact">
+            <li><strong>Saisissez votre nom.</strong><span>Gardez exactement le même nom pendant la campagne pour retrouver votre fiche.</span></li>
+            <li><strong>Entrez le code de partie.</strong><span>Le créateur de la salle vous communique ce code.</span></li>
+            <li><strong>Cliquez sur Rejoindre.</strong><span>Les 20 jets les plus récents sont chargés dans le flux en direct.</span></li>
+          </ol>
+
+          <h3>Créer une salle</h3>
+          <p>Saisissez votre nom puis cliquez sur <strong>Créer</strong>. Dice Forge génère un code à partager avec les autres participants. Le créateur peut utiliser <strong>Purger</strong> pour effacer l'historique de la salle.</p>
+
+          <div class="help-note info"><strong>Jet secret</strong> Activez « Cacher mes jets (MJ) » pour envoyer un résultat visible par le créateur de la salle, mais pas par les autres joueurs. Cette option ne s'applique pas au créateur lui-même.</div>
+        </section>
+
+        <section class="help-section" id="des">
+          <div class="help-section-title">
+            <span>03</span>
+            <div><p>Action principale</p><h2>Lancer les dés</h2></div>
+          </div>
+
+          <h3>Lancers rapides</h3>
+          <p>Les boutons <strong>D20</strong>, <strong>D6</strong> et <strong>D100</strong> lancent immédiatement un dé. Les boutons Effort, Endurance, Idée, Chance, Agilité et Charme utilisent la caractéristique correspondante de votre fiche liée.</p>
+
+          <h3>Composer un jet</h3>
+          <ol class="help-steps compact">
+            <li><strong>Choisissez les dés.</strong><span>Utilisez + et − sous D4, D6, D8, D10, D12, D20 ou D100. Vous pouvez sélectionner jusqu'à 10 dés de chaque type.</span></li>
+            <li><strong>Ajoutez un modificateur.</strong><span>Saisissez un bonus ou un malus, par exemple +5 ou −2.</span></li>
+            <li><strong>Vérifiez l'expression.</strong><span>Exemple : 2D6 + 1D8 + 5.</span></li>
+            <li><strong>Cliquez sur Lancer les Dés.</strong><span>Le total et le détail de chaque dé s'affichent après l'animation.</span></li>
+          </ol>
+
+          <div class="help-grid two">
+            <article class="help-mini-card"><strong>⭐ Coup critique</strong><p>Un 20 naturel sur un D20 déclenche l'effet critique doré.</p></article>
+            <article class="help-mini-card danger"><strong>💀 Échec critique</strong><p>Un 1 naturel sur un D20 déclenche l'effet d'échec rouge.</p></article>
+          </div>
+        </section>
+
+        <section class="help-section" id="brp">
+          <div class="help-section-title">
+            <span>04</span>
+            <div><p>Résolution</p><h2>Effectuer un test BRP</h2></div>
+          </div>
+
+          <ol class="help-steps compact">
+            <li><strong>Saisissez le score en %.</strong><span>Utilisez la valeur de la compétence ou du test demandé.</span></li>
+            <li><strong>Choisissez la difficulté.</strong><span>Facile, Moyen, Difficile, Automatique ou Impossible.</span></li>
+            <li><strong>Cliquez sur Tester.</strong><span>Dice Forge lance le D100 et affiche le niveau de réussite.</span></li>
+          </ol>
+
+          <div class="help-table-wrap">
+            <table>
+              <thead><tr><th>Difficulté</th><th>Effet sur le seuil</th></tr></thead>
+              <tbody>
+                <tr><td>Facile ×2</td><td>Le score est doublé.</td></tr>
+                <tr><td>Moyen ×1</td><td>Le score est utilisé tel quel.</td></tr>
+                <tr><td>Difficile ÷2</td><td>Le score est divisé par deux.</td></tr>
+                <tr><td>Automatique</td><td>L'action réussit automatiquement.</td></tr>
+                <tr><td>Impossible</td><td>L'action échoue automatiquement.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="help-muted">Le résultat peut être une réussite critique, spéciale ou normale, un échec ou une maladresse.</p>
+        </section>
+
+        <section class="help-section" id="personnage">
+          <div class="help-section-title">
+            <span>05</span>
+            <div><p>Création BRP-ORC</p><h2>Créer une fiche personnage</h2></div>
+          </div>
+
+          <ol class="help-steps">
+            <li><strong>Renseignez l'identité.</strong><span>Choisissez le nom, l'espèce, le genre, l'âge et la profession.</span></li>
+            <li><strong>Cliquez sur Générer.</strong><span>FOR, CON, POU, DEX et CHA utilisent 3D6 ; TAI et INT utilisent 2D6 + 6.</span></li>
+            <li><strong>Ajustez la série.</strong><span>Vous disposez de deux relances et pouvez déplacer jusqu'à trois points entre caractéristiques.</span></li>
+            <li><strong>Complétez les détails.</strong><span>Ajoutez les traits, notes et informations de campagne.</span></li>
+            <li><strong>Enregistrez la fiche.</strong><span>Rejoignez d'abord une salle avec votre nom, puis cliquez sur Enregistrer.</span></li>
+          </ol>
+
+          <h3>Valeurs calculées automatiquement</h3>
+          <div class="help-grid stats">
+            <article><strong>BD</strong><span>Bonus aux dégâts</span></article>
+            <article><strong>PV</strong><span>Points de vie</span></article>
+            <article><strong>BM</strong><span>Blessure majeure</span></article>
+            <article><strong>PP</strong><span>Points de pouvoir</span></article>
+            <article><strong>XP</strong><span>Bonus d'expérience</span></article>
+            <article><strong>MOV</strong><span>Mouvement</span></article>
+          </div>
+
+          <h3>Importer et exporter</h3>
+          <p><strong>Exporter</strong> télécharge une copie JSON. <strong>Importer</strong> ouvre une fiche JSON existante. Après un import dans une autre salle, cliquez sur Enregistrer pour l'associer à votre nom courant.</p>
+        </section>
+
+        <section class="help-section" id="markdown">
+          <div class="help-section-title">
+            <span>06</span>
+            <div><p>Suivi de campagne</p><h2>Utiliser la fiche Markdown</h2></div>
+          </div>
+
+          <p>La fiche Markdown est une fiche complète et modifiable. Elle conserve automatiquement un brouillon local dans votre navigateur.</p>
+          <div class="help-action-list">
+            <article><strong>Enregistrer en .md</strong><span>Télécharge la fiche sous le nom du personnage.</span></article>
+            <article><strong>Ouvrir un .md</strong><span>Recharge une fiche Markdown déjà enregistrée.</span></article>
+            <article><strong>Créer le PDF</strong><span>Ouvre un aperçu A4 à imprimer ou enregistrer en PDF.</span></article>
+            <article><strong>Sauvegarder en ligne</strong><span>Associe la fiche au nom du joueur et au code de partie actuels.</span></article>
+            <article><strong>Charger depuis Supabase</strong><span>Récupère la fiche en ligne associée à la même salle.</span></article>
+            <article><strong>Nouvelle fiche</strong><span>Efface le brouillon courant après confirmation.</span></article>
+          </div>
+          <div class="help-note"><strong>Changement d'appareil</strong> Le brouillon local ne suit pas automatiquement. Téléchargez le fichier .md ou utilisez la sauvegarde en ligne.</div>
+        </section>
+
+        <section class="help-section" id="reglages">
+          <div class="help-section-title">
+            <span>07</span>
+            <div><p>Confort</p><h2>Réglages</h2></div>
+          </div>
+          <div class="help-grid two">
+            <article class="help-mini-card"><strong>Animations</strong><p>Active ou désactive les dés en 3D. Désactivez cette option si l'appareil ralentit ou si WebGL pose problème.</p></article>
+            <article class="help-mini-card"><strong>Son MP3</strong><p>Active ou coupe le bruit de lancer et les effets sonores.</p></article>
+          </div>
+        </section>
+
+        <section class="help-section" id="depannage">
+          <div class="help-section-title">
+            <span>08</span>
+            <div><p>Solutions rapides</p><h2>Dépannage</h2></div>
+          </div>
+          <div class="help-faq">
+            <details><summary>Aucun son ne se déclenche</summary><p>Cliquez une fois dans la page, vérifiez l'option Son MP3 et le volume du navigateur, puis relancez.</p></details>
+            <details><summary>Les dés 3D ne s'affichent pas</summary><p>Rechargez la page ou désactivez Animations. Vérifiez aussi que l'accélération graphique et WebGL sont disponibles.</p></details>
+            <details><summary>Je ne peux pas rejoindre la salle</summary><p>Vérifiez votre connexion, votre nom et le code de partie. Supprimez tout espace ajouté avant ou après le code.</p></details>
+            <details><summary>Ma fiche liée n'apparaît pas</summary><p>Reconnectez-vous avec exactement le même nom de joueur que lors de l'enregistrement.</p></details>
+            <details><summary>Ma fiche Markdown en ligne est introuvable</summary><p>Rejoignez la bonne salle avec le bon nom, puis réessayez « Charger depuis Supabase ».</p></details>
+            <details><summary>Le PDF ne se télécharge pas</summary><p>Dans l'aperçu, ouvrez la boîte d'impression du navigateur puis choisissez « Enregistrer au format PDF ».</p></details>
+          </div>
+        </section>
+
+        <footer class="help-footer">
+          <strong>Bon jeu !</strong>
+          <a class="room-btn" href="index.html">Retour à Dice Forge</a>
+        </footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
