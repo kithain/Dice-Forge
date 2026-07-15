@@ -97,7 +97,7 @@ export const BRP_SPECIES = [
       intelligence: { sign: -1, count: 1, type: 6 },
       charisme: { sign: -1, count: 1, type: 6 }
     },
-    suggestedProfessions: 'Guerrier, Soldat, Chasseur, Tribual, Assassin, Voleur',
+    suggestedProfessions: 'Guerrier, Soldat, Chasseur, Tribal, Assassin, Voleur',
     culturalSkills: 'Bagarre +10%, Pistage +10%, Intimidation/Persuasion +10%',
     traits: 'Brutal, direct, marginal, colérique',
     special: 'Vision nocturne 15 m.',
@@ -212,7 +212,7 @@ export const BRP_PROFESSIONS = [
     special: ''
   },
   {
-    name: 'Tribual',
+    name: 'Tribal',
     tag: '',
     richesse: 'Indigent à Pauvre',
     skills: 'Artisanat (au choix), Esquive, Lutte, Se cacher, Connaissance (Histoire Naturelle), Observation, Lancer, Pistage + 2 parmi : Bagarre, Escalade, Premiers Secours, Écouter, Saut, Arme de mêlée (Lance ou Matraque), Arme de jet (Arc), Équitation, Discrétion, Nage',
