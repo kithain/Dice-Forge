@@ -348,6 +348,84 @@ async function loadSheetFromSupabase() {
   setStatus(`Fiche chargée depuis Supabase${date ? ` — ${date}` : ''}.`);
 }
 
+function setTransferStatus(message, type = '') {
+  const status = document.getElementById('pj-transfer-status');
+  status.textContent = message;
+  status.className = `pj-transfer-status${type ? ` ${type}` : ''}`;
+}
+
+function openTransferDialog() {
+  const room = currentRoom();
+  if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
+  if (!room) { setStatus('Rejoins d’abord le salon source dans Dice Forge.'); return; }
+  if (!fieldValue('name')) { setStatus('Donne un nom au personnage avant le transfert.'); return; }
+  document.getElementById('pj-transfer-source').textContent = room.code;
+  document.getElementById('pj-transfer-player').textContent = room.player;
+  document.getElementById('pj-transfer-character').textContent = fieldValue('name');
+  document.getElementById('pj-transfer-code').value = '';
+  setTransferStatus('');
+  document.getElementById('pj-transfer-dialog').showModal();
+  document.getElementById('pj-transfer-code').focus();
+}
+
+async function transferSheetToRoom() {
+  const room = currentRoom();
+  const targetCode = document.getElementById('pj-transfer-code').value.trim().toUpperCase();
+  const button = document.getElementById('pj-transfer-submit');
+  if (!supabase || !room) { setTransferStatus('Salon source ou Supabase indisponible.', 'error'); return; }
+  if (!/^[A-Z0-9]{4}$/.test(targetCode)) { setTransferStatus('Saisis un code de salon valide à 4 caractères.', 'error'); return; }
+  if (targetCode === room.code.toUpperCase()) { setTransferStatus('Le salon de destination doit être différent du salon actuel.', 'error'); return; }
+
+  button.disabled = true;
+  setTransferStatus(`Vérification du salon ${targetCode}…`);
+  const { data: roomRows, error: roomError } = await supabase.from('rolls')
+    .select('id')
+    .eq('room_code', targetCode)
+    .limit(1);
+  if (roomError) {
+    button.disabled = false;
+    setTransferStatus(`Vérification impossible : ${roomError.message}`, 'error');
+    return;
+  }
+  if (!roomRows?.length) {
+    button.disabled = false;
+    setTransferStatus(`Le salon ${targetCode} n’existe pas.`, 'error');
+    return;
+  }
+
+  const { data: existing, error: existingError } = await supabase.from('pj_sheets')
+    .select('character_name')
+    .eq('room_code', targetCode)
+    .eq('player_name', room.player)
+    .maybeSingle();
+  if (existingError) {
+    button.disabled = false;
+    setTransferStatus(`Transfert impossible : ${supabaseErrorMessage(existingError)}`, 'error');
+    return;
+  }
+  if (existing && !confirm(`${room.player} possède déjà la fiche « ${existing.character_name} » dans le salon ${targetCode}. La remplacer ?`)) {
+    button.disabled = false;
+    setTransferStatus('Transfert annulé.');
+    return;
+  }
+
+  setTransferStatus(`Copie de la fiche vers ${targetCode}…`);
+  const data = collectData();
+  const { error } = await supabase.from('pj_sheets').upsert({
+    room_code: targetCode,
+    player_name: room.player,
+    character_name: fieldValue('name'),
+    sheet_data: data,
+    markdown_content: toMarkdown(),
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'room_code,player_name' });
+  button.disabled = false;
+  if (error) { setTransferStatus(`Transfert impossible : ${supabaseErrorMessage(error)}`, 'error'); return; }
+
+  setTransferStatus(`Fiche copiée dans le salon ${targetCode}.`, 'success');
+  setStatus(`Fiche de ${fieldValue('name')} transférée vers le salon ${targetCode}.`);
+}
+
 function slugName(name) {
   return (name || 'nom_du_perso').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9_-]+/gi, '_').replace(/^_+|_+$/g, '').toLowerCase() || 'nom_du_perso';
 }
@@ -464,6 +542,10 @@ document.getElementById('pj-download').addEventListener('click', downloadMarkdow
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
 document.getElementById('pj-cloud-load').addEventListener('click', loadSheetFromSupabase);
+document.getElementById('pj-transfer-open').addEventListener('click', openTransferDialog);
+document.getElementById('pj-transfer-submit').addEventListener('click', transferSheetToRoom);
+document.getElementById('pj-transfer-code').addEventListener('input', event => { event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });
+document.getElementById('pj-transfer-code').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); transferSheetToRoom(); } });
 document.getElementById('pj-open').addEventListener('click', () => document.getElementById('pj-file').click());
 document.getElementById('pj-file').addEventListener('change', event => { const file = event.target.files[0]; if (file) openMarkdown(file).catch(() => alert('Ce fichier Markdown ne peut pas être ouvert.')); event.target.value = ''; });
 document.getElementById('pj-reset').addEventListener('click', () => {

@@ -54,6 +54,8 @@ Le bouton **Créer le PDF** transforme la fiche courante — y compris une fiche
 
 La fiche Markdown peut aussi être sauvegardée intégralement dans Supabase et rechargée depuis n'importe quel navigateur pour le même joueur et le même code de partie. La table nécessaire est créée avec [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql).
 
+Le bouton **Transférer vers un salon** copie la fiche complète du joueur connecté vers un autre code de salon existant. La fiche source est conservée et une confirmation protège toute fiche déjà présente pour ce joueur dans le salon de destination.
+
 Les compétences y sont classées par rubrique, avec une section dédiée « Magie & pouvoirs » pour Projection et Vol. Le budget affiche les 325 points professionnels du niveau Héroïque (valeur modifiable), ajoute automatiquement les points personnels `INT × 10`, puis décompte chaque point réparti. Le score final de chaque compétence est calculé automatiquement avec `base + points répartis`. Les scores de base sont verrouillés et les bases dépendantes des caractéristiques sont recalculées automatiquement.
 
 La liste de la fiche est adaptée au médiéval-fantastique : les compétences explicitement modernes ou futuristes du BRP générique (armes à feu/énergie, machine ou arme lourde moderne, démolition moderne, psychothérapie et compétence technique) n'y sont pas proposées.

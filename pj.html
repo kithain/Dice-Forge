@@ -33,11 +33,39 @@
       <button class="room-btn pj-pdf" id="pj-pdf" type="button">Créer le PDF</button>
       <button class="room-btn pj-cloud" id="pj-cloud-save" type="button">Sauvegarder en ligne</button>
       <button class="room-leave pj-secondary" id="pj-cloud-load" type="button">Charger depuis Supabase</button>
+      <button class="room-leave pj-secondary" id="pj-transfer-open" type="button">Transférer vers un salon</button>
       <button class="room-leave pj-secondary" id="pj-open" type="button">Ouvrir un .md</button>
       <input id="pj-file" type="file" accept="text/markdown,text/plain,.md" hidden>
       <button class="room-leave pj-secondary" id="pj-reset" type="button">Nouvelle fiche</button>
       <span class="pj-filename">Fichier : <strong id="pj-filename">nom_du_perso.md</strong></span>
     </div>
+
+    <dialog class="pj-transfer-dialog" id="pj-transfer-dialog" aria-labelledby="pj-transfer-title">
+      <form method="dialog" class="pj-transfer-card">
+        <div class="pj-transfer-head">
+          <div>
+            <p class="pj-kicker">Supabase</p>
+            <h2 id="pj-transfer-title">Transférer la fiche</h2>
+          </div>
+          <button class="pj-dialog-close" value="cancel" aria-label="Fermer" title="Fermer">×</button>
+        </div>
+        <p class="pj-transfer-help">La fiche complète du joueur sera copiée dans le salon de destination. Elle restera disponible dans le salon actuel.</p>
+        <div class="pj-transfer-summary">
+          <span>Salon source <strong id="pj-transfer-source">—</strong></span>
+          <span>Joueur <strong id="pj-transfer-player">—</strong></span>
+          <span>Personnage <strong id="pj-transfer-character">—</strong></span>
+        </div>
+        <label class="pj-field">Code du salon de destination
+          <input id="pj-transfer-code" maxlength="4" autocomplete="off" placeholder="AB12" aria-describedby="pj-transfer-hint">
+        </label>
+        <small id="pj-transfer-hint">Le salon doit déjà exister. Une confirmation sera demandée si ce joueur y possède déjà une fiche.</small>
+        <div class="pj-transfer-actions">
+          <button class="room-leave pj-secondary" value="cancel">Annuler</button>
+          <button class="room-btn" id="pj-transfer-submit" type="button">Copier la fiche</button>
+        </div>
+        <p class="pj-transfer-status" id="pj-transfer-status" role="status"></p>
+      </form>
+    </dialog>
 
     <form id="pj-form" class="pj-sheet" autocomplete="off">
       <section class="pj-section pj-identity">
@@ -144,6 +172,6 @@
   </main>
 
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20260715-combat-cleanup"></script>
+  <script type="module" src="js/pj-sheet.js?v=20260715-room-transfer"></script>
 </body>
 </html>
