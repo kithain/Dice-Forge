@@ -152,7 +152,7 @@ export const BRP_PROFESSIONS = [
     name: 'Artisan',
     tag: '',
     richesse: 'Moyen',
-    skills: 'Estimation, Art (au choix), Marchandage, 2 Artisanats (au choix), Observation, Recherche, Statut + 2 parmi : Manipulation Fine, Machine Lourde, Réparation (au choix)',
+    skills: 'Estimation, Art (au choix), Marchandage, 2 Artisanats (au choix), Observation, Recherche, Statut, Manipulation Fine et Réparation (au choix)',
     special: ''
   },
   {

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Écran du MJ — BRP ORC</title>
+<meta name="description" content="Écran de référence en ligne pour le meneur de jeu BRP ORC : résolution, combat, blessures et règles essentielles.">
 <style>
 @page {
     size: A4 landscape;
@@ -125,13 +126,130 @@ p { margin-bottom: 3px; }
 .tag-easy { background: #28a745; }
 .tag-hard { background: #dc3545; }
 .tag-imp { background: #6c757d; }
+
+/* Version web : lecture confortable sur ordinateur, tablette et mobile. */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+}
+.skip-link:focus {
+    left: 12px;
+    top: 12px;
+    z-index: 100;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: #fff;
+    color: #1a1a1a;
+}
+.web-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    max-width: 1180px;
+    margin: 0 auto 14px;
+    padding: 12px 16px;
+    color: #fff;
+    background: #20203e;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+}
+.toolbar-title { display: grid; gap: 2px; }
+.toolbar-title strong { font-size: 16px; }
+.toolbar-title span { color: #d8d8e8; font-size: 11px; }
+.toolbar-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.toolbar-links a,
+.toolbar-links button {
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 5px;
+    padding: 6px 9px;
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+    font: inherit;
+    font-size: 11px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.toolbar-links a:hover,
+.toolbar-links a:focus-visible,
+.toolbar-links button:hover,
+.toolbar-links button:focus-visible { background: rgba(255, 255, 255, .2); }
+body { font-size: 14px; padding: 0 14px 24px; }
+.screen {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 1180px;
+    background: transparent;
+}
+.panel {
+    width: auto;
+    min-height: 0;
+    padding: 18px;
+    border: 1px solid #c8c4b8;
+    border-radius: 8px;
+    overflow: visible;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+}
+.panel:last-child { border-right: 1px solid #c8c4b8; }
+h1 { font-size: 18px; padding: 7px 9px; }
+h2 { font-size: 15px; margin-top: 14px; }
+h3 { font-size: 13px; margin-top: 9px; }
+table { font-size: 12px; }
+.compact td, .compact th { padding: 3px 4px; font-size: 11px; }
+.resistance-table { display: block; overflow-x: auto; font-size: 10px; }
+.note { font-size: 11px; }
+.formula { font-size: 14px; }
+
+@media (max-width: 760px) {
+    body { padding: 0 8px 16px; }
+    .web-toolbar { position: static; align-items: flex-start; flex-direction: column; margin-bottom: 8px; }
+    .toolbar-links { justify-content: flex-start; }
+    .screen { grid-template-columns: 1fr; gap: 8px; }
+    .panel { padding: 13px; }
+}
+
+@media print {
+    body { padding: 0; font-size: 9px; background: #fff; }
+    .skip-link, .web-toolbar { display: none !important; }
+    .screen { display: flex; gap: 0; width: 100%; max-width: 297mm; background: #fff; }
+    .panel { width: 25%; min-height: 210mm; padding: 8px 10px; border: 0; border-right: 2px solid #333; border-radius: 0; overflow: hidden; box-shadow: none; }
+    .panel:last-child { border: 0; }
+    h1 { font-size: 13px; padding: 4px 6px; }
+    h2 { font-size: 10px; margin-top: 8px; }
+    h3 { font-size: 9px; margin-top: 5px; }
+    table { font-size: 8px; }
+    .compact td, .compact th { padding: 1px 2px; font-size: 7px; }
+    .resistance-table { display: table; overflow: visible; font-size: 7px; }
+    .note { font-size: 8px; }
+    .formula { font-size: 10px; }
+}
 </style>
 </head>
 <body>
-<div class="screen">
+<a class="skip-link" href="#contenu">Aller directement aux règles</a>
+<header class="web-toolbar">
+  <div class="toolbar-title">
+    <strong>Écran du MJ — BRP ORC</strong>
+    <span>Révision Dice‑Forge · juillet 2026</span>
+  </div>
+  <nav class="toolbar-links" aria-label="Navigation de l’écran MJ">
+    <a href="index.html">Dice‑Forge</a>
+    <a href="livret_joueur.html">Livret joueur</a>
+    <a href="inventaire.html">Équipement</a>
+    <a href="ecran_joueur_BRP_ORC.html?v=20260715-online">Écran joueur</a>
+    <a href="#resolution">Résolution</a>
+    <a href="#combat">Combat</a>
+    <button type="button" onclick="window.print()">Imprimer</button>
+  </nav>
+</header>
+<main class="screen" id="contenu">
 
 <!-- ============ PANNEAU 1 : Niveaux de succès + Résistance ============ -->
-<div class="panel">
+<section class="panel" id="resolution">
 <h1>Panneau 1 — Résolution</h1>
 
 <h2>Niveaux de réussite</h2>
@@ -216,10 +334,10 @@ p { margin-bottom: 3px; }
 <tr><td>Maladresse</td><td>−50 %</td></tr>
 </table>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 2 : Modificateurs + Caractéristiques dérivées ============ -->
-<div class="panel">
+<section class="panel" id="personnage">
 <h1>Panneau 2 — Modificateurs &amp; Personnage</h1>
 
 <h2>Modificateurs de difficulté</h2>
@@ -239,7 +357,7 @@ p { margin-bottom: 3px; }
 <tr><td>Complexité insondable / pas d'équipement / environnement extrême / totalement étranger / hors portée / pas assez de temps / aucune communication</td><td>−50 %</td></tr>
 <tr><td>Complexité inutile / équipement médiocre / conditions désagréables / étrange / hors zone de confort / pressé / communication limitée</td><td>−20 %</td></tr>
 <tr><td>Solution apparente / équipement supérieur / conditions favorables / bien connu / bien dans portée / beaucoup de temps / sujet familier</td><td>+20 %</td></tr>
-<tr><td>Solution évidente / équipement high-tech / environnement idéal / routinier / parfaitement placé / à loisir / sujet enthousiaste</td><td>+50 %</td></tr>
+<tr><td>Solution évidente / outils de maître / environnement idéal / routinier / parfaitement placé / à loisir / sujet enthousiaste</td><td>+50 %</td></tr>
 </table>
 
 <h2>Modificateurs de portée (armes de jet)</h2>
@@ -269,7 +387,7 @@ p { margin-bottom: 3px; }
 <tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
 <tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
 </table>
-<p class="note">Armes de jet : mod. positif ÷2 (arr. sup.). Armes à feu : pas de mod.</p>
+<p class="note">Armes de jet : modificateur positif ÷2 (arrondi au supérieur).</p>
 
 <h3>Points de vie = (CON + TAI) / 2</h3>
 <ul>
@@ -310,10 +428,10 @@ p { margin-bottom: 3px; }
 <li><b>6 PP :</b> Décaler résultat d'un niveau (maladresse→échec→réussite→spéciale→critique)</li>
 </ul>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 3 : Combat ============ -->
-<div class="panel">
+<section class="panel" id="combat">
 <h1>Panneau 3 — Combat</h1>
 
 <h2>Phases du round de combat</h2>
@@ -364,7 +482,7 @@ p { margin-bottom: 3px; }
 <tr><td><b>Saignement</b></td><td>Tranchantes</td><td>−1 PV/rnd au rang de DEX 1. Arrêt : jet d'Endurance ou Premiers Secours</td></tr>
 <tr><td><b>Écrasement</b></td><td>Contondantes</td><td>Étourdissement : jet de CON ou perte d'action. +1 PV sur le jet</td></tr>
 <tr><td><b>Entrave</b></td><td>Flexibles, filets</td><td>Immobilise le membre ou la cible. DEX vs DEX+TAI pour se libérer</td></tr>
-<tr><td><b>Empalement</b></td><td>Perforantes, armes à feu</td><td>Arme reste plantée. Dégâts max de l'arme. +1 PV/rnd si arrachée</td></tr>
+<tr><td><b>Empalement</b></td><td>Perforantes, arcs, arbalètes</td><td>Arme reste plantée. Dégâts max de l'arme. +1 PV/rnd si arrachée</td></tr>
 <tr><td><b>Renversement</b></td><td>Mains nues, bouclier</td><td>Cible à terre. Jet d'Agilité ou 1 PV de dégât</td></tr>
 </table>
 
@@ -382,10 +500,10 @@ p { margin-bottom: 3px; }
 <li>Cible à terre en mêlée : attaques <span class="tag tag-easy">Faciles</span> si à portée</li>
 </ul>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 4 : Maladresses, Blessures, Guérison ============ -->
-<div class="panel">
+<section class="panel" id="blessures">
 <h1>Panneau 4 — Maladresses &amp; Blessures</h1>
 
 <h2>Maladresses d'attaque de mêlée</h2>
@@ -483,8 +601,8 @@ p { margin-bottom: 3px; }
 </ul>
 <p class="note">×2 PV localisation : membre sectionné / tête-poitrine-abdomen = inconscient, saigne (−1 PV/rnd, Endurance <span class="tag tag-hard">Difficile</span>). ×3 PV : membre sectionné / tête-poitrine-abdomen = mort instantanée.</p>
 
-</div>
+</section>
 
-</div>
+</main>
 </body>
 </html>

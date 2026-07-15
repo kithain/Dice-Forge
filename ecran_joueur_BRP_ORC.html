@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Écran du Joueur — BRP ORC</title>
+<meta name="description" content="Écran de référence en ligne pour les joueurs BRP ORC : jets, combat, personnage et magie.">
 <style>
 @page { size: A4 landscape; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -103,13 +104,131 @@ p { margin-bottom: 3px; }
 .tag-magic { background: #6f42c1; }
 .resistance-table { font-size: 7px; }
 .resistance-table th, .resistance-table td { padding: 1px; min-width: 18px; }
+
+/* Version web : lecture confortable sur ordinateur, tablette et mobile. */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+}
+.skip-link:focus {
+    left: 12px;
+    top: 12px;
+    z-index: 100;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: #fff;
+    color: #1a1a1a;
+}
+.web-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    max-width: 1180px;
+    margin: 0 auto 14px;
+    padding: 12px 16px;
+    color: #fff;
+    background: #123521;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+}
+.toolbar-title { display: grid; gap: 2px; }
+.toolbar-title strong { font-size: 16px; }
+.toolbar-title span { color: #d6e9dc; font-size: 11px; }
+.toolbar-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.toolbar-links a,
+.toolbar-links button {
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 5px;
+    padding: 6px 9px;
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+    font: inherit;
+    font-size: 11px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.toolbar-links a:hover,
+.toolbar-links a:focus-visible,
+.toolbar-links button:hover,
+.toolbar-links button:focus-visible { background: rgba(255, 255, 255, .2); }
+body { font-size: 14px; padding: 0 14px 24px; }
+.screen {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 1180px;
+    background: transparent;
+}
+.panel {
+    width: auto;
+    min-height: 0;
+    padding: 18px;
+    border: 1px solid #c8c4b8;
+    border-radius: 8px;
+    overflow: visible;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+}
+.panel:last-child { border-right: 1px solid #c8c4b8; }
+h1 { font-size: 18px; padding: 7px 9px; }
+h2 { font-size: 15px; margin-top: 14px; }
+h3 { font-size: 13px; margin-top: 9px; }
+table { font-size: 12px; }
+.compact td, .compact th { padding: 3px 4px; font-size: 11px; }
+.resistance-table { display: block; overflow-x: auto; font-size: 10px; }
+.note { font-size: 11px; }
+.formula { font-size: 14px; }
+
+@media (max-width: 760px) {
+    body { padding: 0 8px 16px; }
+    .web-toolbar { position: static; align-items: flex-start; flex-direction: column; margin-bottom: 8px; }
+    .toolbar-links { justify-content: flex-start; }
+    .screen { grid-template-columns: 1fr; gap: 8px; }
+    .panel { padding: 13px; }
+}
+
+@media print {
+    body { padding: 0; font-size: 9px; background: #fff; }
+    .skip-link, .web-toolbar { display: none !important; }
+    .screen { display: flex; gap: 0; width: 100%; max-width: 297mm; background: #fff; }
+    .panel { width: 25%; min-height: 210mm; padding: 8px 10px; border: 0; border-right: 2px solid #333; border-radius: 0; overflow: hidden; box-shadow: none; }
+    .panel:last-child { border: 0; }
+    h1 { font-size: 13px; padding: 4px 6px; }
+    h2 { font-size: 10px; margin-top: 8px; }
+    h3 { font-size: 9px; margin-top: 5px; }
+    table { font-size: 8px; }
+    .compact td, .compact th { padding: 1px 2px; font-size: 7px; }
+    .spell-table td, .spell-table th { padding: 1px; font-size: 6px; line-height: 1.15; }
+    .resistance-table { display: table; overflow: visible; font-size: 7px; }
+    .note { font-size: 8px; }
+    .formula { font-size: 10px; }
+}
 </style>
 </head>
 <body>
-<div class="screen">
+<a class="skip-link" href="#contenu">Aller directement aux règles</a>
+<header class="web-toolbar">
+  <div class="toolbar-title">
+    <strong>Écran du Joueur — BRP ORC</strong>
+    <span>Révision Dice‑Forge · juillet 2026</span>
+  </div>
+  <nav class="toolbar-links" aria-label="Navigation de l’écran joueur">
+    <a href="index.html">Dice‑Forge</a>
+    <a href="livret_joueur.html">Livret joueur</a>
+    <a href="inventaire.html">Équipement</a>
+    <a href="ecran_MJ_BRP_ORC.html?v=20260715-online">Écran MJ</a>
+    <a href="#jets">Jets</a>
+    <a href="#magie">Magie</a>
+    <button type="button" onclick="window.print()">Imprimer</button>
+  </nav>
+</header>
+<main class="screen" id="contenu">
 
 <!-- ============ PANNEAU 1 : Résolution ============ -->
-<div class="panel">
+<section class="panel" id="jets">
 <h1>Panneau 1 — Jets &amp; Succès</h1>
 
 <h2>Niveaux de réussite</h2>
@@ -208,14 +327,14 @@ p { margin-bottom: 3px; }
 <ul>
 <li>Cochez une compétence après une réussite significative en jeu</li>
 <li><b>Jet d'apprentissage :</b> D100 + bonus d'expérience (INT/2)</li>
-<li>Si résultat &gt; score actuel × 5 → +1D6 points à la compétence</li>
+<li>Si le résultat final est &gt; au score actuel → +1D6 points à la compétence</li>
 <li><b>POU :</b> Coche après jet de résistance POU vs POU ≥ réussi. Gain : 1D3−1</li>
 </ul>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 2 : Combat ============ -->
-<div class="panel">
+<section class="panel" id="combat">
 <h1>Panneau 2 — Combat</h1>
 
 <h2>Phases du round</h2>
@@ -297,10 +416,10 @@ p { margin-bottom: 3px; }
 <li><b>Étourdir (écrasement) :</b> Jet CON vs niveau d'attaque. Échec = étourdi 1D3 rounds, actions <span class="tag tag-hard">Difficiles</span></li>
 </ul>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 3 : Personnage ============ -->
-<div class="panel">
+<section class="panel" id="personnage">
 <h1>Panneau 3 — Personnage</h1>
 
 <h2>Modificateur de dégâts (FOR+TAI)</h2>
@@ -314,7 +433,7 @@ p { margin-bottom: 3px; }
 <tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
 <tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
 </table>
-<p class="note">Armes de jet : mod. positif ÷2 (arr. sup.). Armes à feu : pas de mod.</p>
+<p class="note">Armes de jet : modificateur positif ÷2 (arrondi au supérieur).</p>
 
 <h2>Points de vie</h2>
 <div class="formula">PV = (CON + TAI) / 2 (arrondi sup.)</div>
@@ -379,10 +498,10 @@ p { margin-bottom: 3px; }
 <tr><td>6 PP</td><td>Décaler résultat d'un niveau (maladresse→échec→réussite→spéciale→critique)</td></tr>
 </table>
 
-</div>
+</section>
 
 <!-- ============ PANNEAU 4 : Magie ============ -->
-<div class="panel">
+<section class="panel" id="magie">
 <h1>Panneau 4 — Magie</h1>
 
 <h2>Lancer un sort</h2>
@@ -398,7 +517,7 @@ p { margin-bottom: 3px; }
 </ul>
 
 <h2>Niveaux de succès des sorts</h2>
-<table class="compact">
+<table class="compact spell-table">
 <tr><th>Résultat</th><th>Effet</th></tr>
 <tr><td>Critique</td><td>Parfait. Dégâts max, ignore armure. Ou ×2 efficacité</td></tr>
 <tr><td>Spéciale</td><td>Dégâts spéciaux. Ou 150 % d'effet / niveau ×1,5</td></tr>
@@ -424,6 +543,7 @@ p { margin-bottom: 3px; }
 <tr><td><b>Foudre</b></td><td>3</td><td>1D6 dégâts de foudre</td></tr>
 <tr><td><b>Givre</b></td><td>3</td><td>1D6 dégâts de froid</td></tr>
 <tr><td><b>Soins</b></td><td>3</td><td>Soigne 1D6 PV</td></tr>
+<tr><td><b>Guérison Supérieure</b></td><td>3</td><td>Soigne 2D6 PV/niv. et guérit maladie ou poison</td></tr>
 <tr><td><b>Contrôle</b></td><td>3</td><td>Contrôle esprit. POU vs POU. 1 cible/niv</td></tr>
 <tr><td><b>Protection</b></td><td>1</td><td>+1 armure/niv</td></tr>
 <tr><td><b>Contre-magie</b></td><td>1</td><td>Renvoie les sorts vers le lanceur</td></tr>
@@ -448,6 +568,13 @@ p { margin-bottom: 3px; }
 <tr><td><b>Scellement</b></td><td>1</td><td>Joint deux objets inanimés</td></tr>
 <tr><td><b>Déscellement</b></td><td>1</td><td>Sépare deux objets</td></tr>
 <tr><td><b>Conjurer Élémentaire</b></td><td>1/POU</td><td>Invoque un élémentaire. 10 rounds</td></tr>
+<tr><td><b>Bénédiction</b></td><td>1</td><td>+10 % à un jet de compétence/niv. pendant un combat</td></tr>
+<tr><td><b>Malédiction</b></td><td>1</td><td>−10 % à un jet de compétence/niv. pendant un combat</td></tr>
+<tr><td><b>Sanctifier</b></td><td>1</td><td>Zone bénie de 3 m/niv. Sorts hostiles −20 %</td></tr>
+<tr><td><b>Exorcisme</b></td><td>2</td><td>Bannit un esprit ou démon. POU vs POU</td></tr>
+<tr><td><b>Renaissance</b></td><td>5</td><td>Ressuscite un mort récent. Coûte 1 POU permanent</td></tr>
+<tr><td><b>Transe</b></td><td>1</td><td>Communique avec les esprits. 10 min/niv.</td></tr>
+<tr><td><b>Esprit Gardien</b></td><td>1</td><td>+1D4 PV temporaires/niv. pendant 1 heure</td></tr>
 </table>
 
 <h2>Familier</h2>
@@ -466,8 +593,8 @@ p { margin-bottom: 3px; }
 <li>20 PV. Si brisé = inutile</li>
 </ul>
 
-</div>
+</section>
 
-</div>
+</main>
 </body>
 </html>

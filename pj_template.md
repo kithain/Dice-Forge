@@ -59,7 +59,6 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Vol | DEX×4 ou ½ DEX |           | [ ]   |
 | Jeux | INT+POU |                 | [ ]   |
 | Lutte | 25 % |                   | [ ]   |
-| Machine lourde (divers) | 01 % | | [ ]   |
 | Arme lourde (divers) | Selon la spécialité d'arme | | [ ] |
 | Se cacher | 10 % |               | [ ]   |
 | Intuition | 05 % |               | [ ]   |

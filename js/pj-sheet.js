@@ -32,7 +32,7 @@ const SKILLS = [
   ['Conduite (divers)', '20 % ou 01 %', 'Physique'], ['Arme à énergie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Étiquette (divers)', '05 %', 'Social & mental'], ['Baratin', '05 %', 'Social & mental'], ['Manipulation fine', '05 %', 'Pratique & divers'],
   ['Arme à feu (divers)', "Selon la spécialité d'arme", 'Combat'], ['Premiers secours', '30 %', 'Pratique & divers'],
-  ['Vol', '½ DEX', 'Magie & pouvoirs'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'], ['Machine lourde (divers)', '01 %', 'Pratique & divers'],
+  ['Vol', '½ DEX', 'Magie & pouvoirs'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'],
   ['Arme lourde (divers)', "Selon la spécialité d'arme", 'Combat'], ['Se cacher', '10 %', 'Physique'], ['Intuition', '05 %', 'Social & mental'],
   ['Saut', '25 %', 'Physique'], ['Connaissance (divers)', '05 % ou 00 %', 'Connaissances'], ['Langue (divers)', 'INT (ou ÉDU)×5 ou 00 %', 'Connaissances'],
   ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'],
@@ -50,7 +50,6 @@ const NON_MEDFAN_SKILLS = new Set([
   'Démolition',
   'Arme à énergie (divers)',
   'Arme à feu (divers)',
-  'Machine lourde (divers)',
   'Arme lourde (divers)',
   'Psychothérapie',
   'Compétence technique (divers)'
