@@ -212,6 +212,22 @@ tbody tr:last-child td { border-bottom: 0; }
 td:first-child { color: #fff7e5; font-weight: 600; }
 td:last-child { color: var(--gold-soft); white-space: nowrap; }
 
+.income-reference {
+  margin: 0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(215, 173, 85, .07);
+  text-align: center;
+}
+
+.income-reference strong { color: var(--gold-soft); }
+.income-reference .amount {
+  color: #fff4d7;
+  font: 600 20px Cinzel, serif;
+  white-space: nowrap;
+}
+
 footer {
   padding-top: 32px;
   color: var(--muted);
@@ -271,6 +287,25 @@ footer {
 
   <div class="catalogue">
     <section class="section">
+      <div class="section-heading"><span aria-hidden="true">◆</span><h2>Revenus mensuels</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Statut social</th><th>Revenu mensuel estimé</th></tr></thead>
+          <tbody>
+            <tr><td>Mendiant, malade, sans emploi fixe</td><td>0 à 5 pa</td></tr>
+            <tr><td>Misérable / travail très irrégulier</td><td>5 à 12 pa</td></tr>
+            <tr><td>Journalier pauvre</td><td>1 à 2 po</td></tr>
+            <tr><td>Homme du peuple stable</td><td>2 à 4 po</td></tr>
+            <tr><td>Ouvrier qualifié / mineur / bon domestique</td><td>4 à 7 po</td></tr>
+            <tr><td>Artisan installé / contremaître</td><td>8 à 15 po</td></tr>
+            <tr><td>Marchand confortable / notable local</td><td>20 po et plus</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="income-reference"><strong>Repère principal :</strong> un homme du peuple stable touche en moyenne <span class="amount">3 po par mois</span>.</p>
+    </section>
+
+    <section class="section">
       <div class="section-heading"><span aria-hidden="true">⚔</span><h2>Armes de mêlée</h2></div>
       <div class="table-wrap">
         <table>
@@ -328,8 +363,8 @@ footer {
             <tr><td>Vêtements renforcés</td><td>Légère</td><td>+1</td><td>Excellente</td><td>Normale</td><td>2 po</td></tr>
             <tr><td>Gambison</td><td>Légère</td><td>+2</td><td>Excellente</td><td>Normale</td><td>8 po</td></tr>
             <tr><td>Armure de cuir</td><td>Légère</td><td>+2</td><td>Très bonne</td><td>Bonne</td><td>10 po</td></tr>
-            <tr><td>Cuir clouté</td><td>Légère</td><td>+3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
-            <tr><td>Peaux épaisses</td><td>Intermédiaire</td><td>+3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
+            <tr><td>Armure de cuir clouté</td><td>Légère</td><td>+3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
+            <tr><td>Armure de cuir durci</td><td>Intermédiaire</td><td>+3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
             <tr><td>Chemise de mailles</td><td>Intermédiaire</td><td>+4</td><td>Bonne</td><td>Mauvaise</td><td>50 po</td></tr>
             <tr><td>Brigandine</td><td>Intermédiaire</td><td>+5</td><td>Moyenne</td><td>Mauvaise</td><td>80 po</td></tr>
             <tr><td>Cotte de mailles</td><td>Lourde</td><td>+6</td><td>Réduite</td><td>Très mauvaise</td><td>100 po</td></tr>
@@ -352,7 +387,7 @@ footer {
           <tbody>
             <tr><td>Rondache</td><td>+1</td><td>Légère, laisse la main presque libre</td><td>5 po</td></tr>
             <tr><td>Écu</td><td>+2</td><td>Protection équilibrée</td><td>12 po</td></tr>
-            <tr><td>Bouclier normand</td><td>+2</td><td>Bonus contre les projectiles</td><td>20 po</td></tr>
+            <tr><td>bouclier en amande</td><td>+2</td><td>Bonus contre les projectiles</td><td>20 po</td></tr>
             <tr><td>Pavois</td><td>+3</td><td>Couverture importante, très encombrant</td><td>40 po</td></tr>
             <tr><td>Casque ouvert</td><td>+1 contre les coups critiques</td><td>Bonne visibilité</td><td>5 po</td></tr>
             <tr><td>Heaume intégral</td><td>+2 contre les coups critiques</td><td>Vision et audition réduites</td><td>25 po</td></tr>

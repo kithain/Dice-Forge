@@ -5,6 +5,20 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 > **Monnaie :** 10 pièces d'argent (pa) = 1 pièce d'or (po).  
 > Les valeurs de protection représentent un bonus générique à la défense.
 
+## Revenus mensuels
+
+| Statut social | Revenu mensuel estimé |
+|---|---:|
+| Mendiant, malade, sans emploi fixe | 0 à 5 pa |
+| Misérable / travail très irrégulier | 5 à 12 pa |
+| Journalier pauvre | 1 à 2 po |
+| Homme du peuple stable | 2 à 4 po |
+| Ouvrier qualifié / mineur / bon domestique | 4 à 7 po |
+| Artisan installé / contremaître | 8 à 15 po |
+| Marchand confortable / notable local | 20 po et plus |
+
+> **Repère principal :** un homme du peuple stable touche en moyenne **3 po par mois**.
+
 ## Armes de mêlée
 
 | Arme | Catégorie | Dégâts | Mains | Particularités | Prix |
@@ -20,7 +34,7 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 | Hache à deux mains | Lourde | 1d12 | 2 | Dévastatrice, encombrante | 30 po |
 | Masse d'armes | Martiale | 1d8 | 1 | Efficace contre les armures | 12 po |
 | Marteau de guerre | Martiale | 1d8 / 1d10 | 1 ou 2 | Brise-armure | 18 po |
-| Pioche de guerre naine | Martiale | 1d10 | 2 | Perforante, brise-armure, encombrante | 25 po |
+| Pioche | Martiale | 1d10 | 2 | Perforante, brise-armure, encombrante | 25 po |
 | Fléau | Martiale | 1d8 | 1 | Contourne partiellement les boucliers | 15 po |
 | Lance | Simple | 1d6 / 1d8 | 1 ou 2 | Allonge, peut être lancée | 3 po |
 | Hallebarde | Lourde | 1d10 | 2 | Allonge, crochet, anti-cavalerie | 20 po |
@@ -49,8 +63,8 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 | Vêtements renforcés | Légère | +1 | Excellente | Normale | 2 po |
 | Gambison | Légère | +2 | Excellente | Normale | 8 po |
 | Armure de cuir | Légère | +2 | Très bonne | Bonne | 10 po |
-| Cuir clouté | Légère | +3 | Bonne | Normale | 25 po |
-| Peaux épaisses | Intermédiaire | +3 | Moyenne | Mauvaise | 12 po |
+| Armure de cuir clouté | Légère | +3 | Bonne | Normale | 25 po |
+| Armure de cuir durci | Intermédiaire | +3 | Moyenne | Mauvaise | 12 po |
 | Chemise de mailles | Intermédiaire | +4 | Bonne | Mauvaise | 50 po |
 | Brigandine | Intermédiaire | +5 | Moyenne | Mauvaise | 80 po |
 | Cotte de mailles | Lourde | +6 | Réduite | Très mauvaise | 100 po |
@@ -67,7 +81,7 @@ Catalogue générique d'armes, d'armures et de protections, adaptable à différ
 |---|---:|---|---:|
 | Rondache | +1 | Légère, laisse la main presque libre | 5 po |
 | Écu | +2 | Protection équilibrée | 12 po |
-| Bouclier normand | +2 | Bonus contre les projectiles | 20 po |
+| bouclier en amande | +2 | Bonus contre les projectiles | 20 po |
 | Pavois | +3 | Couverture importante, très encombrant | 40 po |
 | Casque ouvert | +1 contre les coups critiques | Bonne visibilité | 5 po |
 | Heaume intégral | +2 contre les coups critiques | Vision et audition réduites | 25 po |
