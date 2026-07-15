@@ -113,8 +113,8 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 | Brigandine | Petites plaques rivetées entre plusieurs couches de tissu. | Intermédiaire | +5 | Moyenne | Mauvaise | 80 po |
 | Cotte de mailles | Long vêtement de mailles couvrant le torse, les bras et les cuisses. | Lourde | +6 | Réduite | Très mauvaise | 100 po |
 | Armure d'écailles | Plaques métalliques superposées et fixées sur un support souple. | Lourde | +6 | Réduite | Très mauvaise | 120 po |
-| Demi-plate | Plaques rigides protégeant les zones vitales sur une armure souple. | Lourde | +7 | Faible | Très mauvaise | 300 po |
-| Harnois complet | Ensemble articulé de plaques enveloppant presque tout le corps. | Lourde | +8 | Faible | Impossible | 800 po |
+| Demi-plate | Armure de plaques protégeant les zones vitales, plastron, épaulières et casque. | Lourde | +7 | Faible | Très mauvaise | 300 po |
+| Harnois complet | Armure de plaques articulés enveloppant presque tout le corps. | Lourde | +8 | Faible | Impossible | 800 po |
 | Robe runique | Vêtement enchanté dont les runes détournent les attaques. | Magique | +3 | Excellente | Normale | 500 po |
 | Cuir draconique | Cuir surnaturellement résistant confectionné avec une peau de dragon. | Magique | +5 | Très bonne | Bonne | 1 500 po |
 | Armure de mithril | Armure métallique exceptionnellement légère et résistante. | Magique | +7 | Bonne | Normale | 4 000 po |
