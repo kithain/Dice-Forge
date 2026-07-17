@@ -20,11 +20,12 @@ const STATS = [
   ['TAI', 'taille', 'Masse et gabarit du personnage. Contribue aux points de vie et au bonus aux dégâts.'],
   ['INT', 'intelligence', 'Capacité à comprendre, raisonner et trouver des solutions. Détermine les points personnels.'],
   ['POU', 'pouvoir', 'Force mentale et spirituelle. Sert à la magie, à la chance et aux points de pouvoir.'],
-  ['DEX', 'dexterite', 'Vitesse, coordination et précision. Influence notamment Esquive, Projection et Vol.'],
+  ['DEX', 'dexterite', 'Vitesse, coordination et précision. Influence notamment Esquive et Vol.'],
   ['APP', 'apparence', 'Apparence et présence visible du personnage. Influence sa première impression sociale.']
 ];
 
 const SKILL_GROUPS = ['Combat', 'Physique', 'Magie & pouvoirs', 'Social & mental', 'Connaissances', 'Pratique & divers'];
+// L'emplacement vide conserve les index des anciennes sauvegardes après le retrait d'une compétence.
 const SKILLS = [
   ['Estimation', '15 %', 'Pratique & divers'], ['Art (divers)', '05 %', 'Pratique & divers'], ['Artillerie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Marchandage', '05 %', 'Social & mental'], ['Bagarre', '25 %', 'Combat'], ['Escalade', '40 %', 'Physique'], ['Commandement', '05 %', 'Social & mental'],
@@ -39,7 +40,7 @@ const SKILLS = [
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
   ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
-  ['Pilotage (divers)', '01 %', 'Physique'], ['Projection', 'DEX×2', 'Magie & pouvoirs'], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
+  ['Pilotage (divers)', '01 %', 'Physique'], ['', '', ''], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
   ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['Bouclier', 'Selon le type de bouclier', 'Combat'],
   ['Tour de main', '05 %', 'Pratique & divers'], ['Observation', '25 %', 'Social & mental'], ['Statut', '15 % ou variable', 'Social & mental'], ['Discrétion', '10 %', 'Physique'],
@@ -56,7 +57,55 @@ const NON_MEDFAN_SKILLS = new Set([
 ]);
 const ACTIVE_SKILLS = SKILLS
   .map((skill, index) => ({ skill, index }))
-  .filter(({ skill }) => !NON_MEDFAN_SKILLS.has(skill[0]));
+  .filter(({ skill }) => skill[0] && !NON_MEDFAN_SKILLS.has(skill[0]));
+
+const SPELL_SLOT_COUNT = 6;
+const SPELLS = [
+  ['Blessure', ['Sorcier', 'Étudiant']],
+  ['Déflagration', ['Sorcier']],
+  ['Feu', ['Sorcier', 'Chaman']],
+  ['Foudre', ['Sorcier']],
+  ['Givre', ['Sorcier', 'Chaman']],
+  ['Soins', ['Prêtre', 'Chaman', 'Étudiant']],
+  ['Guérison Supérieure', ['Prêtre']],
+  ['Contrôle', ['Sorcier', 'Chaman']],
+  ['Protection', ['Sorcier', 'Prêtre', 'Étudiant']],
+  ['Contre-magie', ['Sorcier', 'Prêtre']],
+  ['Dissipation', ['Sorcier', 'Prêtre', 'Chaman']],
+  ['Métamorphose', ['Sorcier']],
+  ['Illusion', ['Sorcier', 'Étudiant']],
+  ['Invisibilité', ['Sorcier']],
+  ['Lévitation', ['Sorcier', 'Étudiant']],
+  ['Téléportation', ['Sorcier']],
+  ['Diminution', ['Sorcier', 'Prêtre']],
+  ['Amélioration', ['Sorcier', 'Prêtre', 'Chaman']],
+  ['Perception', ['Sorcier', 'Prêtre', 'Chaman', 'Étudiant']],
+  ['Vision', ['Sorcier', 'Prêtre']],
+  ['Parole mentale', ['Sorcier', 'Prêtre', 'Chaman', 'Étudiant']],
+  ['Lumière', ['Sorcier', 'Prêtre', 'Chaman', 'Étudiant']],
+  ['Ténèbres', ['Sorcier', 'Prêtre', 'Chaman']],
+  ['Mur', ['Sorcier', 'Prêtre']],
+  ['Garde', ['Sorcier', 'Prêtre']],
+  ['Résistance', ['Prêtre', 'Chaman']],
+  ['Émoussement', ['Sorcier']],
+  ['Affûtage', ['Sorcier']],
+  ['Scellement', ['Sorcier', 'Étudiant']],
+  ['Déscelement', ['Sorcier', 'Étudiant']],
+  ['Conjurer Élémentaire', ['Sorcier', 'Chaman']],
+  ['Bénédiction', ['Prêtre']],
+  ['Malédiction', ['Prêtre']],
+  ['Sanctifier', ['Prêtre']],
+  ['Exorcisme', ['Prêtre', 'Chaman']],
+  ['Renaissance', ['Prêtre']],
+  ['Transe', ['Chaman']],
+  ['Esprit Gardien', ['Chaman']]
+];
+const SPELLCASTER_ALIASES = new Map([
+  ['sorcier', 'Sorcier'], ['sorciere', 'Sorcier'], ['mage', 'Sorcier'], ['magicien', 'Sorcier'], ['magicienne', 'Sorcier'],
+  ['pretre', 'Prêtre'], ['pretresse', 'Prêtre'],
+  ['chaman', 'Chaman'], ['chamane', 'Chaman'],
+  ['etudiant', 'Étudiant'], ['etudiante', 'Étudiant']
+]);
 
 const SKILL_HELP = {
   'Estimation': "Évaluer la valeur, la qualité ou l'authenticité d'un objet.",
@@ -92,7 +141,6 @@ const SKILL_HELP = {
   'Représentation': 'Captiver un public par le chant, la musique, le théâtre, la danse ou le rituel.',
   'Intimidation/Persuasion': "Obtenir l'adhésion par la menace, l'autorité ou une argumentation directe.",
   'Pilotage (divers)': 'Contrôler un appareil ou moyen de transport complexe de la spécialité choisie.',
-  'Projection': 'Projeter une force ou un effet magique à distance avec précision.',
   'Réparation (divers)': 'Diagnostiquer une panne et remettre en état un objet ou mécanisme.',
   'Recherche': 'Trouver une information dans des archives, une bibliothèque ou un ensemble de documents.',
   'Équitation (divers)': 'Monter, guider et maîtriser une monture de la spécialité choisie.',
@@ -115,6 +163,7 @@ const statsBody = document.getElementById('pj-stats');
 const skillsBody = document.getElementById('pj-skills');
 const weaponsBody = document.getElementById('pj-weapons');
 let saveTimer;
+let spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false }));
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
@@ -137,7 +186,74 @@ function renderBaseFields() {
     </tr>` : '').join('');
     return `<tr class="pj-skill-group"><td colspan="5">${group}</td></tr>${rows}`;
   }).join('');
+  renderSpellRows();
   addWeaponRow();
+}
+
+function normalizedProfession() {
+  return fieldValue('profession').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('fr-FR');
+}
+
+function spellcasterClass() {
+  const profession = normalizedProfession();
+  for (const [alias, casterClass] of SPELLCASTER_ALIASES) {
+    if (profession === alias || profession.includes(alias)) return casterClass;
+  }
+  return null;
+}
+
+function availableSpells() {
+  const casterClass = spellcasterClass();
+  return casterClass ? SPELLS.filter(([, classes]) => classes.includes(casterClass)).map(([name]) => name) : [];
+}
+
+function renderSpellRows() {
+  skillsBody.querySelectorAll('[data-spell-row], [data-spell-group]').forEach(row => row.remove());
+  const casterClass = spellcasterClass();
+  if (!casterClass) return;
+  const options = availableSpells();
+  const groupRows = Array.from(skillsBody.querySelectorAll('.pj-skill-group'));
+  const magicGroup = groupRows.find(row => row.textContent.trim() === 'Magie & pouvoirs');
+  if (!magicGroup) return;
+  const fragment = document.createDocumentFragment();
+  const heading = document.createElement('tr');
+  heading.className = 'pj-spell-group';
+  heading.dataset.spellGroup = '';
+  heading.innerHTML = `<td colspan="5">Sorts de ${escapeHtml(casterClass)} — base INT</td>`;
+  fragment.appendChild(heading);
+  spellSlots.forEach((slot, index) => {
+    const row = document.createElement('tr');
+    row.dataset.spellRow = String(index);
+    row.innerHTML = `<td><select data-spell-name="${index}" aria-label="Sort ${index + 1}">
+      <option value="">Choisir un sort…</option>
+      ${options.map(name => `<option value="${escapeHtml(name)}"${slot.name === name ? ' selected' : ''}>${escapeHtml(name)}</option>`).join('')}
+    </select></td>
+    <td class="pj-spell-base" data-spell-base="${index}">0</td>
+    <td><input type="number" min="0" max="999" value="${escapeHtml(slot.points || '0')}" data-spell-points="${index}" aria-label="Points répartis pour le sort ${index + 1}"></td>
+    <td class="pj-skill-final" data-spell-final="${index}">0</td>
+    <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche du sort ${index + 1}"${slot.checked ? ' checked' : ''}></td>`;
+    fragment.appendChild(row);
+  });
+  magicGroup.after(fragment);
+  updateSpellOptions();
+  updateSkillCalculations();
+}
+
+function syncSpellSlotsFromForm() {
+  spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, (_, index) => ({
+    name: form.querySelector(`[data-spell-name="${index}"]`)?.value ?? spellSlots[index]?.name ?? '',
+    points: form.querySelector(`[data-spell-points="${index}"]`)?.value ?? spellSlots[index]?.points ?? '0',
+    checked: form.querySelector(`[data-spell-check="${index}"]`)?.checked ?? !!spellSlots[index]?.checked
+  }));
+}
+
+function updateSpellOptions() {
+  const selected = new Set(Array.from(form.querySelectorAll('[data-spell-name]')).map(select => select.value).filter(Boolean));
+  form.querySelectorAll('[data-spell-name]').forEach(select => {
+    Array.from(select.options).forEach(option => {
+      option.disabled = !!option.value && option.value !== select.value && selected.has(option.value);
+    });
+  });
 }
 
 function addWeaponRow(weapon = {}) {
@@ -184,7 +300,7 @@ function automaticSkillBase(name, label) {
   const intelligence = numberValue('intelligence') || 0;
   const power = numberValue('pouvoir') || 0;
   const profession = fieldValue('profession').toLocaleLowerCase('fr-FR');
-  if (name === 'Esquive' || name === 'Projection') return dex * 2;
+  if (name === 'Esquive') return dex * 2;
   if (name === 'Vol') return Math.ceil(dex / 2);
   if (name === 'Jeux') return intelligence + power;
   if (name === 'Langue (divers)') return intelligence * 5;
@@ -209,6 +325,15 @@ function updateSkillCalculations() {
     spent += points;
     form.querySelector(`[data-skill-final="${index}"]`).textContent = base + points;
   });
+  const spellBase = numberValue('intelligence') || 0;
+  form.querySelectorAll('[data-spell-row]').forEach(row => {
+    const index = row.dataset.spellRow;
+    const name = form.querySelector(`[data-spell-name="${index}"]`)?.value || '';
+    const points = Math.max(0, parseInt(form.querySelector(`[data-spell-points="${index}"]`)?.value, 10) || 0);
+    form.querySelector(`[data-spell-base="${index}"]`).textContent = name ? spellBase : 0;
+    form.querySelector(`[data-spell-final="${index}"]`).textContent = name ? spellBase + points : 0;
+    if (name) spent += points;
+  });
   const professional = Math.max(0, parseInt(fieldValue('skillProfessionalPool'), 10) || 0);
   const personal = (numberValue('intelligence') || 0) * 10;
   const total = professional + personal;
@@ -225,6 +350,7 @@ function setDerived(key, value) { form.querySelector(`[data-derived="${key}"]`).
 function fieldValue(key) { return form.querySelector(`[data-field="${key}"]`)?.value.trim() || ''; }
 
 function collectData() {
+  syncSpellSlotsFromForm();
   const fields = {};
   form.querySelectorAll('[data-field]').forEach(input => { fields[input.dataset.field] = input.value; });
   const stats = {};
@@ -241,7 +367,7 @@ function collectData() {
   const weapons = Array.from(weaponsBody.rows).map(row => Object.fromEntries(
     Array.from(row.querySelectorAll('[data-weapon]')).map(input => [input.dataset.weapon, input.value])
   ));
-  return { fields, stats, skills, weapons };
+  return { fields, stats, skills, spells: spellSlots, weapons };
 }
 
 function applyData(data) {
@@ -252,6 +378,12 @@ function applyData(data) {
   Object.entries(data.stats || {}).forEach(([key, value]) => {
     const input = form.querySelector(`[data-stat="${key}"]`); if (input) input.value = value ?? '';
   });
+  spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, (_, index) => ({
+    name: data.spells?.[index]?.name || '',
+    points: data.spells?.[index]?.points ?? '0',
+    checked: !!data.spells?.[index]?.checked
+  }));
+  renderSpellRows();
   updateDerived();
   (data.skills || []).forEach((skill, index) => {
     const base = form.querySelector(`[data-skill-base="${index}"]`);
@@ -440,17 +572,24 @@ function bullets(value) { const lines = String(value || '').split(/\r?\n/).filte
 function toMarkdown() {
   const data = collectData(), f = data.fields, s = data.stats;
   const statRows = STATS.map(([code, key]) => `| ${code} | ${cell(s[key])} | ${s[key] ? Number(s[key]) * 5 : ''} |`).join('\n');
+  const spellRows = data.spells.filter(spell => spell.name).map(spell => {
+    const base = Number(s.intelligence) || 0;
+    const points = Math.max(0, parseInt(spell.points, 10) || 0);
+    return `| ${cell(spell.name)} | ${base} | ${points} | ${base + points} | [${spell.checked ? 'x' : ' '}] |`;
+  }).join('\n');
   const skillRows = SKILL_GROUPS.map(group => {
     const rows = ACTIVE_SKILLS.map(({ skill: [name, , skillGroup], index }) => skillGroup === group
       ? `| ${name} | ${cell(data.skills[index].base)} | ${cell(data.skills[index].points)} | ${cell(data.skills[index].score)} | [${data.skills[index].checked ? 'x' : ' '}] |`
       : '').filter(Boolean).join('\n');
-    return `| **${group}** |  |  |  |  |\n${rows}`;
+    const spells = group === 'Magie & pouvoirs' && spellRows ? `\n${spellRows}` : '';
+    return `| **${group}** |  |  |  |  |\n${rows}${spells}`;
   }).join('\n');
   const weaponRows = data.weapons.filter(w => Object.values(w).some(Boolean)).map(w => `| ${cell(w.name)} | ${cell(w.score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`).join('\n') || '|  |  |  |  |  |';
   const d = key => form.querySelector(`[data-derived="${key}"]`).value;
   const professional = Math.max(0, parseInt(f.skillProfessionalPool, 10) || 0);
   const personal = (Number(s.intelligence) || 0) * 10;
-  const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0);
+  const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0)
+    + data.spells.filter(spell => spell.name).reduce((sum, spell) => sum + (parseInt(spell.points, 10) || 0), 0);
   return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
 }
 
@@ -470,6 +609,11 @@ function openPdfPreview() {
     skills: ACTIVE_SKILLS
       .filter(({ skill: [, , skillGroup] }) => skillGroup === group)
       .map(({ skill: [name], index }) => ({ name, ...(data.skills[index] || {}) }))
+      .concat(group === 'Magie & pouvoirs' ? data.spells.filter(spell => spell.name).map(spell => {
+        const base = numberValue('intelligence') || 0;
+        const points = Math.max(0, parseInt(spell.points, 10) || 0);
+        return { name: spell.name, base, points, score: base + points, checked: spell.checked };
+      }) : [])
   }));
   data.derived = Object.fromEntries(['hp', 'pp', 'damage', 'experience'].map(key => [
     key,
@@ -497,7 +641,7 @@ function section(text, title) {
 function listText(text) { return text.split(/\r?\n/).map(line => line.replace(/^-\s*/, '')).filter(Boolean).join('\n'); }
 
 function parseMarkdown(text) {
-  const data = { fields: {}, stats: {}, skills: [], weapons: [] };
+  const data = { fields: {}, stats: {}, skills: [], spells: [], weapons: [] };
   data.fields.name = (text.match(/^# (.+)$/m) || [])[1] || '';
   data.fields.player = valueAfter('Joueur', text); data.fields.profession = valueAfter('Profession', text); data.fields.race = valueAfter('Race', text);
   const statSection = section(text, 'Caractéristiques');
@@ -507,12 +651,21 @@ function parseMarkdown(text) {
   const skillSection = section(text, 'Compétences');
   data.fields.skillProfessionalPool = (skillSection.match(/\*\*Points professionnels\s*:\*\*\s*(\d+)/) || [])[1] || '325';
   data.skills = SKILLS.map(([name]) => {
+    if (!name) return {};
     const importedNames = name === 'Intimidation/Persuasion' ? [name, 'Persuasion'] : [name];
     const row = skillSection.split(/\r?\n/).find(line => importedNames.includes(line.split('|')[1]?.trim())), cells = row?.split('|') || [];
     const modern = cells.length >= 7;
     return modern
       ? { base: cells[2]?.trim() || '', points: cells[3]?.trim() || '0', score: cells[4]?.trim() || '', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') }
       : { score: cells[3]?.trim() || '', checked: /^\[x\]$/i.test(cells[4]?.trim() || '') };
+  });
+  const spellNames = new Set(SPELLS.map(([name]) => name));
+  data.spells = skillSection.split(/\r?\n/).filter(line => {
+    const name = line.split('|')[1]?.trim();
+    return spellNames.has(name);
+  }).slice(0, SPELL_SLOT_COUNT).map(line => {
+    const cells = line.split('|');
+    return { name: cells[1]?.trim() || '', points: cells[3]?.trim() || '0', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') };
   });
   const weaponSection = section(text, 'Armes');
   data.weapons = weaponSection.split(/\r?\n/).filter(line => /^\|/.test(line) && !/Arme|---/.test(line)).map(line => {
@@ -535,8 +688,16 @@ async function openMarkdown(file) {
 renderBaseFields();
 try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) applyData(draft); } catch (error) { console.warn('Brouillon illisible', error); }
 updateDerived(); updateFilename();
-form.addEventListener('input', changed);
-form.addEventListener('change', changed);
+function formChanged(event) {
+  if (event.target.matches('[data-field="profession"]')) {
+    syncSpellSlotsFromForm();
+    renderSpellRows();
+  }
+  if (event.target.matches('[data-spell-name]')) updateSpellOptions();
+  changed();
+}
+form.addEventListener('input', formChanged);
+form.addEventListener('change', formChanged);
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
@@ -550,5 +711,5 @@ document.getElementById('pj-open').addEventListener('click', () => document.getE
 document.getElementById('pj-file').addEventListener('change', event => { const file = event.target.files[0]; if (file) openMarkdown(file).catch(() => alert('Ce fichier Markdown ne peut pas être ouvert.')); event.target.value = ''; });
 document.getElementById('pj-reset').addEventListener('click', () => {
   if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
-  localStorage.removeItem(STORAGE_KEY); form.reset(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
+  localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false })); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
