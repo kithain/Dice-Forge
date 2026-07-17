@@ -164,6 +164,8 @@ const skillsBody = document.getElementById('pj-skills');
 const weaponsBody = document.getElementById('pj-weapons');
 let saveTimer;
 let spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false }));
+let localEditRevision = 0;
+let sheetLoadInProgress = false;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
@@ -401,6 +403,7 @@ function applyData(data) {
 }
 
 function changed() {
+  localEditRevision += 1;
   updateDerived(); updateFilename();
   const state = document.getElementById('pj-save-state'); state.textContent = 'Modifications en cours…';
   clearTimeout(saveTimer);
@@ -456,28 +459,67 @@ async function saveSheetToSupabase() {
   setStatus(`Fiche de ${fieldValue('name')} sauvegardée dans la partie ${room.code}.`);
 }
 
-async function loadSheetFromSupabase() {
+async function loadSheetFromSupabase({ automatic = false } = {}) {
   const room = currentRoom();
-  if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
-  if (!room) { setStatus('Rejoins d’abord une partie dans Dice Forge.'); return; }
+  if (sheetLoadInProgress) return false;
+  if (!supabase) {
+    if (!automatic) setStatus('Supabase n’est pas configuré.');
+    return false;
+  }
+  if (!room) {
+    if (!automatic) setStatus('Rejoins d’abord une partie dans Dice Forge.');
+    return false;
+  }
 
   const button = document.getElementById('pj-cloud-load');
+  const revisionAtStart = localEditRevision;
+  sheetLoadInProgress = true;
   button.disabled = true;
-  setStatus('Chargement Supabase en cours…');
-  const { data, error } = await supabase.from('pj_sheets')
-    .select('sheet_data, character_name, updated_at')
-    .eq('room_code', room.code)
-    .eq('player_name', room.player)
-    .maybeSingle();
-  button.disabled = false;
+  setStatus(automatic ? 'Recherche automatique de la fiche Supabase…' : 'Chargement Supabase en cours…');
+  let data = null;
+  let error = null;
+  try {
+    const result = await supabase.from('pj_sheets')
+      .select('sheet_data, character_name, updated_at')
+      .eq('room_code', room.code)
+      .eq('player_name', room.player)
+      .maybeSingle();
+    data = result.data;
+    error = result.error;
+  } catch (caughtError) {
+    error = caughtError;
+  } finally {
+    sheetLoadInProgress = false;
+    button.disabled = false;
+  }
 
-  if (error) { setStatus('Chargement impossible : ' + supabaseErrorMessage(error)); return; }
-  if (!data) { setStatus(`Aucune fiche en ligne pour ${room.player} dans la partie ${room.code}.`); return; }
+  if (error) {
+    setStatus(`${automatic ? 'Chargement automatique impossible' : 'Chargement impossible'} : ${supabaseErrorMessage(error)}`);
+    return false;
+  }
+  if (!data) {
+    setStatus(`Aucune fiche en ligne pour ${room.player} dans la partie ${room.code}. Brouillon local conservé.`);
+    return false;
+  }
+  if (!data.sheet_data || typeof data.sheet_data !== 'object') {
+    setStatus('La fiche Supabase existe mais son contenu est illisible. Brouillon local conservé.');
+    return false;
+  }
+  if (automatic && localEditRevision !== revisionAtStart) {
+    setStatus('Fiche Supabase trouvée, mais chargement automatique annulé car la fiche locale a été modifiée.');
+    return false;
+  }
   applyData(data.sheet_data);
   clearTimeout(saveTimer);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
   const date = data.updated_at ? new Date(data.updated_at).toLocaleString('fr-FR') : '';
-  setStatus(`Fiche chargée depuis Supabase${date ? ` — ${date}` : ''}.`);
+  setStatus(`Fiche chargée${automatic ? ' automatiquement' : ''} depuis Supabase${date ? ` — ${date}` : ''}.`);
+  return true;
+}
+
+function autoLoadSheetFromSupabase() {
+  if (!supabase || !currentRoom()) return;
+  loadSheetFromSupabase({ automatic: true });
 }
 
 function setTransferStatus(message, type = '') {
@@ -702,7 +744,7 @@ document.getElementById('pj-add-weapon').addEventListener('click', () => { addWe
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
-document.getElementById('pj-cloud-load').addEventListener('click', loadSheetFromSupabase);
+document.getElementById('pj-cloud-load').addEventListener('click', () => loadSheetFromSupabase());
 document.getElementById('pj-transfer-open').addEventListener('click', openTransferDialog);
 document.getElementById('pj-transfer-submit').addEventListener('click', transferSheetToRoom);
 document.getElementById('pj-transfer-code').addEventListener('input', event => { event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });
@@ -713,3 +755,4 @@ document.getElementById('pj-reset').addEventListener('click', () => {
   if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
   localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false })); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
+autoLoadSheetFromSupabase();

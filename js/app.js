@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260714-room-purge-fix';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260718-character-rerolls-compat';
 import { showToast } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import './tooltips.js?v=20260715-character-help';
@@ -41,6 +41,7 @@ let results = null;
 let rolling = false;
 let cfg = { anim: true, sound: true, hide: false };
 let characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
+let characterRerollSaving = false;
 
 // ——— crypto random ———
 function rnd(min, max) {
@@ -368,21 +369,89 @@ function buildCharacterStats() {
   return stats;
 }
 
-function generateCharacterStats() {
-  characterState = {
+async function generateCharacterStats() {
+  if (characterState.generated || characterRerollSaving) return;
+  const name = getCharacterNameValue();
+  if (!isRoomConnected()) {
+    showToast('Rejoins une room avant de générer : le tirage doit être enregistré.', 'error');
+    return;
+  }
+  if (!name) {
+    showToast('Entre le nom du personnage avant de générer.', 'error');
+    return;
+  }
+
+  const nextState = {
     generated: true,
     rerollsUsed: 0,
     stats: buildCharacterStats(),
-    saved: false
+    saved: true
   };
+  const stats = {};
+  CHARACTER_STATS.forEach(def => { stats[def.key] = nextState.stats[def.key].base; });
+
+  characterRerollSaving = true;
+  renderCharacterSheet();
+  let saved = false;
+  try {
+    saved = await saveCharacterSheet(name, getCharacterDetails(), stats, {
+      rerollsUsed: 0,
+      stats: nextState.stats
+    }, { successMessage: 'Tirage initial enregistré' });
+  } catch (error) {
+    console.error('Sauvegarde du tirage initial impossible:', error);
+  } finally {
+    characterRerollSaving = false;
+  }
+  if (!saved) {
+    renderCharacterSheet();
+    showToast('Tirage annulé : la sauvegarde Supabase a échoué.', 'error');
+    return;
+  }
+  characterState = nextState;
   renderCharacterSheet();
 }
 
-function rerollCharacterStats() {
-  if (!characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS) return;
-  characterState.rerollsUsed += 1;
-  characterState.stats = buildCharacterStats();
-  characterState.saved = false;
+async function rerollCharacterStats() {
+  if (!characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving) return;
+  const name = getCharacterNameValue();
+  if (!isRoomConnected()) {
+    showToast('Rejoins une room avant de relancer : la relance doit être enregistrée.', 'error');
+    return;
+  }
+  if (!name) {
+    showToast('Entre le nom du personnage avant de relancer.', 'error');
+    return;
+  }
+
+  const nextState = {
+    generated: true,
+    rerollsUsed: characterState.rerollsUsed + 1,
+    stats: buildCharacterStats(),
+    saved: true
+  };
+  const stats = {};
+  CHARACTER_STATS.forEach(def => { stats[def.key] = nextState.stats[def.key].base; });
+
+  characterRerollSaving = true;
+  renderCharacterSheet();
+  let saved = false;
+  try {
+    saved = await saveCharacterSheet(name, getCharacterDetails(), stats, {
+      rerollsUsed: nextState.rerollsUsed,
+      stats: nextState.stats
+    }, { successMessage: `Relance ${nextState.rerollsUsed}/${MAX_CHARACTER_REROLLS} enregistrée` });
+  } catch (error) {
+    console.error('Sauvegarde de la relance impossible:', error);
+  } finally {
+    characterRerollSaving = false;
+  }
+  if (!saved) {
+    renderCharacterSheet();
+    showToast('Relance annulée : la sauvegarde Supabase a échoué.', 'error');
+    return;
+  }
+  characterState = nextState;
   renderCharacterSheet();
 }
 
@@ -535,7 +604,8 @@ function exportPayloadFromSavedCharacter(character) {
   return {
     nom: character.nom || '',
     details,
-    stats
+    stats,
+    generation: character.generation || (character.rerolls_used !== undefined ? { rerollsUsed: character.rerolls_used } : null)
   };
 }
 
@@ -662,7 +732,9 @@ function normalizeImportedCharacter(raw) {
     nom: String(source.nom || source.name || source.characterName || ''),
     details,
     stats,
-    generation: source.generation && typeof source.generation === 'object' ? source.generation : null
+    generation: source.generation && typeof source.generation === 'object'
+      ? source.generation
+      : (source.rerolls_used !== undefined ? { rerollsUsed: source.rerolls_used } : null)
   };
 }
 
@@ -841,10 +913,17 @@ function renderCharacterSheet() {
   const canSave = characterState.generated && hasName && reserve === 0 && !characterState.saved;
 
   renderCharacterAgeHint();
-  document.getElementById('char-generate-btn').disabled = characterState.generated;
-  document.getElementById('char-reroll-btn').disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS;
-  document.getElementById('char-save-btn').disabled = !canSave;
-  document.getElementById('char-new-btn').disabled = !characterState.saved;
+  const generateButton = document.getElementById('char-generate-btn');
+  generateButton.disabled = characterState.generated || characterRerollSaving;
+  generateButton.textContent = characterRerollSaving && !characterState.generated ? 'Enregistrement…' : 'Générer';
+  const rerollButton = document.getElementById('char-reroll-btn');
+  rerollButton.disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving;
+  rerollButton.textContent = characterRerollSaving && characterState.generated ? 'Enregistrement…' : 'Relancer';
+  document.getElementById('char-save-btn').disabled = !canSave || characterRerollSaving;
+  document.getElementById('char-new-btn').disabled = !characterState.saved || characterRerollSaving;
+  const characterNameInput = document.getElementById('character-name');
+  if (characterNameInput) characterNameInput.disabled = characterRerollSaving;
+  document.querySelectorAll('[data-character-field]').forEach(field => { field.disabled = characterRerollSaving; });
   document.getElementById('char-rerolls').textContent = `Relances restantes: ${MAX_CHARACTER_REROLLS - characterState.rerollsUsed}`;
   document.getElementById('char-moved').textContent = `Points déplacés: ${movedOut}/${MAX_CHARACTER_MOVES}`;
   document.getElementById('char-reserve').textContent = `Réserve: ${reserve}`;
@@ -1031,7 +1110,10 @@ async function submitCharacterSheet() {
     stats[def.key] = characterFinal(def);
   });
 
-  const saved = await saveCharacterSheet(name, getCharacterDetails(), stats);
+  const saved = await saveCharacterSheet(name, getCharacterDetails(), stats, {
+    rerollsUsed: characterState.rerollsUsed,
+    stats: characterState.stats
+  });
   if (saved) {
     characterState.saved = true;
     renderCharacterSheet();

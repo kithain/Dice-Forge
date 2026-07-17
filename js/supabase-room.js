@@ -29,7 +29,7 @@ const CHARACTER_FIELDS = [
   ['DEX', 'dexterite'],
   ['CHA', 'charisme']
 ];
-const CHARACTER_COLUMNS = [
+const LEGACY_CHARACTER_COLUMNS = [
   'player_name',
   'nom',
   'espece',
@@ -48,6 +48,27 @@ const CHARACTER_COLUMNS = [
   'charisme',
   'created_at'
 ].join(', ');
+const CHARACTER_COLUMNS = [
+  LEGACY_CHARACTER_COLUMNS,
+  'rerolls_used',
+  'generation'
+].join(', ');
+
+function isMissingGenerationColumns(error) {
+  const message = String(error?.message || '');
+  return /rerolls_used|generation/i.test(message)
+    && /column|schema cache|does not exist|not find|could not find/i.test(message);
+}
+
+function characterDatabaseError(error) {
+  if (isMissingGenerationColumns(error)) {
+    return 'Migration Supabase requise : réexécute supabase-personnages.sql pour ajouter rerolls_used et generation.';
+  }
+  if (/personnages|schema cache|not find/i.test(error?.message || '')) {
+    return 'Table personnages introuvable. Exécute le SQL fourni dans Supabase.';
+  }
+  return error?.message || 'Erreur Supabase inconnue';
+}
 
 export function randomFantasyName() {
   return FANTASY_NAMES[Math.floor(Math.random() * FANTASY_NAMES.length)];
@@ -241,11 +262,22 @@ async function loadPlayerCharacter(playerName = roomState.player) {
   sbInit();
   if (!sb) { clearPlayerCharacter(); return null; }
 
-  const { data, error } = await sb.from('personnages')
+  let { data, error } = await sb.from('personnages')
     .select(CHARACTER_COLUMNS)
     .eq('player_name', playerName)
     .order('created_at', { ascending: false })
     .limit(1);
+
+  if (isMissingGenerationColumns(error)) {
+    console.warn('Colonnes de relance absentes : chargement de la fiche au format historique.');
+    const legacyResult = await sb.from('personnages')
+      .select(LEGACY_CHARACTER_COLUMNS)
+      .eq('player_name', playerName)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    data = legacyResult.data;
+    error = legacyResult.error;
+  }
 
   if (error) {
     renderPlayerCharacter(null);
@@ -354,7 +386,7 @@ function parseOptionalInt(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export async function saveCharacterSheet(nom, details, stats) {
+export async function saveCharacterSheet(nom, details, stats, generation = null, options = {}) {
   if (!stats) {
     stats = details || {};
     details = {};
@@ -383,7 +415,9 @@ export async function saveCharacterSheet(nom, details, stats) {
     intelligence: stats.intelligence,
     pouvoir: stats.pouvoir,
     dexterite: stats.dexterite,
-    charisme: stats.charisme
+    charisme: stats.charisme,
+    rerolls_used: Math.max(0, Math.min(2, parseInt(generation?.rerollsUsed, 10) || 0)),
+    generation: generation && typeof generation === 'object' ? generation : null
   };
 
   const existing = await sb.from('personnages')
@@ -392,9 +426,7 @@ export async function saveCharacterSheet(nom, details, stats) {
     .limit(1);
 
   if (existing.error) {
-    const missingTable = /personnages|schema cache|not find/i.test(existing.error.message);
-    const hint = missingTable ? 'Table personnages introuvable. Exécute le SQL fourni dans Supabase.' : existing.error.message;
-    showToast('Erreur: ' + hint, 'error');
+    showToast('Erreur: ' + characterDatabaseError(existing.error), 'error');
     return false;
   }
 
@@ -428,13 +460,11 @@ export async function saveCharacterSheet(nom, details, stats) {
   }
 
   if (error) {
-    const missingTable = /personnages|schema cache|not find/i.test(error.message);
-    const hint = missingTable ? 'Table personnages introuvable. Exécute le SQL fourni dans Supabase.' : error.message;
-    showToast('Erreur: ' + hint, 'error');
+    showToast('Erreur: ' + characterDatabaseError(error), 'error');
     return false;
   }
 
-  showToast('Fiche personnage enregistrée', 'success');
+  showToast(options.successMessage || 'Fiche personnage enregistrée', 'success');
   renderPlayerCharacter(data || payload);
   return true;
 }

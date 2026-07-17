@@ -15,6 +15,8 @@ create table if not exists public.personnages (
   pouvoir integer not null check (pouvoir >= 1),
   dexterite integer not null check (dexterite >= 1),
   charisme integer not null check (charisme >= 1),
+  rerolls_used integer not null default 0 check (rerolls_used between 0 and 2),
+  generation jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -27,6 +29,8 @@ alter table public.personnages
   add column if not exists traits text,
   add column if not exists notes text,
   add column if not exists charisme integer,
+  add column if not exists rerolls_used integer not null default 0,
+  add column if not exists generation jsonb,
   add column if not exists created_at timestamptz not null default now();
 
 do $$
@@ -53,11 +57,13 @@ alter table public.personnages
 
 alter table public.personnages
   drop constraint if exists personnages_age_check,
-  drop constraint if exists personnages_charisme_check;
+  drop constraint if exists personnages_charisme_check,
+  drop constraint if exists personnages_rerolls_used_check;
 
 alter table public.personnages
   add constraint personnages_age_check check (age is null or age >= 0),
-  add constraint personnages_charisme_check check (charisme >= 1);
+  add constraint personnages_charisme_check check (charisme >= 1),
+  add constraint personnages_rerolls_used_check check (rerolls_used between 0 and 2);
 
 -- L'ancienne vue peut encore dependre de la colonne apparence.
 -- On la supprime ici puis on la recree plus bas avec charisme.
@@ -128,7 +134,9 @@ select
   p.intelligence,
   p.pouvoir,
   p.dexterite,
-  p.charisme
+  p.charisme,
+  p.rerolls_used,
+  p.generation
 from public.rolls r
 left join public.personnages p
   on p.player_name = r.player_name;
