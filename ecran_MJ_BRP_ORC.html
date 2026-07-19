@@ -400,17 +400,27 @@ table { font-size: 12px; }
 <li><b>Premiers Secours réussis :</b> +1D3 PV par blessure immédiatement</li>
 </ul>
 
-<h3>Bonus d'expérience = INT / 2 (arr. sup.)</h3>
-<ol>
-<li>Pour chaque compétence cochée, lancez D100 + bonus d'expérience.</li>
-<li>Un résultat supérieur au score actuel rend la compétence admissible.</li>
-<li>Le personnage reçoit une réserve de points égale à son bonus d'expérience.</li>
-<li>Le joueur répartit librement cette réserve, sans plafond par compétence, entre les compétences admissibles.</li>
-<li>Les points non attribués sont perdus, puis toutes les coches sont effacées.</li>
-</ol>
+<h2>Expérience</h2>
+<div class="formula">Bonus et réserve d'expérience = INT ÷ 2 (arrondi au supérieur)</div>
+<table class="compact">
+<tr><th>Étape</th><th>Règle</th></tr>
+<tr><td>1. Coche</td><td>Après toute réussite obtenue avec une compétence en jeu, cochez cette compétence.</td></tr>
+<tr><td>2. Jet</td><td>À la fin de la séance, lancez D100 + bonus d'expérience pour chaque compétence cochée.</td></tr>
+<tr><td>3. Apprentissage</td><td>Un résultat supérieur au score actuel rend la compétence <b>admissible</b>.</td></tr>
+<tr><td>4. Réserve</td><td>Le personnage reçoit une réserve de points égale à son bonus d'expérience.</td></tr>
+<tr><td>5. Répartition</td><td>Répartissez librement la réserve, sans plafond, entre les compétences admissibles.</td></tr>
+<tr><td>6. Fin</td><td>Les points non attribués sont perdus, puis toutes les coches sont effacées.</td></tr>
+</table>
 <p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La progression de la POU reste séparée.</p>
+<p><b>Exemple :</b> INT 13 donne un bonus et une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, le joueur peut attribuer Épée +5 et Défense +2.</p>
 
-<h3>Points de pouvoir (Max = POU)</h3>
+</section>
+
+<!-- ============ PANNEAU 3 : Combat ============ -->
+<section class="panel" id="combat">
+<h1>Panneau 3 — Combat</h1>
+
+<h2>Points de pouvoir (Max = POU)</h2>
 <table class="compact">
 <tr><th>PP Max</th><th>Endormi</th><th>Éveillé</th></tr>
 <tr><td>1–4</td><td>1/h</td><td>1/2h</td></tr>
@@ -421,31 +431,9 @@ table { font-size: 12px; }
 </table>
 <p class="note">PP = 0 → évanouissement. Max temporaire = 2× POU.</p>
 
-<h3>Mouvement (MOV)</h3>
-<ul>
-<li><b>Marche :</b> 1 m / MOV</li>
-<li><b>Course :</b> 5 m / MOV</li>
-<li><b>Combat :</b> 3 m / unité de MOV (30 m / round)</li>
-<li><b>Base humanoïde :</b> MOV 10</li>
-</ul>
-
-<h2>Points de destin (option)</h2>
-<ul>
-<li><b>5 PP :</b> Relancer un jet (résultat définitif)</li>
-<li><b>5 PP :</b> Ignorer compétence → jet de Chance <span class="tag tag-hard">Difficile</span></li>
-<li><b>3 PP :</b> Ignorer 1 point de dégât</li>
-<li><b>6 PP :</b> Décaler résultat d'un niveau (maladresse→échec→réussite→spéciale→critique)</li>
-</ul>
-
-</section>
-
-<!-- ============ PANNEAU 3 : Combat ============ -->
-<section class="panel" id="combat">
-<h1>Panneau 3 — Combat</h1>
-
 <h2>Phases du round de combat</h2>
 <ol>
-<li><b>Déclarations :</b> Annoncer les intentions en ordre de DEX décroissant</li>
+<li><b>Déclarations :</b> Annoncer les intentions en ordre de DEX croissant</li>
 <li><b>Pouvoirs :</b> Pouvoirs instantanés en ordre d'INT décroissant (rang d'INT)</li>
 <li><b>Action :</b> Actions en ordre de DEX décroissant (rang de DEX)</li>
 <li><b>Résolution :</b> Appliquer les résultats</li>
@@ -453,15 +441,17 @@ table { font-size: 12px; }
 
 <h2>Actions par round</h2>
 <ul>
-<li><b>À son rang de DEX :</b> Se déplacer, Attaquer, Action non combattante, Engager, Désengager</li>
+<li><b>Quand vient son tour :</b> appeler les personnages de la DEX la plus élevée à la plus basse. Lorsque sa valeur de DEX est appelée, un personnage peut se déplacer, attaquer, accomplir une action non combattante, engager ou se désengager.</li>
 <li><b>À tout moment :</b> Tenter une Défense (esquive, parade ou blocage), Combattre défensivement, Parler</li>
 <li><b>Attaque :</b> + déplacement jusqu'à 5 m. Attaques multiples : −5 rangs de DEX par attaque successive</li>
 <li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
 <li><b>Combattre défensivement :</b> Renoncer à l'attaque → défense supplémentaire sans pénalité cumulative</li>
 </ul>
+<p class="note"><b>Exemple — DEX 16 :</b> pendant les déclarations, le personnage déclare après celui de DEX 12 et avant celui de DEX 18. Pendant les actions, l'ordre s'inverse : il agit après le personnage de DEX 18 et avant celui de DEX 12.</p>
 
 <h2>Compétence Défense</h2>
-<p>Esquiver, parer avec une arme adaptée et bloquer avec un bouclier utilisent tous la compétence <b>Défense (DEX×2)</b>. Le défenseur doit avoir perçu l'attaque et pouvoir accomplir le mouvement décrit. Le bouclier est un équipement, pas une compétence séparée.</p>
+<p>La <b>base de Défense est égale à DEX×2</b>. Ajoutez les points investis dans la compétence et le bonus éventuel du bouclier pour obtenir le score utilisé au jet. Défense sert à esquiver, parer avec une arme adaptée ou bloquer avec un bouclier. Le défenseur doit avoir perçu l'attaque et pouvoir accomplir le mouvement décrit.</p>
+<div class="formula">Jet de Défense = DEX×2 + points investis + bonus de bouclier éventuel</div>
 <table class="compact">
 <tr><th>Bouclier</th><th>Bonus au jet de Défense</th></tr>
 <tr><td>Rondache</td><td>+10 %</td></tr>
@@ -487,18 +477,6 @@ table { font-size: 12px; }
 <tr><td>Maladresse</td><td>—</td><td>Attaquant lance sur la table des maladresses</td></tr>
 </table>
 <p class="note">Coup amorti = arrondi supérieur de ((dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
-
-<h2>Localisation des touches (D20)</h2>
-<table class="compact">
-<tr><th>D20</th><th>Localisation</th><th>PV (option)</th></tr>
-<tr><td>1–3</td><td>Jambe droite</td><td>⅓ PV total</td></tr>
-<tr><td>4–7</td><td>Jambe gauche</td><td>⅓ PV total</td></tr>
-<tr><td>8–11</td><td>Abdomen</td><td>⅓ PV total</td></tr>
-<tr><td>12</td><td>Poitrine</td><td>4/10 PV total</td></tr>
-<tr><td>13–15</td><td>Bras droit</td><td>¼ PV total</td></tr>
-<tr><td>16–18</td><td>Bras gauche</td><td>¼ PV total</td></tr>
-<tr><td>19–20</td><td>Tête</td><td>⅓ PV total</td></tr>
-</table>
 
 <h2>Dégâts spéciaux (réussite spéciale)</h2>
 <table class="compact">
@@ -598,7 +576,7 @@ table { font-size: 12px; }
 <tr><td>99</td><td>1D3 CHA/DEX/CON</td><td><b>Incapable de se battre</b></td></tr>
 <tr><td>00</td><td>1D4 × 4 carac.</td><td><b>Incapable de se battre</b></td></tr>
 </table>
-<p class="note">Membre non spécifié : 1D6 (1–3 gauche, 4–6 droit). Entrer en choc : ne peut se battre que (PV restants) rounds.</p>
+<p class="note">Entrer en choc : ne peut se battre que (PV restants) rounds.</p>
 
 <h2>Guérison et soins</h2>
 <table class="compact">
@@ -606,24 +584,16 @@ table { font-size: 12px; }
 <tr><td>Guérison naturelle</td><td>1D3 PV / semaine</td></tr>
 <tr><td>Premiers Secours réussis</td><td>+1D3 PV/blessure (immédiat, 1 fois/blessure)</td></tr>
 <tr><td>Médecine</td><td>Compense blessures majeures, restaure PV non-blessure</td></tr>
+<tr><td>Sort Soins</td><td>1D6 PV par niveau (immédiat, 3 PP/niveau)</td></tr>
+<tr><td>Guérison Supérieure</td><td>2D6 PV par niveau et guérit maladie ou poison (immédiat, 3 PP/niveau)</td></tr>
 </table>
 <h3>Conditions de soins</h3>
 <table class="compact">
 <tr><th>Conditions</th><th>Effet</th></tr>
-<tr><td>Mauvaises / combat / voyage rude</td><td>Jet <span class="tag tag-hard">Difficile</span> requis. Échec = 0 guérison. Maladresse = +1D3 dégâts</td></tr>
+<tr><td>Combat / voyage rude</td><td>Jet requis. Coûte une action. Échec = 0 guérison</td></tr>
 <tr><td>Décentes / repos</td><td>1D3 PV/semaine normal</td></tr>
 <tr><td>Excellentes / repos au lit / soins qualifiés</td><td>1D3 PV + Premiers Secours/Médecine pour guérison suppl.</td></tr>
 </table>
-
-<h2>Localisation de touche — Dégâts ≥ PV localisation (option)</h2>
-<ul>
-<li><b>Jambe :</b> Inutile, à terre. Peut agir à terre ensuite</li>
-<li><b>Abdomen :</b> 2 jambes inutiles, à terre. Saigne à mort sans soin (−1 PV/rnd)</li>
-<li><b>Poitrine :</b> À terre, tousse du sang. Saigne à mort sans soin</li>
-<li><b>Bras :</b> Inutile, lâche ce qu'il porte. Peut se battre avec l'autre</li>
-<li><b>Tête :</b> Assommé. Soin en 5 min ou jet d'Endurance, sinon mort</li>
-</ul>
-<p class="note">×2 PV localisation : membre sectionné / tête-poitrine-abdomen = inconscient, saigne (−1 PV/rnd, Endurance <span class="tag tag-hard">Difficile</span>). ×3 PV : membre sectionné / tête-poitrine-abdomen = mort instantanée.</p>
 
 </section>
 

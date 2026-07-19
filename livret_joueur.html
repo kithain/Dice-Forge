@@ -372,7 +372,6 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <tr><td><b>Points de pouvoir (PP)</b></td><td>Égal à POU (max temporaire = 2 × POU)</td></tr>
 <tr><td><b>Modificateur de dégâts</b></td><td>Voir table ci-dessous (FOR + TAI)</td></tr>
 <tr><td><b>Bonus d'expérience</b></td><td>INT / 2, arrondi au supérieur</td></tr>
-<tr><td><b>Mouvement (MOV)</b></td><td>Selon l'espèce (Humain : 10, Nain : 8, Elfe : 12, etc.)</td></tr>
 </table>
 
 <h3>Table des modificateurs de dégâts</h3>
@@ -596,7 +595,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <div class="skill-entry" data-skill="Lutte"><dt>Lutte <span class="skill-base">25 %</span></dt><dd>Saisir, immobiliser, renverser ou désarmer un adversaire au corps à corps.</dd></div>
 <div class="skill-entry" data-skill="Arme de mêlée (divers)"><dt>Arme de mêlée (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Attaquer avec une spécialité précise : épée, hache, lance, masse, dague, etc. Chaque famille peut constituer une compétence distincte.</dd></div>
 <div class="skill-entry" data-skill="Arme de jet (divers)"><dt>Arme de jet (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Utiliser arcs, arbalètes, frondes, javelots ou autres armes propulsées. Pour lancer un objet à la main, utilisez Lancer.</dd></div>
-<div class="skill-entry" data-skill="Défense"><dt>Défense <span class="skill-base">DEX×2</span></dt><dd>Éviter, bloquer ou dévier une attaque. Le joueur décrit une esquive, une parade avec une arme adaptée ou un blocage avec un bouclier ; ces trois modes utilisent le même score. Une défense exige d'avoir perçu l'attaque et de pouvoir accomplir le mouvement annoncé. Les tentatives supplémentaires dans le même round subissent une pénalité cumulative.</dd></div>
+<div class="skill-entry" data-skill="Défense"><dt>Défense <span class="skill-base">Base : DEX×2</span></dt><dd>Éviter, bloquer ou dévier une attaque. Le score final est égal à la base DEX×2, augmentée des points investis et du bonus de bouclier éventuel. Le joueur décrit une esquive, une parade avec une arme adaptée ou un blocage avec un bouclier ; ces trois modes utilisent le même score. Une défense exige d'avoir perçu l'attaque et de pouvoir accomplir le mouvement annoncé. Les tentatives supplémentaires dans le même round subissent une pénalité cumulative.</dd></div>
 </dl>
 
 <h2 class="skill-group-title">Physique</h2>
@@ -859,6 +858,9 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <li><b>Blessure majeure :</b> Dégâts ≥ ½ PV en un coup → jet sur la Table des blessures majeures</li>
 <li><b>Guérison naturelle :</b> 1D3 PV / semaine</li>
 <li><b>Premiers Secours réussis :</b> +1D3 PV par blessure (immédiat, 1 fois/blessure)</li>
+<li><b>Premiers Secours en combat ou pendant un voyage rude :</b> coûte une action et exige un jet. Un échec ne rend aucun PV.</li>
+<li><b>Sort Soins :</b> 1D6 PV par niveau (immédiat, 3 PP par niveau)</li>
+<li><b>Guérison Supérieure :</b> 2D6 PV par niveau et guérit une maladie ou un poison (immédiat, 3 PP par niveau)</li>
 </ul>
 
 <h2>Table de résistance</h2>
@@ -869,7 +871,8 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <h3>Déroulement d'un round</h3>
 <ul>
 <li><b>Round de combat :</b> 4 phases — Déclarations, Pouvoirs, Action, Résolution</li>
-<li><b>Ordre d'action :</b> Rang de DEX décroissant</li>
+<li><b>Déclarations :</b> intentions annoncées en ordre de DEX croissant ; les personnages les plus lents déclarent en premier.</li>
+<li><b>Ordre d'action :</b> les personnages agissent de la DEX la plus élevée à la plus basse. Lorsque sa valeur de DEX est appelée, un personnage joue son tour.</li>
 <li><b>Attaque :</b> Jet de compétence d'arme. Une attaque réussie peut être opposée par un jet de Défense.</li>
 <li><b>Défense :</b> Un seul score pour esquiver, parer avec une arme ou bloquer avec un bouclier.</li>
 <li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
@@ -877,6 +880,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <li><b>Critique :</b> Dégâts maximum + mod. dégâts normal, ignore l'armure</li>
 <li><b>Spéciale :</b> Dégâts spéciaux selon le type d'arme (saignement, écrasement, empalement, renversement, entrave)</li>
 </ul>
+<p class="note"><b>Exemple — DEX 16 :</b> le personnage déclare après celui de DEX 12 et avant celui de DEX 18. Lors des actions, l'ordre s'inverse : il agit après le personnage de DEX 18 et avant celui de DEX 12.</p>
 
 <h3>Choisir sa Défense</h3>
 <ul>
@@ -912,14 +916,14 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <div class="formula">Dégâts subis = dégâts de l'arme + mod. dégâts − PA de l'armure (minimum 0)</div>
 <div class="formula">Coup amorti = dégâts subis ÷ 2 (arrondi au supérieur)</div>
 <p class="note">Un coup amorti compte comme une attaque ayant touché, mais il ne produit aucun effet spécial. Calculez d'abord les dégâts et l'absorption de l'armure, puis divisez le résultat restant par deux.</p>
-<p>Une blessure infligeant en un seul coup au moins la moitié des PV totaux est une blessure majeure. À 2 PV ou moins, le personnage perd connaissance ; à 0 PV, il meurt à la fin du round suivant sans intervention. Les localisations de touche restent optionnelles.</p>
+<p>Une blessure infligeant en un seul coup au moins la moitié des PV totaux est une blessure majeure. À 2 PV ou moins, le personnage perd connaissance ; à 0 PV, il meurt à la fin du round suivant sans intervention.</p>
 
 <h3>Exemple</h3>
 <p>Arthas possède Épée 65 % et obtient 42 : son attaque est une réussite normale. L'orque tente une parade avec Défense 50 % et obtient 73 : sa Défense échoue. Arthas lance 1D8 et obtient 6, puis ajoute 2 points de modificateur de dégâts. L'armure de l'orque absorbe 3 points : il perd donc 5 PV.</p>
 
 <h2>Amélioration par l'expérience</h2>
 <ol>
-<li>Cochez une compétence après une réussite significative durant la partie.</li>
+<li>Cochez une compétence après toute réussite obtenue avec cette compétence durant la partie.</li>
 <li>À la fin de la session ou de l'aventure, effectuez un jet d'apprentissage pour chaque compétence cochée : lancez <b>D100 + bonus d'expérience</b>. Si le résultat est supérieur au score actuel, la compétence devient admissible à une amélioration.</li>
 <li>Créez une <b>réserve d'expérience égale au bonus d'expérience</b> du personnage (INT/2, arrondi au supérieur).</li>
 <li>Répartissez librement tous les points de cette réserve entre les compétences dont le jet d'apprentissage a réussi. Il n'y a pas de maximum par compétence.</li>

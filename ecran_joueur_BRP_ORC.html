@@ -231,7 +231,7 @@ table { font-size: 12px; }
 
 <!-- ============ PANNEAU 1 : Résolution ============ -->
 <section class="panel" id="jets">
-<h1>Panneau 1 — Jets &amp; Succès</h1>
+<h1>Panneau 1 — Jets &amp; Déroulement</h1>
 
 <h2>Niveaux de réussite</h2>
 <table>
@@ -241,50 +241,6 @@ table { font-size: 12px; }
 <tr><td><b>Réussite</b></td><td>≤ score</td><td>Résultat normal</td></tr>
 <tr><td><b>Échec</b></td><td>&gt; score, &lt; maladresse</td><td>Échec simple. Échec auto sur 96+</td></tr>
 <tr><td><b>Maladresse</b></td><td>Voir table</td><td>Échec spectaculaire. 00 = toujours maladresse</td></tr>
-</table>
-
-<h2>Table des résultats de compétence</h2>
-<table class="compact">
-<tr><th>Base</th><th>Crit.</th><th>Spéc.</th><th>Malad.</th></tr>
-<tr><td>01–05</td><td>01</td><td>01</td><td>96–100</td></tr>
-<tr><td>06–10</td><td>01</td><td>01–02</td><td>96–100</td></tr>
-<tr><td>11–15</td><td>01</td><td>01–03</td><td>96–100</td></tr>
-<tr><td>16–20</td><td>01</td><td>01–04</td><td>96–100</td></tr>
-<tr><td>21–25</td><td>01–02</td><td>01–05</td><td>97–100</td></tr>
-<tr><td>26–30</td><td>01–02</td><td>01–06</td><td>97–100</td></tr>
-<tr><td>31–35</td><td>01–02</td><td>01–07</td><td>97–100</td></tr>
-<tr><td>36–40</td><td>01–02</td><td>01–08</td><td>97–100</td></tr>
-<tr><td>41–45</td><td>01–03</td><td>01–09</td><td>98–100</td></tr>
-<tr><td>46–50</td><td>01–03</td><td>01–10</td><td>98–100</td></tr>
-<tr><td>51–55</td><td>01–03</td><td>01–11</td><td>98–100</td></tr>
-<tr><td>56–60</td><td>01–03</td><td>01–12</td><td>98–100</td></tr>
-<tr><td>61–65</td><td>01–04</td><td>01–13</td><td>99–100</td></tr>
-<tr><td>66–70</td><td>01–04</td><td>01–14</td><td>99–100</td></tr>
-<tr><td>71–75</td><td>01–04</td><td>01–15</td><td>99–100</td></tr>
-<tr><td>76–80</td><td>01–04</td><td>01–16</td><td>99–100</td></tr>
-<tr><td>81–85</td><td>01–05</td><td>01–17</td><td>00</td></tr>
-<tr><td>86–90</td><td>01–05</td><td>01–18</td><td>00</td></tr>
-<tr><td>91–95</td><td>01–05</td><td>01–19</td><td>00</td></tr>
-<tr><td>96–100</td><td>01–05</td><td>01–20</td><td>00</td></tr>
-</table>
-
-<h2>Modificateurs de difficulté</h2>
-<table class="compact">
-<tr><th>Niveau</th><th>Modificateur</th><th>Exemple</th></tr>
-<tr><td><span class="tag">Auto</span></td><td>Aucun jet</td><td>Action banale</td></tr>
-<tr><td><span class="tag tag-easy">Facile</span></td><td>×2</td><td>Tir à bout portant</td></tr>
-<tr><td><span class="tag">Moyen</span></td><td>Normal</td><td>Action standard</td></tr>
-<tr><td><span class="tag tag-hard">Difficile</span></td><td>÷2</td><td>Combattre un invisible</td></tr>
-</table>
-<p class="note">Jets de caractéristique : Facile = ×10, Moyen = ×5.</p>
-
-<h2>Modificateurs situationnels</h2>
-<table class="compact">
-<tr><th>Condition</th><th>Modif.</th></tr>
-<tr><td>Aucun équipement / environnement extrême / hors portée</td><td>−50 %</td></tr>
-<tr><td>Équipement médiocre / conditions désagréables / pressé</td><td>−20 %</td></tr>
-<tr><td>Équipement supérieur / conditions favorables / à loisir</td><td>+20 %</td></tr>
-<tr><td>Équipement excellent / environnement idéal / routinier</td><td>+50 %</td></tr>
 </table>
 
 <h2>Jets de caractéristique</h2>
@@ -298,96 +254,27 @@ table { font-size: 12px; }
 <tr><td>Charme</td><td>CHA × 5</td><td>Séduire, impressionner</td></tr>
 </table>
 
-<h2>Table de résistance</h2>
-<p class="formula">Base = 50 + (Actif × 5) − (Passif × 5)</p>
-<p class="note">Écart de 10+ = réussite/échec automatique. 01/00 peuvent toujours inverser.</p>
-<table class="resistance-table">
-<tr><th>Passif \ Actif</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th></tr>
-<tr><td><b>1</b></td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>2</b></td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>3</b></td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>4</b></td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>5</b></td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>6</b></td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>7</b></td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>8</b></td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><b>9</b></td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td><td>—</td></tr>
-<tr><td><b>10</b></td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td><td>—</td></tr>
-<tr><td><b>11</b></td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td><td>95</td></tr>
-<tr><td><b>12</b></td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td><td>90</td></tr>
-<tr><td><b>13</b></td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td><td>85</td></tr>
-<tr><td><b>14</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td><td>80</td></tr>
-<tr><td><b>15</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td><td>75</td></tr>
-<tr><td><b>16</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td></tr>
-<tr><td><b>17</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td></tr>
-<tr><td><b>18</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td></tr>
-<tr><td><b>19</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td><td>55</td></tr>
-<tr><td><b>20</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>05</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td></tr>
-</table>
-
-<h2>Expérience</h2>
-<ol>
-<li>Cochez une compétence après une réussite significative en jeu.</li>
-<li>Pour chaque coche, lancez D100 + bonus d'expérience. Un résultat supérieur au score actuel rend la compétence admissible.</li>
-<li>Créez une réserve égale au bonus d'expérience (INT/2, arrondi au supérieur).</li>
-<li>Répartissez-la librement, sans plafond par compétence, entre les compétences admissibles.</li>
-<li>Perdez les points non attribués, puis effacez toutes les coches.</li>
-</ol>
-<p class="note">Aucune réussite d'apprentissage = aucun point distribué. La POU progresse séparément : coche après un jet de résistance réussi contre une POU au moins égale, puis gain de 1D3−1.</p>
-
-</section>
-
-<!-- ============ PANNEAU 2 : Combat ============ -->
-<section class="panel" id="combat">
-<h1>Panneau 2 — Combat</h1>
-
 <h2>Phases du round</h2>
 <ol>
-<li><b>Déclarations :</b> Intentions en ordre de DEX décroissant</li>
-<li><b>Pouvoirs :</b> Sorts/pouvoirs instantanés en ordre d'INT décroissant</li>
-<li><b>Action :</b> Actions en ordre de DEX décroissant</li>
-<li><b>Résolution :</b> Appliquer les résultats</li>
+<li><b>Déclarations :</b> intentions en ordre de DEX croissant.</li>
+<li><b>Pouvoirs :</b> sorts et pouvoirs instantanés en ordre d'INT décroissant.</li>
+<li><b>Actions :</b> tours en ordre de DEX décroissant.</li>
+<li><b>Résolution :</b> appliquer les résultats.</li>
 </ol>
 
 <h2>Mes actions par round</h2>
 <ul>
-<li><b>À mon rang de DEX :</b> Attaquer, se déplacer, action non combattante, engager/désengager</li>
-<li><b>À tout moment :</b> Tenter une Défense (esquive, parade ou blocage), combattre défensivement, parler</li>
-<li><b>Attaque + déplacement :</b> Jusqu'à 5 m</li>
-<li><b>Attaques multiples :</b> −5 rangs de DEX par attaque successive</li>
-<li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
-<li><b>Combattre défensivement :</b> Renoncer à l'attaque → défense supplémentaire sans pénalité</li>
+<li><b>Quand vient mon tour :</b> lorsque ma DEX est appelée, je peux attaquer, me déplacer, accomplir une action non combattante, engager ou me désengager.</li>
+<li><b>À tout moment :</b> tenter une Défense, combattre défensivement ou parler.</li>
+<li><b>Attaque + déplacement :</b> jusqu'à 5 m.</li>
+<li><b>Attaques multiples :</b> −5 rangs de DEX par attaque successive.</li>
+<li><b>Défenses multiples :</b> score normal, puis −30 %, −60 %, −90 %, etc.</li>
+<li><b>Combat défensif :</b> renoncer à l'attaque donne une défense supplémentaire sans pénalité.</li>
+<li><b>DEX identiques :</b> les actions sont simultanées.</li>
 </ul>
+<p class="note"><b>Exemple — DEX 16 :</b> je déclare après DEX 12 et avant DEX 18. Pendant les actions, l'ordre s'inverse : j'agis après DEX 18 et avant DEX 12.</p>
 
-<h2>Ma compétence Défense</h2>
-<p>J'utilise <b>Défense (DEX×2)</b> pour esquiver, parer avec une arme adaptée ou bloquer avec un bouclier. Je dois avoir perçu l'attaque et pouvoir accomplir le mouvement décrit. Le bouclier n'est pas une compétence séparée.</p>
-<table class="compact">
-<tr><th>Bouclier</th><th>Bonus à ma Défense</th></tr>
-<tr><td>Rondache</td><td>+10 %</td></tr>
-<tr><td>Écu</td><td>+20 %</td></tr>
-<tr><td>Bouclier en amande</td><td>+20 %, contre les projectiles visibles</td></tr>
-<tr><td>Pavois</td><td>+30 %, très encombrant</td></tr>
-<tr><td>Bouclier runique</td><td>+20 %, parfois contre une attaque magique directe</td></tr>
-</table>
-<p class="note">Mon armure soustrait ses PA aux dégâts. Mon bouclier améliore ma Défense mais n'ajoute pas de PA.</p>
-
-<h2>Matrice attaque / défense</h2>
-<table class="compact">
-<tr><th>Mon attaque</th><th>Sa Défense</th><th>Résultat</th></tr>
-<tr><td>Critique</td><td>Critique</td><td>Je touche (dégâts normaux)</td></tr>
-<tr><td>Critique</td><td>Spéciale/Normale/Échec</td><td>Je touche (dégâts critiques, ignore armure)</td></tr>
-<tr><td>Spéciale</td><td>Critique</td><td>Mon attaque est annulée, aucun dégât</td></tr>
-<tr><td>Spéciale</td><td>Spéciale</td><td>Je touche (dégâts normaux)</td></tr>
-<tr><td>Spéciale</td><td>Normale/Échec</td><td>Je touche (dégâts spéciaux)</td></tr>
-<tr><td>Normale</td><td>Critique/Spéciale</td><td>Mon attaque est annulée, aucun dégât</td></tr>
-<tr><td>Normale</td><td>Normale</td><td>Coup amorti : dégâts après armure ÷2, arrondi au supérieur</td></tr>
-<tr><td>Normale</td><td>Échec/Maladresse</td><td>Je touche et inflige les dégâts complets</td></tr>
-<tr><td>Échec</td><td>—</td><td>Aucune Défense nécessaire</td></tr>
-<tr><td>Maladresse</td><td>—</td><td>Je lance sur la table des maladresses</td></tr>
-</table>
-<p class="note">Coup amorti = arrondi supérieur de ((dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
-
-<h2>Modificateurs de portée (armes de jet)</h2>
+<h2>Portée des armes de jet</h2>
 <table class="compact">
 <tr><th>Portée</th><th>Modificateur</th></tr>
 <tr><td>Bout portant (&lt; DEX/3 m)</td><td><span class="tag tag-easy">Facile</span> (×2)</td></tr>
@@ -400,17 +287,49 @@ table { font-size: 12px; }
 <tr><td>Équipement de visée (1 round)</td><td>Modificateurs ÷2</td></tr>
 </table>
 
-<h2>Localisation des touches (D20)</h2>
+</section>
+
+<!-- ============ PANNEAU 2 : Combat ============ -->
+<section class="panel" id="combat">
+<h1>Panneau 2 — Combat</h1>
+
+<h2>Attaquer et infliger des dégâts</h2>
+<div class="formula">Attaque réussie = D100 ≤ score de la compétence d'arme</div>
+<div class="formula">Dégâts subis = dé de l'arme + mod. dégâts − PA de l'armure (minimum 0)</div>
+<ol>
+<li>Lancez le D100 et déterminez le niveau de réussite de l'attaque.</li>
+<li>Si l'attaque réussit, la cible peut tenter une Défense.</li>
+<li>Consultez la matrice, puis lancez les dégâts si l'attaque touche.</li>
+</ol>
+
+<h2>Ma compétence Défense</h2>
+<p>La <b>base de Défense est égale à DEX×2</b>. J'ajoute ensuite les points investis dans la compétence et le bonus éventuel de mon bouclier pour obtenir le score utilisé au jet. Défense sert à esquiver, parer avec une arme adaptée ou bloquer avec un bouclier. Je dois avoir perçu l'attaque et pouvoir accomplir le mouvement décrit.</p>
+<div class="formula">Jet de Défense = DEX×2 + points investis + bonus de bouclier éventuel</div>
 <table class="compact">
-<tr><th>D20</th><th>Localisation</th><th>PV (option)</th></tr>
-<tr><td>1–3</td><td>Jambe droite</td><td>⅓ PV</td></tr>
-<tr><td>4–7</td><td>Jambe gauche</td><td>⅓ PV</td></tr>
-<tr><td>8–11</td><td>Abdomen</td><td>⅓ PV</td></tr>
-<tr><td>12</td><td>Poitrine</td><td>4/10 PV</td></tr>
-<tr><td>13–15</td><td>Bras droit</td><td>¼ PV</td></tr>
-<tr><td>16–18</td><td>Bras gauche</td><td>¼ PV</td></tr>
-<tr><td>19–20</td><td>Tête</td><td>⅓ PV</td></tr>
+<tr><th>Bouclier</th><th>Bonus à ma Défense</th></tr>
+<tr><td>Rondache</td><td>+10 %</td></tr>
+<tr><td>Écu</td><td>+20 %</td></tr>
+<tr><td>Bouclier en amande</td><td>+20 %, contre les projectiles visibles</td></tr>
+<tr><td>Pavois</td><td>+30 %, très encombrant</td></tr>
+<tr><td>Bouclier runique</td><td>+20 %, parfois contre une attaque magique directe</td></tr>
 </table>
+<p class="note">Mon armure soustrait ses PA aux dégâts. Mon bouclier améliore ma Défense mais n'ajoute pas de PA.</p>
+
+<h2>Matrice attaque / défense</h2>
+<table class="compact">
+<tr><th>Attaque</th><th>Défense</th><th>Résultat</th></tr>
+<tr><td>Critique</td><td>Critique</td><td>Je touche (dégâts normaux)</td></tr>
+<tr><td>Critique</td><td>Spéciale/Normale/Échec</td><td>Je touche (dégâts critiques, ignore armure)</td></tr>
+<tr><td>Spéciale</td><td>Critique</td><td>Mon attaque est annulée, aucun dégât</td></tr>
+<tr><td>Spéciale</td><td>Spéciale</td><td>Je touche (dégâts normaux)</td></tr>
+<tr><td>Spéciale</td><td>Normale/Échec</td><td>Je touche (dégâts spéciaux)</td></tr>
+<tr><td>Normale</td><td>Critique/Spéciale</td><td>Mon attaque est annulée, aucun dégât</td></tr>
+<tr><td>Normale</td><td>Normale</td><td>Coup amorti : dégâts après armure ÷2, arrondi au supérieur</td></tr>
+<tr><td>Normale</td><td>Échec/Maladresse</td><td>Je touche et inflige les dégâts complets</td></tr>
+<tr><td>Échec</td><td>—</td><td>Aucune Défense nécessaire</td></tr>
+<tr><td>Maladresse</td><td>—</td><td>Le MJ consulte la table des maladresses</td></tr>
+</table>
+<p class="note">Coup amorti = arrondi supérieur de ((dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
 
 <h2>Dégâts spéciaux (réussite spéciale)</h2>
 <table class="compact">
@@ -435,24 +354,21 @@ table { font-size: 12px; }
 <li><b>Étourdir (écrasement) :</b> Jet CON vs niveau d'attaque. Échec = étourdi 1D3 rounds, actions <span class="tag tag-hard">Difficiles</span></li>
 </ul>
 
+<h2>Exemple de combat</h2>
+<p>Arthas attaque un orque avec <b>Épée 65 %</b>.</p>
+<ol>
+<li>Arthas obtient <b>42</b> : son attaque est une réussite normale.</li>
+<li>L'orque obtient <b>37</b> avec <b>Défense 50 %</b> : sa Défense est également normale.</li>
+<li>La matrice indique un <b>coup amorti</b>. Arthas obtient 6 sur son dé d'arme et ajoute +2 : 8 dégâts.</li>
+<li>L'armure absorbe 3 points : il reste 5 dégâts. Le coup amorti les divise par deux, arrondi au supérieur.</li>
+</ol>
+<div class="formula">L'orque perd 3 PV : (8 − 3) ÷ 2, arrondi au supérieur</div>
+
 </section>
 
 <!-- ============ PANNEAU 3 : Personnage ============ -->
 <section class="panel" id="personnage">
 <h1>Panneau 3 — Personnage</h1>
-
-<h2>Modificateur de dégâts (FOR+TAI)</h2>
-<table class="compact">
-<tr><th>FOR+TAI</th><th>Mod.</th><th>FOR+TAI</th><th>Mod.</th></tr>
-<tr><td>2–12</td><td>−1D6</td><td>73–88</td><td>+4D6</td></tr>
-<tr><td>13–16</td><td>−1D4</td><td>89–104</td><td>+5D6</td></tr>
-<tr><td>17–24</td><td>Aucun</td><td>105–120</td><td>+6D6</td></tr>
-<tr><td>25–32</td><td>+1D4</td><td>121–136</td><td>+7D6</td></tr>
-<tr><td>33–40</td><td>+1D6</td><td>137–152</td><td>+8D6</td></tr>
-<tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
-<tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
-</table>
-<p class="note">Armes de jet : modificateur positif ÷2 (arrondi au supérieur).</p>
 
 <h2>Points de vie</h2>
 <div class="formula">PV = (CON + TAI) / 2 (arrondi sup.)</div>
@@ -469,33 +385,29 @@ table { font-size: 12px; }
 <tr><td>Guérison naturelle</td><td>1D3 PV / semaine</td></tr>
 <tr><td>Premiers Secours réussis</td><td>+1D3 PV/blessure (immédiat, 1 fois/blessure)</td></tr>
 <tr><td>Médecine</td><td>Compense blessures majeures</td></tr>
+<tr><td>Sort Soins</td><td>1D6 PV par niveau (immédiat, 3 PP/niveau)</td></tr>
+<tr><td>Guérison Supérieure</td><td>2D6 PV par niveau et guérit maladie ou poison (immédiat, 3 PP/niveau)</td></tr>
 </table>
 <h3>Conditions de soins</h3>
 <table class="compact">
 <tr><th>Conditions</th><th>Effet</th></tr>
-<tr><td>Combat / voyage rude</td><td>Jet <span class="tag tag-hard">Difficile</span> requis. Échec = 0 guérison</td></tr>
+<tr><td>Combat / voyage rude</td><td>Jet requis. Coûte une action. Échec = 0 guérison</td></tr>
 <tr><td>Repos décent</td><td>1D3 PV/semaine normal</td></tr>
 <tr><td>Repos au lit + soins</td><td>1D3 PV + bonus Premiers Secours/Médecine</td></tr>
 </table>
 
-<h2>Localisation de touche — Dégâts ≥ PV localisation (option)</h2>
-<ul>
-<li><b>Jambe :</b> Inutile, à terre</li>
-<li><b>Abdomen :</b> 2 jambes inutiles, saigne à mort (−1 PV/rnd) sans soin</li>
-<li><b>Poitrine :</b> À terre, saigne à mort sans soin</li>
-<li><b>Bras :</b> Inutile, lâche ce qu'il porte</li>
-<li><b>Tête :</b> Assommé. Soin en 5 min ou jet d'Endurance, sinon mort</li>
-</ul>
-<p class="note">×2 PV localisation : membre sectionné / tête-poitrine-abdomen = inconscient, saigne. ×3 PV : mort instantanée.</p>
-
-<h2>Mouvement (MOV)</h2>
-<table class="compact">
-<tr><th>Action</th><th>Distance</th></tr>
-<tr><td>Marche</td><td>1 m / point de MOV</td></tr>
-<tr><td>Course</td><td>5 m / point de MOV</td></tr>
-<tr><td>Combat (par round)</td><td>3 m / unité de MOV</td></tr>
-</table>
-<p class="note">Humain : MOV 10. Nain : MOV 8. Elfe : MOV 12. Demi-Elfe : MOV 11. Demi-Orc : MOV 10.</p>
+<h2>Expérience</h2>
+<div class="formula">Bonus et réserve d'expérience = INT ÷ 2 (arrondi au supérieur)</div>
+<ol>
+<li>Cochez une compétence après toute réussite obtenue avec cette compétence en jeu.</li>
+<li>À la fin de la séance, pour chaque coche, lancez D100 + bonus d'expérience.</li>
+<li>Si le résultat est supérieur au score actuel, le jet d'apprentissage réussit et la compétence devient <b>admissible</b>.</li>
+<li>Créez une réserve de points égale au bonus d'expérience.</li>
+<li>Répartissez-la librement, sans plafond par compétence, entre les compétences admissibles.</li>
+<li>Perdez les points non attribués, puis effacez toutes les coches.</li>
+</ol>
+<p class="note">Aucune réussite d'apprentissage = aucun point distribué. La POU progresse séparément : coche après un jet de résistance réussi contre une POU au moins égale, puis gain de 1D3−1.</p>
+<p><b>Exemple :</b> INT 13 donne un bonus et une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, répartissez librement les 7 points entre ces deux compétences, par exemple Épée +5 et Défense +2.</p>
 
 <h2>Points de pouvoir (Max = POU)</h2>
 <table class="compact">
@@ -507,15 +419,6 @@ table { font-size: 12px; }
 <tr><td>17+</td><td>+1/h</td><td>temps ÷2</td></tr>
 </table>
 <p class="note">PP = 0 → évanouissement. Max temporaire = 2× POU.</p>
-
-<h2>Points de destin (option)</h2>
-<table class="compact">
-<tr><th>Coût</th><th>Effet</th></tr>
-<tr><td>5 PP</td><td>Relancer un jet (résultat définitif)</td></tr>
-<tr><td>5 PP</td><td>Ignorer compétence → jet de Chance <span class="tag tag-hard">Difficile</span></td></tr>
-<tr><td>3 PP</td><td>Ignorer 1 point de dégât</td></tr>
-<tr><td>6 PP</td><td>Décaler résultat d'un niveau (maladresse→échec→réussite→spéciale→critique)</td></tr>
-</table>
 
 </section>
 
