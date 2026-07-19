@@ -95,9 +95,9 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 
 ## Armes
 
-| Arme | % | Dégâts | Portée | PA |
-|------|---|--------|--------|----|
-|      |   |        |        |    |
+| Arme | % | Dégâts |
+|------|---|--------|
+|      |   |        |
 
 ## Armure
 

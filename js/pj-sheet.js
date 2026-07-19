@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import './tooltips.js?v=20260715-character-help';
 
-if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
+if (IS_EMBEDDED) {
   document.body.classList.add('pj-embedded');
 }
 
@@ -58,6 +59,23 @@ const NON_MEDFAN_SKILLS = new Set([
 const ACTIVE_SKILLS = SKILLS
   .map((skill, index) => ({ skill, index }))
   .filter(({ skill }) => skill[0] && !NON_MEDFAN_SKILLS.has(skill[0]));
+
+const WEAPON_CATALOG = [
+  ['Dague', 'mixed', '1d4'], ['Gourdin', 'contact', '1d4'], ['Épée courte', 'contact', '1d6'],
+  ['Rapière', 'contact', '1d8'], ['Épée longue', 'contact', '1d8 / 1d10'], ['Sabre', 'contact', '1d8'],
+  ['Hachette', 'mixed', '1d6'], ['Hache de bataille', 'contact', '1d8 / 1d10'],
+  ['Hache à deux mains', 'contact', '1d12'], ["Masse d'armes", 'contact', '1d8'],
+  ['Marteau de guerre', 'contact', '1d8 / 1d10'], ['Pioche', 'contact', '1d8 / 1d10'],
+  ['Fléau', 'contact', '1d8'], ['Lance', 'mixed', '1d6 / 1d8'], ['Hallebarde', 'contact', '1d10'],
+  ['Pique', 'contact', '1d10'], ['Bâton', 'contact', '1d6 / 1d8'], ['Épée à deux mains', 'contact', '2d6'],
+  ['Fronde', 'distance', '1d4'], ['Javelot', 'mixed', '1d6'], ['Arc court', 'distance', '1d6'],
+  ['Arc long', 'distance', '1d8'], ['Arbalète légère', 'distance', '1d8'], ['Arbalète lourde', 'distance', '1d12'],
+  ['Arbalète de poing', 'distance', '1d6'], ['Sarbacane', 'distance', '1d2'], ['Arquebuse naine', 'distance', '2d8']
+].map(([name, attackType, damage]) => ({ name, attackType, damage }));
+
+function weaponDefinition(name) {
+  return WEAPON_CATALOG.find(weapon => weapon.name === name);
+}
 
 const SPELL_SLOT_COUNT = 6;
 const SPELLS = [
@@ -259,22 +277,18 @@ function updateSpellOptions() {
 
 function addWeaponRow(weapon = {}) {
   const row = document.createElement('tr');
-  const legacyScore = String(weapon.score || '');
-  const inferredType = weapon.attackType
-    || (/contact.*(?:jet|distance)|(?:jet|distance).*contact/i.test(legacyScore) ? 'mixed' : '')
-    || (/contact/i.test(legacyScore) ? 'contact' : '')
-    || (/(?:jet|distance)/i.test(legacyScore) ? 'distance' : '')
-    || (weapon.name ? (weapon.range && weapon.range !== '—' ? 'distance' : 'contact') : '');
-  row.innerHTML = `<td><input data-weapon="name" value="${escapeHtml(weapon.name || '')}" aria-label="Arme"></td>
-    <td><select data-weapon="attackType" aria-label="Classe de l’arme">
-      <option value="">Choisir…</option>
-      <option value="contact"${inferredType === 'contact' ? ' selected' : ''}>Contact</option>
-      <option value="distance"${inferredType === 'distance' ? ' selected' : ''}>Jet</option>
-      <option value="mixed"${inferredType === 'mixed' ? ' selected' : ''}>Contact + jet</option>
+  const definition = weaponDefinition(weapon.name);
+  const legacyOption = weapon.name && !definition ? `<option value="${escapeHtml(weapon.name)}" selected>${escapeHtml(weapon.name)} (ancienne fiche)</option>` : '';
+  const damage = weapon.damage || definition?.damage || '';
+  row.innerHTML = `<td><select data-weapon="name" aria-label="Arme">
+      <option value="">Choisir une arme…</option>
+      ${legacyOption}
+      ${WEAPON_CATALOG.map(item => `<option value="${escapeHtml(item.name)}"${weapon.name === item.name ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}
     </select></td>
+    <td><input data-weapon="attackType" type="hidden" value="${escapeHtml(definition?.attackType || weapon.attackType || '')}"><span data-weapon-class>—</span></td>
     <td><input data-weapon="contactScore" value="${escapeHtml(weapon.contactScore || '')}" aria-label="Pourcentage au contact" readonly tabindex="-1"></td>
     <td><input data-weapon="distanceScore" value="${escapeHtml(weapon.distanceScore || '')}" aria-label="Pourcentage au jet" readonly tabindex="-1"></td>
-    ${['damage', 'range', 'pa'].map(key => `<td><input data-weapon="${key}" value="${escapeHtml(weapon[key] || '')}" aria-label="${key}"></td>`).join('')}
+    <td><input data-weapon="damage" value="${escapeHtml(damage)}" aria-label="Dégâts"></td>
     <td><button class="pj-remove" type="button" title="Supprimer cette arme" aria-label="Supprimer cette arme">×</button></td>`;
   row.querySelector('.pj-remove').addEventListener('click', () => {
     row.remove();
@@ -296,12 +310,35 @@ function syncWeaponScores() {
     distance: skillFinalScore('Arme de jet (divers)')
   };
   Array.from(weaponsBody.rows).forEach(row => {
-    const type = row.querySelector('[data-weapon="attackType"]')?.value || '';
+    const name = row.querySelector('[data-weapon="name"]')?.value || '';
+    const definition = weaponDefinition(name);
+    const typeInput = row.querySelector('[data-weapon="attackType"]');
+    if (typeInput && definition) typeInput.value = definition.attackType;
+    const type = typeInput?.value || '';
+    const classLabel = row.querySelector('[data-weapon-class]');
+    if (classLabel) classLabel.textContent = type === 'mixed' ? 'Contact + jet' : type === 'distance' ? 'Jet' : type === 'contact' ? 'Contact' : '—';
     const contactScore = row.querySelector('[data-weapon="contactScore"]');
     const distanceScore = row.querySelector('[data-weapon="distanceScore"]');
     if (contactScore) contactScore.value = type === 'contact' || type === 'mixed' ? scores.contact || '0' : '';
     if (distanceScore) distanceScore.value = type === 'distance' || type === 'mixed' ? scores.distance || '0' : '';
   });
+}
+
+function applyWeaponSelection(select) {
+  const row = select.closest('tr');
+  const definition = weaponDefinition(select.value);
+  if (!row) return;
+  if (!definition) {
+    if (!select.value) {
+      row.querySelector('[data-weapon="attackType"]').value = '';
+      row.querySelector('[data-weapon="damage"]').value = '';
+    }
+    syncWeaponScores();
+    return;
+  }
+  row.querySelector('[data-weapon="attackType"]').value = definition.attackType;
+  row.querySelector('[data-weapon="damage"]').value = definition.damage;
+  syncWeaponScores();
 }
 
 function numberValue(key) {
@@ -645,7 +682,7 @@ function cell(value) { return String(value || '').replace(/\|/g, '\\|').replace(
 function inline(value) { return String(value || '').replace(/\r?\n/g, '<br>'); }
 function bullets(value) { const lines = String(value || '').split(/\r?\n/).filter(line => line.trim()); return lines.length ? lines.map(line => `- ${line}`).join('\n') : '- '; }
 
-function toMarkdown() {
+function toMarkdownWithLegacyHeader() {
   const data = collectData(), f = data.fields, s = data.stats;
   const statRows = STATS.map(([code, key]) => `| ${code} | ${cell(s[key])} | ${s[key] ? Number(s[key]) * 5 : ''} |`).join('\n');
   const spellRows = data.spells.filter(spell => spell.name).map(spell => {
@@ -660,18 +697,24 @@ function toMarkdown() {
     const spells = group === 'Magie & pouvoirs' && spellRows ? `\n${spellRows}` : '';
     return `| **${group}** |  |  |  |  |\n${rows}${spells}`;
   }).join('\n');
-  const weaponRows = data.weapons.filter(w => w.name || w.damage || w.range || w.pa).map(w => {
+  const weaponRows = data.weapons.filter(w => w.name || w.damage).map(w => {
     const score = w.attackType === 'mixed' ? `Contact ${w.contactScore || 0} / Jet ${w.distanceScore || 0}`
       : w.attackType === 'distance' ? `Jet ${w.distanceScore || 0}`
       : w.attackType === 'contact' ? `Contact ${w.contactScore || 0}` : '';
-    return `| ${cell(w.name)} | ${cell(score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`;
-  }).join('\n') || '|  |  |  |  |  |';
+    return `| ${cell(w.name)} | ${cell(score)} | ${cell(w.damage)} |`;
+  }).join('\n') || '|  |  |  |';
   const d = key => form.querySelector(`[data-derived="${key}"]`).value;
   const professional = Math.max(0, parseInt(f.skillProfessionalPool, 10) || 0);
   const personal = (Number(s.intelligence) || 0) * 10;
   const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0)
     + data.spells.filter(spell => spell.name).reduce((sum, spell) => sum + (parseInt(spell.points, 10) || 0), 0);
   return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
+}
+
+function toMarkdown() {
+  return toMarkdownWithLegacyHeader()
+    .replace('| Arme | % | Dégâts | Portée | PA |', '| Arme | % | Dégâts |')
+    .replace('|------|---|--------|--------|----|', '|------|---|--------|');
 }
 
 function downloadMarkdown() {
@@ -709,7 +752,8 @@ function openPdfPreview() {
   };
   data.generatedAt = new Date().toISOString();
   localStorage.setItem(PRINT_STORAGE_KEY, JSON.stringify(data));
-  window.location.href = 'pj-print.html';
+  if (IS_EMBEDDED && window.top !== window) window.top.location.href = 'pj-print.html';
+  else window.location.href = 'pj-print.html';
 }
 
 function valueAfter(label, text) {
@@ -752,7 +796,7 @@ function parseMarkdown(text) {
   });
   const weaponSection = section(text, 'Armes');
   data.weapons = weaponSection.split(/\r?\n/).filter(line => /^\|/.test(line) && !/Arme|---/.test(line)).map(line => {
-    const c = line.split('|').slice(1); return { name:c[0]?.trim(),score:c[1]?.trim(),damage:c[2]?.trim(),range:c[3]?.trim(),pa:c[4]?.trim() };
+    const c = line.split('|').slice(1); return { name:c[0]?.trim(),score:c[1]?.trim(),damage:c[2]?.trim() };
   }).filter(w => Object.values(w).some(Boolean));
   const armor = section(text, 'Armure'); data.fields.armorType = valueAfter('Type', armor); data.fields.armorPoints = valueAfter("Points d'armure", armor);
   data.fields.powers = listText(section(text, 'Sorts / pouvoirs')); data.fields.equipment = listText(section(text, 'Équipement et richesse'));
@@ -772,6 +816,7 @@ renderBaseFields();
 try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) applyData(draft); } catch (error) { console.warn('Brouillon illisible', error); }
 updateDerived(); updateFilename();
 function formChanged(event) {
+  if (event.target.matches('[data-weapon="name"]')) applyWeaponSelection(event.target);
   if (event.target.matches('[data-field="profession"]')) {
     syncSpellSlotsFromForm();
     renderSpellRows();

@@ -1,5 +1,6 @@
 .pj-page{max-width:1100px;padding-bottom:4rem}
 .pj-embedded .pj-nav{display:none}
+.pj-embedded .site-menu-root{display:none}
 .pj-embedded .pj-page{max-width:none;padding:0 1rem 3rem}
 .pj-embedded .pj-header{margin-top:.8rem}
 .pj-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:1.2rem 0}

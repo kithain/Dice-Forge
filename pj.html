@@ -6,8 +6,9 @@
   <title>Dice Forge — Fiche de personnage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260715-character-help">
-  <link rel="stylesheet" href="pj.css?v=20260718-spell-slots">
+  <link rel="stylesheet" href="styles.css?v=20260719-merged-character">
+  <link rel="stylesheet" href="pj.css?v=20260719-merged-character">
+  <link rel="stylesheet" href="site-menu.css?v=20260719">
   <script type="importmap">
   { "imports": {
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
@@ -15,10 +16,11 @@
   </script>
 </head>
 <body>
+  <script src="js/site-menu.js?v=20260719-merged-character" defer></script>
   <div class="stars"></div>
   <main class="wrap pj-page">
     <nav class="pj-nav" aria-label="Navigation">
-      <a class="room-leave pj-back" href="index.html">← Retour à Dice Forge</a>
+      <a class="room-leave pj-back" href="index.html#fiche-personnage">← Retour à la fiche personnage</a>
       <span class="pj-save-state" id="pj-save-state" role="status">Brouillon local prêt</span>
     </nav>
 
@@ -131,7 +133,7 @@
         </div>
         <div class="pj-table-wrap">
           <table class="pj-table">
-            <thead><tr><th>Arme</th><th>Classe</th><th>% contact</th><th>% jet</th><th>Dégâts</th><th>Portée</th><th>PA</th><th></th></tr></thead>
+            <thead><tr><th>Arme</th><th>Classe</th><th>% contact</th><th>% jet</th><th>Dégâts</th><th></th></tr></thead>
             <tbody id="pj-weapons"></tbody>
           </table>
         </div>
@@ -172,6 +174,6 @@
   </main>
 
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20260719-mixed-weapons"></script>
+  <script type="module" src="js/pj-sheet.js?v=20260719-merged-character"></script>
 </body>
 </html>

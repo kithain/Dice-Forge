@@ -6,7 +6,8 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260715-character-help">
+<link rel="stylesheet" href="styles.css?v=20260719-merged-character">
+<link rel="stylesheet" href="site-menu.css?v=20260719">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
@@ -16,6 +17,7 @@
 </script>
 </head>
 <body>
+<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
 <div class="stars"></div>
 <div class="wrap">
 
@@ -76,7 +78,6 @@
 <div class="tabs" role="tablist" aria-label="Navigation principale">
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
   <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
-  <a class="tab-btn tab-link" id="tab-markdown" href="pj.html" onclick="openMarkdownTab()">Fiche Markdown</a>
   <a class="tab-btn tab-link" id="tab-help" href="help.html" aria-label="Aide joueurs Dice Forge">❔ Help me</a>
   <a class="tab-btn tab-link" href="ecran_joueur_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence des joueurs">Écran joueur</a>
   <a class="tab-btn tab-link" href="ecran_MJ_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence du meneur de jeu">Écran MJ</a>
@@ -160,7 +161,11 @@
 </section>
 
 <section class="tab-panel" id="panel-character" role="tabpanel" aria-labelledby="tab-character">
-  <div class="character-panel">
+  <div class="character-view-tabs" role="tablist" aria-label="Étapes de la fiche personnage">
+    <button class="character-view-tab active" id="character-view-generator-tab" type="button" role="tab" aria-selected="true" aria-controls="character-generator-view" onclick="showCharacterSheetView('generator')">1. Génération</button>
+    <button class="character-view-tab" id="character-view-complete-tab" type="button" role="tab" aria-selected="false" aria-controls="character-complete-view" onclick="showCharacterSheetView('complete')">2. Fiche complète</button>
+  </div>
+  <div class="character-panel" id="character-generator-view" role="tabpanel" aria-labelledby="character-view-generator-tab">
     <div class="slabel">Fiche personnage</div>
     <div class="character-form">
       <div class="room-field character-name-field">
@@ -228,6 +233,13 @@
       <div class="slabel">Détail des calculs</div>
       <textarea class="room-input text calc-output" id="character-calculations" readonly></textarea>
     </div>
+    <div class="character-continue">
+      <button class="room-btn" type="button" onclick="showCharacterSheetView('complete')">Continuer vers la fiche complète →</button>
+      <span>Le nom, l’espèce, la profession et les caractéristiques seront reportés automatiquement.</span>
+    </div>
+  </div>
+  <div class="character-complete-view" id="character-complete-view" role="tabpanel" aria-labelledby="character-view-complete-tab" hidden>
+    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1" loading="lazy"></iframe>
   </div>
 </section>
 
@@ -236,6 +248,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260719-defense-skill"></script>
+<script type="module" src="js/app.js?v=20260719-merged-character"></script>
 </body>
 </html>

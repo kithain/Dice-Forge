@@ -41,6 +41,7 @@ let results = null;
 let rolling = false;
 let cfg = { anim: true, sound: true, hide: false };
 let characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
+let characterSheetNeedsSync = true;
 let characterRerollSaving = false;
 
 // ——— crypto random ———
@@ -409,6 +410,7 @@ async function generateCharacterStats() {
     return;
   }
   characterState = nextState;
+  characterSheetNeedsSync = true;
   renderCharacterSheet();
 }
 
@@ -452,11 +454,13 @@ async function rerollCharacterStats() {
     return;
   }
   characterState = nextState;
+  characterSheetNeedsSync = true;
   renderCharacterSheet();
 }
 
 function resetCharacterSheet() {
   characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
+  characterSheetNeedsSync = true;
   const nameInput = document.getElementById('character-name');
   if (nameInput) nameInput.value = '';
   document.querySelectorAll('[data-character-field]').forEach(field => {
@@ -469,6 +473,7 @@ function resetCharacterSheet() {
 
 function characterNameChanged() {
   characterState.saved = false;
+  characterSheetNeedsSync = true;
   renderCharacterSheet();
 }
 
@@ -694,8 +699,36 @@ function openMarkdownCharacterSheet() {
   return true;
 }
 
-function openMarkdownTab() {
-  openMarkdownCharacterSheet();
+function showCharacterSheetView(view, { sync = true } = {}) {
+  const complete = view === 'complete';
+  const generatorView = document.getElementById('character-generator-view');
+  const completeView = document.getElementById('character-complete-view');
+  const generatorTab = document.getElementById('character-view-generator-tab');
+  const completeTab = document.getElementById('character-view-complete-tab');
+  if (!generatorView || !completeView || !generatorTab || !completeTab) return;
+
+  generatorView.hidden = complete;
+  completeView.hidden = !complete;
+  generatorTab.classList.toggle('active', !complete);
+  completeTab.classList.toggle('active', complete);
+  generatorTab.setAttribute('aria-selected', String(!complete));
+  completeTab.setAttribute('aria-selected', String(complete));
+
+  if (!complete) return;
+  const frame = document.getElementById('character-sheet-frame');
+  if (!frame) return;
+  if (sync && characterSheetNeedsSync) {
+    openMarkdownCharacterSheet();
+    characterSheetNeedsSync = false;
+    if (frame.getAttribute('src')) frame.contentWindow?.location.reload();
+  }
+  if (!frame.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
+}
+
+function openCharacterSheetFromLocation() {
+  if (window.location.hash !== '#fiche-personnage') return;
+  switchTab('character');
+  showCharacterSheetView('complete', { sync: false });
 }
 
 function readImportedFile(file) {
@@ -803,6 +836,7 @@ function applyCharacterToSheet(payload, { saved = false, openTab = false } = {})
     stats: importedStatsState(payload),
     saved
   };
+  characterSheetNeedsSync = true;
   renderCharacterSheet();
   if (openTab) switchTab('character');
 }
@@ -896,6 +930,7 @@ function shiftCharacterPoint(key, delta) {
   }
 
   characterState.saved = false;
+  characterSheetNeedsSync = true;
   renderCharacterSheet();
 }
 
@@ -1412,7 +1447,7 @@ window.shiftCharacterPoint = shiftCharacterPoint;
 window.submitCharacterSheet = submitCharacterSheet;
 window.exportCharacterSheet = exportCharacterSheet;
 window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
-window.openMarkdownTab = openMarkdownTab;
+window.showCharacterSheetView = showCharacterSheetView;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;
@@ -1430,3 +1465,5 @@ renderExBar();
 renderCharacterSheet();
 initPlaceholder();
 restoreSession();
+openCharacterSheetFromLocation();
+window.addEventListener('hashchange', openCharacterSheetFromLocation);
