@@ -1,235 +1,238 @@
-# ⚔️ Dice Forge
+# Dice Forge
 
-Dice Forge est un lanceur de dés virtuel pour jeux de rôle (JDR), accessible directement dans un navigateur web. Il permet de simuler des lancers de dés avec des animations 3D, un générateur aléatoire cryptographique, des effets sonores, et un mode multijoueur en temps réel pour partager ses jets avec sa table.
+Lanceur de dés et boîte à outils web pour les parties de jeu de rôle **BRP-ORC**. Dice Forge réunit des dés 3D, des tests de compétence, des salons multijoueurs, des fiches de personnage et plusieurs références de jeu dans une application statique, sans installation ni étape de compilation.
 
-🔗 **Site en ligne :** [https://kithain.github.io/Dice-Forge/](https://kithain.github.io/Dice-Forge/)
+**[Ouvrir Dice Forge](https://kithain.github.io/Dice-Forge/)** · [Aide joueurs](https://kithain.github.io/Dice-Forge/help.html) · [Livret du joueur](https://kithain.github.io/Dice-Forge/livret_joueur.html)
 
----
+## Fonctionnalités
 
-## 📚 Références HTML
+- Lancers de `D4`, `D6`, `D8`, `D10`, `D12`, `D20` et `D100`, seuls ou combinés avec un modificateur.
+- Génération aléatoire avec la Web Crypto API et animation des dés en 3D avec Three.js.
+- Boutons de lancer rapide, tests BRP au `D100` et calcul automatique du niveau de réussite.
+- Détection des réussites et échecs critiques sur le `D20`, avec effets visuels et sonores.
+- Salons Supabase pour partager les jets en temps réel, restaurer une session et conserver l'historique récent.
+- Jets cachés : le résultat complet reste réservé au créateur du salon.
+- Générateur de personnage BRP-ORC avec espèces, professions, caractéristiques, valeurs dérivées et deux relances maximum.
+- Fiche complète éditable, sauvegardée localement ou dans Supabase, exportable en Markdown et imprimable en PDF.
+- Import et export JSON des personnages, ainsi que transfert d'une fiche complète vers un autre salon.
+- Overlay temps réel pour OBS.
+- Livret du joueur, inventaire, écrans joueur/MJ et règles BRP-ORC consultables depuis le menu.
 
-- **Livret du joueur :** [livret_joueur.html](https://kithain.github.io/Dice-Forge/livret_joueur.html)
-- **Inventaire médiéval-fantastique :** [inventaire.html](https://kithain.github.io/Dice-Forge/inventaire.html)
-- **BRP-ORC — traduction FR complète :** [BRP_ORC_traduction_FR_complete.html](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html)
-- **Écran MJ BRP-ORC :** [ecran_MJ_BRP_ORC.html](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html)
-- **Écran joueur BRP-ORC :** [ecran_joueur_BRP_ORC.html](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html)
+## Démarrage rapide
 
----
+### Version en ligne
 
-## 🛠️ Technologies
+Rendez-vous sur **[kithain.github.io/Dice-Forge](https://kithain.github.io/Dice-Forge/)** avec un navigateur récent. Aucun compte n'est nécessaire pour lancer des dés en solo.
 
-| Technologie | Rôle |
-|-------------|------|
-| **HTML5 / CSS3 / JavaScript (ES Modules)** | Application monopage, toute la logique est dans `index.html` |
-| **Three.js** (v0.160) | Rendu 3D des dés via WebGL — polyèdres, textures de faces, animation de roulement |
-| **Supabase** (v2.39) | Backend temps réel — stockage des jets et diffusion en direct via WebSockets |
-| **Web Crypto API** | Génération aléatoire cryptographique (`crypto.getRandomValues()`) pour un tirage truly random |
-| **Web Audio API** | Synthèse sonore pour les jingles de coup critique et d'échec critique |
-| **Google Fonts** (Cinzel / Cinzel Decorative) | Typographie thématique fantasy |
-| **Game-icons.net** | SVG 2D illustrés pour les dés du sélecteur |
+### En local sous Windows
 
----
+Prérequis : [Python 3](https://www.python.org/downloads/) accessible avec la commande `python` ou `py`.
 
-## 🎲 Fonctionnement de l'application
+1. Clonez ou téléchargez le dépôt.
+2. Lancez `Run.bat`.
+3. L'application s'ouvre sur `http://127.0.0.1:8000/`.
+4. Utilisez `Stop.bat` pour arrêter le serveur.
 
-### Lancer de dés
+Il n'y a aucune dépendance à installer et aucun build à exécuter. Un serveur HTTP local est toutefois nécessaire, car l'application utilise des modules JavaScript ES.
 
-L'application supporte 7 types de dés : **D4, D6, D8, D10, D12, D20, D100**.
+Sous macOS ou Linux, lancez l'équivalent depuis la racine du projet :
 
-Deux façons de lancer :
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1
+```
 
-- **Lancer rapide** — boutons pré-configurés pour les jets courants (`D20`, `D6`, `D100`) et les jets BRP-ORC (`Effort FOR`, `Endurance CON`, `Idée INT`, `Chance POU`, `Agilité DEX`, `Charme CHA`)
-- **Test BRP** — jet générique avec score en %, difficulté (`Automatique`, `Facile ×2`, `Moyen ×1`, `Difficile ÷2`, `Impossible`) et niveau de réussite automatique
-- **Compositeur de jet** — sélectionnez le nombre de dés de chaque type (1 à 10) via les boutons +/−, ajoutez un modificateur (+/−), puis cliquez sur **Lancer les Dés**
+Puis ouvrez `http://127.0.0.1:8000/`.
 
-L'expression du jet s'affiche en temps réel dans une barre d'aperçu (ex. `2D6 + 1D8 + 5`).
+> Une connexion Internet reste nécessaire pour charger Three.js, Supabase et les polices distribuées par CDN.
 
-### Fiches de personnage
+## Utilisation
 
-L'onglet **Fiche personnage** permet de créer une fiche BRP-ORC médiéval-fantastique avec les caractéristiques suivantes : **Force**, **Constitution**, **Taille**, **Intelligence**, **Pouvoir**, **Dextérité** et **Charisme**.
+### Lancer des dés
 
-Le faux onglet **Fiche Markdown**, placé au même niveau que le lanceur de dés et la fiche de personnage, ouvre une fiche complète fondée sur `pj_template.md`. Elle est modifiable dans le navigateur, conserve automatiquement un brouillon local, peut rouvrir un fichier `.md` et s'enregistre sous le nom du personnage (par exemple `eleonore_du_val.md`).
+Utilisez un bouton rapide ou composez une expression en choisissant jusqu'à dix dés de chaque type. Ajoutez éventuellement un modificateur, puis cliquez sur **Lancer les dés**. Par exemple : `2D6 + 1D8 + 5`.
 
-Le bouton **Créer le PDF** transforme la fiche courante — y compris une fiche chargée depuis un `.md` — en aperçu A4 sans les contrôles d'édition. L'utilisateur peut ensuite l'imprimer ou l'enregistrer en PDF avec la boîte de dialogue du navigateur.
+Pour un test BRP, renseignez un score et choisissez la difficulté : automatique, facile, moyenne, difficile ou impossible. Dice Forge lance le `D100` et indique le niveau de réussite.
 
-La fiche Markdown peut aussi être sauvegardée intégralement dans Supabase et rechargée depuis n'importe quel navigateur pour le même joueur et le même code de partie. Lorsqu'une room est active, la fiche Supabase correspondante est recherchée et chargée automatiquement à l'ouverture ; le bouton de chargement manuel reste disponible. Si aucune fiche distante n'existe, le brouillon local est conservé. La table nécessaire est créée avec [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql).
+### Jouer en salon
 
-Le bouton **Transférer vers un salon** copie la fiche complète du joueur connecté vers un autre code de salon existant. La fiche source est conservée et une confirmation protège toute fiche déjà présente pour ce joueur dans le salon de destination.
+1. Saisissez votre nom.
+2. Cliquez sur **Créer**, ou entrez le code reçu puis cliquez sur **Rejoindre**.
+3. Partagez le code du salon avec la table.
 
-Les compétences y sont classées par rubrique, avec une section dédiée « Magie & pouvoirs ». Pour une profession magique (Sorcier/Mage, Prêtre, Chaman ou Étudiant), six lignes permettent de choisir des sorts réservés à cette profession ; leur score de base est égal à `INT`. Le budget affiche les 325 points professionnels du niveau Héroïque (valeur modifiable), ajoute automatiquement les points personnels `INT × 10`, puis décompte chaque point réparti. Le score final de chaque compétence est calculé automatiquement avec `base + points répartis`. Les scores de base sont verrouillés et les bases dépendantes des caractéristiques sont recalculées automatiquement.
+Les jets sont synchronisés en temps réel et la session est restaurée après rechargement de la page. Le créateur du salon peut purger l'historique et consulter le résultat des jets cachés.
 
-La liste de la fiche est adaptée au médiéval-fantastique : les compétences explicitement modernes ou futuristes du BRP générique (armes à feu/énergie, machine ou arme lourde moderne, démolition moderne, psychothérapie et compétence technique) n'y sont pas proposées.
+### Créer un personnage
 
-Tous les personnages peuvent investir des points en Alphabétisation. Sa base dépend de l'éducation professionnelle : Érudit/Étudiant `INT×5`, Sorcier/Prêtre `INT×4`, Noble `INT×3`, autres professions `00 %`.
+Ouvrez l'onglet **Fiche personnage**, rejoignez d'abord un salon, puis renseignez l'identité, l'espèce et la profession du personnage. La génération utilise :
 
-- **FOR**, **CON**, **POU**, **DEX** et **CHA** sont générées avec `3D6`
-- **TAI** et **INT** sont générées avec `2D6 + 6`
-- Les espèces du `livret_joueur.html` sont disponibles : Humain, Nain, Elfe, Demi-Elfe, Demi-Orc
-- L'espèce choisie applique ses modificateurs raciaux après le tirage BRP standard et son `MOV`
-- L'âge saisi reste numérique, mais la fiche affiche aussi une tranche d'âge fantasy/culturelle selon l'espèce (par exemple `75` donne `Vénérable` pour un humain, `Adulte` pour un nain et `Jeune Asrai` pour un elfe)
-- Les professions du `livret_joueur.html` sont disponibles en liste, avec richesse et compétences de profession affichées dans la fiche
-- Un champ **Détail des calculs** récapitule les jets, les modificateurs d'espèce, les dérivées et les points de compétences
-- Le tirage initial et ses **2 relances maximum** doivent être enregistrés dans Supabase avant d'être affichés. Chaque relance remplace la série précédente ; le compteur et le détail des dés sont restaurés après un rechargement de la page.
-- Le joueur peut déplacer jusqu'à **3 points** au total entre les caractéristiques, avec un plafond de départ à `21`
-- La fiche calcule les dérivées BRP-ORC : bonus aux dégâts, points de vie, seuil de blessure majeure, points de pouvoir, bonus d'expérience, mouvement, fatigue optionnelle et santé mentale optionnelle
-- La fiche finale est enregistrée dans Supabase dans la table `personnages`
-- Une fiche peut être exportée en JSON puis importée dans une autre salle ; après import, le joueur clique sur **Enregistrer** pour l'associer à son `player_name` courant
-- À la connexion d'un joueur dans une salle, l'application récupère automatiquement la fiche liée à son `player_name`
-- Les boutons de test lancent `D100` contre `caractéristique × 5` et affichent réussite critique, réussite spéciale, échec ou maladresse
-- Les tests BRP libres appliquent les mêmes niveaux de réussite aux compétences et aux sorts
+- `3D6` pour FOR, CON, POU, DEX et CHA ;
+- `2D6 + 6` pour TAI et INT ;
+- les modificateurs propres à l'espèce sélectionnée.
 
-### Animation et résultats
+Le tirage initial et les deux relances possibles sont enregistrés dans Supabase. Vous pouvez ensuite déplacer jusqu'à trois points entre les caractéristiques, enregistrer le personnage et continuer vers la fiche complète.
 
-- Les dés s'animent en 3D avec un effet de tumbling physique (Three.js)
-- Chaque dé s'affiche ensuite avec sa valeur finale
-- Le **total** (somme des dés + modificateur) s'affiche en grand
-- Un **détail** du calcul est visible sous le total (ex. `3 + 5 + 1 + 2 = 11`)
-- États spéciaux détectés automatiquement sur le D20 :
-  - **Coup Critique** (20) — animation dorée + jingle
-  - **Échec Critique** (1) — animation rouge + son d'échec
+La fiche complète permet notamment de gérer les compétences, les sorts, l'équipement et les notes. Elle conserve un brouillon local et propose :
 
-### Paramètres
+- l'ouverture et l'enregistrement au format Markdown ;
+- la sauvegarde et le chargement par salon dans Supabase ;
+- le transfert vers un autre salon ;
+- un aperçu A4 à imprimer ou enregistrer en PDF.
 
-- **Animations** — active/désactive l'animation 3D des dés
-- **Son MP3** — active/désactive les effets sonores
+Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/Dice-Forge/help.html).
 
-### Mode multijoueur
+## Pages et références
 
-Dice Forge permet de créer ou rejoindre une **salle de partie** pour partager ses jets en temps réel avec les autres joueurs de la table.
+| Page | Description |
+|---|---|
+| [`index.html`](https://kithain.github.io/Dice-Forge/) | Lanceur de dés, salons et génération de personnage |
+| [`pj.html`](https://kithain.github.io/Dice-Forge/pj.html) | Fiche de personnage complète |
+| [`help.html`](https://kithain.github.io/Dice-Forge/help.html) | Guide d'utilisation destiné aux joueurs |
+| [`livret_joueur.html`](https://kithain.github.io/Dice-Forge/livret_joueur.html) | Livret du joueur |
+| [`inventaire.html`](https://kithain.github.io/Dice-Forge/inventaire.html) | Armes, armures et équipement |
+| [`ecran_joueur_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html) | Écran de référence joueur |
+| [`ecran_MJ_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html) | Écran de référence meneur de jeu |
+| [`BRP_ORC_traduction_FR_complete.html`](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html) | Traduction française complète des règles |
 
-**Créer une salle :**
-1. Saisir un nom de joueur
-2. Cliquer sur **Créer** — un code à 4 caractères est généré (ex. `ABCD`)
-3. Partager le code avec les autres joueurs
+## Overlay OBS
 
-**Rejoindre une salle :**
-1. Saisir un nom de joueur
-2. Saisir le code de la partie
-3. Cliquer sur **Rejoindre**
+Sous Windows, exécutez :
 
-**Flux en direct :**
-- Tous les jets des joueurs de la salle s'affichent en temps réel (du plus récent au plus ancien)
-- Les 20 derniers jets sont chargés à la connexion
-- Ses propres jets sont mis en évidence
-- La session est sauvegardée (localStorage) — reconnexion automatique au prochain chargement
+```bat
+Run_OBS.bat ABCD
+```
 
-**Purger une salle :**
-- Le créateur de la salle dispose d'un bouton **Purger** qui supprime tous les jets de la room
-- Ce bouton n'est visible que par le joueur qui a créé la partie
+Remplacez `ABCD` par le code du salon, puis ajoutez cette URL comme source **Navigateur** dans OBS :
 
-**Quitter une salle :**
-- Cliquer sur **Quitter** pour se déconnecter de la salle
+```text
+http://127.0.0.1:8010/obs.html?room=ABCD
+```
 
----
+Paramètres facultatifs :
 
-### Vue OBS
+- `&limit=3` limite le nombre de jets affichés ;
+- `&bg=1` ajoute un fond de test, utile hors OBS.
 
-Une vue overlay dediee permet d'afficher les jets en direct dans OBS, sur un port different de l'application principale.
+Lancez `Stop_OBS.bat` pour arrêter le serveur de l'overlay.
 
-- Lancer le serveur OBS : `Run_OBS.bat`
-- Lancer directement une salle : `Run_OBS.bat ABCD`
-- URL OBS : `http://127.0.0.1:8010/obs.html?room=ABCD`
-- Options utiles : `&limit=3` pour limiter le nombre de jets visibles, `&bg=1` pour afficher un fond de test hors OBS
-- Arreter le serveur OBS : `Stop_OBS.bat`
+## Configuration Supabase
 
----
+Supabase est facultatif pour les lancers en solo, mais nécessaire pour les salons, l'historique partagé et les fiches en ligne.
 
-## 🗂️ Structure du projet
+### 1. Créer la table des jets
+
+Dans le **SQL Editor** de votre projet Supabase, exécutez :
+
+```sql
+create table if not exists public.rolls (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  room_code text not null,
+  player_name text not null,
+  expression text not null,
+  rolls_detail text not null default '',
+  total integer not null default 0,
+  is_crit boolean not null default false,
+  is_fail boolean not null default false,
+  is_hidden boolean not null default false
+);
+
+create index if not exists rolls_room_created_idx
+  on public.rolls (room_code, created_at desc);
+
+alter table public.rolls enable row level security;
+
+drop policy if exists "Allow anon read rolls" on public.rolls;
+create policy "Allow anon read rolls"
+  on public.rolls for select to anon using (true);
+drop policy if exists "Allow anon insert rolls" on public.rolls;
+create policy "Allow anon insert rolls"
+  on public.rolls for insert to anon with check (true);
+drop policy if exists "Allow anon delete rolls" on public.rolls;
+create policy "Allow anon delete rolls"
+  on public.rolls for delete to anon using (true);
+
+grant select, insert, delete on public.rolls to anon;
+grant usage, select on sequence public.rolls_id_seq to anon;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'rolls'
+  ) then
+    alter publication supabase_realtime add table public.rolls;
+  end if;
+end $$;
+```
+
+Si vous migrez une ancienne installation, vérifiez en particulier que la colonne `is_hidden` existe :
+
+```sql
+alter table public.rolls
+  add column if not exists is_hidden boolean not null default false;
+```
+
+> Les politiques ci-dessus sont volontairement permissives et conviennent à une instance personnelle ou de démonstration. Pour un déploiement public sensible, ajoutez une authentification et des règles RLS adaptées.
+
+### 2. Créer les tables de fiches
+
+Exécutez ensuite, dans cet ordre :
+
+1. [`supabase-personnages.sql`](supabase-personnages.sql) pour les personnages générés ;
+2. [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql) pour les fiches complètes.
+
+Le premier script sert aussi de migration : vous pouvez le réexécuter après une mise à jour de Dice Forge.
+
+### 3. Renseigner la configuration
+
+Complétez `supabase-config.js` avec l'URL du projet et sa clé anonyme :
+
+```javascript
+window.SUPABASE_CONFIG = {
+  url: 'https://VOTRE-PROJET.supabase.co',
+  anonKey: 'VOTRE_CLE_ANON'
+};
+```
+
+La clé `anon` est destinée aux applications clientes et sera visible dans le navigateur. N'utilisez jamais la clé `service_role` dans ce fichier.
+
+## Architecture
 
 ```text
 Dice-Forge/
-├── index.html              # Application complète (HTML + CSS + JS)
-├── supabase-config.js      # Configuration Supabase (URL + clé anon)
-├── audio/
-│   └── dice.mp3            # Son de lancer de dés
-└── README.md
+├── index.html                    # Application principale
+├── pj.html                       # Fiche complète
+├── obs.html                      # Overlay OBS
+├── help.html                     # Aide joueurs
+├── js/
+│   ├── app.js                    # Dés, tests BRP et personnages
+│   ├── dice3d*.js                # Rendu et animation 3D
+│   ├── supabase-room.js          # Salons, jets et personnages en ligne
+│   ├── pj-sheet.js               # Fiche complète et synchronisation
+│   └── obs-overlay.js            # Flux OBS
+├── supabase-config.js            # URL et clé anon Supabase
+├── supabase-personnages.sql      # Schéma et migration des personnages
+├── supabase-pj-sheets.sql        # Schéma des fiches complètes
+├── audio/                        # Effets sonores
+└── img/                          # Illustrations d'équipement
 ```
 
----
+L'interface est écrite en HTML, CSS et JavaScript natifs. Three.js `0.160.0` assure le rendu WebGL et `@supabase/supabase-js` `2.39.3` la synchronisation temps réel. Les dépendances sont chargées par import map depuis des CDN.
 
-## 🌐 Configuration Supabase
+## Dépannage
 
-Le mode multijoueur nécessite un backend Supabase.
+| Problème | Piste de résolution |
+|---|---|
+| La page locale reste vide ou les modules sont bloqués | Utilisez `Run.bat` ou un serveur HTTP au lieu d'ouvrir directement `index.html` |
+| Le son ne démarre pas | Cliquez une fois dans la page avant le premier lancer et vérifiez l'option **Son MP3** |
+| Les dés 3D ne s'affichent pas | Vérifiez WebGL et l'accès au CDN, ou désactivez les animations |
+| Impossible de rejoindre un salon | Vérifiez `supabase-config.js`, les politiques RLS et la présence d'au moins un jet dans le salon |
+| Les jets n'apparaissent pas en direct | Vérifiez que `rolls` appartient à la publication `supabase_realtime` |
+| Une sauvegarde de personnage échoue | Réexécutez `supabase-personnages.sql` pour appliquer les migrations |
+| Une fiche complète en ligne est introuvable | Rejoignez le bon salon avec le même nom de joueur et exécutez `supabase-pj-sheets.sql` |
 
-1. Créer un projet gratuit sur [supabase.com](https://supabase.com)
-2. Créer une table `rolls` avec le schéma suivant :
+## Crédits et licence
 
-   | Colonne | Type | Description |
-   |---------|------|-------------|
-   | `id` | `bigint` (PK, auto-increment) | Identifiant unique |
-   | `created_at` | `timestamptz` (default: `now()`) | Horodatage du jet |
-   | `room_code` | `text` | Code de la salle (4 caractères) |
-   | `player_name` | `text` | Nom du joueur |
-   | `expression` | `text` | Expression du jet (ex. `2D6 + 5`) |
-   | `rolls_detail` | `text` | Détail des valeurs (ex. `[3, 5]`) |
-   | `total` | `integer` | Total du jet |
-   | `is_crit` | `boolean` (default: `false`) | Coup critique |
-   | `is_fail` | `boolean` (default: `false`) | Échec critique |
-
-3. Créer une table `personnages` pour les fiches de personnage. Le script prêt à exécuter est fourni dans [`supabase-personnages.sql`](supabase-personnages.sql). Il est idempotent : réexécutez-le aussi après une mise à jour de Dice Forge pour appliquer les nouvelles colonnes.
-
-   | Colonne | Type | Description |
-   |---------|------|-------------|
-   | `player_name` | `text` (PK) | Nom du joueur, identique à `rolls.player_name` |
-   | `nom` | `text` | Nom du personnage |
-   | `espece` | `text` | Espèce du personnage |
-   | `genre` | `text` | Genre du personnage |
-   | `age` | `integer` | Âge du personnage |
-   | `profession` | `text` | Profession BRP-ORC |
-   | `richesse` | `text` | Niveau de richesse |
-   | `traits` | `text` | Traits distinctifs |
-   | `notes` | `text` | Notes libres |
-   | `force` | `integer` | Score de Force |
-   | `constitution` | `integer` | Score de Constitution |
-   | `taille` | `integer` | Score de Taille |
-   | `intelligence` | `integer` | Score d'Intelligence |
-   | `pouvoir` | `integer` | Score de Pouvoir |
-   | `dexterite` | `integer` | Score de Dextérité |
-   | `charisme` | `integer` | Score de Charisme |
-   | `rerolls_used` | `integer` | Nombre de relances de caractéristiques déjà consommées (0 à 2) |
-   | `generation` | `jsonb` | Détail du tirage initial/relancé, restauré après F5 |
-   | `created_at` | `timestamptz` (default: `now()`) | Date de création |
-
-   `player_name` est la clé primaire de `personnages`. La liaison avec les jets se fait par `personnages.player_name = rolls.player_name`. Le script crée aussi une vue `rolls_personnages` pour lire les jets avec la fiche associée.
-
-   Une contrainte FK stricte `rolls.player_name -> personnages.player_name` n'est pas ajoutée par défaut, car elle empêcherait un joueur de créer une salle ou de lancer un jet tant qu'il n'a pas encore de fiche personnage.
-
-4. Renseigner les identifiants dans `supabase-config.js` :
-
-   ```javascript
-   window.SUPABASE_CONFIG = {
-     url: 'https://VOTRE-PROJET.supabase.co',
-     anonKey: 'VOTRE_CLE_ANON'
-   };
-   ```
-
-5. Activer le **Realtime** sur la table `rolls` :
-   - **Option A (SQL)** — Dans **SQL Editor**, exécuter : `alter publication supabase_realtime add table rolls;`
-   - **Option B (Interface)** — Dans **Database** → **Publications**, trouver `supabase_realtime`, cliquer sur `...` → **Add tables**, cocher `rolls` et valider
-
-6. Configurer les **Row Level Security (RLS)** policies selon vos besoins. Exemple minimal pour autoriser lecture, insertion et suppression :
-
-   ```sql
-   create policy "Allow all on rolls" on rolls for all to anon using (true) with check (true);
-   ```
-
-   > ⚠️ La clé anon est publique par design (exposée côté client). Ne jamais committer la clé `service_role`.
-
----
-
-## 🔧 Problèmes fréquents
-
-| Problème | Solution |
-|----------|----------|
-| Le son ne se lance pas | Cliquer une fois dans la page avant de lancer un dé (politique autoplay des navigateurs) |
-| Les dés 3D ne s'affichent pas | Vérifier que WebGL est activé dans le navigateur, ou désactiver les animations |
-| Le mode multijoueur ne fonctionne pas | Vérifier que `supabase-config.js` est correctement renseigné et que Realtime est activé |
-| Le bouton Purger ne fonctionne pas | Vérifier que la RLS policy autorise les `DELETE` sur la table `rolls` |
-
----
-
-## 📄 Licence
-
-Projet personnel.
-
-Les icônes SVG 2D des dés proviennent de **Game-icons.net**, sous licence CC BY 3.0.
+Projet personnel. Les icônes de dés provenant de [Game-icons.net](https://game-icons.net/) sont distribuées sous licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
