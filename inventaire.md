@@ -3,7 +3,7 @@
 Catalogue générique d'armes, d'armures et de protections, adaptable à différents systèmes de jeu de rôle.
 
 > **Monnaie :** 10 pièces d'argent (pa) = 1 pièce d'or (po).  
-> Les valeurs de protection représentent un bonus générique à la défense.
+> Les armures fournissent des points d'armure (PA) qui réduisent les dégâts. Les boucliers accordent un bonus en pourcentage au jet de Défense.
 
 ## Revenus mensuels
 
@@ -108,47 +108,47 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 
 [![Planche illustrée des armures](img/Armures.jpg)](img/Armures.jpg)
 
-| Armure | Description | Type | Protection | Mobilité | Discrétion | Prix |
+| Armure | Description | Type | PA | Mobilité | Discrétion | Prix |
 |---|---|---|---:|---|---|---:|
-| Vêtements renforcés | Habits épais doublés de cuir ou de tissu rembourré. | Légère | +1 | Excellente | Normale | 2 po |
-| Gambison | Veste matelassée absorbant les chocs et les coupures. | Légère | +2 | Excellente | Normale | 8 po |
-| Armure de cuir | Protection souple faite de plusieurs pièces de cuir. | Légère | +2 | Très bonne | Bonne | 10 po |
-| Armure de cuir clouté | Cuir renforcé de rivets et de petites plaques métalliques. | Légère | +3 | Bonne | Normale | 25 po |
-| Armure de cuir durci | Cuir épais moulé et traité pour former une coque rigide. | Intermédiaire | +3 | Moyenne | Mauvaise | 12 po |
-| Chemise de mailles | Mailles courtes protégeant surtout le torse et les épaules. | Intermédiaire | +4 | Bonne | Mauvaise | 50 po |
-| Brigandine | Petites plaques rivetées entre plusieurs couches de tissu. | Intermédiaire | +5 | Moyenne | Mauvaise | 80 po |
-| Cotte de mailles | Long vêtement de mailles couvrant le torse, les bras et les cuisses. | Lourde | +6 | Réduite | Très mauvaise | 100 po |
-| Armure d'écailles | Plaques métalliques superposées et fixées sur un support souple. | Lourde | +6 | Réduite | Très mauvaise | 120 po |
-| Demi-plate | Armure de plaques protégeant les zones vitales, plastron, épaulières et casque. | Lourde | +7 | Faible | Très mauvaise | 300 po |
-| Harnois complet | Armure de plaques articulés enveloppant presque tout le corps. | Lourde | +8 | Faible | Impossible | 800 po |
-| Robe runique | Vêtement enchanté dont les runes détournent les attaques. | Magique | +3 | Excellente | Normale | 500 po |
-| Cuir draconique | Cuir surnaturellement résistant confectionné avec une peau de dragon. | Magique | +5 | Très bonne | Bonne | 1 500 po |
-| Armure de mithril | Armure métallique exceptionnellement légère et résistante. | Magique | +7 | Bonne | Normale | 4 000 po |
+| Vêtements renforcés | Habits épais doublés de cuir ou de tissu rembourré. | Légère | 1 | Excellente | Normale | 2 po |
+| Gambison | Veste matelassée absorbant les chocs et les coupures. | Légère | 2 | Excellente | Normale | 8 po |
+| Armure de cuir | Protection souple faite de plusieurs pièces de cuir. | Légère | 2 | Très bonne | Bonne | 10 po |
+| Armure de cuir clouté | Cuir renforcé de rivets et de petites plaques métalliques. | Légère | 3 | Bonne | Normale | 25 po |
+| Armure de cuir durci | Cuir épais moulé et traité pour former une coque rigide. | Intermédiaire | 3 | Moyenne | Mauvaise | 12 po |
+| Chemise de mailles | Mailles courtes protégeant surtout le torse et les épaules. | Intermédiaire | 4 | Bonne | Mauvaise | 50 po |
+| Brigandine | Petites plaques rivetées entre plusieurs couches de tissu. | Intermédiaire | 5 | Moyenne | Mauvaise | 80 po |
+| Cotte de mailles | Long vêtement de mailles couvrant le torse, les bras et les cuisses. | Lourde | 6 | Réduite | Très mauvaise | 100 po |
+| Armure d'écailles | Plaques métalliques superposées et fixées sur un support souple. | Lourde | 6 | Réduite | Très mauvaise | 120 po |
+| Demi-plate | Armure de plaques protégeant les zones vitales, plastron, épaulières et casque. | Lourde | 7 | Faible | Très mauvaise | 300 po |
+| Harnois complet | Armure de plaques articulés enveloppant presque tout le corps. | Lourde | 8 | Faible | Impossible | 800 po |
+| Robe runique | Vêtement enchanté dont les runes détournent les attaques. | Magique | 3 | Excellente | Normale | 500 po |
+| Cuir draconique | Cuir surnaturellement résistant confectionné avec une peau de dragon. | Magique | 5 | Très bonne | Bonne | 1 500 po |
+| Armure de mithril | Armure métallique exceptionnellement légère et résistante. | Magique | 7 | Bonne | Normale | 4 000 po |
 
 ## Boucliers et protections
 
 [![Planche illustrée des boucliers et protections](img/Boucliers_protections.jpg)](img/Boucliers_protections.jpg)
 
-| Équipement | Description | Protection | Particularités | Prix |
+| Équipement | Description | Bonus de Défense | Particularités | Prix |
 |---|---|---:|---|---:|
-| Rondache | Petit bouclier rond fixé à l'avant-bras ou tenu au poing. | +1 | Légère, laisse la main presque libre | 5 po |
-| Écu | Bouclier de taille moyenne offrant un bon compromis défensif. | +2 | Protection équilibrée | 12 po |
-| bouclier en amande | Bouclier allongé couvrant le combattant de l'épaule au genou. | +2 | Bonus contre les projectiles | 20 po |
-| Pavois | Très grand bouclier pouvant former un couvert presque complet. | +3 | Couverture importante, très encombrant | 40 po |
+| Rondache | Petit bouclier rond fixé à l'avant-bras ou tenu au poing. | +10 % | Légère, laisse la main presque libre | 5 po |
+| Écu | Bouclier de taille moyenne offrant un bon compromis défensif. | +20 % | Protection équilibrée | 12 po |
+| Bouclier en amande | Bouclier allongé couvrant le combattant de l'épaule au genou. | +20 % | Utilisable contre les projectiles visibles | 20 po |
+| Pavois | Très grand bouclier pouvant former un couvert presque complet. | +30 % | Couverture importante, très encombrant | 40 po |
 | Casque ouvert | Casque protégeant le crâne tout en laissant le visage dégagé. | +1 contre les coups critiques | Bonne visibilité | 5 po |
 | Heaume intégral | Casque fermé enveloppant entièrement la tête et le visage. | +2 contre les coups critiques | Vision et audition réduites | 25 po |
-| Bouclier runique | Bouclier enchanté gravé de signes protecteurs. | +2 | Résistance magique limitée | 600 po |
+| Bouclier runique | Bouclier enchanté gravé de signes protecteurs. | +20 % | Résistance magique limitée | 600 po |
 
 ## Bonus et particularités de l’équipement
 
-> **Règle générale :** les valeurs précédées de « + » sont des bonus chiffrés. Les autres mentions décrivent un avantage à prendre en compte lorsque la situation s’y prête ; le MJ décide du modificateur selon les règles utilisées.
+> **Règle générale :** une armure soustrait ses PA aux dégâts reçus. Un bouclier ajoute son bonus au jet de Défense lorsque le blocage décrit est possible ; il n'ajoute pas de PA.
 
-- **Protection +1 à +8 :** réduit les dégâts reçus ou augmente la défense de la valeur indiquée, selon le système choisi. Les protections portées ne se cumulent pas, sauf décision du MJ.
+- **Armure 1 à 8 PA :** soustrayez cette valeur aux dégâts reçus, avec un minimum de 0 dégât. Plusieurs armures portées ne cumulent pas leurs PA.
 - **+1 / +2 contre les coups critiques :** le casque réduit les dégâts ou la gravité d’un coup critique visant la tête de la valeur indiquée. Ce bonus ne s’applique pas aux autres localisations.
-- **Bonus contre les projectiles :** le bouclier en amande est particulièrement efficace contre les flèches, carreaux, javelots et autres projectiles visibles.
+- **Projectiles visibles :** le bouclier en amande peut appliquer son bonus de Défense aux flèches, carreaux, javelots et autres projectiles que le porteur a perçus.
 - **Bonus à cheval :** le sabre est plus maniable depuis une monture et évite les désavantages liés à l’espace ou au mouvement que subirait une arme moins adaptée.
 - **Rapide / précise :** l’arme se dégaine et se manie facilement. Elle est avantagée pour agir vite, viser une zone précise ou combattre dans un espace restreint.
-- **Perforante / très perforante :** sur une réussite spéciale, la cible subit respectivement −5 ou −10 rangs de DEX jusqu’à la fin du combat ou jusqu’à ce qu’elle reçoive des Premiers soins. Cet effet représente la douleur et la gêne causées par la perforation ; il n’endommage pas l’armure.
+- **Perforante / très perforante — Empalement :** sur une réussite spéciale avec une arme perforante, un arc ou une arbalète, l'arme reste plantée et inflige les dégâts maximaux de l'arme. Si elle est arrachée, la cible perd 1 PV supplémentaire par round.
 - **Efficace contre les armures / brise-armure :** sur une réussite spéciale, divisez par 4 les dégâts de l’arme avant absorption, en arrondissant au supérieur. Retirez le résultat aux points d’armure de la protection jusqu’à sa réparation, avec une perte minimale de 1 point.
 - **Efficace contre les boucliers / contourne les boucliers :** l’arme permet d’accrocher, d’écarter ou de frapper autour d’un bouclier. Elle peut réduire son bénéfice ou faciliter une tentative de désarmement.
 - **Allonge / très longue :** l’arme frappe avant une arme plus courte tant que l’adversaire reste à distance. Elle devient moins maniable en combat rapproché ou dans un lieu exigu.
@@ -164,5 +164,5 @@ Le statut social détermine la valeur totale de l'équipement qu'un nouveau pers
 - **Couverture importante :** le pavois peut servir de couvert contre les tirs et protéger une plus grande partie du corps, au prix d’un fort encombrement.
 - **Main presque libre / bonne visibilité :** une rondache gêne peu la main qui la porte, tandis qu’un casque ouvert ne pénalise pas les actions de perception visuelle.
 - **Vision et audition réduites :** le heaume intégral peut rendre les jets fondés sur la vue ou l’ouïe plus difficiles, notamment pour repérer une menace.
-- **Résistance magique limitée :** le bouclier runique peut accorder son bonus de protection contre une attaque magique directe, à l’appréciation du MJ.
+- **Résistance magique limitée :** le bouclier runique peut accorder son bonus de Défense contre une attaque magique directe, à l'appréciation du MJ.
 - **Mobilité et discrétion des armures :** ces colonnes indiquent la gêne narrative de l’armure. Une valeur faible ou mauvaise peut rendre les actions physiques ou discrètes plus difficiles.

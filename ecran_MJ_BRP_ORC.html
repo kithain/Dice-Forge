@@ -401,7 +401,14 @@ table { font-size: 12px; }
 </ul>
 
 <h3>Bonus d'expérience = INT / 2 (arr. sup.)</h3>
-<p class="note">Ajouté au jet d'apprentissage pour chaque contrôle d'expérience.</p>
+<ol>
+<li>Pour chaque compétence cochée, lancez D100 + bonus d'expérience.</li>
+<li>Un résultat supérieur au score actuel rend la compétence admissible.</li>
+<li>Le personnage reçoit une réserve de points égale à son bonus d'expérience.</li>
+<li>Le joueur répartit librement cette réserve, sans plafond par compétence, entre les compétences admissibles.</li>
+<li>Les points non attribués sont perdus, puis toutes les coches sont effacées.</li>
+</ol>
+<p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La progression de la POU reste séparée.</p>
 
 <h3>Points de pouvoir (Max = POU)</h3>
 <table class="compact">
@@ -447,24 +454,39 @@ table { font-size: 12px; }
 <h2>Actions par round</h2>
 <ul>
 <li><b>À son rang de DEX :</b> Se déplacer, Attaquer, Action non combattante, Engager, Désengager</li>
-<li><b>À tout moment :</b> Parer, Esquiver, Combattre défensivement, Parler</li>
+<li><b>À tout moment :</b> Tenter une Défense (esquive, parade ou blocage), Combattre défensivement, Parler</li>
 <li><b>Attaque :</b> + déplacement jusqu'à 5 m. Attaques multiples : −5 rangs de DEX par attaque successive</li>
-<li><b>Défenses multiples :</b> −30 % cumulatif par tentative supplémentaire</li>
+<li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
 <li><b>Combattre défensivement :</b> Renoncer à l'attaque → défense supplémentaire sans pénalité cumulative</li>
 </ul>
+
+<h2>Compétence Défense</h2>
+<p>Esquiver, parer avec une arme adaptée et bloquer avec un bouclier utilisent tous la compétence <b>Défense (DEX×2)</b>. Le défenseur doit avoir perçu l'attaque et pouvoir accomplir le mouvement décrit. Le bouclier est un équipement, pas une compétence séparée.</p>
+<table class="compact">
+<tr><th>Bouclier</th><th>Bonus au jet de Défense</th></tr>
+<tr><td>Rondache</td><td>+10 %</td></tr>
+<tr><td>Écu</td><td>+20 %</td></tr>
+<tr><td>Bouclier en amande</td><td>+20 %, contre les projectiles visibles</td></tr>
+<tr><td>Pavois</td><td>+30 %, très encombrant</td></tr>
+<tr><td>Bouclier runique</td><td>+20 %, parfois contre une attaque magique directe</td></tr>
+</table>
+<p class="note">L'armure soustrait ses PA aux dégâts. Le bouclier améliore le jet de Défense mais n'ajoute pas de PA.</p>
 
 <h2>Matrice attaque / défense</h2>
 <table class="compact">
 <tr><th>Attaque</th><th>Défense</th><th>Résultat</th></tr>
 <tr><td>Critique</td><td>Critique</td><td>Attaquant touche (dégâts normaux)</td></tr>
 <tr><td>Critique</td><td>Spéciale/Normale/Échec</td><td>Attaquant touche (dégâts critiques, ignore armure)</td></tr>
+<tr><td>Spéciale</td><td>Critique</td><td>Attaque annulée, aucun dégât</td></tr>
 <tr><td>Spéciale</td><td>Spéciale</td><td>Attaquant touche (dégâts normaux)</td></tr>
 <tr><td>Spéciale</td><td>Normale/Échec</td><td>Attaquant touche (dégâts spéciaux)</td></tr>
-<tr><td>Réussite</td><td>Réussite</td><td>Coup dévié/esquivé</td></tr>
-<tr><td>Réussite</td><td>Échec</td><td>Défenseur touché, perd des PV</td></tr>
-<tr><td>Échec</td><td>—</td><td>Défenseur maintient sa garde</td></tr>
+<tr><td>Normale</td><td>Critique/Spéciale</td><td>Attaque annulée, aucun dégât</td></tr>
+<tr><td>Normale</td><td>Normale</td><td>Coup amorti : dégâts après armure ÷2, arrondi au supérieur</td></tr>
+<tr><td>Normale</td><td>Échec/Maladresse</td><td>Défenseur touché, dégâts complets</td></tr>
+<tr><td>Échec</td><td>—</td><td>Aucune Défense nécessaire</td></tr>
 <tr><td>Maladresse</td><td>—</td><td>Attaquant lance sur la table des maladresses</td></tr>
 </table>
+<p class="note">Coup amorti = arrondi supérieur de ((dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
 
 <h2>Localisation des touches (D20)</h2>
 <table class="compact">

@@ -81,7 +81,6 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Équitation (divers) | 05 % |     | [ ]   |
 | Science (divers) | 01 % |        | [ ]   |
 | Sens | 10 % |                    | [ ]   |
-| Bouclier | Selon le type de bouclier | | [ ] |
 | Tour de main | 05 % |            | [ ]   |
 | Observation | 25 % |             | [ ]   |
 | Statut | 15 % ou variable |       | [ ]   |

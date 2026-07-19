@@ -596,8 +596,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <div class="skill-entry" data-skill="Lutte"><dt>Lutte <span class="skill-base">25 %</span></dt><dd>Saisir, immobiliser, renverser ou désarmer un adversaire au corps à corps.</dd></div>
 <div class="skill-entry" data-skill="Arme de mêlée (divers)"><dt>Arme de mêlée (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Attaquer avec une spécialité précise : épée, hache, lance, masse, dague, etc. Chaque famille peut constituer une compétence distincte.</dd></div>
 <div class="skill-entry" data-skill="Arme de jet (divers)"><dt>Arme de jet (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Utiliser arcs, arbalètes, frondes, javelots ou autres armes propulsées. Pour lancer un objet à la main, utilisez Lancer.</dd></div>
-<div class="skill-entry" data-skill="Défense"><dt>Défense <span class="skill-base">DEX×2</span></dt><dd>Éviter, bloquer ou dévier une attaque par une esquive ou une parade adaptée. Les tentatives supplémentaires dans le même round subissent une pénalité.</dd></div>
-<div class="skill-entry" data-skill="Bouclier"><dt>Bouclier <span class="skill-base">Selon le bouclier</span></dt><dd>Bloquer les attaques avec une rondache, un écu ou un pavois. Le type de bouclier détermine sa base et sa protection.</dd></div>
+<div class="skill-entry" data-skill="Défense"><dt>Défense <span class="skill-base">DEX×2</span></dt><dd>Éviter, bloquer ou dévier une attaque. Le joueur décrit une esquive, une parade avec une arme adaptée ou un blocage avec un bouclier ; ces trois modes utilisent le même score. Une défense exige d'avoir perçu l'attaque et de pouvoir accomplir le mouvement annoncé. Les tentatives supplémentaires dans le même round subissent une pénalité cumulative.</dd></div>
 </dl>
 
 <h2 class="skill-group-title">Physique</h2>
@@ -867,23 +866,67 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <p>Écart de 10+ = réussite/échec automatique. Lancez 1D100 ≤ la valeur indiquée.</p>
 
 <h2>Combat — résumé</h2>
+<h3>Déroulement d'un round</h3>
 <ul>
 <li><b>Round de combat :</b> 4 phases — Déclarations, Pouvoirs, Action, Résolution</li>
 <li><b>Ordre d'action :</b> Rang de DEX décroissant</li>
-<li><b>Attaque :</b> Jet de compétence d'arme. Réussite = dégâts (armure soustraite)</li>
-<li><b>Défense :</b> Jet de compétence opposé à l'attaque, par une esquive ou une parade</li>
-<li><b>Défenses multiples :</b> −30 % cumulatif par tentative supplémentaire</li>
+<li><b>Attaque :</b> Jet de compétence d'arme. Une attaque réussie peut être opposée par un jet de Défense.</li>
+<li><b>Défense :</b> Un seul score pour esquiver, parer avec une arme ou bloquer avec un bouclier.</li>
+<li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
+<li><b>Combat défensif :</b> renoncer à son attaque accorde une défense supplémentaire sans augmenter la pénalité cumulative.</li>
 <li><b>Critique :</b> Dégâts maximum + mod. dégâts normal, ignore l'armure</li>
 <li><b>Spéciale :</b> Dégâts spéciaux selon le type d'arme (saignement, écrasement, empalement, renversement, entrave)</li>
 </ul>
 
-<h2>Amélioration par l'expérience</h2>
+<h3>Choisir sa Défense</h3>
 <ul>
-<li>Cochez une compétence après une réussite significative durant la partie.</li>
-<li>À la fin de la session (ou de l'aventure), faites un jet d'apprentissage pour chaque coche :</li>
-<li><b>Jet d'apprentissage :</b> D100 + Bonus d'expérience (INT/2). Si le résultat &gt; score actuel, la compétence augmente de 1D6 points.</li>
-<li>La POU peut augmenter via les jets de résistance de POU réussis contre une POU égale ou supérieure.</li>
+<li><b>Esquive :</b> nécessite assez de liberté pour se déplacer.</li>
+<li><b>Parade :</b> nécessite une arme adaptée à l'attaque ; une petite arme ne peut normalement pas dévier un projectile.</li>
+<li><b>Blocage :</b> nécessite un bouclier. Le bouclier n'est pas une compétence séparée : il ajoute son bonus au jet de Défense lorsque le blocage est possible.</li>
 </ul>
+<table>
+<tr><th>Bouclier</th><th>Bonus de Défense</th></tr>
+<tr><td>Rondache</td><td>+10 %</td></tr>
+<tr><td>Écu</td><td>+20 %</td></tr>
+<tr><td>Bouclier en amande</td><td>+20 %, utilisable contre les projectiles visibles</td></tr>
+<tr><td>Pavois</td><td>+30 %, très encombrant</td></tr>
+<tr><td>Bouclier runique</td><td>+20 %, parfois contre une attaque magique directe</td></tr>
+</table>
+
+<h3>Matrice attaque / Défense</h3>
+<table>
+<tr><th>Attaque</th><th>Défense</th><th>Résultat</th></tr>
+<tr><td>Critique</td><td>Critique</td><td>L'attaque touche et inflige des dégâts normaux</td></tr>
+<tr><td>Critique</td><td>Spéciale, normale ou échec</td><td>Dégâts critiques, l'armure est ignorée</td></tr>
+<tr><td>Spéciale</td><td>Critique</td><td>Attaque entièrement esquivée, parée ou bloquée : aucun dégât</td></tr>
+<tr><td>Spéciale</td><td>Spéciale</td><td>L'attaque touche et inflige des dégâts normaux</td></tr>
+<tr><td>Spéciale</td><td>Normale ou échec</td><td>Dégâts spéciaux</td></tr>
+<tr><td>Normale</td><td>Critique ou spéciale</td><td>Attaque entièrement esquivée, parée ou bloquée : aucun dégât</td></tr>
+<tr><td>Normale</td><td>Normale</td><td>Coup amorti : moitié des dégâts restant après l'armure</td></tr>
+<tr><td>Normale</td><td>Échec ou maladresse</td><td>La cible est touchée et subit les dégâts complets</td></tr>
+<tr><td>Échec ou maladresse</td><td>—</td><td>Aucune Défense nécessaire ; appliquer la maladresse éventuelle</td></tr>
+</table>
+
+<h3>Dégâts, armure et blessures</h3>
+<p>Lancez les dégâts de l'arme et ajoutez le modificateur de dégâts du personnage lorsque l'arme le permet. L'armure possède une valeur fixe en points d'armure (PA) : soustrayez-la des dégâts reçus. Un bouclier n'ajoute pas de PA et ne réduit pas une seconde fois les dégâts.</p>
+<div class="formula">Dégâts subis = dégâts de l'arme + mod. dégâts − PA de l'armure (minimum 0)</div>
+<div class="formula">Coup amorti = dégâts subis ÷ 2 (arrondi au supérieur)</div>
+<p class="note">Un coup amorti compte comme une attaque ayant touché, mais il ne produit aucun effet spécial. Calculez d'abord les dégâts et l'absorption de l'armure, puis divisez le résultat restant par deux.</p>
+<p>Une blessure infligeant en un seul coup au moins la moitié des PV totaux est une blessure majeure. À 2 PV ou moins, le personnage perd connaissance ; à 0 PV, il meurt à la fin du round suivant sans intervention. Les localisations de touche restent optionnelles.</p>
+
+<h3>Exemple</h3>
+<p>Arthas possède Épée 65 % et obtient 42 : son attaque est une réussite normale. L'orque tente une parade avec Défense 50 % et obtient 73 : sa Défense échoue. Arthas lance 1D8 et obtient 6, puis ajoute 2 points de modificateur de dégâts. L'armure de l'orque absorbe 3 points : il perd donc 5 PV.</p>
+
+<h2>Amélioration par l'expérience</h2>
+<ol>
+<li>Cochez une compétence après une réussite significative durant la partie.</li>
+<li>À la fin de la session ou de l'aventure, effectuez un jet d'apprentissage pour chaque compétence cochée : lancez <b>D100 + bonus d'expérience</b>. Si le résultat est supérieur au score actuel, la compétence devient admissible à une amélioration.</li>
+<li>Créez une <b>réserve d'expérience égale au bonus d'expérience</b> du personnage (INT/2, arrondi au supérieur).</li>
+<li>Répartissez librement tous les points de cette réserve entre les compétences dont le jet d'apprentissage a réussi. Il n'y a pas de maximum par compétence.</li>
+<li>Les points qui ne peuvent ou ne veulent pas être attribués sont perdus, puis toutes les coches sont effacées.</li>
+</ol>
+<p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La POU continue d'augmenter séparément via les jets de résistance de POU réussis contre une POU égale ou supérieure.</p>
+<p><b>Exemple :</b> avec INT 13, le bonus d'expérience et la réserve valent 7. Si les jets d'Épée, Défense et Premiers secours réussissent, le joueur répartit librement ces 7 points entre ces trois compétences, par exemple +4 en Épée, +2 en Défense et +1 en Premiers secours.</p>
 
 <hr>
 <p style="text-align: center; font-style: italic; color: #666; margin-top: 20px;">Bon jeu, et que les dés soient avec vous !</p>

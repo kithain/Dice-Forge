@@ -43,11 +43,14 @@ const SKILLS = [
   ['', '', ''], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
   ['Pilotage (divers)', '01 %', 'Physique'], ['', '', ''], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
-  ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['Bouclier', 'Selon le type de bouclier', 'Combat'],
+  ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['', '', ''],
   ['Tour de main', '05 %', 'Pratique & divers'], ['Observation', '25 %', 'Social & mental'], ['Statut', '15 % ou variable', 'Social & mental'], ['Discrétion', '10 %', 'Physique'],
   ['Stratégie', '01 %', 'Connaissances'], ['Nage', '25 %', 'Physique'], ['Enseignement', '10 %', 'Connaissances'],
   ['Compétence technique (divers)', '05 %', 'Connaissances'], ['Lancer', '25 %', 'Physique'], ['Pistage', '10 %', 'Pratique & divers']
 ];
+const DEFENSE_SKILL_INDEX = SKILLS.findIndex(([name]) => name === 'Défense');
+// Ancien emplacement de Bouclier. Il reste réservé pour ne pas décaler les sauvegardes existantes.
+const LEGACY_SHIELD_SKILL_INDEX = 46;
 const NON_MEDFAN_SKILLS = new Set([
   'Démolition',
   'Arme à énergie (divers)',
@@ -163,7 +166,6 @@ const SKILL_HELP = {
   'Équitation (divers)': 'Monter, guider et maîtriser une monture de la spécialité choisie.',
   'Science (divers)': 'Appliquer une discipline scientifique ou savante à un problème précis.',
   'Sens': 'Utiliser un sens particulier pour détecter, reconnaître ou analyser quelque chose.',
-  'Bouclier': 'Bloquer une attaque et se protéger avec un type de bouclier.',
   'Tour de main': "Dissimuler ou subtiliser un petit objet par l'adresse et la distraction.",
   'Observation': "Repérer un détail visible, un indice ou une anomalie dans l'environnement.",
   'Statut': 'Utiliser sa position sociale, sa réputation ou ses relations pour obtenir un avantage.',
@@ -458,15 +460,24 @@ function applyData(data) {
   }));
   renderSpellRows();
   updateDerived();
-  (data.skills || []).forEach((skill, index) => {
+  const savedSkills = Array.isArray(data.skills) ? data.skills : [];
+  const legacyShield = savedSkills[LEGACY_SHIELD_SKILL_INDEX] || {};
+  const shieldHasPointAllocation = legacyShield.points !== undefined;
+  const shieldPoints = shieldHasPointAllocation ? Math.max(0, parseInt(legacyShield.points, 10) || 0) : 0;
+  const shieldFinalScore = shieldHasPointAllocation ? 0 : Math.max(0, parseInt(legacyShield.score, 10) || 0);
+  savedSkills.forEach((skill, index) => {
     const base = form.querySelector(`[data-skill-base="${index}"]`);
     const points = form.querySelector(`[data-skill-points="${index}"]`);
     const check = form.querySelector(`[data-skill-check="${index}"]`);
     if (points) {
-      const legacyPoints = skill.points === undefined ? Math.max(0, (parseInt(skill.score, 10) || 0) - (parseInt(base?.value, 10) || 0)) : skill.points;
-      points.value = legacyPoints || 0;
+      let migratedPoints = skill.points === undefined ? Math.max(0, (parseInt(skill.score, 10) || 0) - (parseInt(base?.value, 10) || 0)) : Math.max(0, parseInt(skill.points, 10) || 0);
+      if (index === DEFENSE_SKILL_INDEX) {
+        if (shieldHasPointAllocation) migratedPoints += shieldPoints;
+        else if (shieldFinalScore) migratedPoints = Math.max(migratedPoints, shieldFinalScore - (parseInt(base?.value, 10) || 0));
+      }
+      points.value = migratedPoints;
     }
-    if (check) check.checked = !!skill.checked;
+    if (check) check.checked = !!skill.checked || (index === DEFENSE_SKILL_INDEX && !!legacyShield.checked);
   });
   weaponsBody.innerHTML = '';
   (data.weapons?.length ? data.weapons : [{}]).forEach(addWeaponRow);
@@ -786,6 +797,14 @@ function parseMarkdown(text) {
       ? { base: cells[2]?.trim() || '', points: cells[3]?.trim() || '0', score: cells[4]?.trim() || '', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') }
       : { score: cells[3]?.trim() || '', checked: /^\[x\]$/i.test(cells[4]?.trim() || '') };
   });
+  const legacyShieldRow = skillSection.split(/\r?\n/).find(line => line.split('|')[1]?.trim() === 'Bouclier');
+  if (legacyShieldRow) {
+    const cells = legacyShieldRow.split('|');
+    const modern = cells.length >= 7;
+    data.skills[LEGACY_SHIELD_SKILL_INDEX] = modern
+      ? { points: cells[3]?.trim() || '0', score: cells[4]?.trim() || '', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') }
+      : { score: cells[3]?.trim() || '', checked: /^\[x\]$/i.test(cells[4]?.trim() || '') };
+  }
   const spellNames = new Set(SPELLS.map(([name]) => name));
   data.spells = skillSection.split(/\r?\n/).filter(line => {
     const name = line.split('|')[1]?.trim();
