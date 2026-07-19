@@ -259,15 +259,42 @@ function updateSpellOptions() {
 
 function addWeaponRow(weapon = {}) {
   const row = document.createElement('tr');
-  row.innerHTML = ['name', 'score', 'damage', 'range', 'pa'].map(key =>
-    `<td><input data-weapon="${key}" value="${escapeHtml(weapon[key] || '')}" aria-label="${key}"></td>`
-  ).join('') + '<td><button class="pj-remove" type="button" title="Supprimer cette arme" aria-label="Supprimer cette arme">×</button></td>';
+  const inferredType = weapon.attackType || (weapon.name
+    ? (weapon.range && weapon.range !== '—' ? 'distance' : 'contact')
+    : '');
+  row.innerHTML = `<td><input data-weapon="name" value="${escapeHtml(weapon.name || '')}" aria-label="Arme"></td>
+    <td><select data-weapon="attackType" aria-label="Type d’attaque">
+      <option value="">Choisir…</option>
+      <option value="contact"${inferredType === 'contact' ? ' selected' : ''}>Contact</option>
+      <option value="distance"${inferredType === 'distance' ? ' selected' : ''}>Distance</option>
+    </select></td>
+    <td><input data-weapon="score" value="${escapeHtml(weapon.score || '')}" aria-label="Pourcentage d’attaque" readonly tabindex="-1"></td>
+    ${['damage', 'range', 'pa'].map(key => `<td><input data-weapon="${key}" value="${escapeHtml(weapon[key] || '')}" aria-label="${key}"></td>`).join('')}
+    <td><button class="pj-remove" type="button" title="Supprimer cette arme" aria-label="Supprimer cette arme">×</button></td>`;
   row.querySelector('.pj-remove').addEventListener('click', () => {
     row.remove();
     if (!weaponsBody.children.length) addWeaponRow();
     changed();
   });
   weaponsBody.appendChild(row);
+  syncWeaponScores();
+}
+
+function skillFinalScore(name) {
+  const entry = ACTIVE_SKILLS.find(({ skill }) => skill[0] === name);
+  return entry ? form.querySelector(`[data-skill-final="${entry.index}"]`)?.textContent || '' : '';
+}
+
+function syncWeaponScores() {
+  const scores = {
+    contact: skillFinalScore('Arme de mêlée (divers)'),
+    distance: skillFinalScore('Arme de jet (divers)')
+  };
+  Array.from(weaponsBody.rows).forEach(row => {
+    const type = row.querySelector('[data-weapon="attackType"]')?.value || '';
+    const score = row.querySelector('[data-weapon="score"]');
+    if (score) score.value = type ? scores[type] || '0' : '';
+  });
 }
 
 function numberValue(key) {
@@ -339,6 +366,7 @@ function updateSkillCalculations() {
   const personal = (numberValue('intelligence') || 0) * 10;
   const total = professional + personal;
   const remaining = total - spent;
+  syncWeaponScores();
   document.getElementById('pj-skill-personal').textContent = personal;
   document.getElementById('pj-skill-total').textContent = total;
   document.getElementById('pj-skill-spent').textContent = spent;
@@ -625,7 +653,7 @@ function toMarkdown() {
     const spells = group === 'Magie & pouvoirs' && spellRows ? `\n${spellRows}` : '';
     return `| **${group}** |  |  |  |  |\n${rows}${spells}`;
   }).join('\n');
-  const weaponRows = data.weapons.filter(w => Object.values(w).some(Boolean)).map(w => `| ${cell(w.name)} | ${cell(w.score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`).join('\n') || '|  |  |  |  |  |';
+  const weaponRows = data.weapons.filter(w => w.name || w.damage || w.range || w.pa).map(w => `| ${cell(w.name)} | ${cell(w.score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`).join('\n') || '|  |  |  |  |  |';
   const d = key => form.querySelector(`[data-derived="${key}"]`).value;
   const professional = Math.max(0, parseInt(f.skillProfessionalPool, 10) || 0);
   const personal = (Number(s.intelligence) || 0) * 10;
