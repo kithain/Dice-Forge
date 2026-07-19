@@ -33,7 +33,7 @@ function renderPrintSheet(data) {
     </tbody></table>
   </section>`).join('');
   const weapons = (data.weapons || []).filter(weapon => ['name', 'damage', 'range', 'pa'].some(key => String(weapon[key] || '').trim()));
-  const weaponRows = weapons.length ? weapons.map(weapon => `<tr><td>${text(weapon.name)}</td><td>${weapon.attackType === 'distance' ? 'Distance' : weapon.attackType === 'contact' ? 'Contact' : '—'}</td><td>${text(weapon.score)}</td><td>${text(weapon.damage)}</td><td>${text(weapon.range)}</td><td>${text(weapon.pa)}</td></tr>`).join('') : '<tr><td colspan="6">Aucune arme renseignée</td></tr>';
+  const weaponRows = weapons.length ? weapons.map(weapon => `<tr><td>${text(weapon.name)}</td><td>${weapon.attackType === 'mixed' ? 'Contact + jet' : weapon.attackType === 'distance' ? 'Jet' : weapon.attackType === 'contact' ? 'Contact' : '—'}</td><td>${text(weapon.contactScore)}</td><td>${text(weapon.distanceScore)}</td><td>${text(weapon.damage)}</td><td>${text(weapon.range)}</td><td>${text(weapon.pa)}</td></tr>`).join('') : '<tr><td colspan="7">Aucune arme renseignée</td></tr>';
   const generatedDate = data.generatedAt ? new Date(data.generatedAt).toLocaleString('fr-FR') : '';
 
   document.title = `${String(f.name || 'personnage').trim() || 'personnage'} - fiche PDF`;
@@ -49,7 +49,7 @@ function renderPrintSheet(data) {
     <div class="skill-columns">${skillGroups}</div>
     <div class="page-break">
       <h2 class="section-title">Armes</h2>
-      <table><thead><tr><th>Arme</th><th>Type</th><th>%</th><th>Dégâts</th><th>Portée</th><th>PA</th></tr></thead><tbody>${weaponRows}</tbody></table>
+      <table><thead><tr><th>Arme</th><th>Classe</th><th>% contact</th><th>% jet</th><th>Dégâts</th><th>Portée</th><th>PA</th></tr></thead><tbody>${weaponRows}</tbody></table>
       <div class="two-columns">
         <section><h2 class="section-title">Armure</h2>${box('Type', f.armorType)}${box("Points d’armure", f.armorPoints)}</section>
         <section><h2 class="section-title">Sorts / pouvoirs</h2><div class="text-box">${text(f.powers)}</div></section>

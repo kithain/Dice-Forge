@@ -259,16 +259,21 @@ function updateSpellOptions() {
 
 function addWeaponRow(weapon = {}) {
   const row = document.createElement('tr');
-  const inferredType = weapon.attackType || (weapon.name
-    ? (weapon.range && weapon.range !== '—' ? 'distance' : 'contact')
-    : '');
+  const legacyScore = String(weapon.score || '');
+  const inferredType = weapon.attackType
+    || (/contact.*(?:jet|distance)|(?:jet|distance).*contact/i.test(legacyScore) ? 'mixed' : '')
+    || (/contact/i.test(legacyScore) ? 'contact' : '')
+    || (/(?:jet|distance)/i.test(legacyScore) ? 'distance' : '')
+    || (weapon.name ? (weapon.range && weapon.range !== '—' ? 'distance' : 'contact') : '');
   row.innerHTML = `<td><input data-weapon="name" value="${escapeHtml(weapon.name || '')}" aria-label="Arme"></td>
-    <td><select data-weapon="attackType" aria-label="Type d’attaque">
+    <td><select data-weapon="attackType" aria-label="Classe de l’arme">
       <option value="">Choisir…</option>
       <option value="contact"${inferredType === 'contact' ? ' selected' : ''}>Contact</option>
-      <option value="distance"${inferredType === 'distance' ? ' selected' : ''}>Distance</option>
+      <option value="distance"${inferredType === 'distance' ? ' selected' : ''}>Jet</option>
+      <option value="mixed"${inferredType === 'mixed' ? ' selected' : ''}>Contact + jet</option>
     </select></td>
-    <td><input data-weapon="score" value="${escapeHtml(weapon.score || '')}" aria-label="Pourcentage d’attaque" readonly tabindex="-1"></td>
+    <td><input data-weapon="contactScore" value="${escapeHtml(weapon.contactScore || '')}" aria-label="Pourcentage au contact" readonly tabindex="-1"></td>
+    <td><input data-weapon="distanceScore" value="${escapeHtml(weapon.distanceScore || '')}" aria-label="Pourcentage au jet" readonly tabindex="-1"></td>
     ${['damage', 'range', 'pa'].map(key => `<td><input data-weapon="${key}" value="${escapeHtml(weapon[key] || '')}" aria-label="${key}"></td>`).join('')}
     <td><button class="pj-remove" type="button" title="Supprimer cette arme" aria-label="Supprimer cette arme">×</button></td>`;
   row.querySelector('.pj-remove').addEventListener('click', () => {
@@ -292,8 +297,10 @@ function syncWeaponScores() {
   };
   Array.from(weaponsBody.rows).forEach(row => {
     const type = row.querySelector('[data-weapon="attackType"]')?.value || '';
-    const score = row.querySelector('[data-weapon="score"]');
-    if (score) score.value = type ? scores[type] || '0' : '';
+    const contactScore = row.querySelector('[data-weapon="contactScore"]');
+    const distanceScore = row.querySelector('[data-weapon="distanceScore"]');
+    if (contactScore) contactScore.value = type === 'contact' || type === 'mixed' ? scores.contact || '0' : '';
+    if (distanceScore) distanceScore.value = type === 'distance' || type === 'mixed' ? scores.distance || '0' : '';
   });
 }
 
@@ -653,7 +660,12 @@ function toMarkdown() {
     const spells = group === 'Magie & pouvoirs' && spellRows ? `\n${spellRows}` : '';
     return `| **${group}** |  |  |  |  |\n${rows}${spells}`;
   }).join('\n');
-  const weaponRows = data.weapons.filter(w => w.name || w.damage || w.range || w.pa).map(w => `| ${cell(w.name)} | ${cell(w.score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`).join('\n') || '|  |  |  |  |  |';
+  const weaponRows = data.weapons.filter(w => w.name || w.damage || w.range || w.pa).map(w => {
+    const score = w.attackType === 'mixed' ? `Contact ${w.contactScore || 0} / Jet ${w.distanceScore || 0}`
+      : w.attackType === 'distance' ? `Jet ${w.distanceScore || 0}`
+      : w.attackType === 'contact' ? `Contact ${w.contactScore || 0}` : '';
+    return `| ${cell(w.name)} | ${cell(score)} | ${cell(w.damage)} | ${cell(w.range)} | ${cell(w.pa)} |`;
+  }).join('\n') || '|  |  |  |  |  |';
   const d = key => form.querySelector(`[data-derived="${key}"]`).value;
   const professional = Math.max(0, parseInt(f.skillProfessionalPool, 10) || 0);
   const personal = (Number(s.intelligence) || 0) * 10;
