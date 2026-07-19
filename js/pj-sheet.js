@@ -20,7 +20,7 @@ const STATS = [
   ['TAI', 'taille', 'Masse et gabarit du personnage. Contribue aux points de vie et au bonus aux dégâts.'],
   ['INT', 'intelligence', 'Capacité à comprendre, raisonner et trouver des solutions. Détermine les points personnels.'],
   ['POU', 'pouvoir', 'Force mentale et spirituelle. Sert à la magie, à la chance et aux points de pouvoir.'],
-  ['DEX', 'dexterite', 'Vitesse, coordination et précision. Influence notamment Esquive et Vol.'],
+  ['DEX', 'dexterite', 'Vitesse, coordination et précision. Influence notamment Défense et Vol.'],
   ['APP', 'apparence', 'Apparence et présence visible du personnage. Influence sa première impression sociale.']
 ];
 
@@ -29,7 +29,7 @@ const SKILL_GROUPS = ['Combat', 'Physique', 'Magie & pouvoirs', 'Social & mental
 const SKILLS = [
   ['Estimation', '15 %', 'Pratique & divers'], ['Art (divers)', '05 %', 'Pratique & divers'], ['Artillerie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Marchandage', '05 %', 'Social & mental'], ['Bagarre', '25 %', 'Combat'], ['Escalade', '40 %', 'Physique'], ['Commandement', '05 %', 'Social & mental'],
-  ['Artisanat (divers)', '05 %', 'Pratique & divers'], ['Démolition', '01 %', 'Pratique & divers'], ['Déguisement', '01 %', 'Social & mental'], ['Esquive', 'DEX×2', 'Physique'],
+  ['Artisanat (divers)', '05 %', 'Pratique & divers'], ['Démolition', '01 %', 'Pratique & divers'], ['Déguisement', '01 %', 'Social & mental'], ['Défense', 'DEX×2', 'Combat'],
   ['Conduite (divers)', '20 % ou 01 %', 'Physique'], ['Arme à énergie (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Étiquette (divers)', '05 %', 'Social & mental'], ['Baratin', '05 %', 'Social & mental'], ['Manipulation fine', '05 %', 'Pratique & divers'],
   ['Arme à feu (divers)', "Selon la spécialité d'arme", 'Combat'], ['Premiers secours', '30 %', 'Pratique & divers'],
@@ -39,7 +39,7 @@ const SKILLS = [
   ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'], ['', '', ''],
   ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
   ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
-  ['Parade (divers)', "Selon la spécialité d'arme", 'Combat'], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
+  ['', '', ''], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
   ['Pilotage (divers)', '01 %', 'Physique'], ['', '', ''], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
   ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['Bouclier', 'Selon le type de bouclier', 'Combat'],
@@ -117,7 +117,7 @@ const SKILL_HELP = {
   'Commandement': 'Donner des ordres clairs, coordonner un groupe et maintenir son moral.',
   'Artisanat (divers)': "Fabriquer, entretenir ou examiner des objets d'un métier précis.",
   'Déguisement': "Modifier son apparence pour passer pour quelqu'un d'autre ou rester méconnaissable.",
-  'Esquive': 'Éviter une attaque, un projectile ou un danger soudain.',
+  'Défense': 'Éviter, bloquer ou dévier une attaque par une esquive ou une parade adaptée.',
   'Conduite (divers)': 'Diriger un véhicule, un attelage ou une embarcation de la spécialité choisie.',
   'Étiquette (divers)': 'Connaître les usages, titres et comportements attendus dans un milieu social.',
   'Baratin': "Convaincre rapidement par l'assurance, l'improvisation ou un mensonge plausible.",
@@ -137,7 +137,6 @@ const SKILL_HELP = {
   'Arme de mêlée (divers)': 'Attaquer avec une arme de contact de la spécialité choisie.',
   'Arme de jet (divers)': 'Attaquer à distance avec un arc, une fronde ou une arme lancée selon la spécialité.',
   'Navigation': "S'orienter et tracer une route à l'aide du terrain, des cartes ou des astres.",
-  'Parade (divers)': "Bloquer ou dévier une attaque avec l'arme choisie.",
   'Représentation': 'Captiver un public par le chant, la musique, le théâtre, la danse ou le rituel.',
   'Intimidation/Persuasion': "Obtenir l'adhésion par la menace, l'autorité ou une argumentation directe.",
   'Pilotage (divers)': 'Contrôler un appareil ou moyen de transport complexe de la spécialité choisie.',
@@ -302,7 +301,7 @@ function automaticSkillBase(name, label) {
   const intelligence = numberValue('intelligence') || 0;
   const power = numberValue('pouvoir') || 0;
   const profession = fieldValue('profession').toLocaleLowerCase('fr-FR');
-  if (name === 'Esquive') return dex * 2;
+  if (name === 'Défense') return dex * 2;
   if (name === 'Vol') return Math.ceil(dex / 2);
   if (name === 'Jeux') return intelligence + power;
   if (name === 'Langue (divers)') return intelligence * 5;
@@ -694,7 +693,9 @@ function parseMarkdown(text) {
   data.fields.skillProfessionalPool = (skillSection.match(/\*\*Points professionnels\s*:\*\*\s*(\d+)/) || [])[1] || '325';
   data.skills = SKILLS.map(([name]) => {
     if (!name) return {};
-    const importedNames = name === 'Intimidation/Persuasion' ? [name, 'Persuasion'] : [name];
+    const importedNames = name === 'Intimidation/Persuasion'
+      ? [name, 'Persuasion']
+      : name === 'Défense' ? [name, 'Esquive'] : [name];
     const row = skillSection.split(/\r?\n/).find(line => importedNames.includes(line.split('|')[1]?.trim())), cells = row?.split('|') || [];
     const modern = cells.length >= 7;
     return modern

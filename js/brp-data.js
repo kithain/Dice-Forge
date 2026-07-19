@@ -117,7 +117,7 @@ export const BRP_PROFESSIONS = [
     name: 'Guerrier',
     tag: 'Combat',
     richesse: 'Pauvre à Moyen',
-    skills: 'Bagarre, Esquive, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Équitation, Observation, Discrétion, Nage, Lancer, Pistage',
+    skills: 'Bagarre, Défense, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Équitation, Observation, Discrétion, Nage, Lancer, Pistage',
     special: ''
   },
   {
@@ -138,14 +138,14 @@ export const BRP_PROFESSIONS = [
     name: 'Voleur',
     tag: 'Ruse',
     richesse: 'Variable',
-    skills: 'Estimation, Esquive, Baratin, Se cacher, Discrétion + 5 parmi : Marchandage, Bagarre, Escalade, Déguisement, Manipulation Fine, Lutte, Intuition, Écouter, Saut, Connaissance (Droit), Intimidation/Persuasion, Observation',
+    skills: 'Estimation, Défense, Baratin, Se cacher, Discrétion + 5 parmi : Marchandage, Bagarre, Escalade, Déguisement, Manipulation Fine, Lutte, Intuition, Écouter, Saut, Connaissance (Droit), Intimidation/Persuasion, Observation',
     special: ''
   },
   {
     name: 'Chasseur',
     tag: '',
     richesse: 'Pauvre à Moyen',
-    skills: 'Escalade, Esquive, Se cacher, Connaissance (Histoire Naturelle), Écouter, Observation, Pistage, Arme de jet (Arc), Discrétion + 1 parmi : Bagarre, Premiers Secours, Saut, Équitation, Nage',
+    skills: 'Escalade, Défense, Se cacher, Connaissance (Histoire Naturelle), Écouter, Observation, Pistage, Arme de jet (Arc), Discrétion + 1 parmi : Bagarre, Premiers Secours, Saut, Équitation, Nage',
     special: ''
   },
   {
@@ -180,14 +180,14 @@ export const BRP_PROFESSIONS = [
     name: 'Assassin',
     tag: '',
     richesse: 'Aisé',
-    skills: 'Esquive, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Équitation, Lancer, Pistage',
+    skills: 'Défense, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Équitation, Lancer, Pistage',
     special: ''
   },
   {
     name: 'Soldat',
     tag: '',
     richesse: 'Pauvre à Moyen',
-    skills: 'Bagarre, Escalade, Esquive, Premiers Secours + 6 parmi : Commandement, Arme de mêlée (au choix), Arme de jet (au choix), Se cacher, Écouter, Saut, Équitation, Observation, Discrétion, Lancer',
+    skills: 'Bagarre, Escalade, Défense, Premiers Secours + 6 parmi : Commandement, Arme de mêlée (au choix), Arme de jet (au choix), Se cacher, Écouter, Saut, Équitation, Observation, Discrétion, Lancer',
     special: ''
   },
   {
@@ -215,7 +215,7 @@ export const BRP_PROFESSIONS = [
     name: 'Tribal',
     tag: '',
     richesse: 'Indigent à Pauvre',
-    skills: 'Artisanat (au choix), Esquive, Lutte, Se cacher, Connaissance (Histoire Naturelle), Observation, Lancer, Pistage + 2 parmi : Bagarre, Escalade, Premiers Secours, Écouter, Saut, Arme de mêlée (Lance ou Matraque), Arme de jet (Arc), Équitation, Discrétion, Nage',
+    skills: 'Artisanat (au choix), Défense, Lutte, Se cacher, Connaissance (Histoire Naturelle), Observation, Lancer, Pistage + 2 parmi : Bagarre, Escalade, Premiers Secours, Écouter, Saut, Arme de mêlée (Lance ou Matraque), Arme de jet (Arc), Équitation, Discrétion, Nage',
     special: ''
   },
   {

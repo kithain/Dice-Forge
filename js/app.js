@@ -25,7 +25,7 @@ const CHARACTER_STATS = [
   { key: 'taille', code: 'TAI', label: 'Taille', count: 2, type: 6, mod: 6, test: null, help: 'Masse et gabarit du personnage. Contribue aux points de vie et au bonus aux dégâts.' },
   { key: 'intelligence', code: 'INT', label: 'Intelligence', count: 2, type: 6, mod: 6, test: 'Idée', help: 'Capacité à comprendre, raisonner et trouver des solutions. Détermine aussi les points de compétences personnels.' },
   { key: 'pouvoir', code: 'POU', label: 'Pouvoir', count: 3, type: 6, mod: 0, test: 'Chance', help: 'Force mentale et spirituelle. Sert à la magie, à la chance, aux points de pouvoir et à la santé mentale.' },
-  { key: 'dexterite', code: 'DEX', label: 'Dextérité', count: 3, type: 6, mod: 0, test: 'Agilité', help: 'Vitesse, coordination et précision. Sert aux actions rapides et influence notamment Esquive et Vol.' },
+  { key: 'dexterite', code: 'DEX', label: 'Dextérité', count: 3, type: 6, mod: 0, test: 'Agilité', help: 'Vitesse, coordination et précision. Sert aux actions rapides et influence notamment Défense et Vol.' },
   { key: 'charisme', code: 'CHA', label: 'Charisme', count: 3, type: 6, mod: 0, test: 'Charme', help: 'Présence, allure et impact social. Sert à séduire, convaincre, impressionner ou inspirer.' }
 ];
 const CHARACTER_DETAIL_KEYS = ['espece', 'genre', 'age', 'profession', 'richesse', 'traits', 'notes'];

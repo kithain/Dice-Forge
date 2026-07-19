@@ -48,7 +48,7 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Artisanat (divers) | 05 % |      | [ ]   |
 | Démolition | 01 % |              | [ ]   |
 | Déguisement | 01 % |             | [ ]   |
-| Esquive | DEX×2 |                 | [ ]   |
+| Défense | DEX×2 |                 | [ ]   |
 | Conduite (divers) | 20 % ou 01 % | | [ ] |
 | Arme à énergie (divers) | Selon la spécialité d'arme | | [ ] |
 | Étiquette (divers) | 05 % |      | [ ]   |
@@ -71,7 +71,6 @@ Le score final correspond à la valeur de base, augmentée des points de compét
 | Arme de mêlée (divers) | Selon la spécialité d'arme | | [ ] |
 | Arme de jet (divers) | Selon la spécialité d'arme | | [ ] |
 | Navigation | 10 % |              | [ ]   |
-| Parade (divers) | Selon la spécialité d'arme | | [ ] |
 | Représentation | 05 % |          | [ ]   |
 | Intimidation/Persuasion | 15 % |              | [ ]   |
 | Pilotage (divers) | 01 % |       | [ ]   |
