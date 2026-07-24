@@ -257,10 +257,22 @@ function characterDerivedSummary(character) {
   ];
 }
 
-async function loadPlayerCharacter(playerName = roomState.player) {
-  if (!playerName) { clearPlayerCharacter(); return null; }
+export async function loadPlayerCharacter(playerName = roomState.player, {
+  preserveOnError = false,
+  preserveWhenMissing = false,
+  throwOnError = false
+} = {}) {
+  if (!playerName) {
+    if (!preserveOnError) clearPlayerCharacter();
+    if (throwOnError) throw new Error('Aucun joueur connecté.');
+    return null;
+  }
   sbInit();
-  if (!sb) { clearPlayerCharacter(); return null; }
+  if (!sb) {
+    if (!preserveOnError) clearPlayerCharacter();
+    if (throwOnError) throw new Error('Supabase n’est pas configuré.');
+    return null;
+  }
 
   let { data, error } = await sb.from('personnages')
     .select(CHARACTER_COLUMNS)
@@ -280,12 +292,14 @@ async function loadPlayerCharacter(playerName = roomState.player) {
   }
 
   if (error) {
-    renderPlayerCharacter(null);
+    if (!preserveOnError) renderPlayerCharacter(null);
     console.error('Erreur chargement fiche personnage:', error.message);
+    if (throwOnError) throw error;
     return null;
   }
 
   const character = data && data.length ? data[0] : null;
+  if (!character && preserveWhenMissing) return null;
   renderPlayerCharacter(character);
   window.dispatchEvent(new CustomEvent('diceforge:character-loaded', {
     detail: { character }

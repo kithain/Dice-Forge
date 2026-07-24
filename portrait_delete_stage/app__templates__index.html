@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tracker de combat</title>
+    <style>
+        :root { color-scheme: dark; --gold:#d6a248; --panel:#2d2d2d; --field:#222; --blue:#4a90e2; --green:#2ecc71; --red:#d9534f; }
+        * { box-sizing: border-box; }
+        body { margin:0; padding:18px; font-family:Arial,sans-serif; color:#eee; background:#181818; }
+        .container { max-width:900px; margin:auto; }
+        h1 { margin:0 0 12px; color:var(--gold); font-size:1.65rem; }
+        h2 { color:var(--gold); font-size:1.15rem; margin:8px 0 12px; }
+        .topbar, .main-controls { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+        .panel, details { background:var(--panel); border:1px solid #444; border-radius:8px; padding:12px; margin-bottom:12px; }
+        details > summary { cursor:pointer; color:var(--gold); font-weight:bold; }
+        .btn { border:0; border-radius:5px; padding:8px 12px; color:#fff; background:var(--blue); cursor:pointer; text-decoration:none; font-size:.9rem; }
+        .btn:hover { filter:brightness(1.12); }
+        .btn-success { background:var(--green); }
+        .btn-danger { background:var(--red); }
+        .btn-muted { background:#555; }
+        .compact { padding:5px 8px; margin:0; }
+        .phase-banner { padding:11px; margin-bottom:10px; text-align:center; border:1px solid var(--gold); border-radius:6px; background:#252f3a; color:#ffd986; font-weight:bold; }
+        .participant { display:grid; grid-template-columns:34px minmax(150px,1fr) auto minmax(190px,auto) auto; gap:9px; align-items:center; padding:10px; margin:7px 0; border-radius:6px; border-left:5px solid #777; background:#393939; }
+        .participant.player { border-left-color:var(--blue); }
+        .participant.ally { border-left-color:var(--green); }
+        .participant.monster { border-left-color:var(--red); }
+        .participant.active { outline:2px solid var(--gold); background:#484238; }
+        .participant.status-dead { opacity:.55; text-decoration:line-through; }
+        .rank { font-weight:bold; color:#aaa; }
+        .name { font-weight:bold; font-size:1.05rem; }
+        .dex-field { display:flex; align-items:center; gap:4px; color:#bbb; font-size:.78rem; }
+        .dex-field input { width:48px; }
+        input, select { padding:6px; border:1px solid #555; border-radius:4px; background:var(--field); color:#eee; }
+        .hp-block { min-width:190px; }
+        .hp-line, .hp-controls, .status-controls, .row-actions { display:flex; align-items:center; gap:5px; }
+        .hp-controls { margin-top:5px; }
+        .hp-controls input { width:52px; }
+        .hp-bar-container { flex:1; min-width:70px; height:10px; border-radius:5px; overflow:hidden; background:#555; }
+        .hp-bar { display:block; height:100%; background:var(--green); }
+        .status-area { grid-column:2 / 5; display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+        .status-list { display:flex; flex-wrap:wrap; gap:5px; }
+        .status-badge { display:inline-flex; gap:5px; align-items:center; padding:4px 7px; border-radius:12px; background:#66512c; font-size:.8rem; }
+        .status-badge button { border:0; padding:0; color:#ddd; background:transparent; cursor:pointer; font-weight:bold; }
+        .no-status, .empty { color:#999; }
+        .status-controls input { width:72px; }
+        .row-actions { grid-column:5; grid-row:1 / 3; }
+        .form-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; align-items:end; margin-top:12px; }
+        .form-group { display:flex; flex-direction:column; gap:4px; }
+        .form-group label { color:#bbb; font-size:.82rem; }
+        .wide { grid-column:span 2; }
+        .encounter { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #444; }
+        .import-toolbar { display:grid; grid-template-columns:minmax(180px,1fr) 150px auto; gap:7px; margin-top:12px; }
+        .import-results { display:grid; gap:7px; max-height:420px; overflow:auto; margin-top:10px; }
+        .import-card { display:grid; grid-template-columns:minmax(170px,1fr) 110px 68px auto; gap:7px; align-items:center; padding:9px; border:1px solid #494949; border-radius:6px; background:#242424; }
+        .import-name { font-weight:bold; }
+        .import-meta { display:block; margin-top:3px; color:#aaa; font-size:.78rem; }
+        .source-tag { display:inline-block; margin-right:5px; padding:2px 5px; border-radius:4px; background:#4c3d25; color:#f2cd86; text-transform:uppercase; font-size:.68rem; }
+        .import-message { min-height:1.2em; margin:8px 0 0; color:#aaa; }
+        .modal { display:none; position:fixed; inset:0; z-index:10; padding:20px; background:#000a; }
+        .modal-content { max-width:470px; margin:8vh auto; padding:18px; border:1px solid #666; border-radius:8px; background:#292929; }
+        .modal-actions { display:flex; justify-content:flex-end; gap:7px; margin-top:14px; }
+        @media (max-width:750px) {
+            body { padding:8px; }
+            .participant { grid-template-columns:28px 1fr auto; }
+            .dex-field { grid-column:3; }
+            .hp-block, .status-area { grid-column:2 / 4; }
+            .row-actions { grid-column:2 / 4; grid-row:auto; justify-content:flex-end; }
+            .form-grid { grid-template-columns:1fr 1fr; }
+            .wide { grid-column:span 2; }
+            .import-toolbar, .import-card { grid-template-columns:1fr 1fr; }
+            .import-card > :first-child { grid-column:span 2; }
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+    <h1>Tracker de combat</h1>
+    <nav class="topbar">
+        <a href="/battlemap" class="btn btn-muted">Battle Map</a>
+        <a href="/view" target="_blank" class="btn btn-muted">Vue joueurs</a>
+        <a href="/portrait_view" target="_blank" class="btn btn-muted">Portrait actif</a>
+    </nav>
+
+    <section class="panel">
+        <form method="post" id="combat-form">
+            <div id="main-content-wrapper">{% include '_main_table.html' %}</div>
+            <div class="main-controls">
+                <button type="submit" formaction="{{ url_for('next_turn') }}" class="btn btn-success">Attaquant suivant</button>
+                <button type="submit" formaction="{{ url_for('new_round') }}" class="btn">Nouveau round</button>
+                <button type="submit" formaction="{{ url_for('update_initiatives') }}" class="btn btn-muted">Enregistrer les DEX</button>
+                <button type="submit" formaction="{{ url_for('reset_combat') }}" class="btn btn-muted">Fin du combat</button>
+            </div>
+        </form>
+    </section>
+
+    <details open>
+        <summary>Importer depuis Obsidian</summary>
+        <div class="import-toolbar">
+            <input id="markdown-search" type="search" placeholder="Rechercher Thorgar, Skaven, Ilya…" autocomplete="off">
+            <select id="markdown-type" aria-label="Type de fiche">
+                <option value="">PJ + PNJ + Bestiaire</option>
+                <option value="pj">PJ</option>
+                <option value="pnj">PNJ</option>
+                <option value="bestiaire">Bestiaire</option>
+            </select>
+            <button type="button" id="markdown-refresh" class="btn btn-muted">Actualiser</button>
+        </div>
+        <p id="markdown-message" class="import-message">Chargement des fiches…</p>
+        <div id="markdown-results" class="import-results"></div>
+    </details>
+
+    <details>
+        <summary>Ajouter un participant</summary>
+        <form method="post" id="add-participant-form" class="form-grid">
+            <div class="form-group wide"><label for="name">Nom</label><input id="name" name="name" required></div>
+            <div class="form-group"><label for="role">Type</label><select id="role" name="role"><option value="player">Joueur</option><option value="ally">Allié</option><option value="monster">Monstre</option></select></div>
+            <div class="form-group"><label for="dexterity">DEX</label><input type="number" id="dexterity" name="dexterity" value="10" min="1"></div>
+            <div class="form-group"><label for="hp_max">PV maximum</label><input type="number" id="hp_max" name="hp_max" value="10" min="1"></div>
+            <div class="form-group wide"><label for="portrait">Portrait</label><input id="portrait" name="portrait" placeholder="Facultatif"></div>
+            <button type="button" class="btn btn-muted" onclick="openPortraitSelector('portrait')">Parcourir</button>
+            <button type="submit" formaction="{{ url_for('add') }}" class="btn btn-success">Ajouter</button>
+        </form>
+    </details>
+
+    <details>
+        <summary>Sauvegardes et rencontres</summary>
+        <div class="topbar" style="margin-top:12px">
+            <form method="post"><button type="submit" formaction="{{ url_for('save_players_route') }}" class="btn">Sauvegarder les joueurs</button></form>
+            <form method="post"><button type="submit" formaction="{{ url_for('load_players_route') }}" class="btn">Charger les joueurs</button></form>
+        </div>
+        <form method="post" class="topbar">
+            <input name="encounter_name" required placeholder="Nom du combat">
+            <button type="submit" formaction="{{ url_for('save_encounter_route') }}" class="btn">Sauvegarder le combat</button>
+        </form>
+        {% for encounter in encounters %}
+            <div class="encounter">
+                <span><strong>{{ encounter.name }}</strong> · {{ encounter.monster_count }} monstres · {{ encounter.ally_count }} alliés</span>
+                <form method="post"><button type="submit" formaction="{{ url_for('load_encounter_route', filename=encounter.filename) }}" class="btn compact">Charger</button></form>
+            </div>
+        {% else %}
+            <p class="empty">Aucun combat enregistré.</p>
+        {% endfor %}
+        <form method="post" style="margin-top:12px"><button type="submit" formaction="{{ url_for('reset') }}" class="btn btn-danger">Tout effacer</button></form>
+    </details>
+</main>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h2>Éditer le participant</h2>
+        <form id="editParticipantForm" class="form-grid">
+            <input type="hidden" id="edit-index">
+            <div class="form-group wide"><label for="edit-name">Nom</label><input id="edit-name" name="name" required></div>
+            <div class="form-group"><label for="edit-role">Type</label><select id="edit-role" name="role"><option value="player">Joueur</option><option value="ally">Allié</option><option value="monster">Monstre</option></select></div>
+            <div class="form-group"><label for="edit-dexterity">DEX</label><input type="number" id="edit-dexterity" name="dexterity" min="1"></div>
+            <div class="form-group"><label for="edit-hp">PV</label><input type="number" id="edit-hp" name="hp" min="0"></div>
+            <div class="form-group"><label for="edit-hp-max">PV maximum</label><input type="number" id="edit-hp-max" name="hp_max" min="1"></div>
+            <div class="form-group wide"><label for="edit-portrait">Portrait</label><input id="edit-portrait" name="portrait"></div>
+        </form>
+        <div class="modal-actions">
+            <button type="button" id="cancelEdit" class="btn btn-muted">Annuler</button>
+            <button type="button" id="saveEdit" class="btn btn-success">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+    async function submitForm(form, submitter) {
+        const data = new FormData(form);
+        if (submitter?.name) data.append(submitter.name, submitter.value);
+        const response = await fetch(submitter?.formAction || form.action, {
+            method: submitter?.formMethod || form.method || 'POST',
+            body: data
+        });
+        const result = await response.json();
+        if (!result.success && result.message) console.warn(result.message);
+        if (result.success && form.id === 'add-participant-form') form.reset();
+        if (form.classList.contains('import-card')) {
+            const message = document.getElementById('markdown-message');
+            message.textContent = result.success
+                ? `${result.added} × ${result.name} ajouté au combat.`
+                : (result.message || "Import impossible.");
+        }
+    }
+
+    document.addEventListener('submit', event => {
+        event.preventDefault();
+        submitForm(event.target, event.submitter).catch(console.error);
+    });
+
+    async function updateMainContent() {
+        const response = await fetch('/api/main_content');
+        document.getElementById('main-content-wrapper').innerHTML = await response.text();
+        bindEditButtons();
+    }
+
+    function bindEditButtons() {
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.onclick = () => {
+                const d = button.dataset;
+                document.getElementById('edit-index').value = d.participantIndex;
+                document.getElementById('edit-name').value = d.participantName;
+                document.getElementById('edit-role').value = d.participantRole;
+                document.getElementById('edit-dexterity').value = d.participantDexterity;
+                document.getElementById('edit-hp').value = d.participantHp;
+                document.getElementById('edit-hp-max').value = d.participantHpMax;
+                document.getElementById('edit-portrait').value = d.participantPortrait;
+                document.getElementById('editModal').style.display = 'block';
+            };
+        });
+    }
+
+    document.getElementById('cancelEdit').onclick = () => document.getElementById('editModal').style.display = 'none';
+    document.getElementById('saveEdit').onclick = async () => {
+        const index = document.getElementById('edit-index').value;
+        const form = document.getElementById('editParticipantForm');
+        const response = await fetch(`/participant/${index}/edit`, {method:'POST', body:new FormData(form)});
+        if ((await response.json()).success) document.getElementById('editModal').style.display = 'none';
+    };
+    window.onclick = event => { if (event.target.id === 'editModal') event.target.style.display = 'none'; };
+
+    function openPortraitSelector(target) {
+        window.open(`/select_portrait?target=${target}`, 'portraitSelector', 'width=800,height=600,scrollbars=yes')?.focus();
+    }
+    window.addEventListener('message', event => {
+        if (event.data?.type === 'portrait-selected') document.getElementById(event.data.target).value = event.data.portrait;
+    });
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g, character => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+        })[character]);
+    }
+
+    function roleOptions(selected) {
+        return [
+            ['player', 'PJ'], ['ally', 'Allié'], ['monster', 'Monstre']
+        ].map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
+    }
+
+    async function loadMarkdownEntries() {
+        const query = document.getElementById('markdown-search').value;
+        const type = document.getElementById('markdown-type').value;
+        const message = document.getElementById('markdown-message');
+        const results = document.getElementById('markdown-results');
+        message.textContent = 'Recherche…';
+        try {
+            const response = await fetch(`/api/markdown_entries?q=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`);
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'Lecture impossible.');
+            message.textContent = `${data.entries.length} fiche(s) disponible(s).`;
+            results.innerHTML = data.entries.map(entry => `
+                <form method="post" class="import-card">
+                    <div>
+                        <span class="import-name">${escapeHtml(entry.name)}</span>
+                        <span class="import-meta"><span class="source-tag">${escapeHtml(entry.source_type)}</span>DEX ${entry.dexterity} · PV ${entry.hp_max}${entry.portrait_available ? ' · portrait' : ''}</span>
+                    </div>
+                    <input type="hidden" name="source" value="${escapeHtml(entry.source)}">
+                    <select name="role" aria-label="Ajouter comme">${roleOptions(entry.default_role)}</select>
+                    <input type="number" name="quantity" value="1" min="1" max="20" title="Quantité">
+                    <button type="submit" formaction="{{ url_for('import_markdown') }}" class="btn btn-success compact">Ajouter</button>
+                </form>
+            `).join('');
+        } catch (error) {
+            message.textContent = error.message;
+            results.innerHTML = '';
+        }
+    }
+
+    let markdownSearchTimer;
+    document.getElementById('markdown-search').addEventListener('input', () => {
+        clearTimeout(markdownSearchTimer);
+        markdownSearchTimer = setTimeout(loadMarkdownEntries, 250);
+    });
+    document.getElementById('markdown-type').addEventListener('change', loadMarkdownEntries);
+    document.getElementById('markdown-refresh').addEventListener('click', loadMarkdownEntries);
+
+    bindEditButtons();
+    loadMarkdownEntries();
+    const socket = io();
+    socket.on('update_data', updateMainContent);
+</script>
+</body>
+</html>

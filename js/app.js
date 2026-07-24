@@ -1,8 +1,8 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260718-character-rerolls-compat';
-import { showToast } from './toast.js?v=20260708-brp-orc';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260724-supabase-refresh';
+import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import './tooltips.js?v=20260715-character-help';
 
@@ -854,6 +854,38 @@ function hydrateSavedCharacter(record) {
   }
 }
 
+async function refreshCharacterFromSupabase() {
+  if (!isRoomConnected()) {
+    showToast('Rejoins d’abord une partie pour actualiser la fiche.', 'error');
+    return;
+  }
+
+  const confirmed = await showConfirm(
+    'Remplacer toutes les données actuelles de la génération par la dernière sauvegarde Supabase ? Les modifications locales non sauvegardées seront perdues.'
+  );
+  if (!confirmed) return;
+
+  const button = document.getElementById('char-refresh-btn');
+  if (button) button.disabled = true;
+  try {
+    const character = await loadPlayerCharacter(undefined, {
+      preserveOnError: true,
+      preserveWhenMissing: true,
+      throwOnError: true
+    });
+    if (!character) {
+      showToast('Aucune fiche sauvegardée dans Supabase pour ce joueur. Les données actuelles sont conservées.', 'error', 5000);
+      return;
+    }
+    showToast('Génération restaurée depuis Supabase.', 'success');
+  } catch (error) {
+    console.error('Actualisation de la génération impossible:', error);
+    showToast('Actualisation Supabase impossible. Les données actuelles sont conservées.', 'error', 5000);
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 async function importCharacterSheet(event) {
   const input = event?.target;
   const file = input?.files?.[0];
@@ -1446,6 +1478,7 @@ window.renderCharacterSheet = renderCharacterSheet;
 window.shiftCharacterPoint = shiftCharacterPoint;
 window.submitCharacterSheet = submitCharacterSheet;
 window.exportCharacterSheet = exportCharacterSheet;
+window.refreshCharacterFromSupabase = refreshCharacterFromSupabase;
 window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
 window.showCharacterSheetView = showCharacterSheetView;
 window.importCharacterSheet = importCharacterSheet;

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import './tooltips.js?v=20260715-character-help';
+import { showConfirm } from './toast.js?v=20260708-brp-orc';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
 if (IS_EMBEDDED) {
@@ -447,6 +448,17 @@ function collectData() {
 
 function applyData(data) {
   if (!data || typeof data !== 'object') return;
+  form.querySelectorAll('[data-field]').forEach(input => { input.value = ''; });
+  STATS.forEach(([, key]) => {
+    const input = form.querySelector(`[data-stat="${key}"]`);
+    if (input) input.value = '';
+  });
+  ACTIVE_SKILLS.forEach(({ index }) => {
+    const points = form.querySelector(`[data-skill-points="${index}"]`);
+    const check = form.querySelector(`[data-skill-check="${index}"]`);
+    if (points) points.value = '0';
+    if (check) check.checked = false;
+  });
   Object.entries(data.fields || {}).forEach(([key, value]) => {
     const input = form.querySelector(`[data-field="${key}"]`); if (input) input.value = value ?? '';
   });
@@ -597,6 +609,23 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
   const date = data.updated_at ? new Date(data.updated_at).toLocaleString('fr-FR') : '';
   setStatus(`Fiche chargée${automatic ? ' automatiquement' : ''} depuis Supabase${date ? ` — ${date}` : ''}.`);
   return true;
+}
+
+async function refreshSheetFromSupabase() {
+  if (!supabase) {
+    setStatus('Supabase n’est pas configuré.');
+    return;
+  }
+  if (!currentRoom()) {
+    setStatus('Rejoins d’abord une partie dans Dice Forge.');
+    return;
+  }
+
+  const confirmed = await showConfirm(
+    'Remplacer toutes les données de la fiche complète par la dernière sauvegarde Supabase ? Les modifications locales non sauvegardées seront perdues.'
+  );
+  if (!confirmed) return;
+  await loadSheetFromSupabase();
 }
 
 function autoLoadSheetFromSupabase() {
@@ -849,7 +878,7 @@ document.getElementById('pj-add-weapon').addEventListener('click', () => { addWe
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
-document.getElementById('pj-cloud-load').addEventListener('click', () => loadSheetFromSupabase());
+document.getElementById('pj-cloud-load').addEventListener('click', refreshSheetFromSupabase);
 document.getElementById('pj-transfer-open').addEventListener('click', openTransferDialog);
 document.getElementById('pj-transfer-submit').addEventListener('click', transferSheetToRoom);
 document.getElementById('pj-transfer-code').addEventListener('input', event => { event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });

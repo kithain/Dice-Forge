@@ -1,0 +1,6 @@
+# Versions épinglées (plages testées) pour éviter les régressions de compatibilité.
+# Flask-SocketIO/python-socketio 5.x supportent le client Socket.IO 4.x (CDN 4.7.5).
+Flask>=3.0,<4.0
+Flask-SocketIO>=5.3,<6.0
+python-socketio>=5.11,<6.0
+eventlet>=0.35,<0.37
