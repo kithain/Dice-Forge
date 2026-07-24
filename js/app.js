@@ -43,6 +43,7 @@ let cfg = { anim: true, sound: true, hide: false };
 let characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
 let characterSheetNeedsSync = true;
 let characterRerollSaving = false;
+let characterRerollConfirming = false;
 
 // ——— crypto random ———
 function rnd(min, max) {
@@ -415,7 +416,7 @@ async function generateCharacterStats() {
 }
 
 async function rerollCharacterStats() {
-  if (!characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving) return;
+  if (!characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving || characterRerollConfirming) return;
   const name = getCharacterNameValue();
   if (!isRoomConnected()) {
     showToast('Rejoins une room avant de relancer : la relance doit être enregistrée.', 'error');
@@ -426,9 +427,19 @@ async function rerollCharacterStats() {
     return;
   }
 
+  const nextReroll = characterState.rerollsUsed + 1;
+  characterRerollConfirming = true;
+  renderCharacterSheet();
+  const confirmed = await showConfirm(
+    `Confirmer la relance ${nextReroll}/${MAX_CHARACTER_REROLLS} ? Le tirage actuel sera remplacé et la nouvelle série sera immédiatement sauvegardée dans Supabase.`
+  );
+  characterRerollConfirming = false;
+  renderCharacterSheet();
+  if (!confirmed) return;
+
   const nextState = {
     generated: true,
-    rerollsUsed: characterState.rerollsUsed + 1,
+    rerollsUsed: nextReroll,
     stats: buildCharacterStats(),
     saved: true
   };
@@ -795,6 +806,19 @@ function importedStatsState(payload) {
     if (exported && typeof exported === 'object') {
       const base = clampCharacteristic(numericOrFallback(exported.base, fallback));
       const adjust = numericOrFallback(exported.adjust, fallback - base);
+      if (clampCharacteristic(base + adjust) !== fallback) {
+        stats[def.key] = {
+          base: fallback,
+          rolledBase: fallback,
+          rawBase: fallback,
+          adjust: 0,
+          rolls: [],
+          formula: formulaForStat(def),
+          racial: null,
+          imported: true
+        };
+        return;
+      }
       const rawBase = numericOrFallback(exported.rawBase, base);
       stats[def.key] = {
         base,
@@ -984,8 +1008,10 @@ function renderCharacterSheet() {
   generateButton.disabled = characterState.generated || characterRerollSaving;
   generateButton.textContent = characterRerollSaving && !characterState.generated ? 'Enregistrement…' : 'Générer';
   const rerollButton = document.getElementById('char-reroll-btn');
-  rerollButton.disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving;
-  rerollButton.textContent = characterRerollSaving && characterState.generated ? 'Enregistrement…' : 'Relancer';
+  rerollButton.disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving || characterRerollConfirming;
+  rerollButton.textContent = characterRerollSaving && characterState.generated
+    ? 'Enregistrement…'
+    : characterRerollConfirming ? 'Confirmation…' : 'Relancer';
   document.getElementById('char-save-btn').disabled = !canSave || characterRerollSaving;
   document.getElementById('char-new-btn').disabled = !characterState.saved || characterRerollSaving;
   const characterNameInput = document.getElementById('character-name');
