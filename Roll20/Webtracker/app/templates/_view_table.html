@@ -1,0 +1,13 @@
+<div class="phase-banner">Round {{ round_number }} · Attaque</div>
+{% for participant in participants %}
+    <div class="participant {{ participant.role }} {% if loop.index0 == current_turn_index %}active{% endif %} {{ participant.status.class }}" style="--token-color:{{ participant.token_color }};--token-border-color:{{ participant.token_border_color }};--hp-missing:{{ 100 - participant.hp_percent }}%">
+        <span class="token-color" aria-label="Token {{ participant.token_number }} de {{ participant.name }}">{{ participant.token_number }}</span>
+        <span class="name">{{ participant.name }}</span>
+        <span class="hp">PV {{ participant.hp }}/{{ participant.hp_max }}</span>
+        {% for status in participant.statuses %}
+            <span class="status-display">{{ status.name }}{% if status.duration is not none %} ({{ status.duration }}){% endif %}</span>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Aucun participant.</p>
+{% endfor %}

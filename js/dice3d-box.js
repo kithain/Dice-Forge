@@ -5,6 +5,7 @@
 let box = null;
 let container = null;
 let ready = false;
+let initPromise = null;
 let pendingCallback = null;
 let fallbackTimer = null;
 
@@ -47,37 +48,49 @@ async function init() {
   container.style.display = 'flex';
 
   if (ready) return;
-
-  container.innerHTML = '';
-
-  const { default: DiceBox } = await import('@3d-dice/dice-box-threejs');
-
-  box = new DiceBox('#dice-3d-container', {
-    assetPath: 'https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/public/',
-    sounds: false,
-    shadows: true,
-    theme_surface: 'default',
-    theme_material: 'glass',
-    theme_colorset: 'white',
-    gravity_multiplier: 400,
-    light_intensity: 0.9,
-    baseScale: 100,
-    strength: 1,
-    onRollComplete: () => {
-      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
-      if (pendingCallback) {
-        const cb = pendingCallback;
-        pendingCallback = null;
-        cb();
-      }
-    }
-  });
-
-  if (typeof box.initialize === 'function') {
-    await box.initialize();
+  if (initPromise) {
+    await initPromise;
+    container.style.display = 'flex';
+    return;
   }
 
-  ready = true;
+  initPromise = (async () => {
+    container.innerHTML = '';
+
+    const { default: DiceBox } = await import('@3d-dice/dice-box-threejs');
+
+    box = new DiceBox('#dice-3d-container', {
+      assetPath: 'https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/public/',
+      sounds: false,
+      shadows: true,
+      theme_surface: 'default',
+      theme_material: 'glass',
+      theme_colorset: 'white',
+      gravity_multiplier: 400,
+      light_intensity: 0.9,
+      baseScale: 100,
+      strength: 1,
+      onRollComplete: () => {
+        if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+        if (pendingCallback) {
+          const cb = pendingCallback;
+          pendingCallback = null;
+          cb();
+        }
+      }
+    });
+
+    if (typeof box.initialize === 'function') {
+      await box.initialize();
+    }
+    ready = true;
+  })();
+
+  try {
+    await initPromise;
+  } finally {
+    initPromise = null;
+  }
 }
 
 export async function roll(groups, duration, callback) {
@@ -103,7 +116,7 @@ export async function roll(groups, duration, callback) {
       pendingCallback = null;
       cb();
     }
-  }, Math.max(duration || 1800, 3000));
+  }, Math.max((duration || 1800) + 400, 2200));
 
   try {
     box.roll(notation);
@@ -122,10 +135,22 @@ export function hide() {
   if (container) container.style.display = 'none';
 }
 
+export async function preload() {
+  try {
+    await init();
+    hide();
+    return true;
+  } catch (error) {
+    console.error('DiceBox preload failed:', error);
+    return false;
+  }
+}
+
 export function dispose() {
   if (container) container.innerHTML = '';
   box = null;
   ready = false;
+  initPromise = null;
 }
 
 export function isReady() {

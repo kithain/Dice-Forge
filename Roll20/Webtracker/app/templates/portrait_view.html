@@ -1,0 +1,142 @@
+<!--
+Ce fichier HTML sert de vue dédiée à l'affichage en grand du portrait du participant actif.
+Elle est conçue pour être ouverte sur un écran séparé, par exemple pour les joueurs ou pour un stream.
+Le contenu est mis à jour dynamiquement via Socket.IO.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Portrait</title>
+    
+    <!-- Styles CSS spécifiques à cette vue pour l'affichage du portrait et de ses superpositions. -->
+    <style>
+        body { background-color: #111; color: #eee; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        #portrait-content {
+            width: min(310px, 100vw);
+            height: auto;
+            overflow: visible;
+            text-align: center;
+        }
+        #portrait-content > .portrait-container {
+            position: relative;
+            display: inline-block;
+            max-width: 310px;
+            text-align: center;
+        }
+        .portrait-image-wrapper {
+            position: relative;
+            display: inline-block;
+            max-width: 310px;
+            max-height: 310px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+        .portrait-image {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 310px;
+            max-height: 310px;
+            object-fit: contain;
+        }
+        .health-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 0, 0, 0.35); /* Une ombre rouge pour simuler les blessures. */
+            transition: height 0.5s ease-in-out; /* Animation pour la jauge de vie. */
+        }
+        .status-icons-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .status-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .status-icon img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .status-icon .icon-fallback {
+            display: none; /* Affiché seulement si l'image est introuvable */
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .participant-info {
+            width: min(310px, 100vw);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .participant-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .participant-info .statuses-text {
+            font-size: 1em;
+            font-style: italic;
+            color: #ddd;
+        }
+        h1 { color: #d6a248; } /* Style pour le titre 'Pas de portrait' */
+    </style>
+</head>
+<body>
+    <!--
+    Conteneur pour le contenu du portrait.
+    Le contenu réel est chargé via le template partiel '_portrait.html'.
+    -->
+    <div class="portrait-container" id="portrait-content">
+        {% include '_portrait.html' %}
+    </div>
+
+    <!-- Inclusion de la bibliothèque Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        // Fonction pour récupérer le contenu du portrait depuis le serveur via l'API.
+        async function updateContent() {
+            try {
+                const response = await fetch('/api/portrait_content');
+                document.getElementById('portrait-content').innerHTML = await response.text();
+            } catch (error) {
+                console.error('Error updating content:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connexion au serveur WebSocket.
+            const socket = io();
+
+            socket.on('connect', function() {
+                console.log('Connected to WebSocket server.');
+                // Charge le contenu initial du portrait une fois connecté.
+                updateContent();
+            });
+
+            // Écoute l'événement 'update_data' envoyé par le serveur.
+            // Chaque fois que l'état change, la vue du portrait est mise à jour.
+            socket.on('update_data', function() {
+                console.log('Update event received. Refreshing portrait content.');
+                updateContent();
+            });
+        });
+    </script>
+</body>
+</html>

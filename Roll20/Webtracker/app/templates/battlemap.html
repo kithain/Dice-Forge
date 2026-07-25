@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!--
+@file battlemap.html
+@description
+Vue principale de la Battle Map VTT (Maître de Jeu), désormais intégrée au serveur
+Flask unique du Webtracker. Charge les cartes, gère les tokens et se synchronise en
+temps réel via Socket.IO. Les tokens des participants sont récupérés automatiquement
+depuis le Webtracker (même origine).
+-->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Map VTT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/battlemap.css') }}">
+    <style>
+        /* Barre de navigation commune entre le Tracker et la Battle Map. */
+        .app-nav {
+            background-color: #1f1f1f;
+            display: flex;
+            gap: 8px;
+            padding: 6px 10px;
+            align-items: center;
+        }
+        .app-nav a {
+            color: #ddd;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .app-nav a:hover { background-color: #333; }
+        .app-nav a.active { background-color: #4CAF50; color: #fff; }
+        .app-nav .spacer { flex: 1; }
+        .app-nav .obs-link { font-size: 12px; color: #aaa; }
+        #map-upload-status { margin-left: 8px; font: 13px Arial, sans-serif; color: #bbb; }
+        #map-upload-status.success { color: #7bd67f; }
+        #map-upload-status.error { color: #ff8a80; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation entre les deux modules de l'application. -->
+        <nav class="app-nav">
+            <a href="{{ url_for('index') }}">Tracker d'initiative</a>
+            <a href="{{ url_for('battlemap_view') }}" class="active">Battle Map</a>
+            <span class="spacer"></span>
+            <a href="{{ url_for('obs_view') }}" target="_blank" class="obs-link">OBS — carte seule</a>
+        </nav>
+
+        <div class="toolbar">
+            <div class="tool-group">
+                <button id="load-map-btn">Charger une carte</button>
+                <button id="refresh-map-btn">Actualiser la carte</button>
+                <input type="file" id="map-upload" accept="image/*" style="display: none;">
+                <span id="map-upload-status" aria-live="polite"></span>
+                <strong id="map-dimensions" aria-live="polite">Carte : — × — px</strong>
+            </div>
+            <div class="tool-group">
+                <button id="clear-tokens-btn">Effacer les tokens</button>
+            </div>
+            <div class="tool-group webtracker-section">
+                <button id="reconnect-webtracker-btn">Recharger les participants</button>
+                <span id="webtracker-status" class="disconnected" style="margin-left:10px;">Non connecté</span>
+            </div>
+        </div>
+
+        <div class="battle-area">
+            <div class="grid-container" id="grid-container">
+                <div class="grid-overlay" id="grid-overlay"></div>
+                <div class="map-container" id="map-container"></div>
+                <div class="tokens-container" id="tokens-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Socket.IO 4.x (compatible avec le serveur Flask-SocketIO). -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/webtracker-connector.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/battlemap_app.js') }}"></script>
+</body>
+</html>

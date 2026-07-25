@@ -1,0 +1,48 @@
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+.inventory-body{margin:0;min-height:100vh;background:#07071a;color:var(--txt);font-family:system-ui,sans-serif}
+.inventory-page{width:min(1180px,calc(100% - 2rem));margin:0 auto;padding:1rem 0 3rem}
+.inventory-header{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:.45rem}
+.inventory-kicker{margin:0;color:var(--gold2);font:700 .68rem 'Cinzel',serif;letter-spacing:.25em;text-transform:uppercase}
+.inventory-header h1{margin:.15rem 0;color:var(--gold);font:700 clamp(1.55rem,4vw,2.35rem) 'Cinzel',serif}
+.inventory-header p:last-child{margin:.2rem 0;color:var(--txd)}
+.inventory-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.inventory-status{min-height:1.3em;margin:.35rem 0 .8rem;color:var(--txm);font-size:.76rem}
+.inventory-status.error{color:#fca5a5}.inventory-status.success{color:#86efac}
+.inventory-section{overflow:hidden;margin-bottom:1rem;border:1px solid var(--brd);border-radius:8px;background:var(--s1)}
+.inventory-section-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.75rem .85rem;border-bottom:1px solid var(--brd);background:linear-gradient(90deg,rgba(201,162,39,.1),transparent)}
+.inventory-section-head>div{display:flex;align-items:center;gap:.55rem}
+.inventory-head-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.inventory-catalog-link{color:var(--txd);font:600 .67rem 'Cinzel',serif;text-decoration:none}
+.inventory-catalog-link:hover{color:var(--gold2);text-decoration:underline}
+.inventory-section h2{margin:0;color:var(--gold);font:700 .92rem 'Cinzel',serif;letter-spacing:.06em}
+.inventory-icon{color:var(--gold2);font-size:1rem}
+.inventory-add{border:1px solid var(--brd2);border-radius:5px;background:var(--s2);color:var(--gold2);padding:.42rem .65rem;cursor:pointer}
+.inventory-add:hover{border-color:var(--gold)}
+.inventory-table-wrap{overflow-x:auto}
+.inventory-table{width:100%;min-width:620px;border-collapse:collapse}
+.inventory-table th,.inventory-table td{border-bottom:1px solid var(--brd);padding:.42rem;text-align:left}
+.inventory-table th{background:rgba(7,7,26,.3);color:var(--gold2);font:600 .66rem 'Cinzel',serif;letter-spacing:.06em}
+.inventory-table td:last-child{width:44px;text-align:center}
+.inventory-table input,.inventory-table textarea{width:100%;min-width:100px;border:1px solid var(--brd2);border-radius:5px;background:rgba(7,7,26,.5);color:var(--txt);padding:.48rem .55rem;font:inherit;outline:none;resize:vertical}
+.inventory-table textarea{min-height:38px}
+.inventory-table input:focus,.inventory-table textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.12)}
+.weapons-table{min-width:1120px}
+.weapons-table th:nth-child(1){width:15%}.weapons-table th:nth-child(2){width:25%}.weapons-table th:nth-child(3){width:10%}.weapons-table th:nth-child(4){width:10%}.weapons-table th:nth-child(5){width:9%}.weapons-table th:nth-child(6){width:7%}.weapons-table th:nth-child(7){width:19%}
+.armor-table{min-width:1080px}
+.armor-table th:nth-child(1){width:15%}.armor-table th:nth-child(2){width:27%}.armor-table th:nth-child(3){width:11%}.armor-table th:nth-child(4){width:10%}.armor-table th:nth-child(5){width:10%}.armor-table th:nth-child(6){width:10%}.armor-table th:nth-child(7){width:12%}
+.inventory-remove{border:1px solid var(--brd2);border-radius:4px;background:var(--s2);color:#fca5a5;padding:.32rem .55rem;cursor:pointer}
+.inventory-other-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.inventory-other-grid .inventory-section:last-child{grid-column:1/-1}
+.simple-table{min-width:480px}.simple-table th:first-child{width:32%}
+.wallet-section{overflow:visible}
+.inventory-rate{color:var(--txm);font-size:.72rem}
+.inventory-wallet{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:.75rem;padding:.9rem}
+.inventory-coin{display:grid;grid-template-columns:auto 34px minmax(70px,1fr) 34px;align-items:center;gap:.35rem;border:1px solid var(--brd2);border-radius:7px;padding:.55rem;background:rgba(7,7,26,.35)}
+.inventory-coin strong{min-width:28px;text-align:center;font:700 .78rem 'Cinzel',serif}
+.inventory-coin.gold strong{color:#f6c453}.inventory-coin.silver strong{color:#d7deea}.inventory-coin.copper strong{color:#d68a5a}
+.inventory-coin input,.inventory-coin button{height:34px;border:1px solid var(--brd2);border-radius:4px;background:rgba(7,7,26,.62);color:var(--txt);text-align:center}
+.inventory-coin input{width:100%;font:700 .95rem 'Cinzel',serif;outline:none}
+.inventory-coin input:focus{border-color:var(--gold)}
+.inventory-coin button{cursor:pointer;font-size:1rem}.inventory-coin button:hover{border-color:var(--gold);color:var(--gold)}.inventory-coin button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:760px){.inventory-page{width:min(100% - 1rem,1180px)}.inventory-header{align-items:flex-start;flex-direction:column}.inventory-wallet,.inventory-other-grid{grid-template-columns:1fr}.inventory-other-grid .inventory-section:last-child{grid-column:auto}.inventory-section-head{align-items:flex-start;flex-wrap:wrap}}

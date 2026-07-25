@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import './tooltips.js?v=20260715-character-help';
 import { showConfirm } from './toast.js?v=20260708-brp-orc';
+import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
 if (IS_EMBEDDED) {
@@ -26,43 +27,9 @@ const STATS = [
   ['APP', 'apparence', 'Apparence et présence visible du personnage. Influence sa première impression sociale.']
 ];
 
-const SKILL_GROUPS = ['Combat', 'Physique', 'Magie & pouvoirs', 'Social & mental', 'Connaissances', 'Pratique & divers'];
-// Les emplacements vides conservent les index des anciennes sauvegardes après le retrait de compétences.
-const SKILLS = [
-  ['Estimation', '15 %', 'Pratique & divers'], ['Art (divers)', '05 %', 'Pratique & divers'], ['Artillerie (divers)', "Selon la spécialité d'arme", 'Combat'],
-  ['Marchandage', '05 %', 'Social & mental'], ['Bagarre', '25 %', 'Combat'], ['Escalade', '40 %', 'Physique'], ['Commandement', '05 %', 'Social & mental'],
-  ['Artisanat (divers)', '05 %', 'Pratique & divers'], ['Démolition', '01 %', 'Pratique & divers'], ['Déguisement', '01 %', 'Social & mental'], ['Défense', 'DEX×2', 'Combat'],
-  ['Conduite (divers)', '20 % ou 01 %', 'Physique'], ['Arme à énergie (divers)', "Selon la spécialité d'arme", 'Combat'],
-  ['Étiquette (divers)', '05 %', 'Social & mental'], ['Baratin', '05 %', 'Social & mental'], ['Manipulation fine', '05 %', 'Pratique & divers'],
-  ['Arme à feu (divers)', "Selon la spécialité d'arme", 'Combat'], ['Premiers secours', '30 %', 'Pratique & divers'],
-  ['Vol', '½ DEX', 'Magie & pouvoirs'], ['Jeux', 'INT+POU', 'Social & mental'], ['Lutte', '25 %', 'Combat'], ['', '', ''],
-  ['Arme lourde (divers)', "Selon la spécialité d'arme", 'Combat'], ['Se cacher', '10 %', 'Physique'], ['Intuition', '05 %', 'Social & mental'],
-  ['Saut', '25 %', 'Physique'], ['Connaissance (divers)', '05 % ou 00 %', 'Connaissances'], ['Langue (divers)', 'INT (ou ÉDU)×5 ou 00 %', 'Connaissances'],
-  ['Écouter', '25 %', 'Social & mental'], ['Alphabétisation (option)', 'Selon profession', 'Connaissances'], ['', '', ''],
-  ['Médecine', '05 %', 'Connaissances'], ['Arme de mêlée (divers)', "Selon la spécialité d'arme", 'Combat'],
-  ['Arme de jet (divers)', "Selon la spécialité d'arme", 'Combat'], ['Navigation', '10 %', 'Pratique & divers'],
-  ['', '', ''], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
-  ['Pilotage (divers)', '01 %', 'Physique'], ['', '', ''], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
-  ['Réparation (divers)', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
-  ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['', '', ''],
-  ['Tour de main', '05 %', 'Pratique & divers'], ['Observation', '25 %', 'Social & mental'], ['Statut', '15 % ou variable', 'Social & mental'], ['Discrétion', '10 %', 'Physique'],
-  ['Stratégie', '01 %', 'Connaissances'], ['Nage', '25 %', 'Physique'], ['Enseignement', '10 %', 'Connaissances'],
-  ['Compétence technique (divers)', '05 %', 'Connaissances'], ['Lancer', '25 %', 'Physique'], ['Pistage', '10 %', 'Pratique & divers']
-];
 const DEFENSE_SKILL_INDEX = SKILLS.findIndex(([name]) => name === 'Défense');
 // Ancien emplacement de Bouclier. Il reste réservé pour ne pas décaler les sauvegardes existantes.
 const LEGACY_SHIELD_SKILL_INDEX = 46;
-const NON_MEDFAN_SKILLS = new Set([
-  'Démolition',
-  'Arme à énergie (divers)',
-  'Arme à feu (divers)',
-  'Arme lourde (divers)',
-  'Psychothérapie',
-  'Compétence technique (divers)'
-]);
-const ACTIVE_SKILLS = SKILLS
-  .map((skill, index) => ({ skill, index }))
-  .filter(({ skill }) => skill[0] && !NON_MEDFAN_SKILLS.has(skill[0]));
 
 const WEAPON_CATALOG = [
   ['Dague', 'mixed', '1d4'], ['Gourdin', 'contact', '1d4'], ['Épée courte', 'contact', '1d6'],
@@ -507,6 +474,29 @@ function changed() {
   }, 250);
 }
 
+function setSkillChecked(index, checked) {
+  const checkbox = form.querySelector(`[data-skill-check="${index}"]`);
+  if (!checkbox) return false;
+  checkbox.checked = !!checked;
+  changed();
+  return true;
+}
+
+async function clearAllSkillChecks() {
+  const checked = Array.from(form.querySelectorAll('[data-skill-check], [data-spell-check]')).filter(input => input.checked);
+  if (!checked.length) {
+    setStatus('Toutes les cases d’expérience sont déjà décochées.');
+    return;
+  }
+  const countLabel = checked.length === 1 ? 'la case d’expérience' : `les ${checked.length} cases d’expérience`;
+  const confirmed = await showConfirm(`Décocher ${countLabel} pour commencer une nouvelle partie ?`);
+  if (!confirmed) return;
+  checked.forEach(input => { input.checked = false; });
+  syncSpellSlotsFromForm();
+  changed();
+  setStatus(`${checked.length === 1 ? 'Case d’expérience décochée' : `${checked.length} cases d’expérience décochées`}. Pense à sauvegarder la fiche en ligne si nécessaire.`);
+}
+
 function setStatus(message) {
   document.getElementById('pj-save-state').textContent = message;
 }
@@ -863,6 +853,7 @@ async function openMarkdown(file) {
 renderBaseFields();
 try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) applyData(draft); } catch (error) { console.warn('Brouillon illisible', error); }
 updateDerived(); updateFilename();
+localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
 function formChanged(event) {
   if (event.target.matches('[data-weapon="name"]')) applyWeaponSelection(event.target);
   if (event.target.matches('[data-field="profession"]')) {
@@ -875,6 +866,7 @@ function formChanged(event) {
 form.addEventListener('input', formChanged);
 form.addEventListener('change', formChanged);
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
+document.getElementById('pj-clear-skill-checks').addEventListener('click', clearAllSkillChecks);
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
@@ -889,4 +881,6 @@ document.getElementById('pj-reset').addEventListener('click', () => {
   if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
   localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false })); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
+
+window.diceForgeSheet = { setSkillChecked };
 autoLoadSheetFromSupabase();

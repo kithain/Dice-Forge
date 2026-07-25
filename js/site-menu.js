@@ -30,6 +30,7 @@
       <p class="site-menu-label">Navigation</p>
       <nav class="site-menu-links"></nav>
       <div class="site-menu-local"></div>
+      <div class="site-menu-settings"></div>
     </aside>`;
 
   const links = root.querySelector('.site-menu-links');
@@ -61,6 +62,34 @@
     print.innerHTML = '<span class="site-menu-glyph" aria-hidden="true">⎙</span><span>Imprimer</span>';
     print.addEventListener('click', () => window.print());
     localList.appendChild(print);
+  }
+
+  if (currentPage === 'index.html') {
+    const settings = root.querySelector('.site-menu-settings');
+    settings.innerHTML = `
+      <div class="site-menu-separator"></div>
+      <p class="site-menu-label">Réglages des dés</p>
+      <div class="site-menu-settings-list">
+        <button class="site-menu-setting" id="setting-anim" type="button" data-dice-setting="anim" aria-pressed="true">
+          <span class="site-menu-glyph" aria-hidden="true">◌</span>
+          <span class="site-menu-setting-label">Animations</span>
+          <span class="site-menu-switch on" id="tog-anim" aria-hidden="true"></span>
+        </button>
+        <button class="site-menu-setting" id="setting-sound" type="button" data-dice-setting="sound" aria-pressed="true">
+          <span class="site-menu-glyph" aria-hidden="true">♫</span>
+          <span class="site-menu-setting-label">Son MP3</span>
+          <span class="site-menu-switch on" id="tog-sound" aria-hidden="true"></span>
+        </button>
+        <button class="site-menu-setting" id="setting-hide" type="button" data-dice-setting="hide" aria-pressed="false">
+          <span class="site-menu-glyph" aria-hidden="true">🎭</span>
+          <span class="site-menu-setting-label">Cacher mes jets (MJ)</span>
+          <span class="site-menu-switch" id="tog-hide" aria-hidden="true"></span>
+        </button>
+      </div>
+      <p class="site-menu-laptop-badge">💻 Mode portable actif · animations forcées à l’arrêt</p>`;
+    settings.querySelectorAll('[data-dice-setting]').forEach(button => {
+      button.addEventListener('click', () => window.toggleSetting?.(button.dataset.diceSetting));
+    });
   }
 
   document.body.appendChild(root);

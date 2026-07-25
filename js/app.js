@@ -1,9 +1,10 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
-import * as D3D from './dice3d-box.js?v=20260706-d100-two-dice-box-v2';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260724-supabase-refresh';
+import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260725-obs-dice';
 import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
+import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
 import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———
@@ -44,6 +45,11 @@ let characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false
 let characterSheetNeedsSync = true;
 let characterRerollSaving = false;
 let characterRerollConfirming = false;
+let brpSelectedSkill = null;
+let brpSkillMatches = [];
+let brpSkillActiveIndex = -1;
+let laptopMode = false;
+let animationBeforeLaptopMode = cfg.anim;
 
 // ——— crypto random ———
 function rnd(min, max) {
@@ -137,16 +143,46 @@ function chg(type, delta) {
   expr[type] = Math.max(0, Math.min(10, expr[type] + delta));
   renderGrid(); renderExBar();
 }
-function clearExpr() {
-  if (rolling) return;
+
+function resetCompositionInputs() {
   DTYPES.forEach(t => expr[t] = 0);
   document.getElementById('mod-input').value = 0;
   renderGrid(); renderExBar();
+}
+
+function clearExpr() {
+  if (rolling) return;
+  resetCompositionInputs();
   results = null; renderResult();
 }
 function toggleSetting(k) {
+  if (k === 'anim' && laptopMode) return;
   cfg[k] = !cfg[k];
   document.getElementById('tog-' + k).classList.toggle('on', cfg[k]);
+  document.getElementById('setting-' + k)?.setAttribute('aria-pressed', String(cfg[k]));
+}
+
+function applyLaptopMode(matches) {
+  if (matches === laptopMode) return;
+  laptopMode = matches;
+  document.body.classList.toggle('laptop-mode', laptopMode);
+
+  if (laptopMode) {
+    animationBeforeLaptopMode = cfg.anim;
+    cfg.anim = false;
+  } else {
+    cfg.anim = animationBeforeLaptopMode;
+  }
+  document.getElementById('tog-anim')?.classList.toggle('on', cfg.anim);
+  document.getElementById('setting-anim')?.setAttribute('aria-disabled', String(laptopMode));
+  document.getElementById('setting-anim')?.setAttribute('aria-pressed', String(cfg.anim));
+}
+
+function initLaptopMode() {
+  const media = window.matchMedia('(min-width: 800px) and (max-width: 1024px) and (max-height: 800px)');
+  const sync = event => applyLaptopMode(event.matches);
+  sync(media);
+  media.addEventListener?.('change', sync);
 }
 
 function switchTab(tab) {
@@ -158,6 +194,11 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === 'panel-' + tab);
   });
+  if (tab === 'inventory') {
+    const frame = document.getElementById('inventory-sheet-frame');
+    if (frame && !frame.getAttribute('src')) frame.src = frame.dataset.src;
+    frame?.contentWindow?.postMessage({ type: 'diceforge:inventory-refresh' }, '*');
+  }
 }
 
 function initCharacterOptions() {
@@ -251,10 +292,13 @@ function rollAll() {
 
   const anim = cfg.anim && !blind;
   const dur = anim ? 1800 : 0;
+  groups.forEach(group => group.rolls.forEach(roll => {
+    roll.finalVal = rnd(1, group.type);
+  }));
+  broadcastGenericRoll(groups, mod);
 
   if (anim) {
     groups.forEach(g => g.rolls.forEach(r => { r.val = rnd(1, g.type); r.state = 'rolling'; }));
-    groups.forEach(g => g.rolls.forEach(r => { r.finalVal = rnd(1, g.type); }));
     document.getElementById('result-area').style.visibility = 'hidden';
     renderResult();
     D3D.roll(groups, dur, () => finalize(groups, mod));
@@ -294,9 +338,22 @@ function finalize(groups, mod) {
   renderResult();
   D3D.hide();
 
-  const exprStr = groups.map(g => `${g.rolls.length}D${g.type}`).join(' + ') + (mod !== 0 ? (mod >= 0 ? ` + ${mod}` : ` − ${Math.abs(mod)}`) : '');
-  const rollsStr = groups.map(g => `[${g.rolls.map(r => r.val).join(', ')}]`).join(' ');
-  sendRoll(exprStr, rollsStr, total, hasCrit, hasFail, cfg.hide);
+  resetCompositionInputs();
+}
+
+function broadcastGenericRoll(groups, mod) {
+  const values = groups.map(group => ({
+    type: group.type,
+    rolls: group.rolls.map(roll => roll.finalVal)
+  }));
+  const rawTotal = values.reduce((sum, group) => sum + group.rolls.reduce((rollSum, value) => rollSum + value, 0), 0);
+  const total = rawTotal + mod;
+  const hasCrit = values.some(group => group.type === 20 && group.rolls.some(value => value === 20));
+  const hasFail = values.some(group => group.type === 20 && group.rolls.some(value => value === 1));
+  const expression = values.map(group => `${group.rolls.length}D${group.type}`).join(' + ')
+    + (mod !== 0 ? (mod >= 0 ? ` + ${mod}` : ` − ${Math.abs(mod)}`) : '');
+  const details = values.map(group => `[${group.rolls.join(', ')}]`).join(' ');
+  sendRoll(expression, details, total, hasCrit, hasFail, cfg.hide);
 }
 
 function disableQuick(disabled) {
@@ -1225,6 +1282,141 @@ function clampPercentScore(value) {
   return Math.max(1, Math.min(300, value));
 }
 
+function normalizeSkillSearch(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('fr-FR')
+    .trim();
+}
+
+function readBrpSheetSkills() {
+  let sheet = null;
+  try {
+    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY));
+  } catch (error) {
+    console.warn('Compétences locales illisibles.', error);
+  }
+  const savedSkills = Array.isArray(sheet?.skills) ? sheet.skills : [];
+  return BRP_ACTIVE_SKILLS.map(({ skill: [name], index }) => {
+    const saved = savedSkills[index] || {};
+    const score = parseInt(saved.score, 10);
+    return Number.isFinite(score) && score > 0
+      ? { index, name, score: clampPercentScore(score), checked: !!saved.checked }
+      : null;
+  }).filter(Boolean);
+}
+
+function closeBrpSkillOptions() {
+  const input = document.getElementById('brp-skill-filter');
+  const options = document.getElementById('brp-skill-options');
+  if (!input || !options) return;
+  options.hidden = true;
+  input.setAttribute('aria-expanded', 'false');
+  brpSkillActiveIndex = -1;
+}
+
+function renderBrpSkillOptions() {
+  const input = document.getElementById('brp-skill-filter');
+  const options = document.getElementById('brp-skill-options');
+  const hint = document.getElementById('brp-skill-hint');
+  if (!input || !options || !hint) return;
+
+  const allSkills = readBrpSheetSkills();
+  const filter = normalizeSkillSearch(input.value);
+  brpSkillMatches = allSkills.filter(skill => normalizeSkillSearch(skill.name).startsWith(filter));
+  brpSkillActiveIndex = Math.min(brpSkillActiveIndex, brpSkillMatches.length - 1);
+
+  if (!allSkills.length) {
+    options.innerHTML = '<div class="brp-skill-empty">Ouvrez puis renseignez la fiche complète pour charger ses compétences.</div>';
+    hint.textContent = 'Aucun score disponible dans la fiche complète';
+  } else if (!brpSkillMatches.length) {
+    options.innerHTML = '<div class="brp-skill-empty">Aucune compétence ne commence par ce texte.</div>';
+    hint.textContent = `${allSkills.length} compétences disponibles`;
+  } else {
+    options.innerHTML = brpSkillMatches.map((skill, index) => `
+      <button class="brp-skill-option${index === brpSkillActiveIndex ? ' active' : ''}" type="button" role="option"
+        aria-selected="${index === brpSkillActiveIndex}" data-brp-skill-index="${skill.index}">
+        <span>${escapeAttribute(skill.name)}${skill.checked ? ' ✓' : ''}</span>
+        <span class="brp-skill-option-score">${skill.score}%</span>
+      </button>`).join('');
+    hint.textContent = `${allSkills.length} compétences disponibles · saisissez le début du nom`;
+  }
+  options.hidden = false;
+  input.setAttribute('aria-expanded', 'true');
+}
+
+function selectBrpSkill(skill) {
+  if (!skill) return;
+  brpSelectedSkill = { ...skill };
+  const filterInput = document.getElementById('brp-skill-filter');
+  const scoreInput = document.getElementById('brp-test-score');
+  if (filterInput) filterInput.value = skill.name;
+  if (scoreInput) scoreInput.value = skill.score;
+  closeBrpSkillOptions();
+}
+
+function initBrpSkillPicker() {
+  const input = document.getElementById('brp-skill-filter');
+  const options = document.getElementById('brp-skill-options');
+  if (!input || !options) return;
+
+  input.addEventListener('focus', renderBrpSkillOptions);
+  input.addEventListener('input', () => {
+    brpSelectedSkill = null;
+    brpSkillActiveIndex = -1;
+    renderBrpSkillOptions();
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      closeBrpSkillOptions();
+      return;
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (options.hidden) renderBrpSkillOptions();
+      if (!brpSkillMatches.length) return;
+      const delta = event.key === 'ArrowDown' ? 1 : -1;
+      brpSkillActiveIndex = (brpSkillActiveIndex + delta + brpSkillMatches.length) % brpSkillMatches.length;
+      renderBrpSkillOptions();
+      options.querySelector('.brp-skill-option.active')?.scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    if (event.key === 'Enter' && !options.hidden && brpSkillMatches.length) {
+      event.preventDefault();
+      selectBrpSkill(brpSkillMatches[Math.max(0, brpSkillActiveIndex)]);
+    }
+  });
+  options.addEventListener('mousedown', event => {
+    event.preventDefault();
+    const button = event.target.closest('[data-brp-skill-index]');
+    if (!button) return;
+    selectBrpSkill(brpSkillMatches.find(skill => skill.index === Number(button.dataset.brpSkillIndex)));
+  });
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.brp-skill-combobox')) closeBrpSkillOptions();
+  });
+}
+
+function markBrpSkillExperience(index) {
+  if (!Number.isInteger(index)) return;
+  let sheet = null;
+  try {
+    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY)) || {};
+  } catch (error) {
+    sheet = {};
+  }
+  sheet.skills = Array.isArray(sheet.skills) ? sheet.skills : [];
+  sheet.skills[index] = { ...(sheet.skills[index] || {}), checked: true };
+  localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(sheet));
+  document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.setSkillChecked(index, true);
+
+  if (brpSelectedSkill?.index === index) brpSelectedSkill.checked = true;
+  if (results?.characterTest?.skill?.index === index) results.characterTest.skill.checked = true;
+  renderResult();
+  showToast('Case d’expérience cochée sur la fiche', 'success');
+}
+
 function brpThresholdFor(score, difficulty) {
   if (difficulty.mode === 'auto-success') return score;
   if (difficulty.mode === 'auto-failure') return 0;
@@ -1288,7 +1480,7 @@ function automaticPercentileResult(test) {
   };
 }
 
-function createPercentileTest({ kind, typeLabel, name, code, score, threshold, difficulty }) {
+function createPercentileTest({ kind, typeLabel, name, code, score, threshold, difficulty, skill = null }) {
   return {
     kind,
     typeLabel,
@@ -1297,6 +1489,7 @@ function createPercentileTest({ kind, typeLabel, name, code, score, threshold, d
     score,
     threshold,
     difficulty,
+    skill,
     difficultyLabel: difficulty?.shortLabel || 'Moyen',
     success: false,
     automatic: !!difficulty?.mode
@@ -1308,15 +1501,16 @@ function brpTestSummary(test) {
     return `${test.name} ${test.code} ${test.score} × 5 = ${test.threshold}% · jet ${test.rollLabel}`;
   }
 
-  const base = `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
+  const base = `${test.skill?.name || 'Test BRP'} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
   if (test.automatic) return `${base} => ${test.label}`;
   return `${base} => ${test.threshold}% · jet ${test.rollLabel}`;
 }
 
 function brpTestExpression(test) {
   if (test.kind === 'character') return `${test.name} ${test.code} ${test.score}×5 (${test.threshold}%)`;
-  if (test.automatic) return `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
-  return `Test BRP ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
+  const name = test.skill?.name || 'Test BRP';
+  if (test.automatic) return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
+  return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
 }
 
 function sendPercentileTest(test, totalValue) {
@@ -1362,31 +1556,20 @@ function renderResult() {
     const critMsg = characterTest
       ? `<div class="test-msg ${characterTest.level}">${characterTest.label}</div>`
       : hasCrit ? '<div class="crit-msg crit">⭐ Coup Critique !</div>' : hasFail ? '<div class="crit-msg fail">💀 Échec Critique !</div>' : '';
+    const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill
+      ? characterTest.skill.checked
+        ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est déjà cochée pour l’expérience.</div>`
+        : `<label class="brp-experience-offer"><input type="checkbox" onchange="markBrpSkillExperience(${characterTest.skill.index})"> Cocher ${escapeAttribute(characterTest.skill.name)} pour l’expérience</label>`
+      : '';
 
     html += `<div class="total-box">
       <div class="total-lbl">${characterTest ? (characterTest.automatic ? 'Test BRP' : 'Résultat D100') : 'Résultat Total'}</div>
       <div class="total-num${hasCrit ? ' crit-style' : ''}">${characterTest ? characterTest.rollLabel : total}</div>
-      ${brkd}${critMsg}
+      ${brkd}${critMsg}${experienceOffer}
     </div>`;
   }
 
   el.innerHTML = html;
-}
-
-// ——— quick roll ———
-function quickRoll(type) {
-  if (rolling) return;
-  DTYPES.forEach(t => expr[t] = 0);
-  expr[type] = 1;
-  document.getElementById('mod-input').value = 0;
-  renderGrid(); renderExBar(); rollAll();
-}
-function quickMulti(list, mod = 0) {
-  if (rolling) return;
-  DTYPES.forEach(t => expr[t] = 0);
-  list.forEach(({ t, n }) => expr[t] = n);
-  document.getElementById('mod-input').value = mod;
-  renderGrid(); renderExBar(); rollAll();
 }
 
 function quickCharacteristicTest(key) {
@@ -1433,7 +1616,8 @@ function rollBrpPercentileTest() {
     name: 'Test BRP',
     score,
     threshold,
-    difficulty
+    difficulty,
+    skill: brpSelectedSkill ? { ...brpSelectedSkill, score } : null
   });
 
   if (test.automatic) {
@@ -1460,9 +1644,11 @@ function startPercentileRoll(test) {
 
   const anim = cfg.anim && !blind;
   const dur = anim ? 1800 : 0;
+  const finalValue = rnd(1, 100);
+  groups[0].rolls[0].finalVal = finalValue;
+  sendPercentileTest({ ...test, ...evaluatePercentile(test.threshold, finalValue) }, finalValue);
   if (anim) {
     groups[0].rolls[0].val = rnd(1, 100);
-    groups[0].rolls[0].finalVal = rnd(1, 100);
     document.getElementById('result-area').style.visibility = 'hidden';
     renderResult();
     D3D.roll(groups, dur, () => finalizePercentileTest(groups, test));
@@ -1480,8 +1666,6 @@ function finalizePercentileTest(groups, test) {
   results = { groups, total: roll.val, rawTotal: roll.val, mod: 0, characterTest: test, blind: isBlindRoll() };
   finishRollingUi();
   renderResult();
-
-  sendPercentileTest(test, roll.val);
 }
 
 // ——— expose handlers used by inline onclick attributes ———
@@ -1491,10 +1675,9 @@ window.toggleSetting = toggleSetting;
 window.switchTab = switchTab;
 window.rollAll = rollAll;
 window.renderExBar = renderExBar;
-window.quickRoll = quickRoll;
-window.quickMulti = quickMulti;
 window.quickCharacteristicTest = quickCharacteristicTest;
 window.rollBrpPercentileTest = rollBrpPercentileTest;
+window.markBrpSkillExperience = markBrpSkillExperience;
 window.generateCharacterStats = generateCharacterStats;
 window.rerollCharacterStats = rerollCharacterStats;
 window.resetCharacterSheet = resetCharacterSheet;
@@ -1519,6 +1702,8 @@ window.addEventListener('diceforge:character-loaded', event => {
   hydrateSavedCharacter(event.detail?.character);
 });
 initCharacterOptions();
+initBrpSkillPicker();
+initLaptopMode();
 renderGrid();
 renderExBar();
 renderCharacterSheet();
@@ -1526,3 +1711,9 @@ initPlaceholder();
 restoreSession();
 openCharacterSheetFromLocation();
 window.addEventListener('hashchange', openCharacterSheetFromLocation);
+window.addEventListener('storage', event => {
+  if (event.key !== MARKDOWN_CHARACTER_DRAFT_KEY) return;
+  const refreshed = readBrpSheetSkills().find(skill => skill.index === brpSelectedSkill?.index);
+  if (refreshed) brpSelectedSkill = refreshed;
+  if (!document.getElementById('brp-skill-options')?.hidden) renderBrpSkillOptions();
+});

@@ -6,8 +6,8 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260719-merged-character">
-<link rel="stylesheet" href="site-menu.css?v=20260719">
+<link rel="stylesheet" href="styles.css?v=20260725-obs-dice">
+<link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
@@ -17,7 +17,7 @@
 </script>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
+<script src="js/site-menu.js?v=20260725-dice-settings" defer></script>
 <div class="stars"></div>
 <div class="wrap">
 
@@ -27,21 +27,6 @@
   <p class="subtitle">Lanceur de Dés pour Jeux de Rôle</p>
   <div class="hdiv"><span class="hdiv-icon">✦</span></div>
 </header> -->
-
-<div class="settings">
-  <div class="tog-wrap" onclick="toggleSetting('anim')">
-    <div class="tog on" id="tog-anim"></div>
-    <span class="tog-lbl">Animations</span>
-  </div>
-  <div class="tog-wrap" onclick="toggleSetting('sound')">
-    <div class="tog on" id="tog-sound"></div>
-    <span class="tog-lbl">Son MP3</span>
-  </div>
-  <div class="tog-wrap" onclick="toggleSetting('hide')">
-    <div class="tog" id="tog-hide"></div>
-    <span class="tog-lbl">🎭 Cacher mes jets (MJ)</span>
-  </div>
-</div>
 
 <div class="room-panel" id="room-panel">
   <div id="room-join">
@@ -62,6 +47,8 @@
     <div class="room-status">
       <span class="room-badge" id="room-badge-text">Room: —</span>
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
+      <a class="room-leave room-obs-link" id="obs-feed-link" href="obs.html" target="_blank" rel="noopener">OBS : jets</a>
+      <a class="room-leave room-obs-link" id="obs-dice-link" href="obs-dice.html" target="_blank" rel="noopener">OBS : animation des dés</a>
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
     </div>
@@ -70,7 +57,6 @@
         <span class="room-character-label">Fiche liée</span>
         <span class="room-character-name" id="room-character-name">Aucune fiche</span>
       </div>
-      <div class="room-character-stats" id="room-character-stats"></div>
     </div>
   </div>
 </div>
@@ -78,6 +64,7 @@
 <div class="tabs" role="tablist" aria-label="Navigation principale">
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
   <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
+  <button class="tab-btn" id="tab-inventory" type="button" role="tab" aria-selected="false" aria-controls="panel-inventory" onclick="switchTab('inventory')">Inventaire</button>
   <a class="tab-btn tab-link" id="tab-help" href="help.html" aria-label="Aide joueurs Dice Forge">❔ Help me</a>
   <a class="tab-btn tab-link" href="ecran_joueur_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence des joueurs">Écran joueur</a>
   <a class="tab-btn tab-link" href="ecran_MJ_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence du meneur de jeu">Écran MJ</a>
@@ -88,13 +75,7 @@
 <div class="dice-controls">
 
 <div class="quick-wrap">
-  <div class="slabel">Lancer rapide</div>
-  <div class="quick-row" id="quick-row">
-    <button class="qbtn feat" onclick="quickRoll(20)">🎲 D20</button>
-    <button class="qbtn feat" onclick="quickRoll(6)">🎲 D6</button>
-    <button class="qbtn feat" onclick="quickRoll(100)">🎲 D100</button>
-  </div>
-  <div class="quick-sub">Tests de caractéristique</div>
+  <div class="slabel">Tests de caractéristique</div>
   <div class="quick-row">
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('force')">Effort FOR</button>
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('constitution')">Endurance CON</button>
@@ -108,6 +89,15 @@
 <div class="brp-test-panel">
   <div class="slabel">Test BRP</div>
   <div class="brp-test-form">
+    <div class="room-field brp-skill-field">
+      <label for="brp-skill-filter">Compétence</label>
+      <div class="brp-skill-combobox">
+        <input class="room-input wide" id="brp-skill-filter" type="search" placeholder="Filtrer une compétence…" autocomplete="off"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="brp-skill-options">
+        <div class="brp-skill-options" id="brp-skill-options" role="listbox" hidden></div>
+      </div>
+      <span class="field-hint" id="brp-skill-hint">Scores de la fiche complète</span>
+    </div>
     <div class="room-field">
       <label>Score %</label>
       <input class="room-input small" id="brp-test-score" type="number" min="1" max="300" step="1" value="50">
@@ -244,11 +234,15 @@
   </div>
 </section>
 
+<section class="tab-panel inventory-tab-panel" id="panel-inventory" role="tabpanel" aria-labelledby="tab-inventory">
+  <iframe id="inventory-sheet-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?v=20260725-equipment-fields-v2" loading="lazy"></iframe>
+</section>
+
 </div>
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260724-generation-values"></script>
+<script type="module" src="js/app.js?v=20260725-low-latency-obs"></script>
 </body>
 </html>

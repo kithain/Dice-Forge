@@ -1,7 +1,6 @@
 // ——— Supabase multiplayer room logic ———
 import { createClient } from '@supabase/supabase-js';
 import { showToast, showConfirm } from './toast.js';
-import { speciesByName } from './brp-data.js?v=20260709-canon-age-bands';
 
 // ▼▼▼ Config chargée depuis supabase-config.js (gitignored) ▼▼▼
 const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || 'https://VOTRE_PROJET.supabase.co';
@@ -19,15 +18,6 @@ const FANTASY_NAMES = [
   'Aldric', 'Cyneth', 'Lyraelle', 'Balthor', 'Ythera', 'Corvyn', 'Maelis', 'Drusk',
   'Sariel', 'Wrenna', 'Malachar', 'Ondine', 'Fenwick', 'Astrid', 'Torvik', 'Rowanna',
   'Erevan', 'Sindri', 'Marwenna', 'Kethric', 'Ilyara', 'Bramwell', 'Nerissa', 'Skarn'
-];
-const CHARACTER_FIELDS = [
-  ['FOR', 'force'],
-  ['CON', 'constitution'],
-  ['TAI', 'taille'],
-  ['INT', 'intelligence'],
-  ['POU', 'pouvoir'],
-  ['DEX', 'dexterite'],
-  ['CHA', 'charisme']
 ];
 const LEGACY_CHARACTER_COLUMNS = [
   'player_name',
@@ -127,8 +117,7 @@ export async function joinRoom() {
   showConnected();
   await loadPlayerCharacter(name);
   await checkCreator(code, name);
-  subscribeLive(code, name);
-  await loadRecent(code, name);
+  await configureLiveFeed(code, name);
 }
 
 export async function createRoom() {
@@ -155,8 +144,7 @@ export async function createRoom() {
   showConnected();
   document.getElementById('purge-btn').style.display = '';
   await loadPlayerCharacter(name);
-  subscribeLive(code, name);
-  await loadRecent(code, name);
+  await configureLiveFeed(code, name);
 }
 
 export async function purgeRoom() {
@@ -183,13 +171,47 @@ export function leaveRoom() {
   clearPlayerCharacter();
 }
 
+function obsUrl(page) {
+  const url = new URL(page, window.location.href);
+  if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') url.port = '8010';
+  url.searchParams.set('room', roomState.code);
+  return url.href;
+}
+
+function updateObsLinks() {
+  const feedLink = document.getElementById('obs-feed-link');
+  const diceLink = document.getElementById('obs-dice-link');
+  if (!roomState.connected || !roomState.code) return;
+  if (feedLink) feedLink.href = obsUrl('obs.html');
+  if (diceLink) diceLink.href = obsUrl('obs-dice.html');
+}
+
 function showConnected() {
   document.getElementById('room-join').style.display = 'none';
   document.getElementById('room-connected').style.display = '';
   document.getElementById('room-badge-text').textContent = 'Room: ' + roomState.code;
   document.getElementById('player-badge-text').textContent = 'Joueur: ' + roomState.player;
-  document.getElementById('live-feed').style.display = '';
-  if (!roomState.isCreator) document.getElementById('purge-btn').style.display = 'none';
+  updateObsLinks();
+  updateCreatorUi();
+}
+
+function updateCreatorUi() {
+  const creator = !!roomState.isCreator;
+  document.getElementById('live-feed').style.display = creator ? '' : 'none';
+  document.getElementById('purge-btn').style.display = creator ? '' : 'none';
+  document.getElementById('obs-feed-link').style.display = creator ? '' : 'none';
+  document.getElementById('obs-dice-link').style.display = creator ? '' : 'none';
+  if (!creator) document.getElementById('live-list').innerHTML = '';
+}
+
+async function configureLiveFeed(code, playerName) {
+  updateCreatorUi();
+  if (!roomState.isCreator) {
+    if (liveSub) { liveSub.unsubscribe(); liveSub = null; }
+    return;
+  }
+  subscribeLive(code, playerName);
+  await loadRecent(code, playerName);
 }
 
 function clearPlayerCharacter() {
@@ -201,60 +223,18 @@ function clearPlayerCharacter() {
 function renderPlayerCharacter(character) {
   const card = document.getElementById('room-character-card');
   const nameEl = document.getElementById('room-character-name');
-  const statsEl = document.getElementById('room-character-stats');
-  if (!card || !nameEl || !statsEl) return;
+  if (!card || !nameEl) return;
 
   card.style.display = '';
   if (!character) {
     currentPlayerCharacter = null;
-    nameEl.textContent = 'Aucune fiche';
-    statsEl.innerHTML = '<span class="room-character-empty">Aucune fiche personnage enregistrée pour ce joueur.</span>';
+    nameEl.textContent = 'Aucune fiche personnage enregistrée';
     return;
   }
 
   currentPlayerCharacter = character;
   const heading = [character.nom, character.espece, character.profession].filter(Boolean).join(' · ');
-  nameEl.textContent = heading || character.nom;
-  const stats = CHARACTER_FIELDS.map(([code, key]) =>
-    `<span class="room-character-stat">${code} ${esc(character[key])}</span>`
-  );
-  const derived = characterDerivedSummary(character).map(([code, value]) =>
-    `<span class="room-character-stat derived">${code} ${esc(value)}</span>`
-  );
-  statsEl.innerHTML = stats.concat(derived).join('');
-}
-
-function damageBonus(forcePlusTaille) {
-  if (forcePlusTaille <= 12) return '-1D6';
-  if (forcePlusTaille <= 16) return '-1D4';
-  if (forcePlusTaille <= 24) return 'Aucun';
-  if (forcePlusTaille <= 32) return '+1D4';
-  if (forcePlusTaille <= 40) return '+1D6';
-  if (forcePlusTaille <= 56) return '+2D6';
-  if (forcePlusTaille <= 72) return '+3D6';
-  if (forcePlusTaille <= 88) return '+4D6';
-  if (forcePlusTaille <= 104) return '+5D6';
-  if (forcePlusTaille <= 120) return '+6D6';
-  if (forcePlusTaille <= 136) return '+7D6';
-  if (forcePlusTaille <= 152) return '+8D6';
-  return `+${9 + Math.floor((forcePlusTaille - 153) / 16)}D6`;
-}
-
-function characterDerivedSummary(character) {
-  const force = Number(character.force);
-  const constitution = Number(character.constitution);
-  const taille = Number(character.taille);
-  const pouvoir = Number(character.pouvoir);
-  if (![force, constitution, taille, pouvoir].every(Number.isFinite)) return [];
-
-  const hitPoints = Math.ceil((constitution + taille) / 2);
-  return [
-    ['PV', hitPoints],
-    ['BM', Math.ceil(hitPoints / 2)],
-    ['PP', pouvoir],
-    ['MOV', speciesByName(character.espece).mov],
-    ['BD', damageBonus(force + taille)]
-  ];
+  nameEl.textContent = heading || character.nom || 'Personnage';
 }
 
 export async function loadPlayerCharacter(playerName = roomState.player, {
@@ -316,10 +296,11 @@ async function checkCreator(code, name) {
   const isCreator = data && data.length && data[0].player_name === name;
   roomState.isCreator = !!isCreator;
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
-  document.getElementById('purge-btn').style.display = isCreator ? '' : 'none';
+  updateCreatorUi();
 }
 
 function subscribeLive(code, selfName) {
+  if (!roomState.isCreator) return;
   if (liveSub) liveSub.unsubscribe();
   liveSub = sb.channel('rolls:' + code)
     .on('postgres_changes',
@@ -334,6 +315,7 @@ function subscribeLive(code, selfName) {
 }
 
 async function loadRecent(code, selfName) {
+  if (!roomState.isCreator) return;
   const { data } = await sb.from('rolls')
     .select('*')
     .eq('room_code', code)
@@ -347,6 +329,7 @@ async function loadRecent(code, selfName) {
 }
 
 function addLiveItem(r, isSelf, prepend) {
+  if (!roomState.isCreator) return;
   const list = document.getElementById('live-list');
   if (!list.children.length) list.innerHTML = '';
   const cls = isSelf ? 'live-self' : '';
@@ -489,7 +472,8 @@ export async function restoreSession() {
     try {
       const r = JSON.parse(saved);
       if (r.code && r.player) {
-        roomState = { code: r.code, player: r.player, connected: true, isCreator: r.isCreator || false };
+        // Le statut de créateur est toujours revérifié avant d'afficher ou charger les jets.
+        roomState = { code: r.code, player: r.player, connected: true, isCreator: false };
         document.getElementById('player-name').value = r.player;
         document.getElementById('room-code').value = r.code;
         sbInit();
@@ -511,8 +495,7 @@ export async function restoreSession() {
           showConnected();
           await loadPlayerCharacter(r.player);
           await checkCreator(r.code, r.player);
-          subscribeLive(r.code, r.player);
-          await loadRecent(r.code, r.player);
+          await configureLiveFeed(r.code, r.player);
         }
       }
     } catch (e) {}

@@ -24,7 +24,8 @@
 .site-menu-toggle:focus-visible,
 .site-menu-close:focus-visible,
 .site-menu-panel a:focus-visible,
-.site-menu-action:focus-visible { outline: 3px solid #f1d28a; outline-offset: 2px; }
+.site-menu-action:focus-visible,
+.site-menu-setting:focus-visible { outline: 3px solid #f1d28a; outline-offset: 2px; }
 
 .site-menu-icon,
 .site-menu-icon::before,
@@ -115,7 +116,8 @@
 }
 .site-menu-links { display: grid; gap: 5px; }
 .site-menu-panel a,
-.site-menu-action {
+.site-menu-action,
+.site-menu-setting {
   display: flex;
   width: 100%;
   align-items: center;
@@ -131,7 +133,8 @@
   font: 600 14px/1.25 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 .site-menu-panel a:hover,
-.site-menu-action:hover { background: rgba(255, 255, 255, .08); }
+.site-menu-action:hover,
+.site-menu-setting:hover { background: rgba(255, 255, 255, .08); }
 .site-menu-panel a[aria-current="page"] {
   border-color: rgba(215, 173, 85, .4);
   color: #f1d28a;
@@ -139,6 +142,39 @@
 }
 .site-menu-glyph { width: 22px; color: #d7ad55; text-align: center; }
 .site-menu-separator { height: 1px; margin: 20px 0 0; background: rgba(215, 173, 85, .2); }
+.site-menu-settings-list { display: grid; gap: 5px; }
+.site-menu-setting-label { flex: 1; }
+.site-menu-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex: none;
+  border-radius: 10px;
+  background: #403a4e;
+  transition: background .18s ease;
+}
+.site-menu-switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  transition: left .18s ease;
+}
+.site-menu-switch.on { background: #7c3aed; }
+.site-menu-switch.on::after { left: 19px; }
+.site-menu-setting[aria-disabled="true"] { display: none; }
+.site-menu-laptop-badge {
+  display: none;
+  margin: 10px 4px 0;
+  color: #d7ad55;
+  font-size: 12px;
+  line-height: 1.35;
+}
+body.laptop-mode .site-menu-laptop-badge { display: block; }
 
 /* Les liens des écrans BRP sont repris dans le panneau commun. */
 .site-menu-enhanced .web-toolbar .toolbar-links { display: none; }

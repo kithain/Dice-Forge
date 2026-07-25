@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Combat</title>
+    <style>
+        body { margin:0; padding:10px; font-family:Arial,sans-serif; color:#eee; background:#181818; }
+        .container { max-width:430px; margin:auto; }
+        .phase-banner { margin-bottom:8px; padding:9px; text-align:center; color:#ffd986; background:#252f3a; border:1px solid #d6a248; border-radius:6px; font-weight:bold; }
+        .participant { position:relative; isolation:isolate; display:flex; flex-wrap:wrap; align-items:center; gap:7px; overflow:hidden; padding:10px; margin-bottom:6px; border-left:8px solid var(--token-color,#777); border-radius:5px; background:#383838; }
+        .participant::before { content:""; position:absolute; z-index:0; top:0; right:0; bottom:0; width:var(--hp-missing,0%); background:rgba(0,0,0,.78); pointer-events:none; transition:width .25s ease; }
+        .participant > * { position:relative; z-index:1; }
+        .participant.active { outline:2px solid #d6a248; background:#484238; }
+        .participant.status-dying {
+            background:#741b1b;
+            box-shadow:inset 0 0 0 1px #b94343;
+        }
+        .participant.status-dead {
+            background:#4b1717;
+            text-decoration:line-through;
+        }
+        .token-color { display:flex; width:28px; height:28px; flex:0 0 28px; align-items:center; justify-content:center; border:3px solid var(--token-border-color); border-radius:50%; color:var(--token-border-color); background:var(--token-color); box-shadow:0 0 5px #000; font-size:.82rem; font-weight:bold; text-decoration:none; }
+        .name { flex:1; min-width:120px; font-weight:bold; }
+        .hp { font-weight:bold; }
+        .status-display { padding:3px 7px; border-radius:10px; background:#66512c; font-size:.78rem; }
+    </style>
+</head>
+<body>
+    <main class="container" id="view-content-wrapper">{% include '_view_table.html' %}</main>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        async function updateContent() {
+            const response = await fetch('/api/view_content');
+            document.getElementById('view-content-wrapper').innerHTML = await response.text();
+        }
+        const socket = io();
+        socket.on('connect', updateContent);
+        socket.on('update_data', updateContent);
+    </script>
+</body>
+</html>

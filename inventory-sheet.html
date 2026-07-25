@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Forge — Inventaire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260725-inventory">
+  <link rel="stylesheet" href="inventory-sheet.css?v=20260725-equipment-fields">
+  <script type="importmap">
+  { "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
+  } }
+  </script>
+</head>
+<body class="inventory-body">
+  <main class="inventory-page">
+    <header class="inventory-header">
+      <div>
+        <p class="inventory-kicker">BRP-ORC</p>
+        <h1>Inventaire</h1>
+        <p id="inventory-character">Rejoignez une partie pour charger l’inventaire du personnage.</p>
+      </div>
+      <div class="inventory-actions">
+        <button class="room-btn" id="inventory-save" type="button">Sauvegarder en ligne</button>
+        <button class="room-leave" id="inventory-refresh" type="button">Actualiser</button>
+      </div>
+    </header>
+    <p class="inventory-status" id="inventory-status" role="status">Inventaire local prêt.</p>
+
+    <section class="inventory-section wallet-section">
+      <div class="inventory-section-head">
+        <div><span class="inventory-icon">◆</span><h2>Argent</h2></div>
+        <span class="inventory-rate">1 PO = 10 PA = 100 PC</span>
+      </div>
+      <div class="inventory-wallet">
+        <div class="inventory-coin gold">
+          <strong>PO</strong>
+          <button type="button" data-money-unit="po" data-money-delta="-1" aria-label="Retirer une pièce d’or">−</button>
+          <input id="inventory-po" type="number" min="0" max="9999" value="0" inputmode="numeric" aria-label="Pièces d’or">
+          <button type="button" data-money-unit="po" data-money-delta="1" aria-label="Ajouter une pièce d’or">+</button>
+        </div>
+        <div class="inventory-coin silver">
+          <strong>PA</strong>
+          <button type="button" data-money-unit="pa" data-money-delta="-1" aria-label="Retirer une pièce d’argent">−</button>
+          <input id="inventory-pa" type="number" min="0" max="9" value="0" inputmode="numeric" aria-label="Pièces d’argent">
+          <button type="button" data-money-unit="pa" data-money-delta="1" aria-label="Ajouter une pièce d’argent">+</button>
+        </div>
+        <div class="inventory-coin copper">
+          <strong>PC</strong>
+          <button type="button" data-money-unit="pc" data-money-delta="-1" aria-label="Retirer une pièce de cuivre">−</button>
+          <input id="inventory-pc" type="number" min="0" max="9" value="0" inputmode="numeric" aria-label="Pièces de cuivre">
+          <button type="button" data-money-unit="pc" data-money-delta="1" aria-label="Ajouter une pièce de cuivre">+</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="inventory-section">
+      <div class="inventory-section-head">
+        <div><span class="inventory-icon">⚔</span><h2>Armes</h2></div>
+        <div class="inventory-head-actions">
+          <a class="inventory-catalog-link" href="inventaire.html#armes-melee" target="_blank">Voir le catalogue</a>
+          <button class="inventory-add" type="button" data-add-row="weapons">+ Ajouter une arme</button>
+        </div>
+      </div>
+      <div class="inventory-table-wrap">
+        <table class="inventory-table weapons-table">
+          <thead><tr><th>Nom</th><th>Description</th><th>Catégorie</th><th>% BRP</th><th>Dégâts</th><th>Mains</th><th>Spécial</th><th></th></tr></thead>
+          <tbody id="inventory-weapons"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="inventory-section">
+      <div class="inventory-section-head">
+        <div><span class="inventory-icon">◈</span><h2>Armures</h2></div>
+        <div class="inventory-head-actions">
+          <a class="inventory-catalog-link" href="inventaire.html#armures" target="_blank">Voir le catalogue</a>
+          <button class="inventory-add" type="button" data-add-row="armors">+ Ajouter une armure</button>
+        </div>
+      </div>
+      <div class="inventory-table-wrap">
+        <table class="inventory-table armor-table">
+          <thead><tr><th>Nom</th><th>Description</th><th>Type</th><th>Protection</th><th>Mobilité</th><th>Discrétion</th><th>Spécial</th><th></th></tr></thead>
+          <tbody id="inventory-armors"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="inventory-other-grid">
+      <section class="inventory-section">
+        <div class="inventory-section-head">
+          <div><span class="inventory-icon">▣</span><h2>Équipement</h2></div>
+          <button class="inventory-add" type="button" data-add-row="equipment">+ Ajouter</button>
+        </div>
+        <div class="inventory-table-wrap"><table class="inventory-table simple-table">
+          <thead><tr><th>Nom</th><th>Description</th><th></th></tr></thead>
+          <tbody id="inventory-equipment"></tbody>
+        </table></div>
+      </section>
+
+      <section class="inventory-section">
+        <div class="inventory-section-head">
+          <div><span class="inventory-icon">✦</span><h2>Consommables</h2></div>
+          <button class="inventory-add" type="button" data-add-row="consumables">+ Ajouter</button>
+        </div>
+        <div class="inventory-table-wrap"><table class="inventory-table simple-table">
+          <thead><tr><th>Nom</th><th>Description</th><th></th></tr></thead>
+          <tbody id="inventory-consumables"></tbody>
+        </table></div>
+      </section>
+
+      <section class="inventory-section">
+        <div class="inventory-section-head">
+          <div><span class="inventory-icon">◇</span><h2>Objets divers</h2></div>
+          <button class="inventory-add" type="button" data-add-row="miscellaneous">+ Ajouter</button>
+        </div>
+        <div class="inventory-table-wrap"><table class="inventory-table simple-table">
+          <thead><tr><th>Nom</th><th>Description</th><th></th></tr></thead>
+          <tbody id="inventory-miscellaneous"></tbody>
+        </table></div>
+      </section>
+    </div>
+  </main>
+
+  <datalist id="weapon-catalog-list"></datalist>
+  <datalist id="armor-catalog-list"></datalist>
+  <script src="supabase-config.js"></script>
+  <script type="module" src="js/inventory-sheet.js?v=20260725-equipment-fields-v2"></script>
+</body>
+</html>

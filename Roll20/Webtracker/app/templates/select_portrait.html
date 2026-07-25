@@ -1,0 +1,313 @@
+<!--
+Ce fichier HTML fournit une interface pour sélectionner un fichier de portrait.
+Il fonctionne comme un petit explorateur de fichiers, permettant de naviguer dans les sous-dossiers
+du répertoire 'static/portraits' et de choisir une image.
+Une fois l'image sélectionnée, son chemin est renvoyé à la fenêtre parente (via popup ou postMessage).
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection de Portrait</title>
+    <!-- Styles CSS pour l'apparence de l'explorateur de portraits. -->
+    <style>
+        body {
+            background-color: #222;
+            color: #eee;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .breadcrumb {
+            background-color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .breadcrumb a {
+            color: #5bc0de;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .portraits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .folder {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .folder:hover {
+            background-color: #34495e;
+            transform: translateY(-3px);
+        }
+        .folder i { /* Style pour les icônes de dossier (non utilisées ici, remplacées par .folder-icon) */
+            font-size: 40px;
+            color: #f39c12;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .portrait-item {
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .portrait-item:hover {
+            transform: scale(1.05);
+            border-color: #5bc0de;
+        }
+        .portrait-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+        .portrait-name {
+            padding: 8px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .btn {
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #31b0d5;
+        }
+        .search-box {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #eee;
+            width: 200px;
+            margin-right: 10px;
+        }
+        .back-btn { /* Style pour le bouton retour (non utilisé directement, mais peut l'être) */
+            margin-right: 10px;
+            background-color: #777;
+        }
+        .back-btn:hover {
+            background-color: #555;
+        }
+        /* Style pour l'icône de dossier personnalisée */
+        .folder-icon {
+            width: 70px;
+            height: 60px;
+            margin: 0 auto 10px;
+            background-color: #f39c12;
+            border-radius: 3px 3px 0 0;
+            position: relative;
+        }
+        .folder-icon:before {
+            content: "";
+            position: absolute;
+            width: 50%;
+            height: 10px;
+            background-color: #f39c12;
+            top: -5px;
+            border-radius: 3px 3px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sélectionner un portrait</h1>
+        <div>
+            <input type="text" class="search-box" id="searchBox" placeholder="Rechercher...">
+            <button class="btn" id="cancelBtn">Annuler</button>
+        </div>
+    </div>
+
+    <!-- Fil d'Ariane pour la navigation dans les dossiers. -->
+    <div class="breadcrumb" id="breadcrumb">
+        <a href="#" data-path="">Accueil</a>
+    </div>
+
+    <!-- Grille où les dossiers et les images de portraits seront affichés. -->
+    <div class="portraits-grid" id="portraitsGrid">
+        <!-- Le contenu est rempli dynamiquement par JavaScript. -->
+    </div>
+
+    <script>
+        let currentPath = ''; // Chemin du dossier actuellement affiché.
+        let targetField = ''; // ID du champ de formulaire à mettre à jour dans la fenêtre parente.
+        
+        // Récupère le paramètre 'target' de l'URL.
+        const urlParams = new URLSearchParams(window.location.search);
+        targetField = urlParams.get('target') || '';
+        
+        /**
+         * Charge et affiche les portraits et dossiers pour le chemin donné.
+         * @param {string} path Le chemin relatif à explorer dans le répertoire des portraits.
+         */
+        function loadPortraits(path = '') {
+            currentPath = path;
+            
+            updateBreadcrumb(path); // Met à jour le fil d'Ariane.
+            
+            // Effectue un appel AJAX à l'API Flask pour obtenir la liste des contenus.
+            fetch(`/api/portraits?path=${encodeURIComponent(path)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const grid = document.getElementById('portraitsGrid');
+                    grid.innerHTML = ''; // Vide la grille actuelle.
+                    
+                    // Ajoute les dossiers à la grille.
+                    data.folders.forEach(folder => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.className = 'folder';
+                        folderDiv.dataset.folder = folder;
+                        folderDiv.innerHTML = `
+                            <div class="folder-icon"></div>
+                            <div class="portrait-name">${folder}</div>
+                        `;
+                        // Au clic sur un dossier, charge son contenu.
+                        folderDiv.addEventListener('click', () => {
+                            let newPath = currentPath ? `${currentPath}/${folder}` : folder;
+                            loadPortraits(newPath);
+                        });
+                        grid.appendChild(folderDiv);
+                    });
+                    
+                    // Ajoute les images à la grille.
+                    data.images.forEach(image => {
+                        const portraitDiv = document.createElement('div');
+                        portraitDiv.className = 'portrait-item';
+                        const imagePath = currentPath ? `${currentPath}/${image}` : image;
+                        portraitDiv.dataset.path = imagePath;
+                        portraitDiv.innerHTML = `
+                            <img src="/static/portraits/${imagePath}" alt="${image}" onerror="this.src='/static/placeholder.png'">
+                            <div class="portrait-name">${image}</div>
+                        `;
+                        // Au clic sur une image, la sélectionne.
+                        portraitDiv.addEventListener('click', () => {
+                            selectPortrait(imagePath);
+                        });
+                        grid.appendChild(portraitDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des portraits:', error);
+                    alert('Erreur lors du chargement des portraits. Veuillez réessayer.');
+                });
+        }
+        
+        /**
+         * Met à jour le fil d'Ariane pour refléter le chemin de navigation actuel.
+         * @param {string} path Le chemin actuel.
+         */
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = '';
+            
+            // Ajoute le lien "Accueil".
+            const homeLink = document.createElement('a');
+            homeLink.href = '#';
+            homeLink.textContent = 'Accueil';
+            homeLink.dataset.path = '';
+            homeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadPortraits('');
+            });
+            breadcrumb.appendChild(homeLink);
+            
+            // Ajoute les liens pour chaque partie du chemin.
+            if (path) {
+                const parts = path.split('/');
+                let currentBuildPath = '';
+                
+                parts.forEach((part, index) => {
+                    breadcrumb.appendChild(document.createTextNode(' > '));
+                    
+                    currentBuildPath += (index > 0 ? '/' : '') + part;
+                    
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = part;
+                    link.dataset.path = currentBuildPath;
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        loadPortraits(currentBuildPath);
+                    });
+                    
+                    breadcrumb.appendChild(link);
+                });
+            }
+        }
+        
+        /**
+         * Envoie le chemin du portrait sélectionné à la fenêtre parente et ferme la fenêtre.
+         * @param {string} path Le chemin du portrait sélectionné.
+         */
+        function selectPortrait(path) {
+            if (window.opener && !window.opener.closed) {
+                // Si la fenêtre a été ouverte comme une popup.
+                window.opener.document.getElementById(targetField).value = path;
+                window.close();
+            } else {
+                // Si la fenêtre est dans la même fenêtre ou un iframe (fallback).
+                window.parent.postMessage({
+                    type: 'portrait-selected',
+                    portrait: path,
+                    target: targetField
+                }, '*');
+                
+                if (document.referrer && !window.frameElement) {
+                    window.location.href = document.referrer;
+                }
+            }
+        }
+        
+        // --- Initialisation de la page ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPortraits(''); // Charge le contenu initial à l'ouverture de la page.
+            
+            // Gère le bouton "Annuler".
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                if (window.opener) {
+                    window.close();
+                } else if (document.referrer) {
+                    window.location.href = document.referrer;
+                }
+            });
+            
+            // Gère la barre de recherche pour filtrer les éléments affichés.
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                document.querySelectorAll('.folder, .portrait-item').forEach(item => {
+                    const name = item.querySelector('.portrait-name').textContent.toLowerCase();
+                    item.style.display = name.includes(searchTerm) ? 'flex' : 'none'; // Utilise flex pour les éléments, ou 'block' si les styles CSS étaient différents
+                });
+            });
+        });
+    </script>
+</body>
+</html>

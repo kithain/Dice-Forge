@@ -107,10 +107,17 @@ Remplacez `ABCD` par le code du salon, puis ajoutez cette URL comme source **Nav
 http://127.0.0.1:8010/obs.html?room=ABCD
 ```
 
+Pour afficher uniquement l'animation 3D des dés sur fond transparent :
+
+```text
+http://127.0.0.1:8010/obs-dice.html?room=ABCD
+```
+
 Paramètres facultatifs :
 
 - `&limit=3` limite le nombre de jets affichés ;
 - `&bg=1` ajoute un fond de test, utile hors OBS.
+- sur `obs-dice.html`, `&hold=400` règle en millisecondes la durée d'affichage des dés après l'animation.
 
 Lancez `Stop_OBS.bat` pour arrêter le serveur de l'overlay.
 
