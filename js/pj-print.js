@@ -42,7 +42,7 @@ function renderPrintSheet(data) {
     <section class="identity">${box('Nom du personnage', f.name, 'wide')}${box('Joueur', f.player)}${box('Profession', f.profession)}${box('Race', f.race)}</section>
     <div class="top-grids">
       <section><h2 class="section-title">Caractéristiques</h2><div class="stat-grid">${stats}</div></section>
-      <section><h2 class="section-title">Attributs dérivés</h2><div class="metric-grid">${metric('Points de vie', d.hp)}${metric('Points de pouvoir', d.pp)}${metric('Bonus aux dégâts', d.damage)}${metric("Bonus d’expérience", d.experience)}${metric('Mouvement', f.movement)}</div></section>
+      <section><h2 class="section-title">Attributs dérivés</h2><div class="metric-grid">${metric('Points de vie', d.hp)}${metric('Points de pouvoir', d.pp)}${metric('Bonus aux dégâts', d.damage)}${metric("Bonus d’expérience", d.experience)}${metric('Mouvement', f.movement)}${metric('Jet de Course', d.course)}</div></section>
     </div>
     <h2 class="section-title">Compétences</h2>
     <div class="budget">${metric('Professionnels', budget.professional)}${metric('Personnels', budget.personal)}${metric('Disponibles', budget.total)}${metric('Répartis', budget.spent)}${metric('Restants', budget.remaining)}</div>

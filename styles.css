@@ -236,6 +236,7 @@ h1{
 .test-msg.failure{color:#fca5a5;border:1px solid rgba(220,38,38,.4);background:rgba(220,38,38,.08)}
 .test-msg.fumble{color:#fecaca;border:1px solid rgba(220,38,38,.55);background:rgba(220,38,38,.14)}
 .test-thresholds{font-size:.76rem;color:var(--txm)}
+.course-progress{color:#86efac;font-weight:700}
 .rand-badge{margin-top:.5rem;font-size:.68rem;color:var(--txm);font-style:italic;display:flex;align-items:center;justify-content:center;gap:.35rem}
 
 /* ——— 3D dice ——— */
@@ -317,6 +318,9 @@ select.room-input{appearance:none}
 .character-continue span{color:var(--txm);font-size:.76rem}
 .character-complete-view{overflow:hidden;border:1px solid var(--brd);border-radius:8px;background:var(--s1)}
 .character-complete-view[hidden]{display:none}
+.character-complete-sync{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--brd);background:rgba(201,162,39,.06)}
+.character-complete-sync span{color:var(--txm);font-size:.78rem;line-height:1.35}
+@media(max-width:700px){.character-complete-sync{align-items:stretch;flex-direction:column}}
 #character-sheet-frame{display:block;width:100%;height:max(760px,82vh);border:0;background:#07071a}
 #inventory-sheet-frame{display:block;width:100%;height:max(760px,82vh);border:0;background:#07071a}
 .inventory-tab-panel{overflow:hidden;border:1px solid var(--brd);border-radius:8px;background:#07071a}

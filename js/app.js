@@ -721,7 +721,7 @@ function exportCharacterSheet() {
 
 function openMarkdownCharacterSheet() {
   const character = exportPayloadFromCurrentSheet() || exportPayloadFromSavedCharacter(getPlayerCharacter());
-  if (!character) return true;
+  if (!character) return false;
 
   let draft = {};
   try {
@@ -767,6 +767,31 @@ function openMarkdownCharacterSheet() {
   return true;
 }
 
+function syncedCharacterSheetSource(frame) {
+  const url = new URL(frame.dataset.src, window.location.href);
+  url.searchParams.set('syncGenerated', '1');
+  url.searchParams.set('syncRevision', String(Date.now()));
+  return url.href;
+}
+
+function syncGeneratedCharacterToCompleteSheet(frame, { notify = false } = {}) {
+  if (!openMarkdownCharacterSheet()) {
+    if (notify) showToast('Génère ou charge d’abord un personnage', 'error');
+    return false;
+  }
+
+  characterSheetNeedsSync = false;
+  frame.setAttribute('src', syncedCharacterSheetSource(frame));
+  if (notify) showToast('Fiche complète synchronisée avec le personnage généré', 'success');
+  return true;
+}
+
+function forceCharacterSheetSync() {
+  const frame = document.getElementById('character-sheet-frame');
+  if (!frame) return;
+  syncGeneratedCharacterToCompleteSheet(frame, { notify: true });
+}
+
 function showCharacterSheetView(view, { sync = true } = {}) {
   const complete = view === 'complete';
   const generatorView = document.getElementById('character-generator-view');
@@ -786,9 +811,7 @@ function showCharacterSheetView(view, { sync = true } = {}) {
   const frame = document.getElementById('character-sheet-frame');
   if (!frame) return;
   if (sync && characterSheetNeedsSync) {
-    openMarkdownCharacterSheet();
-    characterSheetNeedsSync = false;
-    if (frame.getAttribute('src')) frame.contentWindow?.location.reload();
+    if (syncGeneratedCharacterToCompleteSheet(frame)) return;
   }
   if (!frame.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
 }
@@ -796,7 +819,7 @@ function showCharacterSheetView(view, { sync = true } = {}) {
 function openCharacterSheetFromLocation() {
   if (window.location.hash !== '#fiche-personnage') return;
   switchTab('character');
-  showCharacterSheetView('complete', { sync: false });
+  showCharacterSheetView('complete');
 }
 
 function readImportedFile(file) {
@@ -1500,6 +1523,10 @@ function brpTestSummary(test) {
   if (test.kind === 'character') {
     return `${test.name} ${test.code} ${test.score} × 5 = ${test.threshold}% · jet ${test.rollLabel}`;
   }
+  if (test.kind === 'course') {
+    const capped = test.rawThreshold > test.threshold ? `, plafonné à ${test.threshold}%` : '';
+    return `DEX ${test.dex} + MOV ${test.movement} = ${test.dex + test.movement} × 3 = ${test.rawThreshold}%${capped} · jet ${test.rollLabel}`;
+  }
 
   const base = `${test.skill?.name || 'Test BRP'} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
   if (test.automatic) return `${base} => ${test.label}`;
@@ -1508,6 +1535,7 @@ function brpTestSummary(test) {
 
 function brpTestExpression(test) {
   if (test.kind === 'character') return `${test.name} ${test.code} ${test.score}×5 (${test.threshold}%)`;
+  if (test.kind === 'course') return `Jet de Course (DEX ${test.dex} + MOV ${test.movement}) × 3 (${test.threshold}%)`;
   const name = test.skill?.name || 'Test BRP';
   if (test.automatic) return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
   return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
@@ -1515,7 +1543,16 @@ function brpTestExpression(test) {
 
 function sendPercentileTest(test, totalValue) {
   const isStrongSuccess = test.level === 'critical' || test.level === 'special';
-  sendRoll(brpTestExpression(test), `[${test.rollLabel}] ${test.label}`, totalValue, isStrongSuccess, !test.success, cfg.hide);
+  const courseDetail = test.kind === 'course' ? ` · ${courseProgressText(test)}` : '';
+  sendRoll(brpTestExpression(test), `[${test.rollLabel}] ${test.label}${courseDetail}`, totalValue, isStrongSuccess, !test.success, cfg.hide);
+}
+
+function courseProgressText(test) {
+  if (!test.success) return test.level === 'fumble' ? 'Incident · progression utile 0 m' : 'Progression utile 0 m';
+  const advantage = test.level === 'critical'
+    ? ' · avantage majeur'
+    : test.level === 'special' ? ' · avantage' : '';
+  return `Progression MOV ${test.movement} × 2 = ${test.distance} m${advantage}`;
 }
 
 // ——— render result ———
@@ -1547,7 +1584,10 @@ function renderResult() {
       const thresholdLine = characterTest.automatic
         ? ''
         : `<div class="total-brkd test-thresholds">Critique ≤ ${formatPercentile(characterTest.criticalLimit)} · Spéciale ≤ ${formatPercentile(characterTest.specialLimit)} · Maladresse ${fumbleText}</div>`;
-      brkd = `<div class="total-brkd">${brpTestSummary(characterTest)}</div>${thresholdLine}`;
+      const courseLine = characterTest.kind === 'course'
+        ? `<div class="total-brkd course-progress">${courseProgressText(characterTest)}</div>`
+        : '';
+      brkd = `<div class="total-brkd">${brpTestSummary(characterTest)}</div>${thresholdLine}${courseLine}`;
     } else if (multiDice) {
       const parts = groups.map(g => g.rolls.map(r => r.val).join(' + ')).join(' + ');
       const modStr = mod !== 0 ? (mod >= 0 ? ` <span class="total-mod">+ ${mod}</span>` : ` <span class="total-mod">− ${Math.abs(mod)}</span>`) : '';
@@ -1592,6 +1632,60 @@ function quickCharacteristicTest(key) {
     score,
     threshold,
     difficulty: brpDifficulty('normal')
+  });
+  startPercentileRoll(test);
+}
+
+function readCourseProfile() {
+  let sheet = null;
+  try {
+    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY));
+  } catch (error) {
+    console.warn('Fiche complète locale illisible pour le Jet de Course.', error);
+  }
+
+  const sheetFrame = document.getElementById('character-sheet-frame');
+  const liveSheet = sheetFrame?.contentDocument;
+  const character = getPlayerCharacter();
+  const liveDex = Number(liveSheet?.querySelector('[data-stat="dexterite"]')?.value);
+  const liveMovement = Number(liveSheet?.querySelector('[data-field="movement"]')?.value);
+  const sheetDex = Number(sheet?.stats?.dexterite);
+  const characterDex = Number(character?.dexterite);
+  const sheetMovement = Number(sheet?.fields?.movement);
+  const speciesMovement = Number(character?.espece ? speciesByName(character.espece)?.mov : 0);
+
+  return {
+    dex: liveDex > 0 ? liveDex : (sheetDex > 0 ? sheetDex : characterDex),
+    movement: liveMovement > 0
+      ? liveMovement
+      : (sheetMovement > 0 ? sheetMovement : (speciesMovement > 0 ? speciesMovement : 10))
+  };
+}
+
+function quickCourseTest() {
+  if (rolling) return;
+  const { dex, movement } = readCourseProfile();
+  if (!Number.isFinite(dex) || dex <= 0) {
+    showToast('Renseigne la DEX dans la fiche personnage avant ce jet', 'error');
+    return;
+  }
+
+  const rawThreshold = (dex + movement) * 3;
+  const threshold = Math.min(95, rawThreshold);
+  const test = createPercentileTest({
+    kind: 'course',
+    typeLabel: 'Jet de Course',
+    name: 'Jet de Course',
+    code: 'COURSE',
+    score: rawThreshold,
+    threshold,
+    difficulty: brpDifficulty('normal')
+  });
+  Object.assign(test, {
+    dex,
+    movement,
+    rawThreshold,
+    distance: movement * 2
   });
   startPercentileRoll(test);
 }
@@ -1676,6 +1770,7 @@ window.switchTab = switchTab;
 window.rollAll = rollAll;
 window.renderExBar = renderExBar;
 window.quickCharacteristicTest = quickCharacteristicTest;
+window.quickCourseTest = quickCourseTest;
 window.rollBrpPercentileTest = rollBrpPercentileTest;
 window.markBrpSkillExperience = markBrpSkillExperience;
 window.generateCharacterStats = generateCharacterStats;
@@ -1689,6 +1784,7 @@ window.submitCharacterSheet = submitCharacterSheet;
 window.exportCharacterSheet = exportCharacterSheet;
 window.refreshCharacterFromSupabase = refreshCharacterFromSupabase;
 window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
+window.forceCharacterSheetSync = forceCharacterSheetSync;
 window.showCharacterSheetView = showCharacterSheetView;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
@@ -1700,6 +1796,7 @@ window.randomFantasyName = randomFantasyName;
 // ——— init ———
 window.addEventListener('diceforge:character-loaded', event => {
   hydrateSavedCharacter(event.detail?.character);
+  if (!document.getElementById('character-complete-view')?.hidden) showCharacterSheetView('complete');
 });
 initCharacterOptions();
 initBrpSkillPicker();

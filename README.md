@@ -53,6 +53,8 @@ Utilisez un bouton rapide ou composez une expression en choisissant jusqu'à dix
 
 Pour un test BRP, renseignez un score et choisissez la difficulté : automatique, facile, moyenne, difficile ou impossible. Dice Forge lance le `D100` et indique le niveau de réussite.
 
+Le bouton **Jet de Course** calcule automatiquement `(DEX + MOV) × 3`, avec un maximum de 95 %. Une réussite donne une progression de `MOV × 2` mètres par tour de six secondes ; une réussite spéciale ou critique ajoute respectivement un avantage ou un avantage majeur. Le jet convient aussi bien aux poursuites qu’aux fuites face à un danger.
+
 ### Jouer en salon
 
 1. Saisissez votre nom.
@@ -73,6 +75,7 @@ Le tirage initial et les deux relances possibles sont enregistrés dans Supabase
 
 La fiche complète permet notamment de gérer les compétences, les sorts, l'équipement et les notes. Elle conserve un brouillon local et propose :
 
+- la synchronisation forcée de l’identité, des caractéristiques et du MOV depuis le personnage généré, sans effacer le reste de la fiche complète ;
 - l'ouverture et l'enregistrement au format Markdown ;
 - la sauvegarde et le chargement par salon dans Supabase ;
 - le transfert vers un autre salon ;

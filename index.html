@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260725-obs-dice">
+<link rel="stylesheet" href="styles.css?v=20260727-course">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <script type="importmap">
 { "imports": {
@@ -83,6 +83,7 @@
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('pouvoir')">Chance POU</button>
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('dexterite')">Agilité DEX</button>
     <button class="qbtn stat-test" onclick="quickCharacteristicTest('charisme')">Charme CHA</button>
+    <button class="qbtn stat-test" onclick="quickCourseTest()">🏃 Jet de Course</button>
   </div>
 </div>
 
@@ -230,7 +231,11 @@
     </div>
   </div>
   <div class="character-complete-view" id="character-complete-view" role="tabpanel" aria-labelledby="character-view-complete-tab" hidden>
-    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1" loading="lazy"></iframe>
+    <div class="character-complete-sync">
+      <button class="room-btn" type="button" onclick="forceCharacterSheetSync()">Synchroniser depuis le personnage généré</button>
+      <span>Actualise l’identité, les caractéristiques et le MOV sans effacer les compétences, l’équipement ou les notes.</span>
+    </div>
+    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20260728-character-sync" loading="lazy"></iframe>
   </div>
 </section>
 
@@ -243,6 +248,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260725-low-latency-obs"></script>
+<script type="module" src="js/app.js?v=20260728-character-sync"></script>
 </body>
 </html>

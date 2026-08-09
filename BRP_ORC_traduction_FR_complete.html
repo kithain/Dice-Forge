@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Basic Roleplaying — Traduction FR complète (ORC)</title>
+<title>Basic Roleplaying — Règles Dice Forge (FR)</title>
 <style>
 :root {
   --ink: #2b2116;
@@ -86,6 +86,50 @@ a { color: var(--accent); }
   border-top: 4px double var(--accent);
   margin-top: 60px;
 }
+.dice-forge-nav,
+.dice-forge-rule {
+  background: #fff8e8;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+.dice-forge-nav {
+  border-width: 3px;
+  box-shadow: 0 3px 12px rgba(43, 33, 22, 0.12);
+}
+.dice-forge-nav h2,
+.dice-forge-rule h2,
+.dice-forge-rule h3 { margin-top: 0; }
+.dice-forge-nav ul { columns: 2; }
+.dice-forge-priority {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  padding: 14px 18px;
+  font-weight: bold;
+}
+.formula {
+  background: #efe7d5;
+  border-left: 4px solid var(--accent);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-family: Consolas, monospace;
+  font-weight: bold;
+}
+.rule-note {
+  background: #f3ecdd;
+  border-left: 4px solid var(--accent-light);
+  padding: 9px 14px;
+  margin: 12px 0;
+}
+@media (max-width: 640px) {
+  .container { padding: 16px 14px 48px; }
+  .dice-forge-nav ul { columns: 1; }
+  .dice-forge-nav,
+  .dice-forge-rule { padding: 14px; }
+}
 .back-to-top {
   position: fixed;
   bottom: 24px;
@@ -112,11 +156,16 @@ a { color: var(--accent); }
 <div class="container">
 <div class="cover">
 <h1>Basic Roleplaying</h1>
-<p class="subtitle">Moteur de jeu universel — Document de contenu ORC</p>
-<p class="subtitle">Traduction française complète</p>
+<p class="subtitle">Version Dice Forge — règles personnalisées consolidées</p>
+<p class="subtitle">Traduction française complète du contenu ORC incluse</p>
 <p class="authors">Jason Durall et Steve Perrin<br>Chaosium Inc.</p>
 </div>
 <div class="toc"><h2>Table des matières</h2><ol><li><a href="#credits">Crédits et Licence</a></li><li><a href="#ch1">1. Introduction</a></li><li><a href="#ch2">2. Personnages</a></li><li><a href="#ch3">3. Compétences</a></li><li><a href="#ch4">4. Pouvoirs</a></li><li><a href="#ch5">5. Système</a></li><li><a href="#ch6">6. Combat</a></li><li><a href="#ch7">7. Règles Ponctuelles</a></li><li><a href="#ch8">8. Équipement</a></li><li><a href="#ch9">9. Mener le Jeu</a></li><li><a href="#ch10">10. Univers</a></li><li><a href="#ch11">11. Créatures</a></li></ol></div>
+<div class="dice-forge-nav">
+<h2>Version Dice Forge</h2>
+<p><strong>Règles personnalisées consolidées.</strong> Cette section contient les modifications utilisées par les outils, la fiche de personnage, le livret et les écrans de jeu Dice Forge.</p>
+<p><a href="#dice-forge-rules"><strong>Ouvrir les règles Dice Forge</strong></a></p>
+</div>
 <div class="chapter-sep" id="credits"></div>
 <p><strong>Basic Roleplaying — Moteur de jeu universel — Document de contenu ORC</strong></p>
 <h2>Crédits</h2>
@@ -156,6 +205,199 @@ style="width:1in;height:1in" alt="image" /></p>
 <p>À de très rares exceptions près (termes déposés), le texte de BASIC
 ROLEPLAYING: UNIVERSAL GAME ENGINE est disponible pour un usage personnel et
 commercial sous la licence ORC.</p>
+
+<div class="chapter-sep" id="dice-forge-rules"></div>
+<h1 class="chapter">Règles Dice Forge</h1>
+<p class="dice-forge-priority">Les règles de ce chapitre sont prioritaires sur les passages contradictoires du texte BRP ORC reproduit dans les chapitres suivants.</p>
+<p>Cette variante conserve le moteur percentile de Basic Roleplaying et remplace principalement la Défense, le déroulement du combat, la progression par l'expérience, certains soins, la course et l'équipement médiéval-fantastique.</p>
+
+<div class="dice-forge-nav">
+<h2>Sommaire de la variante</h2>
+<ul>
+<li><a href="#df-course">Course et poursuites</a></li>
+<li><a href="#df-round">Déroulement d'un round</a></li>
+<li><a href="#df-defense">Compétence Défense</a></li>
+<li><a href="#df-combat-matrix">Matrice attaque / Défense</a></li>
+<li><a href="#df-damage">Dégâts et blessures</a></li>
+<li><a href="#df-healing">Guérison et soins</a></li>
+<li><a href="#df-experience">Expérience</a></li>
+<li><a href="#df-equipment">Armures et boucliers</a></li>
+</ul>
+</div>
+
+<section class="dice-forge-rule" id="df-course">
+<h2>Course et poursuites</h2>
+<p>Lorsqu'une course, une fuite ou un danger en mouvement mérite un jet, utilisez la DEX et le MOV du personnage.</p>
+<div class="formula">Jet de Course = (DEX + MOV) × 3, avec un maximum de 95 %</div>
+<div class="formula">Distance parcourue en cas de réussite = MOV × 2 mètres par séquence de six secondes</div>
+<table>
+<tr><th>Résultat</th><th>Effet</th></tr>
+<tr><td>Critique</td><td>Le personnage progresse et obtient un avantage majeur.</td></tr>
+<tr><td>Spéciale</td><td>Le personnage progresse et obtient un avantage.</td></tr>
+<tr><td>Normale</td><td>Le personnage parcourt la distance calculée.</td></tr>
+<tr><td>Échec</td><td>Le personnage ne gagne pas la progression attendue ou subit une complication décidée par le MJ.</td></tr>
+<tr><td>Maladresse</td><td>Le personnage chute, se retrouve bloqué ou aggrave immédiatement le danger.</td></tr>
+</table>
+<p class="rule-note">Cette règle sert aussi bien aux poursuites qu'aux fuites face à un danger, par exemple un pont qui s'effondre. L'avantage obtenu doit favoriser l'action suivante ou la position dans la poursuite.</p>
+</section>
+
+<section class="dice-forge-rule" id="df-round">
+<h2>Déroulement d'un round de combat</h2>
+<ol>
+<li><strong>Déclarations :</strong> les intentions sont annoncées en ordre de DEX croissant ; les personnages les plus lents déclarent en premier.</li>
+<li><strong>Pouvoirs :</strong> les sorts et pouvoirs instantanés sont résolus en ordre d'INT décroissant.</li>
+<li><strong>Actions :</strong> les personnages jouent leur tour en ordre de DEX décroissant.</li>
+<li><strong>Résolution :</strong> appliquez les effets persistants et les conséquences de fin de round.</li>
+</ol>
+<h3>Actions disponibles</h3>
+<ul>
+<li><strong>À son tour :</strong> attaquer, se déplacer, accomplir une action non combattante, engager ou se désengager.</li>
+<li><strong>À tout moment :</strong> tenter une Défense, combattre défensivement ou parler.</li>
+<li><strong>Attaque et déplacement :</strong> jusqu'à 5 mètres de déplacement avec une attaque.</li>
+<li><strong>Attaques multiples :</strong> chaque attaque successive agit 5 rangs de DEX plus tard.</li>
+<li><strong>Défenses multiples :</strong> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
+<li><strong>Combat défensif :</strong> renoncer à son attaque accorde une Défense supplémentaire sans augmenter la pénalité cumulative.</li>
+<li><strong>DEX identiques :</strong> les actions sont simultanées.</li>
+</ul>
+<p class="rule-note"><strong>Exemple :</strong> un personnage de DEX 16 déclare après DEX 12 et avant DEX 18. Pendant les actions, l'ordre s'inverse : il agit après DEX 18 et avant DEX 12.</p>
+
+<h3>Portée des armes de jet</h3>
+<table>
+<tr><th>Situation</th><th>Modificateur</th></tr>
+<tr><td>Bout portant, à moins de DEX ÷ 3 mètres</td><td>Facile (×2)</td></tr>
+<tr><td>Portée normale</td><td>Score normal</td></tr>
+<tr><td>Portée moyenne (×2)</td><td>Difficile (÷2)</td></tr>
+<tr><td>Longue portée (×4)</td><td>Score ÷5</td></tr>
+<tr><td>Cible en mouvement</td><td>−20 %</td></tr>
+<tr><td>Cible à terre à distance</td><td>Difficile</td></tr>
+<tr><td>Cible dissimulée ou à couvert</td><td>Difficile</td></tr>
+<tr><td>Équipement de visée utilisé pendant un round</td><td>Divisez les pénalités par deux</td></tr>
+</table>
+</section>
+
+<section class="dice-forge-rule" id="df-defense">
+<h2>Compétence Défense</h2>
+<p>Esquiver, parer avec une arme adaptée et bloquer avec un bouclier utilisent tous la même compétence <strong>Défense</strong>. Le défenseur doit avoir perçu l'attaque et être capable d'accomplir le mouvement décrit.</p>
+<div class="formula">Défense = DEX × 2 + points investis + bonus de bouclier éventuel</div>
+<ul>
+<li><strong>Esquive :</strong> nécessite assez de liberté pour se déplacer.</li>
+<li><strong>Parade :</strong> nécessite une arme adaptée ; une petite arme ne peut normalement pas dévier un projectile.</li>
+<li><strong>Blocage :</strong> nécessite un bouclier. Le bouclier est un équipement et non une compétence séparée.</li>
+</ul>
+<table>
+<tr><th>Bouclier</th><th>Bonus de Défense</th><th>Particularité</th></tr>
+<tr><td>Rondache</td><td>+10 %</td><td>Légère, laisse la main presque libre</td></tr>
+<tr><td>Écu</td><td>+20 %</td><td>Protection équilibrée</td></tr>
+<tr><td>Bouclier en amande</td><td>+20 %</td><td>Utilisable contre les projectiles visibles</td></tr>
+<tr><td>Pavois</td><td>+30 %</td><td>Couverture importante, très encombrant</td></tr>
+<tr><td>Bouclier runique</td><td>+20 %</td><td>Parfois utilisable contre une attaque magique directe</td></tr>
+</table>
+<p class="rule-note">L'armure soustrait ses PA aux dégâts. Le bouclier améliore le jet de Défense, mais n'ajoute pas de PA et ne réduit pas une seconde fois les dégâts.</p>
+</section>
+
+<section class="dice-forge-rule" id="df-combat-matrix">
+<h2>Matrice attaque / Défense</h2>
+<table>
+<tr><th>Attaque</th><th>Défense</th><th>Résultat</th></tr>
+<tr><td>Critique</td><td>Critique</td><td>L'attaque touche et inflige des dégâts normaux.</td></tr>
+<tr><td>Critique</td><td>Spéciale, normale ou échec</td><td>Dégâts critiques ; l'armure est ignorée.</td></tr>
+<tr><td>Spéciale</td><td>Critique</td><td>Attaque entièrement annulée ; aucun dégât.</td></tr>
+<tr><td>Spéciale</td><td>Spéciale</td><td>L'attaque touche et inflige des dégâts normaux.</td></tr>
+<tr><td>Spéciale</td><td>Normale, échec ou maladresse</td><td>L'attaque touche et produit ses dégâts spéciaux.</td></tr>
+<tr><td>Normale</td><td>Critique ou spéciale</td><td>Attaque entièrement annulée ; aucun dégât.</td></tr>
+<tr><td>Normale</td><td>Normale</td><td>Coup amorti : moitié des dégâts restant après l'armure, arrondie au supérieur.</td></tr>
+<tr><td>Normale</td><td>Échec ou maladresse</td><td>La cible subit les dégâts complets.</td></tr>
+<tr><td>Échec ou maladresse</td><td>—</td><td>Aucune Défense nécessaire ; appliquez la maladresse éventuelle.</td></tr>
+</table>
+<p class="rule-note">Un coup amorti compte comme une attaque ayant touché, mais ne produit aucun effet spécial.</p>
+
+<h3>Dégâts spéciaux</h3>
+<table>
+<tr><th>Type</th><th>Armes usuelles</th><th>Effet d'une réussite spéciale</th></tr>
+<tr><td>Saignement</td><td>Armes tranchantes</td><td>−1 PV par round ; arrêt par un jet d'Endurance ou de Premiers Secours.</td></tr>
+<tr><td>Écrasement</td><td>Armes contondantes</td><td>Jet de CON ; un échec fait perdre la prochaine action.</td></tr>
+<tr><td>Entrave</td><td>Armes flexibles, filets</td><td>Immobilise le membre ou la cible ; DEX opposée à DEX + TAI pour se libérer.</td></tr>
+<tr><td>Empalement</td><td>Armes perforantes, arcs, arbalètes</td><td>L'arme reste plantée et inflige les dégâts maximaux de l'arme ; si elle est arrachée, la cible perd 1 PV supplémentaire par round.</td></tr>
+<tr><td>Renversement</td><td>Mains nues, boucliers</td><td>La cible tombe ; un jet d'Agilité raté lui fait perdre 1 PV.</td></tr>
+</table>
+</section>
+
+<section class="dice-forge-rule" id="df-damage">
+<h2>Dégâts, armure et blessures</h2>
+<div class="formula">Dégâts subis = dégâts de l'arme + modificateur de dégâts − PA de l'armure, minimum 0</div>
+<div class="formula">Coup amorti = dégâts subis ÷ 2, arrondi au supérieur</div>
+<ul>
+<li>Une réussite critique inflige les dégâts maximaux de l'arme, ajoute normalement le modificateur de dégâts et ignore l'armure.</li>
+<li>Une blessure infligeant en un coup au moins la moitié des PV totaux est une blessure majeure.</li>
+<li>À 2 PV ou moins, le personnage perd connaissance.</li>
+<li>À 0 PV, le personnage meurt à la fin du round suivant sans intervention.</li>
+<li>Les localisations de touche restent optionnelles.</li>
+</ul>
+<h3>Personnage à terre</h3>
+<ul>
+<li>−50 % aux attaques et aux Défenses effectuées par parade.</li>
+<li>Une Défense effectuée par esquive conserve son score normal.</li>
+<li>Se relever demande une action complète.</li>
+</ul>
+</section>
+
+<section class="dice-forge-rule" id="df-healing">
+<h2>Guérison et soins</h2>
+<table>
+<tr><th>Méthode</th><th>Récupération</th></tr>
+<tr><td>Guérison naturelle</td><td>1D3 PV par semaine.</td></tr>
+<tr><td>Premiers Secours réussis</td><td>1D3 PV immédiats, une fois par blessure.</td></tr>
+<tr><td>Médecine</td><td>Traite et compense les blessures majeures selon les circonstances.</td></tr>
+<tr><td>Sort Soins</td><td>1D6 PV par niveau, immédiatement, pour 3 PP par niveau.</td></tr>
+<tr><td>Guérison Supérieure</td><td>2D6 PV par niveau et guérison d'une maladie ou d'un poison, immédiatement, pour 3 PP par niveau.</td></tr>
+</table>
+<p class="rule-note"><strong>En combat ou pendant un voyage rude :</strong> les Premiers Secours coûtent une action et exigent un jet. Un échec ne rend aucun PV. Au repos, appliquez normalement la guérison naturelle et les bonus de soins.</p>
+</section>
+
+<section class="dice-forge-rule" id="df-experience">
+<h2>Amélioration par l'expérience</h2>
+<div class="formula">Bonus et réserve d'expérience = INT ÷ 2, arrondi au supérieur</div>
+<ol>
+<li>Après toute réussite obtenue avec une compétence durant la partie, cochez cette compétence.</li>
+<li>À la fin de la séance ou de l'aventure, lancez <strong>D100 + bonus d'expérience</strong> pour chaque compétence cochée.</li>
+<li>Un résultat supérieur au score actuel rend la compétence admissible à une amélioration.</li>
+<li>Créez une réserve de points égale au bonus d'expérience du personnage.</li>
+<li>Répartissez librement toute la réserve, sans plafond par compétence, entre les compétences admissibles.</li>
+<li>Les points non attribués sont perdus, puis toutes les coches sont effacées.</li>
+</ol>
+<p class="rule-note">Si aucun jet d'apprentissage ne réussit, aucun point n'est distribué. La POU progresse séparément : cochez-la après un jet de résistance réussi contre une POU au moins égale, puis gagnez 1D3−1 point de POU.</p>
+<p><strong>Exemple :</strong> avec INT 13, le bonus et la réserve valent 7. Si Épée, Défense et Premiers Secours réussissent leur jet d'apprentissage, le joueur peut répartir les 7 points entre ces trois compétences, par exemple +4 en Épée, +2 en Défense et +1 en Premiers Secours.</p>
+</section>
+
+<section class="dice-forge-rule" id="df-equipment">
+<h2>Armures et boucliers</h2>
+<p><strong>Monnaie :</strong> 10 pièces d'argent (pa) valent 1 pièce d'or (po). Plusieurs armures portées ne cumulent pas leurs PA.</p>
+<table>
+<tr><th>Armure</th><th>Type</th><th>PA</th><th>Mobilité</th><th>Discrétion</th><th>Prix</th></tr>
+<tr><td>Vêtements renforcés</td><td>Légère</td><td>1</td><td>Excellente</td><td>Normale</td><td>2 po</td></tr>
+<tr><td>Gambison</td><td>Légère</td><td>2</td><td>Excellente</td><td>Normale</td><td>8 po</td></tr>
+<tr><td>Armure de cuir</td><td>Légère</td><td>2</td><td>Très bonne</td><td>Bonne</td><td>10 po</td></tr>
+<tr><td>Armure de cuir clouté</td><td>Légère</td><td>3</td><td>Bonne</td><td>Normale</td><td>25 po</td></tr>
+<tr><td>Armure de cuir durci</td><td>Intermédiaire</td><td>3</td><td>Moyenne</td><td>Mauvaise</td><td>12 po</td></tr>
+<tr><td>Chemise de mailles</td><td>Intermédiaire</td><td>4</td><td>Bonne</td><td>Mauvaise</td><td>50 po</td></tr>
+<tr><td>Brigandine</td><td>Intermédiaire</td><td>5</td><td>Moyenne</td><td>Mauvaise</td><td>80 po</td></tr>
+<tr><td>Cotte de mailles</td><td>Lourde</td><td>6</td><td>Réduite</td><td>Très mauvaise</td><td>100 po</td></tr>
+<tr><td>Armure d'écailles</td><td>Lourde</td><td>6</td><td>Réduite</td><td>Très mauvaise</td><td>120 po</td></tr>
+<tr><td>Demi-plate</td><td>Lourde</td><td>7</td><td>Faible</td><td>Très mauvaise</td><td>300 po</td></tr>
+<tr><td>Harnois complet</td><td>Lourde</td><td>8</td><td>Faible</td><td>Impossible</td><td>800 po</td></tr>
+<tr><td>Robe runique</td><td>Magique</td><td>3</td><td>Excellente</td><td>Normale</td><td>500 po</td></tr>
+<tr><td>Cuir draconique</td><td>Magique</td><td>5</td><td>Très bonne</td><td>Bonne</td><td>1 500 po</td></tr>
+<tr><td>Armure de mithril</td><td>Magique</td><td>7</td><td>Bonne</td><td>Normale</td><td>4 000 po</td></tr>
+</table>
+<h3>Protections particulières</h3>
+<ul>
+<li><strong>Casque ouvert :</strong> +1 contre les coups critiques visant la tête ; bonne visibilité ; 5 po.</li>
+<li><strong>Heaume intégral :</strong> +2 contre les coups critiques visant la tête ; vision et audition réduites ; 25 po.</li>
+<li><strong>Projectiles visibles :</strong> le bouclier en amande peut protéger contre les flèches, carreaux, javelots et autres projectiles perçus par le porteur.</li>
+<li><strong>Bouclier runique :</strong> son bonus peut s'appliquer à une attaque magique directe, à l'appréciation du MJ.</li>
+</ul>
+<p>Le catalogue complet des armes, armures, boucliers et propriétés spéciales reste disponible dans la page <a href="inventaire.html">Inventaire</a>.</p>
+</section>
 
 <div class="chapter-sep" id="ch1"></div>
 <h1>1. Introduction</h1>

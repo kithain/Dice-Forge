@@ -4,6 +4,7 @@ import { showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
+const SYNC_FROM_GENERATOR = new URLSearchParams(window.location.search).get('syncGenerated') === '1';
 if (IS_EMBEDDED) {
   document.body.classList.add('pj-embedded');
 }
@@ -330,10 +331,12 @@ function updateDerived() {
   });
   const con = numberValue('constitution'), size = numberValue('taille');
   const pow = numberValue('pouvoir'), int = numberValue('intelligence'), str = numberValue('force');
+  const dex = numberValue('dexterite'), movement = Number(fieldValue('movement'));
   setDerived('hp', con && size ? Math.ceil((con + size) / 2) : '');
   setDerived('pp', pow || '');
   setDerived('damage', str && size ? damageBonus(str + size) : '');
   setDerived('experience', int ? Math.ceil(int / 2) : '');
+  setDerived('course', dex && movement > 0 ? `${Math.min(95, (dex + movement) * 3)} %` : '');
   updateSkillCalculations();
 }
 
@@ -742,7 +745,9 @@ function toMarkdownWithLegacyHeader() {
 }
 
 function toMarkdown() {
+  const course = form.querySelector('[data-derived="course"]')?.value || '';
   return toMarkdownWithLegacyHeader()
+    .replace('\n\n## Compétences', `\n- **Jet de Course :** (DEX + MOV) × 3 = ${course}\n\n## Compétences`)
     .replace('| Arme | % | Dégâts | Portée | PA |', '| Arme | % | Dégâts |')
     .replace('|------|---|--------|--------|----|', '|------|---|--------|');
 }
@@ -769,7 +774,7 @@ function openPdfPreview() {
         return { name: spell.name, base, points, score: base + points, checked: spell.checked };
       }) : [])
   }));
-  data.derived = Object.fromEntries(['hp', 'pp', 'damage', 'experience'].map(key => [
+  data.derived = Object.fromEntries(['hp', 'pp', 'damage', 'experience', 'course'].map(key => [
     key,
     form.querySelector(`[data-derived="${key}"]`)?.value || ''
   ]));
@@ -883,4 +888,8 @@ document.getElementById('pj-reset').addEventListener('click', () => {
 });
 
 window.diceForgeSheet = { setSkillChecked };
-autoLoadSheetFromSupabase();
+if (SYNC_FROM_GENERATOR) {
+  setStatus('Caractéristiques et mouvement synchronisés depuis le personnage généré.');
+} else {
+  autoLoadSheetFromSupabase();
+}

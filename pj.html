@@ -6,7 +6,7 @@
   <title>Dice Forge — Fiche de personnage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260719-merged-character">
+  <link rel="stylesheet" href="styles.css?v=20260727-course">
   <link rel="stylesheet" href="pj.css?v=20260719-merged-character">
   <link rel="stylesheet" href="site-menu.css?v=20260719">
   <script type="importmap">
@@ -103,6 +103,7 @@
           <label class="pj-derived">Bonus aux dégâts <input data-derived="damage" readonly></label>
           <label class="pj-derived">Bonus d’expérience <input data-derived="experience" readonly></label>
           <label class="pj-derived">Mouvement <input data-field="movement" type="number" value="10"></label>
+          <label class="pj-derived">Jet de Course (DEX + MOV) × 3 <input data-derived="course" readonly></label>
         </div>
       </section>
 
@@ -177,6 +178,6 @@
   </main>
 
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20260725-skill-rolls"></script>
+  <script type="module" src="js/pj-sheet.js?v=20260728-character-sync"></script>
 </body>
 </html>
