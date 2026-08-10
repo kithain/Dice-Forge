@@ -507,7 +507,7 @@ function setStatus(message) {
 function currentRoom() {
   try {
     const room = JSON.parse(localStorage.getItem(ROOM_STORAGE_KEY));
-    return room?.code && room?.player ? room : null;
+    return room?.code && room?.player && room?.userId ? room : null;
   } catch (error) {
     return null;
   }
@@ -531,6 +531,7 @@ async function saveSheetToSupabase() {
   setStatus('Sauvegarde Supabase en cours…');
   const data = collectData();
   const { error } = await supabase.from('pj_sheets').upsert({
+    user_id: room.userId,
     room_code: room.code,
     player_name: room.player,
     character_name: fieldValue('name'),
@@ -568,8 +569,9 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
   try {
     const result = await supabase.from('pj_sheets')
       .select('sheet_data, character_name, updated_at')
-      .eq('room_code', room.code)
-      .eq('player_name', room.player)
+      .eq('user_id', room.userId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
     data = result.data;
     error = result.error;
@@ -585,7 +587,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
     return false;
   }
   if (!data) {
-    setStatus(`Aucune fiche en ligne pour ${room.player} dans la partie ${room.code}. Brouillon local conservé.`);
+    setStatus(`Aucune fiche en ligne liée au compte de ${room.player}. Brouillon local conservé.`);
     return false;
   }
   if (!data.sheet_data || typeof data.sheet_data !== 'object') {
@@ -656,8 +658,8 @@ async function transferSheetToRoom() {
 
   button.disabled = true;
   setTransferStatus(`Vérification du salon ${targetCode}…`);
-  const { data: roomRows, error: roomError } = await supabase.from('rolls')
-    .select('id')
+  const { data: roomRows, error: roomError } = await supabase.from('rooms')
+    .select('room_code')
     .eq('room_code', targetCode)
     .limit(1);
   if (roomError) {
@@ -690,6 +692,7 @@ async function transferSheetToRoom() {
   setTransferStatus(`Copie de la fiche vers ${targetCode}…`);
   const data = collectData();
   const { error } = await supabase.from('pj_sheets').upsert({
+    user_id: room.userId,
     room_code: targetCode,
     player_name: room.player,
     character_name: fieldValue('name'),

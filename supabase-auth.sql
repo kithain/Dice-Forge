@@ -19,8 +19,15 @@ create table if not exists public.room_members (
 alter table public.rolls
   add column if not exists user_id uuid references auth.users(id) on delete set null;
 
--- Conserve les anciennes rooms dans l'historique. Elles n'ont pas de proprietaire
--- authentifie ; les nouvelles rooms creees par l'application en auront un.
+alter table public.personnages
+  add column if not exists user_id uuid references auth.users(id) on delete set null;
+alter table public.pj_sheets
+  add column if not exists user_id uuid references auth.users(id) on delete set null;
+alter table public.pj_inventory
+  add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+-- Conserve les anciennes rooms dans l'historique avant de tenter de les
+-- rattacher au compte Auth correspondant.
 insert into public.rooms (room_code, owner_name, created_at)
 select distinct on (room_code)
   room_code,
@@ -30,6 +37,71 @@ from public.rolls
 where expression = '— Partie créée —'
 order by room_code, created_at
 on conflict (room_code) do nothing;
+
+-- Rattache automatiquement les anciennes rooms a leur compte Auth lorsque
+-- l'adresse interne correspond au nom historique (ex. MJ -> mj@diceforge.app).
+update public.rooms as room
+set owner_id = auth_user.id
+from auth.users as auth_user
+where room.owner_id is null
+  and lower(split_part(auth_user.email, '@', 2)) = 'diceforge.app'
+  and lower(split_part(auth_user.email, '@', 1)) = lower(
+    regexp_replace(trim(room.owner_name), '[^a-zA-Z0-9]+', '.', 'g')
+  );
+
+-- Rattache aussi les anciens jets a leur auteur authentifie lorsque le nom
+-- historique correspond, sans modifier le nom affiche ni le contenu du jet.
+update public.rolls as roll
+set user_id = auth_user.id
+from auth.users as auth_user
+where roll.user_id is null
+  and lower(split_part(auth_user.email, '@', 2)) = 'diceforge.app'
+  and lower(split_part(auth_user.email, '@', 1)) = lower(
+    regexp_replace(trim(roll.player_name), '[^a-zA-Z0-9]+', '.', 'g')
+  );
+
+update public.personnages as personnage
+set user_id = auth_user.id
+from auth.users as auth_user
+where personnage.user_id is null
+  and lower(split_part(auth_user.email, '@', 2)) = 'diceforge.app'
+  and lower(split_part(auth_user.email, '@', 1)) = lower(
+    regexp_replace(trim(personnage.player_name), '[^a-zA-Z0-9]+', '.', 'g')
+  );
+
+update public.pj_sheets as sheet
+set user_id = auth_user.id
+from auth.users as auth_user
+where sheet.user_id is null
+  and lower(split_part(auth_user.email, '@', 2)) = 'diceforge.app'
+  and lower(split_part(auth_user.email, '@', 1)) = lower(
+    regexp_replace(trim(sheet.player_name), '[^a-zA-Z0-9]+', '.', 'g')
+  );
+
+update public.pj_inventory as inventory
+set user_id = auth_user.id
+from auth.users as auth_user
+where inventory.user_id is null
+  and lower(split_part(auth_user.email, '@', 2)) = 'diceforge.app'
+  and lower(split_part(auth_user.email, '@', 1)) = lower(
+    regexp_replace(trim(inventory.player_name), '[^a-zA-Z0-9]+', '.', 'g')
+  );
+
+drop index if exists public.personnages_user_id_unique_idx;
+create index if not exists personnages_user_id_idx
+  on public.personnages (user_id);
+create index if not exists pj_sheets_user_updated_idx
+  on public.pj_sheets (user_id, updated_at desc);
+create index if not exists pj_inventory_user_updated_idx
+  on public.pj_inventory (user_id, updated_at desc);
+
+insert into public.room_members (room_code, user_id, player_name)
+select distinct roll.room_code, roll.user_id, roll.player_name
+from public.rolls as roll
+join public.rooms as room on room.room_code = roll.room_code
+where roll.user_id is not null
+on conflict (room_code, user_id) do update
+set player_name = excluded.player_name;
 
 create table if not exists public.obs_rolls (
   roll_id bigint primary key,
@@ -126,6 +198,25 @@ as $$
   );
 $$;
 
+create or replace function public.can_access_player_data(target_user uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select target_user is not null and (
+    target_user = (select auth.uid())
+    or exists (
+      select 1
+      from public.room_members as member
+      join public.rooms as room on room.room_code = member.room_code
+      where member.user_id = target_user
+        and room.owner_id = (select auth.uid())
+    )
+  );
+$$;
+
 alter table public.rooms enable row level security;
 alter table public.room_members enable row level security;
 alter table public.rolls enable row level security;
@@ -190,11 +281,13 @@ drop policy if exists "Allow authenticated read personnages" on public.personnag
 drop policy if exists "Allow authenticated insert personnages" on public.personnages;
 drop policy if exists "Allow authenticated update personnages" on public.personnages;
 create policy "Allow authenticated read personnages" on public.personnages
-  for select to authenticated using (true);
+  for select to authenticated using (public.can_access_player_data(user_id));
 create policy "Allow authenticated insert personnages" on public.personnages
-  for insert to authenticated with check (true);
+  for insert to authenticated with check (user_id = (select auth.uid()));
 create policy "Allow authenticated update personnages" on public.personnages
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 
 drop policy if exists "Allow anon read pj_sheets" on public.pj_sheets;
 drop policy if exists "Allow anon insert pj_sheets" on public.pj_sheets;
@@ -203,11 +296,13 @@ drop policy if exists "Allow authenticated read pj_sheets" on public.pj_sheets;
 drop policy if exists "Allow authenticated insert pj_sheets" on public.pj_sheets;
 drop policy if exists "Allow authenticated update pj_sheets" on public.pj_sheets;
 create policy "Allow authenticated read pj_sheets" on public.pj_sheets
-  for select to authenticated using (true);
+  for select to authenticated using (public.can_access_player_data(user_id));
 create policy "Allow authenticated insert pj_sheets" on public.pj_sheets
-  for insert to authenticated with check (true);
+  for insert to authenticated with check (user_id = (select auth.uid()));
 create policy "Allow authenticated update pj_sheets" on public.pj_sheets
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 
 drop policy if exists "Allow anon read pj_inventory" on public.pj_inventory;
 drop policy if exists "Allow anon insert pj_inventory" on public.pj_inventory;
@@ -218,17 +313,19 @@ drop policy if exists "Allow authenticated insert pj_inventory" on public.pj_inv
 drop policy if exists "Allow authenticated update pj_inventory" on public.pj_inventory;
 drop policy if exists "Allow authenticated delete pj_inventory" on public.pj_inventory;
 create policy "Allow authenticated read pj_inventory" on public.pj_inventory
-  for select to authenticated using (true);
+  for select to authenticated using (public.can_access_player_data(user_id));
 create policy "Allow authenticated insert pj_inventory" on public.pj_inventory
-  for insert to authenticated with check (true);
+  for insert to authenticated with check (user_id = (select auth.uid()));
 create policy "Allow authenticated update pj_inventory" on public.pj_inventory
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
 create policy "Allow authenticated delete pj_inventory" on public.pj_inventory
-  for delete to authenticated using (true);
+  for delete to authenticated using (user_id = (select auth.uid()));
 
 revoke all on public.rooms, public.room_members, public.rolls,
   public.obs_rolls, public.personnages, public.pj_sheets, public.pj_inventory from anon;
-revoke all on public.rolls_personnages from anon;
+revoke all on public.rolls_personnages from anon, authenticated;
 revoke all on sequence public.rolls_id_seq, public.pj_sheets_id_seq,
   public.pj_inventory_id_seq from anon;
 
@@ -239,9 +336,9 @@ grant select on public.obs_rolls to anon, authenticated;
 grant select, insert, update on public.personnages to authenticated;
 grant select, insert, update on public.pj_sheets to authenticated;
 grant select, insert, update, delete on public.pj_inventory to authenticated;
-grant select on public.rolls_personnages to authenticated;
 grant execute on function public.is_room_member(text) to authenticated;
 grant execute on function public.is_room_owner(text) to authenticated;
+grant execute on function public.can_access_player_data(uuid) to authenticated;
 grant usage, select on sequence public.rolls_id_seq to authenticated;
 grant usage, select on sequence public.pj_sheets_id_seq to authenticated;
 grant usage, select on sequence public.pj_inventory_id_seq to authenticated;

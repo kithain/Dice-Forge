@@ -1,5 +1,6 @@
 create table if not exists public.personnages (
   player_name text primary key,
+  user_id uuid references auth.users(id) on delete set null,
   nom text not null check (length(trim(nom)) > 0),
   espece text,
   genre text,
@@ -21,6 +22,7 @@ create table if not exists public.personnages (
 );
 
 alter table public.personnages
+  add column if not exists user_id uuid references auth.users(id) on delete set null,
   add column if not exists genre text,
   add column if not exists espece text,
   add column if not exists age integer,
@@ -147,17 +149,17 @@ drop policy if exists "Allow read personnages" on public.personnages;
 create policy "Allow read personnages"
   on public.personnages for select
   to authenticated
-  using (true);
+  using (user_id = (select auth.uid()));
 
 drop policy if exists "Allow insert personnages" on public.personnages;
 create policy "Allow insert personnages"
   on public.personnages for insert
   to authenticated
-  with check (true);
+  with check (user_id = (select auth.uid()));
 
 drop policy if exists "Allow update personnages" on public.personnages;
 create policy "Allow update personnages"
   on public.personnages for update
   to authenticated
-  using (true)
-  with check (true);
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));

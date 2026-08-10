@@ -28,6 +28,7 @@ const FANTASY_NAMES = [
   'Erevan', 'Sindri', 'Marwenna', 'Kethric', 'Ilyara', 'Bramwell', 'Nerissa', 'Skarn'
 ];
 const LEGACY_CHARACTER_COLUMNS = [
+  'user_id',
   'player_name',
   'nom',
   'espece',
@@ -297,9 +298,16 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
     return null;
   }
 
+  const userId = roomState.userId || await authenticatedUserId();
+  if (!userId) {
+    if (!preserveOnError) clearPlayerCharacter();
+    if (throwOnError) throw new Error('Session utilisateur expirée.');
+    return null;
+  }
+
   let { data, error } = await sb.from('personnages')
     .select(CHARACTER_COLUMNS)
-    .ilike('player_name', playerName)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(1);
 
@@ -307,7 +315,7 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
     console.warn('Colonnes de relance absentes : chargement de la fiche au format historique.');
     const legacyResult = await sb.from('personnages')
       .select(LEGACY_CHARACTER_COLUMNS)
-      .ilike('player_name', playerName)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(1);
     data = legacyResult.data;
@@ -447,8 +455,11 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
 
   sbInit();
   if (!sb) { showToast('Supabase non configuré. Voir instructions.', 'error'); return false; }
+  const userId = roomState.userId || await authenticatedUserId();
+  if (!userId) { showToast('Session expirée. Reconnecte-toi.', 'error'); return false; }
 
   const payload = {
+    user_id: userId,
     player_name: playerName,
     nom,
     espece: emptyToNull(details.espece),
@@ -471,7 +482,7 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
 
   const existing = await sb.from('personnages')
     .select('player_name')
-    .eq('player_name', playerName)
+    .eq('user_id', userId)
     .limit(1);
 
   if (existing.error) {
@@ -484,7 +495,7 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
   if (existing.data && existing.data.length) {
     const updateResult = await sb.from('personnages')
       .update(payload)
-      .eq('player_name', playerName)
+      .eq('user_id', userId)
       .select(CHARACTER_COLUMNS)
       .single();
     data = updateResult.data;
@@ -500,7 +511,7 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
     if (error && (error.code === '23505' || /duplicate key|conflict/i.test(error.message))) {
       const updateResult = await sb.from('personnages')
         .update(payload)
-        .eq('player_name', playerName)
+        .eq('user_id', userId)
         .select(CHARACTER_COLUMNS)
         .single();
       data = updateResult.data;

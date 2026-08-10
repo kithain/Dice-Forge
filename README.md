@@ -141,6 +141,8 @@ Dice Forge utilise Supabase Auth : le mot de passe est vérifié par Supabase et
 
 Le joueur se connecte avec son nom, puis peut choisir son propre mot de passe depuis **Menu > Mon compte**.
 
+Les personnages, fiches complètes et inventaires sont rattachés à l'identifiant permanent du compte Auth. Ils sont donc retrouvés après un changement de room. Le joueur peut modifier ses propres données ; le propriétaire/MJ d'une room commune peut les consulter en lecture seule.
+
 ### 2. Créer la table des jets
 
 Dans le **SQL Editor** de votre projet Supabase, exécutez :
@@ -209,7 +211,7 @@ Exécutez ensuite, dans cet ordre :
 
 Le premier script sert aussi de migration : vous pouvez le réexécuter après une mise à jour de Dice Forge.
 
-Exécutez ensuite [`supabase-auth.sql`](supabase-auth.sql) afin de créer les propriétaires et membres des rooms, retirer les anciennes autorisations publiques et créer le flux OBS filtré. Les anciennes rooms restent consultables comme historique mais n'ont pas de propriétaire authentifié ; toutes les nouvelles rooms en auront un automatiquement.
+Exécutez ensuite [`supabase-auth.sql`](supabase-auth.sql) afin de créer les propriétaires et membres des rooms, retirer les anciennes autorisations publiques et créer le flux OBS filtré. Les anciennes rooms sont automatiquement rattachées au compte Auth correspondant lorsque leur ancien nom de créateur correspond à l'adresse interne, par exemple `MJ` avec `mj@diceforge.app`. Toutes les nouvelles rooms ont automatiquement un propriétaire.
 
 ### 4. Renseigner la configuration
 

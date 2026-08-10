@@ -42,7 +42,9 @@ function emptyInventory() {
 function identityFromStorage() {
   try {
     const room = JSON.parse(localStorage.getItem(ROOM_STORAGE_KEY));
-    return room?.code && room?.player ? { code: String(room.code).toUpperCase(), player: String(room.player) } : null;
+    return room?.code && room?.player && room?.userId
+      ? { code: String(room.code).toUpperCase(), player: String(room.player), userId: String(room.userId) }
+      : null;
   } catch (error) {
     return null;
   }
@@ -50,7 +52,7 @@ function identityFromStorage() {
 
 function storageKey() {
   return roomIdentity
-    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.code}:${roomIdentity.player}`
+    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}`
     : `${INVENTORY_STORAGE_PREFIX}:local`;
 }
 
@@ -238,8 +240,9 @@ async function loadWeaponSkillScores() {
   if (!supabase || !roomIdentity) return;
   const { data } = await supabase.from('pj_sheets')
     .select('sheet_data')
-    .eq('room_code', roomIdentity.code)
-    .eq('player_name', roomIdentity.player)
+    .eq('user_id', roomIdentity.userId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
   const skills = data?.sheet_data?.skills;
   if (!Array.isArray(skills)) return;
@@ -345,6 +348,7 @@ function inventoryError(error) {
 function cloudPayload() {
   collectFromDom();
   return {
+    user_id: roomIdentity.userId,
     room_code: roomIdentity.code,
     player_name: roomIdentity.player,
     character_name: inventory.characterName,
@@ -416,8 +420,9 @@ async function importFromCompleteSheet() {
   if (!supabase || !roomIdentity) return migrated;
   const { data, error } = await supabase.from('pj_sheets')
     .select('character_name,sheet_data')
-    .eq('room_code', roomIdentity.code)
-    .eq('player_name', roomIdentity.player)
+    .eq('user_id', roomIdentity.userId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
   if (error || !data?.sheet_data) return migrated;
 
@@ -463,8 +468,9 @@ async function loadCloud({ manual = false } = {}) {
   setStatus('Chargement de l’inventaire Supabase…');
   const { data, error } = await supabase.from('pj_inventory')
     .select('*')
-    .eq('room_code', roomIdentity.code)
-    .eq('player_name', roomIdentity.player)
+    .eq('user_id', roomIdentity.userId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
   cloudLoadInProgress = false;
   document.getElementById('inventory-refresh').disabled = false;
@@ -491,7 +497,9 @@ async function loadCloud({ manual = false } = {}) {
 
 async function reloadIdentity() {
   const nextIdentity = identityFromStorage();
-  const changed = nextIdentity?.code !== roomIdentity?.code || nextIdentity?.player !== roomIdentity?.player;
+  const changed = nextIdentity?.code !== roomIdentity?.code
+    || nextIdentity?.player !== roomIdentity?.player
+    || nextIdentity?.userId !== roomIdentity?.userId;
   if (!changed) return;
   roomIdentity = nextIdentity;
   inventory = emptyInventory();
