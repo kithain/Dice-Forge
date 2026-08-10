@@ -1,4 +1,17 @@
-# Web Combat Tracker + Battle Map
+# Compagnon MJ Dice Forge
+
+Le compagnon regroupe dans un seul serveur local le cockpit MJ, Dice Forge, le tracker de combat, la Battle Map, l'import Obsidian et les vues OBS.
+
+## Accès
+
+- cockpit : `http://127.0.0.1:5000/`
+- Dice Forge : `http://127.0.0.1:5000/dice/index.html`
+- tracker : `http://127.0.0.1:5000/tracker`
+- Battle Map : `http://127.0.0.1:5000/battlemap`
+- historique OBS : `http://127.0.0.1:5000/overlays/rolls?room=ABCD`
+- dés OBS : `http://127.0.0.1:5000/overlays/dice?room=ABCD`
+- carte OBS : `http://127.0.0.1:5000/overlays/map`
+- portrait actif : `http://127.0.0.1:5000/portrait_view`
 
 Le tracker sert d'aide visuelle pendant les combats DICE-FORGE. Il ne résout
 aucune règle : les jets, dégâts, armures, blessures et soins sont entièrement
@@ -51,10 +64,11 @@ CSS. Le fichier portrait d'origine n'est jamais redimensionné ni réécrit.
 
 La Battle Map et sa vue OBS restent intégrées au même serveur Flask :
 
-- tracker MJ : `http://127.0.0.1:5000/`
+- cockpit MJ : `http://127.0.0.1:5000/`
+- tracker MJ : `http://127.0.0.1:5000/tracker`
 - vue joueurs : `http://127.0.0.1:5000/view`
 - Battle Map : `http://127.0.0.1:5000/battlemap`
-- vue OBS de la carte : `http://127.0.0.1:5000/obs`
+- vue OBS de la carte : `http://127.0.0.1:5000/overlays/map`
 
 L'import des cartes utilise une requête HTTP multipart afin d'accepter les
 images jusqu'à 50 Mo sans dépendre de la limite des messages Socket.IO. Les

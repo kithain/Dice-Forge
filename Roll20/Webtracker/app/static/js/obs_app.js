@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const green = parseInt(value.slice(2, 4), 16);
     const blue = parseInt(value.slice(4, 6), 16);
     const yiq = (red * 299 + green * 587 + blue * 114) / 1000;
-    return yiq >= 130 ? '#FFFFFF' : '#FFFFFF';
+    return yiq >= 130 ? '#111111' : '#FFFFFF';
 }
 
     // --- Système de rendu batché via requestAnimationFrame ---
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Dessine l'image de la carte sur le canvas.
             ctx.drawImage(state.map, drawX, drawY, drawWidth, drawHeight);
 
-            // Dessine chaque token (badge uniquement).
+            // Dessine chaque token avec son portrait, sa couleur de rôle et son numéro.
             state.tokens.forEach(token => {
                 // Calcule la position du token par rapport à la carte affichée et au canvas.
                 const tokenX = drawX + (token.x / state.map.width) * drawWidth;
@@ -125,11 +125,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 ctx.save();
                 
-                // Dessine le badge circulaire
+                // Fond de rôle et portrait recadré dans le badge circulaire.
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, badgeRadius, 0, Math.PI * 2, false);
                 ctx.fillStyle = color;
                 ctx.fill();
+
+                if (token.portraitImg?.complete && token.portraitImg.naturalWidth) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, badgeRadius - 2, 0, Math.PI * 2, false);
+                    ctx.clip();
+                    const imageRatio = token.portraitImg.naturalWidth / token.portraitImg.naturalHeight;
+                    let sourceWidth = token.portraitImg.naturalWidth;
+                    let sourceHeight = token.portraitImg.naturalHeight;
+                    let sourceX = 0;
+                    let sourceY = 0;
+                    if (imageRatio > 1) {
+                        sourceWidth = sourceHeight;
+                        sourceX = (token.portraitImg.naturalWidth - sourceWidth) / 2;
+                    } else {
+                        sourceHeight = sourceWidth;
+                        sourceY = (token.portraitImg.naturalHeight - sourceHeight) / 2;
+                    }
+                    ctx.drawImage(token.portraitImg, sourceX, sourceY, sourceWidth, sourceHeight, tokenX, tokenY, tokenSize, tokenSize);
+                    ctx.restore();
+                }
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, badgeRadius, 0, Math.PI * 2, false);
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = contrast;
                 ctx.stroke();
@@ -140,13 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const hpLost = Math.max(0, Math.min(100, 100 - hpPercent)) / 100;
                     ctx.save();
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, badgeRadius, Math.PI, 0, false);
-                    ctx.lineTo(centerX + badgeRadius, centerY);
-                    ctx.lineTo(centerX, centerY);
-                    ctx.closePath();
+                    ctx.arc(centerX, centerY, badgeRadius, 0, Math.PI * 2, false);
                     ctx.clip();
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                    ctx.fill();
+                    ctx.fillRect(tokenX, tokenY, tokenSize, tokenSize * hpLost);
                     ctx.restore();
                 }
                 

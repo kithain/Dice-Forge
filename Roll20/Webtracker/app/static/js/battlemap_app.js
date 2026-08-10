@@ -57,7 +57,7 @@ function getContrastColor(color) {
     const green = parseInt(value.slice(2, 4), 16);
     const blue = parseInt(value.slice(4, 6), 16);
     const yiq = (red * 299 + green * 587 + blue * 114) / 1000;
-    return yiq >= 130 ? '#FFFFFF' : '#FFFFFF';
+    return yiq >= 130 ? '#111111' : '#FFFFFF';
 }
 
 function applyTokenAppearance(token, color, portraitUrl, marker, hpPercent = 100) {
@@ -66,16 +66,18 @@ function applyTokenAppearance(token, color, portraitUrl, marker, hpPercent = 100
     
     token.style.width = `${badgeSize}px`;
     token.style.height = `${badgeSize}px`;
-    token.style.backgroundImage = 'none';
-    token.style.backgroundColor = 'transparent';
-    token.style.border = 'none';
+    token.style.backgroundImage = portraitUrl ? `url(${JSON.stringify(portraitUrl)})` : 'none';
+    token.style.backgroundPosition = 'center';
+    token.style.backgroundSize = 'cover';
+    token.style.backgroundColor = color;
+    token.style.border = `5px solid ${color}`;
     token.style.boxSizing = 'border-box';
     token.style.overflow = 'hidden';
     token.style.borderRadius = '50%';
     token.replaceChildren();
 
     const badge = document.createElement('div');
-    badge.style.cssText = `width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:2px solid ${contrast};border-radius:50%;color:${contrast};background:${color};font:bold 20px Arial;line-height:1;position:relative;overflow:hidden;`;
+    badge.style.cssText = `width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:2px solid ${contrast};border-radius:50%;color:${contrast};background:transparent;font:bold 20px Arial;line-height:1;position:relative;overflow:hidden;text-shadow:0 1px 3px #000,0 0 4px #000;`;
     badge.textContent = String(marker || '?');
     
     // Indicateur de PV perdu (remplissage noir du haut)

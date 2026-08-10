@@ -530,11 +530,14 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
 }
 
 export async function restoreSession() {
+  const requestedRoom = new URLSearchParams(window.location.search)
+    .get('room')?.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || '';
+  if (requestedRoom) document.getElementById('room-code').value = requestedRoom;
   const saved = localStorage.getItem('diceforge_room');
   if (saved) {
     try {
       const r = JSON.parse(saved);
-      if (r.code && r.player) {
+      if (r.code && r.player && (!requestedRoom || requestedRoom === r.code)) {
         const authenticatedName = localStorage.getItem('diceforge_player_name') || r.player;
         // Le statut de créateur est toujours revérifié avant d'afficher ou charger les jets.
         const userId = await authenticatedUserId();
@@ -571,8 +574,25 @@ export async function restoreSession() {
           await loadPlayerCharacter(authenticatedName);
           await checkCreator(r.code);
           await configureLiveFeed(r.code, authenticatedName);
+          return;
         }
       }
     } catch (e) {}
+  }
+
+  if (requestedRoom) {
+    sbInit();
+    if (!sb) return;
+    const { data, error } = await sb.auth.getUser();
+    if (error || !data.user) return;
+    const authenticatedName = localStorage.getItem('diceforge_player_name')
+      || data.user.user_metadata?.player_name
+      || data.user.email?.split('@')[0]
+      || '';
+    if (!authenticatedName) return;
+    localStorage.setItem('diceforge_player_name', authenticatedName);
+    document.getElementById('player-name').value = authenticatedName;
+    document.getElementById('room-code').value = requestedRoom;
+    await joinRoom();
   }
 }

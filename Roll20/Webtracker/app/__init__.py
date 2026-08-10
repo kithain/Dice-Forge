@@ -1,7 +1,7 @@
 # --- Initialisation de l'application Flask ---
 
 import os
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_socketio import SocketIO
 
 # Crée une instance de l'application Flask.
@@ -14,25 +14,10 @@ app = Flask(__name__)
 # aléatoire et sécurisée à chaque démarrage de l'application.
 app.secret_key = os.urandom(24)
 
-# --- Configuration de CORS (Cross-Origin Resource Sharing) ---
-
-@app.after_request
-def after_request(response):
-    """
-    Cette fonction est exécutée après chaque requête. Elle ajoute des en-têtes à la réponse
-    pour autoriser les requêtes provenant d'autres origines (domaines).
-    C'est utile pour les API et les applications web qui interagissent avec des clients
-    hébergés sur des domaines différents.
-    """
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
-
 # Initialise l'extension SocketIO avec les threads natifs de Python.
 # Ce mode évite Eventlet et son monkey-patching tout en conservant les WebSockets.
-# 'cors_allowed_origins="*" autorise les connexions WebSocket de n'importe quelle origine.
-socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
+# Les écrans sont maintenant servis depuis une origine locale unique.
+socketio = SocketIO(app, async_mode='threading')
 
 # --- Context processor : expose le mapping des icônes de statut à tous les templates ---
 @app.context_processor

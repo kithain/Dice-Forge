@@ -1,6 +1,6 @@
 # Dice Forge
 
-Lanceur de dés et boîte à outils web pour les parties de jeu de rôle **BRP-ORC**. Dice Forge réunit des dés 3D, des tests de compétence, des salons multijoueurs, des fiches de personnage et plusieurs références de jeu dans une application statique, sans installation ni étape de compilation.
+Suite de jeu pour les parties **BRP-ORC**. Dice Forge réunit les dés 3D, les salons multijoueurs, les fiches, le tracker d'initiative, la Battle Map, l'import Obsidian et les overlays OBS. En local, tout est accessible depuis un cockpit MJ unique.
 
 **[Ouvrir Dice Forge](https://kithain.github.io/Dice-Forge/)** · [Aide joueurs](https://kithain.github.io/Dice-Forge/help.html) · [Livret du joueur](https://kithain.github.io/Dice-Forge/livret_joueur.html)
 
@@ -24,24 +24,17 @@ Lanceur de dés et boîte à outils web pour les parties de jeu de rôle **BRP-O
 
 Rendez-vous sur **[kithain.github.io/Dice-Forge](https://kithain.github.io/Dice-Forge/)** avec un navigateur récent. Aucun compte n'est nécessaire pour lancer des dés en solo.
 
-### En local sous Windows
+### Cockpit MJ local sous Windows
 
 Prérequis : [Python 3](https://www.python.org/downloads/) accessible avec la commande `python` ou `py`.
 
 1. Clonez ou téléchargez le dépôt.
-2. Lancez `Run.bat`.
-3. L'application s'ouvre sur `http://127.0.0.1:8000/`.
-4. Utilisez `Stop.bat` pour arrêter le serveur.
+2. Lancez `DiceForge.bat`.
+3. Le cockpit s'ouvre sur `http://127.0.0.1:5000/`.
+4. Saisissez la room active puis ouvrez les outils depuis cette page.
+5. Utilisez `DiceForge_Stop.bat` pour tout arrêter.
 
-Il n'y a aucune dépendance à installer et aucun build à exécuter. Un serveur HTTP local est toutefois nécessaire, car l'application utilise des modules JavaScript ES.
-
-Sous macOS ou Linux, lancez l'équivalent depuis la racine du projet :
-
-```bash
-python3 -m http.server 8000 --bind 127.0.0.1
-```
-
-Puis ouvrez `http://127.0.0.1:8000/`.
+Le premier lancement installe automatiquement les dépendances Python manquantes. Les anciens raccourcis `Run.bat`, `Run_All.bat`, `Run_OBS.bat`, `Stop.bat` et `Stop_OBS.bat` restent présents pour compatibilité, mais utilisent désormais le serveur unique.
 
 > Une connexion Internet reste nécessaire pour charger Three.js, Supabase et les polices distribuées par CDN.
 
@@ -96,24 +89,25 @@ Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/D
 | [`ecran_MJ_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html) | Écran de référence meneur de jeu |
 | [`BRP_ORC_traduction_FR_complete.html`](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html) | Traduction française complète des règles |
 
-## Overlay OBS
+## Overlays OBS
 
-Sous Windows, exécutez :
-
-```bat
-Run_OBS.bat ABCD
-```
-
-Remplacez `ABCD` par le code du salon, puis ajoutez cette URL comme source **Navigateur** dans OBS :
+Saisissez le code de la partie dans le cockpit puis utilisez **Copier l'URL** sur l'overlay souhaité. Les adresses ont désormais des noms explicites :
 
 ```text
-http://127.0.0.1:8010/obs.html?room=ABCD
+http://127.0.0.1:5000/overlays/rolls?room=ABCD
 ```
 
 Pour afficher uniquement l'animation 3D des dés sur fond transparent :
 
 ```text
-http://127.0.0.1:8010/obs-dice.html?room=ABCD
+http://127.0.0.1:5000/overlays/dice?room=ABCD
+```
+
+La carte et le portrait actif sont disponibles sur :
+
+```text
+http://127.0.0.1:5000/overlays/map
+http://127.0.0.1:5000/portrait_view
 ```
 
 Paramètres facultatifs :
@@ -121,8 +115,6 @@ Paramètres facultatifs :
 - `&limit=3` limite le nombre de jets affichés ;
 - `&bg=1` ajoute un fond de test, utile hors OBS.
 - sur `obs-dice.html`, `&hold=400` règle en millisecondes la durée d'affichage des dés après l'animation.
-
-Lancez `Stop_OBS.bat` pour arrêter le serveur de l'overlay.
 
 Les overlays sont publics en lecture seule et ne demandent aucune connexion. Ils utilisent un flux séparé qui ne contient jamais les jets cachés. Le code de la room dans l'URL sélectionne uniquement les jets à afficher.
 
@@ -230,9 +222,10 @@ La clé `anon` est destinée aux applications clientes et sera visible dans le n
 
 ```text
 Dice-Forge/
-├── index.html                    # Application principale
+├── DiceForge.bat                 # Lance le compagnon local unique
+├── index.html                    # Application web joueurs / GitHub Pages
 ├── pj.html                       # Fiche complète
-├── obs.html                      # Overlay OBS
+├── obs.html                      # Overlay des résultats de jets
 ├── help.html                     # Aide joueurs
 ├── js/
 │   ├── app.js                    # Dés, tests BRP et personnages
@@ -243,23 +236,26 @@ Dice-Forge/
 ├── supabase-config.js            # URL et clé anon Supabase
 ├── supabase-personnages.sql      # Schéma et migration des personnages
 ├── supabase-pj-sheets.sql        # Schéma des fiches complètes
+├── Roll20/Webtracker/
+│   ├── run.py                    # Serveur local unique, port 5000
+│   └── app/                      # Cockpit, tracker et Battle Map
 ├── audio/                        # Effets sonores
 └── img/                          # Illustrations d'équipement
 ```
 
-L'interface est écrite en HTML, CSS et JavaScript natifs. Three.js `0.160.0` assure le rendu WebGL et `@supabase/supabase-js` `2.39.3` la synchronisation temps réel. Les dépendances sont chargées par import map depuis des CDN.
+Le serveur local Flask sert le cockpit, l'application Dice Forge, le tracker, la Battle Map et les overlays sur la même origine. La version GitHub Pages continue de servir l'application aux joueurs. Supabase reste la source officielle des comptes, rooms, jets et fiches ; Obsidian reste une source locale en lecture seule.
 
 ## Dépannage
 
 | Problème | Piste de résolution |
 |---|---|
-| La page locale reste vide ou les modules sont bloqués | Utilisez `Run.bat` ou un serveur HTTP au lieu d'ouvrir directement `index.html` |
+| Le cockpit local ne s'ouvre pas | Lancez `DiceForge.bat` et vérifiez que le port 5000 est disponible |
 | Le son ne démarre pas | Cliquez une fois dans la page avant le premier lancer et vérifiez l'option **Son MP3** |
 | Les dés 3D ne s'affichent pas | Vérifiez WebGL et l'accès au CDN, ou désactivez les animations |
 | Impossible de rejoindre un salon | Vérifiez `supabase-config.js`, les politiques RLS et la présence d'au moins un jet dans le salon |
 | Les jets n'apparaissent pas en direct | Vérifiez que `rolls` appartient à la publication `supabase_realtime` |
 | Une sauvegarde de personnage échoue | Réexécutez `supabase-personnages.sql` pour appliquer les migrations |
-| Une fiche complète en ligne est introuvable | Rejoignez le bon salon avec le même nom de joueur et exécutez `supabase-pj-sheets.sql` |
+| Une fiche complète en ligne est introuvable | Vérifiez le compte connecté et exécutez les migrations Supabase à jour |
 
 ## Crédits et licence
 

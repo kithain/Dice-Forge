@@ -273,6 +273,7 @@ def battlemap_view():
 
 
 @app.route('/obs')
+@app.route('/overlays/map')
 def obs_view():
     """Vue Observateur de la Battle Map (affichage sans interaction)."""
     return render_template('obs.html')

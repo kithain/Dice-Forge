@@ -1,6 +1,7 @@
 import os
+from pathlib import Path
 
-from flask import jsonify, render_template, request
+from flask import abort, jsonify, redirect, render_template, request, send_from_directory
 
 from app import app
 from app import models, utils
@@ -16,6 +17,13 @@ from app.portrait_utils import get_portraits_and_folders
 
 PORTRAIT_DIR = os.path.join(app.static_folder, "portraits")
 os.makedirs(PORTRAIT_DIR, exist_ok=True)
+PROJECT_ROOT = Path(app.root_path).resolve().parents[2]
+PUBLIC_DICE_DIRECTORIES = {"audio", "data", "img", "js"}
+PUBLIC_DICE_EXTENSIONS = {
+    ".css", ".epub", ".gif", ".html", ".ico", ".jpeg", ".jpg",
+    ".js", ".json", ".mp3", ".ogg", ".pdf", ".png", ".svg",
+    ".wav", ".webm", ".webp",
+}
 
 
 def _form_int(name, default, minimum=None):
@@ -38,6 +46,21 @@ def _tracker_context():
 
 
 @app.route("/")
+def cockpit():
+    vault_counts = {}
+    for source_type in ("pj", "pnj", "bestiaire"):
+        vault_counts[source_type] = len(list_markdown_entries(
+            source_type=source_type,
+            limit=500,
+        ))
+    return render_template(
+        "cockpit.html",
+        participant_count=len(models.combat.participants),
+        vault_counts=vault_counts,
+    )
+
+
+@app.route("/tracker")
 def index():
     return render_template(
         "index.html",
@@ -45,6 +68,46 @@ def index():
         all_statuses=models.STATUS_EFFECTS,
         **_tracker_context(),
     )
+
+
+@app.route("/dice")
+def dice_redirect():
+    query = request.query_string.decode("ascii", errors="ignore")
+    target = "/dice/index.html"
+    return redirect(f"{target}?{query}" if query else target)
+
+
+@app.route("/dice/")
+def dice_home():
+    return send_from_directory(PROJECT_ROOT, "index.html")
+
+
+@app.route("/dice/<path:filename>")
+def dice_asset(filename):
+    """Sert uniquement les ressources publiques de l'application web racine."""
+    relative = Path(filename)
+    if relative.is_absolute() or ".." in relative.parts or any(part.startswith(".") for part in relative.parts):
+        abort(404)
+    if len(relative.parts) > 1 and relative.parts[0] not in PUBLIC_DICE_DIRECTORIES:
+        abort(404)
+    if relative.suffix.lower() not in PUBLIC_DICE_EXTENSIONS:
+        abort(404)
+    return send_from_directory(PROJECT_ROOT, relative.as_posix())
+
+
+def _redirect_with_query(target):
+    query = request.query_string.decode("ascii", errors="ignore")
+    return redirect(f"{target}?{query}" if query else target)
+
+
+@app.route("/overlays/rolls")
+def rolls_overlay():
+    return _redirect_with_query("/dice/obs.html")
+
+
+@app.route("/overlays/dice")
+def dice_overlay():
+    return _redirect_with_query("/dice/obs-dice.html")
 
 
 @app.route("/view")

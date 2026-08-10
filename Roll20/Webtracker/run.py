@@ -1,4 +1,5 @@
 import importlib.metadata
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -109,7 +110,7 @@ def open_browser():
     """
     Ouvre un nouvel onglet dans le navigateur par défaut à l'adresse de l'application.
     """
-    webbrowser.open_new('http://127.0.0.1:5000')
+    webbrowser.open_new('http://127.0.0.1:5000/')
 
 def main():
     """
@@ -125,18 +126,20 @@ def main():
     
     # Démarre un minuteur qui déclenchera l'ouverture du navigateur après 1 seconde.
     # Cela laisse le temps au serveur de démarrer avant d'essayer d'ouvrir la page.
-    Timer(1, open_browser).start()
+    if os.environ.get("DICE_FORGE_NO_BROWSER", "").strip() != "1":
+        Timer(1, open_browser).start()
     
-    # Lance le serveur de développement Flask avec le support de SocketIO.
-    # 'debug=True' active le mode de débogage pour avoir des messages d'erreur détaillés.
-    # 'use_reloader=False' évite de démarrer deux processus et deux minuteurs.
-    # 'host="0.0.0.0"' rend l'application accessible depuis d'autres appareils sur le même réseau.
-    # Le serveur Werkzeug convient à ce tracker local ; Socket.IO utilise le mode threading.
+    # Lance le compagnon local unique avec le support de SocketIO.
+    # Par défaut, il reste limité à cet ordinateur. DICE_FORGE_HOST permet
+    # explicitement une exposition au réseau local si elle devient nécessaire.
+    host = os.environ.get("DICE_FORGE_HOST", "127.0.0.1")
+    debug = os.environ.get("DICE_FORGE_DEBUG", "").strip() == "1"
     socketio.run(
         app,
-        debug=True,
+        debug=debug,
         use_reloader=False,
-        host="0.0.0.0",
+        host=host,
+        port=5000,
         allow_unsafe_werkzeug=True,
     )
 

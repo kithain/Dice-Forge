@@ -11,6 +11,8 @@
     ['BRP_ORC_traduction_FR_complete.html', '☷', 'Règles BRP complètes'],
     ['help.html', '?', 'Aide']
   ];
+  const isLocalCockpit = ['127.0.0.1', 'localhost'].includes(location.hostname) && location.port === '5000';
+  if (isLocalCockpit) pages.unshift(['/', 'MJ', 'Cockpit MJ']);
   const currentPage = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   const currentHash = location.hash.toLowerCase();
   const localLinks = currentPage === 'ecran_joueur_brp_orc.html'
@@ -45,7 +47,7 @@
     const normalizedHref = href.toLowerCase();
     const isCurrent = normalizedHref.includes('#')
       ? `${currentPage}${currentHash}` === normalizedHref || currentPage === 'pj.html'
-      : currentPage === normalizedHref && !currentHash;
+      : normalizedHref !== '/' && currentPage === normalizedHref && !currentHash;
     if (isCurrent) link.setAttribute('aria-current', 'page');
     links.appendChild(link);
   });
