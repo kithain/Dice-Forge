@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="auth-pending">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260725-inventory">
   <link rel="stylesheet" href="inventory-sheet.css?v=20260725-equipment-fields">
+  <style>.auth-pending body{visibility:hidden}</style>
+  <script src="supabase-config.js"></script>
+  <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
   <script type="importmap">
   { "imports": {
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"

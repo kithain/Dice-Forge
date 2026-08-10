@@ -146,18 +146,18 @@ alter table public.personnages enable row level security;
 drop policy if exists "Allow read personnages" on public.personnages;
 create policy "Allow read personnages"
   on public.personnages for select
-  to anon
+  to authenticated
   using (true);
 
 drop policy if exists "Allow insert personnages" on public.personnages;
 create policy "Allow insert personnages"
   on public.personnages for insert
-  to anon
+  to authenticated
   with check (true);
 
 drop policy if exists "Allow update personnages" on public.personnages;
 create policy "Allow update personnages"
   on public.personnages for update
-  to anon
+  to authenticated
   using (true)
   with check (true);

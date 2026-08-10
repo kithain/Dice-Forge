@@ -19,20 +19,23 @@ create index if not exists pj_sheets_room_code_idx
 alter table public.pj_sheets enable row level security;
 
 drop policy if exists "Allow anon read pj_sheets" on public.pj_sheets;
-create policy "Allow anon read pj_sheets"
-  on public.pj_sheets for select to anon
+drop policy if exists "Allow authenticated read pj_sheets" on public.pj_sheets;
+create policy "Allow authenticated read pj_sheets"
+  on public.pj_sheets for select to authenticated
   using (true);
 
 drop policy if exists "Allow anon insert pj_sheets" on public.pj_sheets;
-create policy "Allow anon insert pj_sheets"
-  on public.pj_sheets for insert to anon
+drop policy if exists "Allow authenticated insert pj_sheets" on public.pj_sheets;
+create policy "Allow authenticated insert pj_sheets"
+  on public.pj_sheets for insert to authenticated
   with check (true);
 
 drop policy if exists "Allow anon update pj_sheets" on public.pj_sheets;
-create policy "Allow anon update pj_sheets"
-  on public.pj_sheets for update to anon
+drop policy if exists "Allow authenticated update pj_sheets" on public.pj_sheets;
+create policy "Allow authenticated update pj_sheets"
+  on public.pj_sheets for update to authenticated
   using (true)
   with check (true);
 
-grant select, insert, update on public.pj_sheets to anon;
-grant usage, select on sequence public.pj_sheets_id_seq to anon;
+grant select, insert, update on public.pj_sheets to authenticated;
+grant usage, select on sequence public.pj_sheets_id_seq to authenticated;

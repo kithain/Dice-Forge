@@ -31,6 +31,10 @@
       <nav class="site-menu-links"></nav>
       <div class="site-menu-local"></div>
       <div class="site-menu-settings"></div>
+      <div class="site-menu-separator"></div>
+      <nav class="site-menu-links">
+        <a href="account.html"><span class="site-menu-glyph" aria-hidden="true">\u2699</span><span>Mon compte</span></a>
+      </nav>
     </aside>`;
 
   const links = root.querySelector('.site-menu-links');

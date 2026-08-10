@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Dice Forge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css?v=20260810-auth">
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+  <main class="login-card">
+    <p class="login-mark">BRP-ORC</p>
+    <h1>Dice Forge</h1>
+    <p class="login-intro">Connecte-toi pour accéder à la partie et à ta fiche.</p>
+    <form id="login-form">
+      <label for="login-player">Nom du joueur</label>
+      <input id="login-player" name="player" maxlength="20" autocomplete="username" required autofocus>
+      <label for="login-password">Mot de passe</label>
+      <input id="login-password" name="password" type="password" minlength="8" autocomplete="current-password" required>
+      <button id="login-submit" type="submit">Se connecter</button>
+      <p class="login-message" id="login-message" role="status"></p>
+    </form>
+  </main>
+  <script type="module" src="js/login.js?v=20260810-auth"></script>
+</body>
+</html>

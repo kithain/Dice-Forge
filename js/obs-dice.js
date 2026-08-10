@@ -34,7 +34,7 @@ async function boot() {
   supabase = createClient(config.url, config.anonKey);
   subscription = supabase.channel(`obs-dice:${room}`)
     .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'rolls', filter: `room_code=eq.${room}` },
+      { event: 'INSERT', schema: 'public', table: 'obs_rolls', filter: `room_code=eq.${room}` },
       payload => animateRoll(payload.new)
     )
     .subscribe();

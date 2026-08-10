@@ -40,7 +40,7 @@ async function boot() {
 }
 
 async function loadRecent() {
-  const { data, error } = await supabase.from('rolls')
+  const { data, error } = await supabase.from('obs_rolls')
     .select('*')
     .eq('room_code', room)
     .neq('expression', '— Partie créée —')
@@ -62,7 +62,7 @@ function subscribe() {
   if (sub) sub.unsubscribe();
   sub = supabase.channel(`obs-rolls:${room}`)
     .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'rolls', filter: `room_code=eq.${room}` },
+      { event: 'INSERT', schema: 'public', table: 'obs_rolls', filter: `room_code=eq.${room}` },
       (payload) => {
         const roll = payload.new;
         if (isRoomCreation(roll)) return;

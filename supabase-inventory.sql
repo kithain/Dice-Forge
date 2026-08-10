@@ -25,25 +25,29 @@ create index if not exists pj_inventory_room_code_idx
 alter table public.pj_inventory enable row level security;
 
 drop policy if exists "Allow anon read pj_inventory" on public.pj_inventory;
-create policy "Allow anon read pj_inventory"
-  on public.pj_inventory for select to anon
+drop policy if exists "Allow authenticated read pj_inventory" on public.pj_inventory;
+create policy "Allow authenticated read pj_inventory"
+  on public.pj_inventory for select to authenticated
   using (true);
 
 drop policy if exists "Allow anon insert pj_inventory" on public.pj_inventory;
-create policy "Allow anon insert pj_inventory"
-  on public.pj_inventory for insert to anon
+drop policy if exists "Allow authenticated insert pj_inventory" on public.pj_inventory;
+create policy "Allow authenticated insert pj_inventory"
+  on public.pj_inventory for insert to authenticated
   with check (true);
 
 drop policy if exists "Allow anon update pj_inventory" on public.pj_inventory;
-create policy "Allow anon update pj_inventory"
-  on public.pj_inventory for update to anon
+drop policy if exists "Allow authenticated update pj_inventory" on public.pj_inventory;
+create policy "Allow authenticated update pj_inventory"
+  on public.pj_inventory for update to authenticated
   using (true)
   with check (true);
 
 drop policy if exists "Allow anon delete pj_inventory" on public.pj_inventory;
-create policy "Allow anon delete pj_inventory"
-  on public.pj_inventory for delete to anon
+drop policy if exists "Allow authenticated delete pj_inventory" on public.pj_inventory;
+create policy "Allow authenticated delete pj_inventory"
+  on public.pj_inventory for delete to authenticated
   using (true);
 
-grant select, insert, update, delete on public.pj_inventory to anon;
-grant usage, select on sequence public.pj_inventory_id_seq to anon;
+grant select, insert, update, delete on public.pj_inventory to authenticated;
+grant usage, select on sequence public.pj_inventory_id_seq to authenticated;

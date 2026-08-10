@@ -124,11 +124,24 @@ Paramètres facultatifs :
 
 Lancez `Stop_OBS.bat` pour arrêter le serveur de l'overlay.
 
+Les overlays sont publics en lecture seule et ne demandent aucune connexion. Ils utilisent un flux séparé qui ne contient jamais les jets cachés. Le code de la room dans l'URL sélectionne uniquement les jets à afficher.
+
 ## Configuration Supabase
 
 Supabase est facultatif pour les lancers en solo, mais nécessaire pour les salons, l'historique partagé et les fiches en ligne.
 
-### 1. Créer la table des jets
+### 1. Créer les comptes joueurs
+
+Dice Forge utilise Supabase Auth : le mot de passe est vérifié par Supabase et n'est jamais enregistré dans le code du site.
+
+1. Dans **Supabase > Authentication > Users**, créez chaque joueur avec **Add user > Create new user**.
+2. Transformez son nom en minuscules, sans accents, avec les espaces remplacés par des points, puis ajoutez `@diceforge.app`. Exemple : `Jean Pierre` devient `jean.pierre@diceforge.app`.
+3. Attribuez votre mot de passe initial de test dans Supabase, sans l'enregistrer dans le dépôt, et marquez l'adresse comme confirmée.
+4. Désactivez les inscriptions publiques dans les réglages Auth afin que seuls les comptes créés par l'administrateur puissent entrer.
+
+Le joueur se connecte avec son nom, puis peut choisir son propre mot de passe depuis **Menu > Mon compte**.
+
+### 2. Créer la table des jets
 
 Dans le **SQL Editor** de votre projet Supabase, exécutez :
 
@@ -151,18 +164,18 @@ create index if not exists rolls_room_created_idx
 
 alter table public.rolls enable row level security;
 
-drop policy if exists "Allow anon read rolls" on public.rolls;
-create policy "Allow anon read rolls"
-  on public.rolls for select to anon using (true);
-drop policy if exists "Allow anon insert rolls" on public.rolls;
-create policy "Allow anon insert rolls"
-  on public.rolls for insert to anon with check (true);
-drop policy if exists "Allow anon delete rolls" on public.rolls;
-create policy "Allow anon delete rolls"
-  on public.rolls for delete to anon using (true);
+drop policy if exists "Allow authenticated read rolls" on public.rolls;
+create policy "Allow authenticated read rolls"
+  on public.rolls for select to authenticated using (true);
+drop policy if exists "Allow authenticated insert rolls" on public.rolls;
+create policy "Allow authenticated insert rolls"
+  on public.rolls for insert to authenticated with check (true);
+drop policy if exists "Allow authenticated delete rolls" on public.rolls;
+create policy "Allow authenticated delete rolls"
+  on public.rolls for delete to authenticated using (true);
 
-grant select, insert, delete on public.rolls to anon;
-grant usage, select on sequence public.rolls_id_seq to anon;
+grant select, insert, delete on public.rolls to authenticated;
+grant usage, select on sequence public.rolls_id_seq to authenticated;
 
 do $$
 begin
@@ -184,18 +197,21 @@ alter table public.rolls
   add column if not exists is_hidden boolean not null default false;
 ```
 
-> Les politiques ci-dessus sont volontairement permissives et conviennent à une instance personnelle ou de démonstration. Pour un déploiement public sensible, ajoutez une authentification et des règles RLS adaptées.
+> Après l'exécution de `supabase-auth.sql`, chaque room possède un propriétaire Supabase. Seul le propriétaire peut lire le résultat d'un jet caché, y compris lorsque le jet a été lancé par un autre joueur. Les visiteurs non connectés ont uniquement accès au flux OBS filtré en lecture seule.
 
-### 2. Créer les tables de fiches
+### 3. Créer les tables de fiches
 
 Exécutez ensuite, dans cet ordre :
 
 1. [`supabase-personnages.sql`](supabase-personnages.sql) pour les personnages générés ;
-2. [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql) pour les fiches complètes.
+2. [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql) pour les fiches complètes ;
+3. [`supabase-inventory.sql`](supabase-inventory.sql) pour les inventaires.
 
-Le premier script sert aussi de migration : vous pouvez le réexécuter après une mise à jour de Dice Forge.
+Le premier script sert aussi de migration : vous pouvez le réexécuter après une mise à jour de Dice Forge.
 
-### 3. Renseigner la configuration
+Exécutez ensuite [`supabase-auth.sql`](supabase-auth.sql) afin de créer les propriétaires et membres des rooms, retirer les anciennes autorisations publiques et créer le flux OBS filtré. Les anciennes rooms restent consultables comme historique mais n'ont pas de propriétaire authentifié ; toutes les nouvelles rooms en auront un automatiquement.
+
+### 4. Renseigner la configuration
 
 Complétez `supabase-config.js` avec l'URL du projet et sa clé anonyme :
 

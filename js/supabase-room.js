@@ -8,9 +8,17 @@ const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anon
 // ▲▲▲ ▲▲▲
 
 let sb = null;
-let roomState = { code: null, player: null, connected: false };
+let roomState = { code: null, player: null, userId: null, connected: false };
 let liveSub = null;
 let currentPlayerCharacter = null;
+
+async function authenticatedUserId() {
+  sbInit();
+  if (!sb) return null;
+  const { data, error } = await sb.auth.getUser();
+  if (error || !data.user) return null;
+  return data.user.id;
+}
 
 const FANTASY_NAMES = [
   'Thalindra', 'Kaelen', 'Brynhild', 'Draven', 'Isolde', 'Grimjaw', 'Nyx', 'Orin',
@@ -66,7 +74,14 @@ export function randomFantasyName() {
 
 export function initPlaceholder() {
   const el = document.getElementById('player-name');
-  if (el && !el.value) el.placeholder = randomFantasyName();
+  if (!el) return;
+  const authenticatedName = localStorage.getItem('diceforge_player_name');
+  if (authenticatedName) {
+    el.value = authenticatedName;
+    el.readOnly = true;
+    el.title = 'Nom lié au compte connecté';
+  }
+  if (!el.value) el.placeholder = randomFantasyName();
 }
 
 export function getPlayerCharacter() {
@@ -105,18 +120,28 @@ export async function joinRoom() {
   sbInit();
   if (!sb) { showToast('Supabase non configuré. Voir instructions.', 'error'); return; }
 
-  const { data, error } = await sb.from('rolls')
-    .select('id')
+  const userId = await authenticatedUserId();
+  if (!userId) { showToast('Session expirée. Reconnecte-toi.', 'error'); return; }
+
+  const { data, error } = await sb.from('rooms')
+    .select('room_code')
     .eq('room_code', code)
     .limit(1);
   if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
   if (!data.length) { showToast('Aucune partie trouvée avec ce code', 'error'); return; }
 
-  roomState = { code, player: name, connected: true };
+  const { error: membershipError } = await sb.from('room_members').upsert({
+    room_code: code,
+    user_id: userId,
+    player_name: name
+  }, { onConflict: 'room_code,user_id' });
+  if (membershipError) { showToast('Impossible de rejoindre la partie: ' + membershipError.message, 'error'); return; }
+
+  roomState = { code, player: name, userId, connected: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   showConnected();
   await loadPlayerCharacter(name);
-  await checkCreator(code, name);
+  await checkCreator(code);
   await configureLiveFeed(code, name);
 }
 
@@ -127,8 +152,26 @@ export async function createRoom() {
   if (!sb) { showToast('Supabase non configuré. Voir instructions.', 'error'); return; }
 
   const code = genCode();
+  const userId = await authenticatedUserId();
+  if (!userId) { showToast('Session expirée. Reconnecte-toi.', 'error'); return; }
+
+  const { error: roomError } = await sb.from('rooms').insert({
+    room_code: code,
+    owner_id: userId,
+    owner_name: name
+  });
+  if (roomError) { showToast('Erreur création de la partie: ' + roomError.message, 'error'); return; }
+
+  const { error: membershipError } = await sb.from('room_members').insert({
+    room_code: code,
+    user_id: userId,
+    player_name: name
+  });
+  if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
+
   const { error } = await sb.from('rolls').insert({
     room_code: code,
+    user_id: userId,
     player_name: name,
     expression: '— Partie créée —',
     rolls_detail: '',
@@ -138,7 +181,7 @@ export async function createRoom() {
   });
   if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
 
-  roomState = { code, player: name, connected: true, isCreator: true };
+  roomState = { code, player: name, userId, connected: true, isCreator: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   document.getElementById('room-code').value = code;
   showConnected();
@@ -162,7 +205,7 @@ export async function purgeRoom() {
 
 export function leaveRoom() {
   if (liveSub) { liveSub.unsubscribe(); liveSub = null; }
-  roomState = { code: null, player: null, connected: false };
+  roomState = { code: null, player: null, userId: null, connected: false };
   localStorage.removeItem('diceforge_room');
   document.getElementById('room-join').style.display = '';
   document.getElementById('room-connected').style.display = 'none';
@@ -256,7 +299,7 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
 
   let { data, error } = await sb.from('personnages')
     .select(CHARACTER_COLUMNS)
-    .eq('player_name', playerName)
+    .ilike('player_name', playerName)
     .order('created_at', { ascending: false })
     .limit(1);
 
@@ -264,7 +307,7 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
     console.warn('Colonnes de relance absentes : chargement de la fiche au format historique.');
     const legacyResult = await sb.from('personnages')
       .select(LEGACY_CHARACTER_COLUMNS)
-      .eq('player_name', playerName)
+      .ilike('player_name', playerName)
       .order('created_at', { ascending: false })
       .limit(1);
     data = legacyResult.data;
@@ -280,6 +323,15 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
 
   const character = data && data.length ? data[0] : null;
   if (!character && preserveWhenMissing) return null;
+  if (character?.player_name && character.player_name !== roomState.player) {
+    roomState.player = character.player_name;
+    localStorage.setItem('diceforge_player_name', character.player_name);
+    localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+    const playerInput = document.getElementById('player-name');
+    if (playerInput) playerInput.value = character.player_name;
+    const playerBadge = document.getElementById('player-badge-text');
+    if (playerBadge) playerBadge.textContent = 'Joueur: ' + character.player_name;
+  }
   renderPlayerCharacter(character);
   window.dispatchEvent(new CustomEvent('diceforge:character-loaded', {
     detail: { character }
@@ -287,13 +339,12 @@ export async function loadPlayerCharacter(playerName = roomState.player, {
   return character;
 }
 
-async function checkCreator(code, name) {
-  const { data } = await sb.from('rolls')
-    .select('player_name')
+async function checkCreator(code) {
+  const { data } = await sb.from('rooms')
+    .select('owner_id')
     .eq('room_code', code)
-    .eq('expression', '— Partie créée —')
     .limit(1);
-  const isCreator = data && data.length && data[0].player_name === name;
+  const isCreator = data && data.length && data[0].owner_id === roomState.userId;
   roomState.isCreator = !!isCreator;
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
   updateCreatorUi();
@@ -362,6 +413,7 @@ export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidde
   if (!roomState.connected || !sb) return;
   const { error } = await sb.from('rolls').insert({
     room_code: roomState.code,
+    user_id: roomState.userId,
     player_name: roomState.player,
     expression: expr,
     rolls_detail: rollsDetail,
@@ -472,14 +524,17 @@ export async function restoreSession() {
     try {
       const r = JSON.parse(saved);
       if (r.code && r.player) {
+        const authenticatedName = localStorage.getItem('diceforge_player_name') || r.player;
         // Le statut de créateur est toujours revérifié avant d'afficher ou charger les jets.
-        roomState = { code: r.code, player: r.player, connected: true, isCreator: false };
-        document.getElementById('player-name').value = r.player;
+        const userId = await authenticatedUserId();
+        if (!userId) return;
+        roomState = { code: r.code, player: authenticatedName, userId, connected: true, isCreator: false };
+        document.getElementById('player-name').value = authenticatedName;
         document.getElementById('room-code').value = r.code;
         sbInit();
         if (sb) {
-          const { data, error } = await sb.from('rolls')
-            .select('id')
+          const { data, error } = await sb.from('rooms')
+            .select('room_code')
             .eq('room_code', r.code)
             .limit(1);
           if (error) {
@@ -488,14 +543,23 @@ export async function restoreSession() {
           }
           if (!data.length) {
             localStorage.removeItem('diceforge_room');
-            roomState = { code: null, player: null, connected: false };
+            roomState = { code: null, player: null, userId: null, connected: false };
             showToast('Cette ancienne partie n’existe plus. Crée une nouvelle partie ou saisis un autre code.', 'error');
             return;
           }
+          const { error: membershipError } = await sb.from('room_members').upsert({
+            room_code: r.code,
+            user_id: userId,
+            player_name: authenticatedName
+          }, { onConflict: 'room_code,user_id' });
+          if (membershipError) {
+            showToast('Impossible de restaurer la partie: ' + membershipError.message, 'error');
+            return;
+          }
           showConnected();
-          await loadPlayerCharacter(r.player);
-          await checkCreator(r.code, r.player);
-          await configureLiveFeed(r.code, r.player);
+          await loadPlayerCharacter(authenticatedName);
+          await checkCreator(r.code);
+          await configureLiveFeed(r.code, authenticatedName);
         }
       }
     } catch (e) {}
