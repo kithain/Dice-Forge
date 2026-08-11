@@ -125,7 +125,6 @@ Le contenu est mis à jour dynamiquement via Socket.IO.
             const socket = io();
 
             socket.on('connect', function() {
-                console.log('Connected to WebSocket server.');
                 // Charge le contenu initial du portrait une fois connecté.
                 updateContent();
             });
@@ -133,7 +132,6 @@ Le contenu est mis à jour dynamiquement via Socket.IO.
             // Écoute l'événement 'update_data' envoyé par le serveur.
             // Chaque fois que l'état change, la vue du portrait est mise à jour.
             socket.on('update_data', function() {
-                console.log('Update event received. Refreshing portrait content.');
                 updateContent();
             });
         });

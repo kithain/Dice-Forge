@@ -196,21 +196,18 @@ document.addEventListener('DOMContentLoaded', () => {
             draw();           // Redessine le canvas vide.
             return;
         }
-        console.log('[MAP_OBS] Tentative de chargement de la carte:', url);
         
         // Vérifie si l'URL est relative (commence par /) ou absolue.
         let finalUrl = url;
         if (url.startsWith('/') && !url.startsWith('//')) {
             // Si l'URL est relative, la convertit en URL absolue en y ajoutant l'adresse du serveur de synchronisation.
             finalUrl = `${SYNC_SERVER_URL}${url}`;
-            console.log('[MAP_OBS] URL convertie en absolue pour chargement:', finalUrl);
         }
         
         const mapImage = new Image();
         mapImage.crossOrigin = "Anonymous"; // Permet le chargement d'images depuis des origines différentes (nécessaire pour canvas).
         mapImage.src = finalUrl;
         mapImage.onload = () => {
-            console.log('[MAP_OBS] Carte chargée avec succès:', finalUrl);
             state.map = mapImage; // Met à jour l'objet carte dans l'état.
             draw();               // Redessine la carte sur le canvas.
         };
@@ -220,12 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Logique de récupération: si la `finalUrl` a été construite (différente de l'originale),
             // tente de charger l'image avec l'URL originale au cas où la conversion aurait été incorrecte.
             if (finalUrl !== url) {
-                console.log('[MAP_OBS] Tentative de chargement avec l\'URL originale:', url);
                 const originalImage = new Image();
                 originalImage.crossOrigin = "Anonymous";
                 originalImage.src = url;
                 originalImage.onload = () => {
-                    console.log('[MAP_OBS] Carte chargée avec succès (URL originale):', url);
                     state.map = originalImage;
                     draw();
                 };
@@ -258,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return Promise.resolve(token.portraitImg);             // Résout immédiatement la promesse.
         }
 
-        console.log('[PORTRAIT_OBS] Tentative de chargement du portrait:', token.portraitUrl);
         
         return new Promise((resolve, reject) => {
             // Liste des dossiers alternatifs à essayer si le chargement original échoue.
@@ -278,14 +272,12 @@ document.addEventListener('DOMContentLoaded', () => {
              * @param {Array<string>} remainingFolders - La liste des dossiers restants à essayer en cas d'échec.
              */
             const tryLoadImage = (url, remainingFolders) => {
-                console.log('[PORTRAIT_OBS] Tentative de chargement du portrait depuis:', url);
                 
                 const portraitImg = new Image();
                 portraitImg.crossOrigin = 'Anonymous'; // Nécessaire pour les images cross-origin sur canvas.
                 portraitImg.src = url;
                 
                 portraitImg.onload = () => {
-                    console.log('[PORTRAIT_OBS] Portrait chargé avec succès:', url);
                     portraitCache[token.portraitUrl] = portraitImg; // Ajoute l'image au cache.
                     token.portraitImg = portraitImg;                   // Assigne l'image au token.
                     resolve(portraitImg);                              // Résout la promesse.
@@ -358,13 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * de réinitialiser l'état local en cas de reconnexion.
      */
     socket.on('connect', () => {
-        console.log('[SYNC_OBS] Connecté au serveur pour la vue OBS.');
         
         if (!initialStateReceived) {
-            console.log('[SYNC_OBS] Première connexion, demande d\'état initial.');
             socket.emit('request_initial_state'); // Demande l'état complet (carte et tokens).
         } else {
-            console.log('[SYNC_OBS] Reconnexion détectée, utilisation de l\'état existant.');
             reconnecting = true; // Définit le flag de reconnexion.
             socket.emit('request_current_map'); // Demande juste la carte courante pour s'assurer de sa présence.
         }
@@ -374,7 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gère l'événement `disconnect` lorsque le client OBS est déconnecté du serveur.
      */
     socket.on('disconnect', () => {
-        console.log('[SYNC_OBS] Déconnecté du serveur, en attente de reconnexion...');
     });
 
     /**
@@ -383,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} data - Contient les données `map` et `tokens`.
      */
     socket.on('initial_state', (data) => {
-        console.log('[SYNC_OBS] État initial reçu:', data);
         // N'applique l'état initial que si ce n'est pas une reconnexion, pour éviter les réinitialisations.
         if (!reconnecting) {
             loadMap(data.map);          // Charge la carte.
@@ -402,7 +389,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} data - Contient l'URL de la nouvelle carte (`map`).
      */
     socket.on('map_changed', (data) => {
-        console.log('[SYNC_OBS] Changement de carte reçu:', data.map);
         loadMap(data.map); // Charge la nouvelle carte.
     });
 
@@ -412,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} tokenData - Les données du token ajouté.
      */
     socket.on('token_added', (tokenData) => {
-        console.log('[SYNC_OBS] Token ajouté:', tokenData);
         // Vérifie si le token existe déjà (peut arriver en cas de reconnexion ou de latence).
         const existing = state.tokens.find(t => t.id === tokenData.id);
         if (!existing) {
@@ -427,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} tokenData - Les données mises à jour du token.
      */
     socket.on('token_updated', (tokenData) => {
-        console.log('[SYNC_OBS] Token mis à jour:', tokenData);
         const token = state.tokens.find(t => t.id === tokenData.id);
         if (token) {
             const portraitChanged = token.portraitUrl !== tokenData.portraitUrl;
@@ -461,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} tokenData - Les données du token supprimé (ID).
      */
     socket.on('token_removed', (tokenData) => {
-        console.log('[SYNC_OBS] Token supprimé:', tokenData.id);
         state.tokens = state.tokens.filter(t => t.id !== tokenData.id); // Filtre le token supprimé.
         scheduleDraw(); // Programme un redessin.
     });
@@ -471,7 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Vide la liste des tokens dans l'état local et redessine.
      */
     socket.on('all_tokens_cleared', () => {
-        console.log('[SYNC_OBS] Tous les tokens ont été effacés.');
         state.tokens = []; // Vide la liste des tokens.
         scheduleDraw();    // Programme un redessin.
     });

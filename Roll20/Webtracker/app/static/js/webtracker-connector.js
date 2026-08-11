@@ -61,7 +61,6 @@ class WebTrackerConnector {
                 throw new Error(`Erreur HTTP: ${response.status}`);
             }
             const participants = await response.json(); // Parse la réponse JSON.
-            console.log('[WEBTRACKER] Participants chargés via API REST:', participants);
 
             this.isConnected = true;             // Marque la connexion comme réussie.
             this.statusDiv.textContent = 'Connecté (API)'; // Met à jour le statut.
@@ -107,7 +106,6 @@ class WebTrackerConnector {
             // L'événement 'update_data' du serveur transporte désormais directement la liste
             // des participants : on l'utilise sans refaire de requête REST (sinon fallback fetch).
             sharedSocket.on('update_data', (data) => {
-                console.log('[WEBTRACKER] Événement update_data reçu via le socket partagé.');
                 if (data && Array.isArray(data.participants)) {
                     if (JSON.stringify(this.participantsData) !== JSON.stringify(data.participants)) {
                         this.processParticipants(data.participants);
@@ -147,7 +145,6 @@ class WebTrackerConnector {
             });
 
             this.webtrackerSocket.on('connect', () => {
-                console.log('[WEBTRACKER] WebSocket connecté au Webtracker (temps réel).');
                 this.statusDiv.textContent = 'Connecté (WebSocket)';
                 this.statusDiv.className = 'connected';
                 if (this.refreshInterval) {
@@ -189,7 +186,6 @@ class WebTrackerConnector {
     startPollingFallback() {
         if (!this.refreshInterval) {
             this.refreshInterval = setInterval(() => this.refreshData(), 5000);
-            console.log('[WEBTRACKER] Polling REST activé (toutes les 5s).');
         }
     }
 
@@ -205,7 +201,6 @@ class WebTrackerConnector {
 
             // Compare les nouvelles données avec les données précédentes pour détecter les changements.
             if (JSON.stringify(this.participantsData) !== JSON.stringify(participants)) {
-                console.log('[WEBTRACKER] Mise à jour des participants détectée.');
                 this.processParticipants(participants);
             }
         } catch (error) {
@@ -227,7 +222,6 @@ class WebTrackerConnector {
                 const role = p.role || 'unknown';
                 const name = p.name || 'unnamed';
                 p.id = `gen_${role}_${name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '')}`; // Nettoie le nom pour l'ID.
-                console.log(`[WEBTRACKER] ID stable généré pour ${name}: ${p.id}`);
             }
             
             // Normalise le chemin du portrait pour qu'il soit servi par la route /portraits/.
@@ -242,7 +236,6 @@ class WebTrackerConnector {
                     .replace(/^\/?portraits\//i, '')
                     .replace(/^\/+/, '');
                 p.portrait = `/portraits/${relative}`;
-                console.log(`[WEBTRACKER] Chemin de portrait normalisé pour ${p.name}: ${p.portrait}`);
             }
             return p; // Retourne le participant modifié.
         });
@@ -291,7 +284,6 @@ class WebTrackerConnector {
         // 1. Supprime les tokens qui ne sont plus présents dans la liste du Webtracker.
         const tokensToRemove = existingTokenIds.filter(id => !webtrackerIds.includes(id));
         if (tokensToRemove.length > 0) {
-            console.log('[WEBTRACKER] Suppression des participants absents du Webtracker:', tokensToRemove);
             tokensToRemove.forEach(tokenId => {
                 this.tokenManager.removeToken(tokenId);
             });
@@ -303,7 +295,6 @@ class WebTrackerConnector {
         });
 
         if (newParticipants.length > 0) {
-            console.log(`[WEBTRACKER] Ajout de ${newParticipants.length} nouveaux participants depuis le Webtracker.`);
             
             // Sépare les nouveaux participants par rôle pour un positionnement groupé.
             const playerTokens = newParticipants.filter(p => p.role === 'player');
@@ -342,7 +333,6 @@ class WebTrackerConnector {
             // Priorise les positions personnalisées sauvegardées localement.
             let x, y;
             if (window.customTokenPositions && window.customTokenPositions[id]) {
-                console.log(`[WEBTRACKER] Utilisation de la position personnalisée pour ${name}: ${JSON.stringify(window.customTokenPositions[id])}`);
                 x = window.customTokenPositions[id].x;
                 y = window.customTokenPositions[id].y;
             } else {

@@ -2,3 +2,13 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+*.log
+
+# Données locales générées par le cockpit MJ
+Roll20/Webtracker/data/
+Roll20/Webtracker/app/static/maps/current_map.*
+Roll20/Webtracker/app/static/portraits/Imported/
+
+# Archives locales : les sauvegardes restent hors du dépôt
+Roll20/BCK/
+Roll20/Webtracker/backup_du_*

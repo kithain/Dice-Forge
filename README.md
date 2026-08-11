@@ -36,7 +36,7 @@ Prérequis : [Python 3](https://www.python.org/downloads/) accessible avec la c
 4. Saisissez la room active puis ouvrez les outils depuis cette page.
 5. Utilisez `DiceForge_Stop.bat` pour tout arrêter.
 
-Le premier lancement installe automatiquement les dépendances Python manquantes. Les anciens raccourcis `Run.bat`, `Run_All.bat`, `Run_OBS.bat`, `Stop.bat` et `Stop_OBS.bat` restent présents pour compatibilité, mais utilisent désormais le serveur unique.
+Le premier lancement installe automatiquement les dépendances Python manquantes.
 
 > Une connexion Internet reste nécessaire pour charger Three.js, Supabase et les polices distribuées par CDN.
 

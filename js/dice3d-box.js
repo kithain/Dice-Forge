@@ -103,7 +103,6 @@ export async function roll(groups, duration, callback) {
   }
 
   const notation = forcedNotation(groups);
-  console.log('[DiceBox] notation:', notation);
 
   pendingCallback = callback || null;
 

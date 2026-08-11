@@ -139,12 +139,10 @@ class MapManager {
             // Si c'est une URL directe (http/https ou chemin relatif).
             if (imageSrc.startsWith('http') || imageSrc.startsWith('/')) {
                 mapImage.src = imageSrc;
-                console.log('[MAP] Chargement de la carte:', imageSrc);
             } 
             // Si c'est une Data URL Base64 (image encodée directement dans le CSS).
             else if (imageSrc.startsWith('data:image')) {
                 mapImage.src = imageSrc;
-                console.log('[MAP] Chargement de la carte (Base64):', imageSrc.substring(0, 50) + '...');
                 
             } else {
                 console.error('[MAP] Source de carte invalide ou non reconnue:', imageSrc);
@@ -169,7 +167,6 @@ class MapManager {
             // S'assure que la zone de bataille s'ajuste dynamiquement.
             document.querySelector('.battle-area').style.height = 'auto';
             if (mapDimensions) mapDimensions.textContent = `Carte : ${naturalWidth} × ${naturalHeight} px`;
-            console.log(`[MAP] Carte chargée avec succès: ${naturalWidth}x${naturalHeight}px.`);
         };
         
         // Gère l'événement `onerror` si le chargement de l'image échoue.
@@ -179,11 +176,9 @@ class MapManager {
             // Tente une récupération si l'URL contient une IP locale mais ne se charge pas.
             // Cela peut arriver si l'IP locale du serveur change ou est mal configurée.
             if (imageSrc.includes('http://') && !imageSrc.includes('127.0.0.1') && !imageSrc.includes('localhost')) {
-                console.log('[MAP] Tentative de récupération avec chemin relatif...');
                 // Extrait le chemin relatif de l'URL absolue.
                 const parts = imageSrc.split('/');
                 const relativePath = '/' + parts.slice(3).join('/'); // Ex: /maps/current_map.jpeg
-                console.log(`[MAP] Essai avec chemin relatif: ${relativePath}`);
                 
                 // Crée une nouvelle image pour tenter de charger avec le chemin relatif.
                 const newImg = document.createElement('img');
@@ -197,7 +192,6 @@ class MapManager {
                     this.gridOverlay.style.height = `${naturalHeight}px`;
                     document.querySelector('.battle-area').style.height = 'auto';
                     if (mapDimensions) mapDimensions.textContent = `Carte : ${naturalWidth} × ${naturalHeight} px`;
-                    console.log(`[MAP] Récupération réussie, carte chargée: ${naturalWidth}x${naturalHeight}px.`);
                     
                     // Remplace l'image originale par la nouvelle si la récupération a fonctionné.
                     if (this.mapContainer.contains(mapImage)) {
@@ -277,7 +271,6 @@ class TokenManager {
         // (c'est-à-dire pas en réponse à un événement de 'token_added' du serveur)
         // et que la synchronisation est active.
         if (isSyncReady && !window.receivingServerUpdate) {
-            console.log(`[SYNC] Enregistrement du token ${tokenId} auprès du serveur.`);
             const tokenData = {
                 id: tokenId,
                 x: x,
@@ -403,7 +396,6 @@ class TokenManager {
             
             // Si la synchronisation est prête, envoie la nouvelle position au serveur.
             if (isSyncReady) {
-                console.log(`[SYNC] Envoi événement move_token pour le token ${token.id} à la position (${newX}, ${newY}).`);
                 syncSocket.emit('move_token', { id: token.id, x: newX, y: newY });
             }
         };
@@ -414,7 +406,6 @@ class TokenManager {
             const currentY = parseInt(token.style.top);
             if (!isNaN(currentX) && !isNaN(currentY)) {
                 window.customTokenPositions[token.id] = { x: currentX, y: currentY };
-                console.log(`[LOCAL] Position du token ${token.id} sauvegardée localement: ${currentX},${currentY}.`);
             }
         };
 
@@ -432,7 +423,6 @@ class TokenManager {
         if (token) {
             this.tokens = this.tokens.filter(t => t.id !== tokenId); // Retire le token du tableau.
             token.remove(); // Retire l'élément du DOM.
-            console.log(`[TOKEN] Token ${tokenId} supprimé.`);
         }
     }
 
@@ -447,10 +437,8 @@ class TokenManager {
             const token = this.tokens.pop();
             token.remove();
         }
-        console.log('[TOKEN] Tous les tokens locaux ont été effacés.');
         // Si la synchronisation est prête et la notification est demandée, informe le serveur.
         if (notifyServer && isSyncReady) {
-            console.log('[SYNC] Notification du serveur pour effacer tous les tokens.');
             syncSocket.emit('clear_all_tokens');
         }
     }
@@ -469,7 +457,6 @@ class TokenManager {
             token.style.top = `${y}px`;
             // Met également à jour la position personnalisée locale si elle existe.
             window.customTokenPositions[id] = { x: x, y: y };
-            console.log(`[TOKEN] Position du token ${id} mise à jour à (${x}, ${y}).`);
         }
     }
 }
@@ -497,7 +484,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * Demande l'état initial de la battlemap au serveur.
      */
     syncSocket.on('connect', () => {
-        console.log('[SYNC] Connecté au serveur de synchronisation.');
         isSyncReady = true; // Met à jour le flag de disponibilité de la synchronisation.
         syncSocket.emit('request_initial_state'); // Demande les données actuelles de la carte et des tokens.
     });
@@ -516,7 +502,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} state - L'objet d'état initial contenant la carte et les tokens.
      */
     syncSocket.on('initial_state', (state) => {
-        console.log('[SYNC] État initial reçu du serveur:', state);
         if (state.map) {
             mapManager.loadMap(state.map); // Charge la carte reçue.
         }
@@ -542,7 +527,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} data - Les données du token ajouté.
      */
     syncSocket.on('token_added', (data) => {
-        console.log('[SYNC] Token ajouté par un autre client:', data);
         
         // Active le flag pour éviter de renvoyer le token au serveur.
         window.receivingServerUpdate = true;
@@ -560,7 +544,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} data - Les données du token déplacé (ID, x, y).
      */
     syncSocket.on('token_moved', (data) => {
-        console.log('[SYNC] Événement de déplacement de token reçu:', data);
         tokenManager.updateTokenPosition(data.id, data.x, data.y);
     });
 
@@ -570,7 +553,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} data - Les données mises à jour du token.
      */
     syncSocket.on('token_updated', (data) => {
-        console.log('[SYNC] Token mis à jour par un autre client:', data);
         const tokenEl = document.getElementById(data.id);
         if (tokenEl) {
             if (data.name) {
@@ -591,7 +573,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} data - Les données du token supprimé (ID).
      */
     syncSocket.on('token_removed', (data) => {
-        console.log('[SYNC] Token supprimé par un autre client:', data);
         tokenManager.removeToken(data.id);
     });
     
@@ -600,7 +581,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * Efface tous les tokens localement sans notifier le serveur.
      */
     syncSocket.on('all_tokens_cleared', () => {
-        console.log('[SYNC] Tous les tokens effacés par un autre client.');
         tokenManager.clearAllTokens(false); // `false` pour éviter une notification en boucle au serveur.
     });
 
@@ -610,7 +590,6 @@ function setupSyncClient(mapManager, tokenManager) {
      * @param {object} data - Les données de la nouvelle carte (URL).
      */
     syncSocket.on('map_changed', (data) => {
-        console.log('[SYNC] Carte changée par un autre client.');
         if (data.map) {
             mapManager.loadMap(data.map); // Charge la nouvelle carte.
         }
