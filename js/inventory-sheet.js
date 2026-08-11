@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabase-client.js';
 
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const LEGACY_WALLET_KEY = 'dice-forge.wallet.v1';
@@ -6,11 +6,7 @@ const INVENTORY_STORAGE_PREFIX = 'dice-forge.inventory.v1';
 const MAX_PO = 9999;
 const MAX_TOTAL_PC = MAX_PO * 100 + 99;
 const MIXED_WEAPONS = new Set(['Dague', 'Hachette', 'Lance', 'Javelot']);
-const SUPABASE_URL = window.SUPABASE_CONFIG?.url || '';
-const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG?.anonKey || '';
-const supabase = SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('VOTRE_PROJET')
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+const supabase = getSupabaseClient({ optional: true });
 
 const SECTION_FIELDS = {
   weapons: ['name', 'description', 'category', 'brp', 'damage', 'hands', 'specials'],

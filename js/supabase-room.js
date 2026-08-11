@@ -1,11 +1,6 @@
 // ——— Supabase multiplayer room logic ———
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabase-client.js';
 import { showToast, showConfirm } from './toast.js';
-
-// ▼▼▼ Config chargée depuis supabase-config.js (gitignored) ▼▼▼
-const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || 'https://VOTRE_PROJET.supabase.co';
-const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || 'VOTRE_CLE_ANON';
-// ▲▲▲ ▲▲▲
 
 let sb = null;
 let roomState = { code: null, player: null, userId: null, connected: false };
@@ -99,11 +94,8 @@ export function isRoomCreator() {
 
 function sbInit() {
   if (sb) return;
-  if (SUPABASE_URL.includes('VOTRE_PROJET')) {
-    console.warn('Supabase: configure SUPABASE_URL et SUPABASE_ANON_KEY');
-    return;
-  }
-  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb = getSupabaseClient({ optional: true });
+  if (!sb) console.warn('Supabase non configuré.');
 }
 
 function genCode() {

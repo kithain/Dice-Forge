@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 from flask import abort, jsonify, redirect, render_template, request, send_from_directory
@@ -9,8 +10,9 @@ from app.models import Participant
 from app.markdown_importer import (
     MarkdownImportError,
     ensure_portrait,
-    list_markdown_entries,
     parse_markdown,
+    scan_markdown_entries,
+    vault_root,
 )
 from app.portrait_utils import get_portraits_and_folders
 
@@ -47,16 +49,55 @@ def _tracker_context():
 
 @app.route("/")
 def cockpit():
-    vault_counts = {}
-    for source_type in ("pj", "pnj", "bestiaire"):
-        vault_counts[source_type] = len(list_markdown_entries(
-            source_type=source_type,
-            limit=500,
-        ))
+    from app import battlemap
+
+    entries, vault_issues = scan_markdown_entries(limit=1500)
+    vault_counts = {
+        source_type: sum(entry["source_type"] == source_type for entry in entries)
+        for source_type in ("pj", "pnj", "bestiaire")
+    }
+
+    supabase_config = PROJECT_ROOT / "supabase-config.js"
+    supabase_text = supabase_config.read_text(encoding="utf-8") if supabase_config.is_file() else ""
+    supabase_ready = (
+        "supabase.co" in supabase_text
+        and "anonKey:" in supabase_text
+        and "YOUR_SUPABASE" not in supabase_text
+    )
+
+    autosave_path = Path(models._AUTOSAVE_FILE)
+    if autosave_path.is_file():
+        saved_at = datetime.fromtimestamp(autosave_path.stat().st_mtime).strftime("%d/%m à %H:%M")
+        autosave_label = f"Dernière sauvegarde : {saved_at}"
+    else:
+        autosave_label = "Aucune sauvegarde de combat"
+
+    token_count = len(battlemap.shared_state.get("tokens", {}))
+    map_ready = bool(battlemap.shared_state.get("map"))
+    health = {
+        "supabase": {
+            "ok": supabase_ready,
+            "label": "Configuré" if supabase_ready else "Configuration manquante",
+        },
+        "obsidian": {
+            "ok": vault_root().is_dir() and not vault_issues,
+            "label": (
+                f"{len(entries)} fiches disponibles"
+                if not vault_issues
+                else f"{len(entries)} fiches · {len(vault_issues)} erreur(s)"
+            ),
+        },
+        "autosave": {"ok": autosave_path.is_file(), "label": autosave_label},
+        "battlemap": {
+            "ok": map_ready,
+            "label": f"{'Carte chargée' if map_ready else 'Aucune carte'} · {token_count} token(s)",
+        },
+    }
     return render_template(
         "cockpit.html",
         participant_count=len(models.combat.participants),
         vault_counts=vault_counts,
+        health=health,
     )
 
 
@@ -311,13 +352,18 @@ def reset():
 def api_markdown_entries():
     """Recherche les fiches de combat dans les dossiers PJ, PNJ et Bestiaire."""
     try:
-        entries = list_markdown_entries(
+        entries, issues = scan_markdown_entries(
             query=request.args.get("q", ""),
             source_type=request.args.get("type", ""),
             portrait_root=PORTRAIT_DIR,
             limit=200,
         )
-        return jsonify({"success": True, "entries": entries})
+        return jsonify({
+            "success": True,
+            "entries": entries,
+            "ignored_count": len(issues),
+            "issues": issues[:50],
+        })
     except (MarkdownImportError, OSError) as error:
         return jsonify({"success": False, "message": str(error), "entries": []}), 500
 

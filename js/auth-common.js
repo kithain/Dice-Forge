@@ -1,14 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-
-const config = window.SUPABASE_CONFIG || {};
+import { getSupabaseClient } from './supabase-client.js';
 
 export const AUTH_PLAYER_KEY = 'diceforge_player_name';
 
 export function authClient() {
-  if (!config.url || !config.anonKey) {
-    throw new Error('Supabase n\u2019est pas configur\u00e9.');
-  }
-  return createClient(config.url, config.anonKey);
+  return getSupabaseClient();
 }
 
 export function playerEmail(playerName) {

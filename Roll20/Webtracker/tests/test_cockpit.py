@@ -26,6 +26,38 @@ class CockpitRouteTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 200)
 
+    def test_cockpit_displays_service_health(self):
+        response = self.client.get("/")
+        self.assertIn(b"health-grid", response.data)
+        self.assertIn(b"Supabase", response.data)
+        self.assertIn(b"Obsidian", response.data)
+
+    def test_tracker_assets_are_local(self):
+        tracker = self.client.get("/tracker")
+        self.assertNotIn(b"cdn.socket.io", tracker.data)
+        for path in (
+            "/static/vendor/socket.io.min.js",
+            "/static/css/tracker.css",
+            "/static/js/tracker.js",
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                try:
+                    self.assertEqual(response.status_code, 200)
+                finally:
+                    response.close()
+
+    def test_battlemap_generator_is_available(self):
+        page = self.client.get("/battlemap")
+        self.assertIn(b"open-generator-btn", page.data)
+        self.assertIn(b"battlemap_generator.js", page.data)
+        asset = self.client.get("/static/js/battlemap_generator.js")
+        try:
+            self.assertEqual(asset.status_code, 200)
+            self.assertIn(b"renderDungeon", asset.data)
+        finally:
+            asset.close()
+
     def test_dice_forge_is_served_from_the_same_origin(self):
         for path in ("/dice/index.html", "/dice/js/app.js"):
             with self.subTest(path=path):

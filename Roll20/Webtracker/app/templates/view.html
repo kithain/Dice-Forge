@@ -28,7 +28,7 @@
 </head>
 <body>
     <main class="container" id="view-content-wrapper">{% include '_view_table.html' %}</main>
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
     <script>
         async function updateContent() {
             const response = await fetch('/api/view_content');

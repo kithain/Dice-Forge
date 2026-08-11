@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabase-client.js';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
 
 const params = new URLSearchParams(window.location.search);
@@ -25,13 +25,11 @@ async function boot() {
   }
   if (!room) return;
 
-  const config = window.SUPABASE_CONFIG || {};
-  if (!config.url || !config.anonKey || config.url.includes('VOTRE_PROJET')) {
+  supabase = getSupabaseClient({ optional: true });
+  if (!supabase) {
     console.error('Supabase non configuré pour l’animation OBS.');
     return;
   }
-
-  supabase = createClient(config.url, config.anonKey);
   subscription = supabase.channel(`obs-dice:${room}`)
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'obs_rolls', filter: `room_code=eq.${room}` },

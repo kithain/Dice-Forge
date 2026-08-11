@@ -108,7 +108,7 @@ Le contenu est mis à jour dynamiquement via Socket.IO.
     </div>
 
     <!-- Inclusion de la bibliothèque Socket.IO -->
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
     <script>
         // Fonction pour récupérer le contenu du portrait depuis le serveur via l'API.
         async function updateContent() {

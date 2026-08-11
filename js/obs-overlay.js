@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabase-client.js';
 
 const params = new URLSearchParams(window.location.search);
 const room = (params.get('room') || params.get('code') || '').trim().toUpperCase();
@@ -26,13 +26,11 @@ async function boot() {
     return;
   }
 
-  const cfg = window.SUPABASE_CONFIG || {};
-  if (!cfg.url || !cfg.anonKey || cfg.url.includes('VOTRE_PROJET')) {
+  supabase = getSupabaseClient({ optional: true });
+  if (!supabase) {
     setStatus('Supabase non configure.');
     return;
   }
-
-  supabase = createClient(cfg.url, cfg.anonKey);
   setStatus('Connexion au live...');
 
   if (showHistory) await loadRecent();

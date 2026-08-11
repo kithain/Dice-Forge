@@ -28,7 +28,7 @@ Affiche en temps réel la carte et les tokens sur un canvas, sans interaction.
 <body>
     <canvas id="map-canvas"></canvas>
     <!-- Client Socket.IO 4.x (compatible avec le serveur Flask-SocketIO). -->
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/obs_app.js') }}"></script>
 </body>
 </html>

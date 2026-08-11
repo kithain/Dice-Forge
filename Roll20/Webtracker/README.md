@@ -80,6 +80,12 @@ la carte en pixels. La route `/obs` affiche la carte et les tokens synchronisés
 sans menu ni contrôles, afin de créer une source navigateur OBS aux mêmes
 dimensions.
 
+Le bouton **Générer une carte** ouvre un atelier procédural intégré. Il propose
+quatre environnements (donjon, forêt, caverne et ruines), des dimensions en cases,
+une taille de case, une densité d'éléments et une graine reproductible. L'aperçu
+peut être téléchargé en PNG ou envoyé directement à la Battle Map ; dans ce dernier
+cas, la carte est persistée et immédiatement synchronisée avec la vue OBS.
+
 ## Lancement
 
 ```powershell

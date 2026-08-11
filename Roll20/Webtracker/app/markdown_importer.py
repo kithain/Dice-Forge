@@ -8,7 +8,11 @@ import unicodedata
 
 
 DEFAULT_VAULT = Path(r"D:\kitha\Documents\JDR - BRP\Obsidian_Ombre_de_la_Spirale")
-SOURCE_FOLDERS = {"pj": "PJ", "pnj": "PNJ", "bestiaire": "Bestiaire"}
+SOURCE_FOLDERS = {
+    "pj": ("30 - PERSONNAGES/PJ", "PJ"),
+    "pnj": ("30 - PERSONNAGES/PNJ", "PNJ"),
+    "bestiaire": ("50 - OUTILS/Bestiaire", "Bestiaire"),
+}
 STAT_NAMES = ("FOR", "CON", "TAI", "INT", "POU", "DEX", "APP")
 STAT_FIELDS = {
     "FOR": "strength", "CON": "constitution", "TAI": "size",
@@ -23,6 +27,16 @@ class MarkdownImportError(ValueError):
 
 def vault_root():
     return Path(os.environ.get("DICE_FORGE_VAULT", DEFAULT_VAULT)).resolve()
+
+
+def _source_folder(root, source_type):
+    """Utilise la structure actuelle du coffre, avec repli sur l'ancienne."""
+    candidates = SOURCE_FOLDERS[source_type]
+    for relative in candidates:
+        folder = (root / relative).resolve()
+        if folder.is_dir():
+            return folder
+    return (root / candidates[0]).resolve()
 
 
 def _slug(value):
@@ -41,6 +55,11 @@ def _frontmatter(text):
 def _frontmatter_value(frontmatter, key):
     match = re.search(rf"(?mi)^{re.escape(key)}\s*:\s*[\"']?([^\r\n\"']+)", frontmatter)
     return match.group(1).strip() if match else ""
+
+
+def _is_webtracker_disabled(text):
+    value = _frontmatter_value(_frontmatter(text), "webtracker").casefold()
+    return value in {"false", "non", "no", "0"}
 
 
 def _first_alias(frontmatter):
@@ -67,7 +86,11 @@ def _safe_source(relative_path):
         candidate.relative_to(root)
     except ValueError as error:
         raise MarkdownImportError("Chemin Markdown invalide.") from error
-    allowed_roots = [(root / folder).resolve() for folder in SOURCE_FOLDERS.values()]
+    allowed_roots = [
+        (root / relative).resolve()
+        for candidates in SOURCE_FOLDERS.values()
+        for relative in candidates
+    ]
     if not any(candidate == allowed or allowed in candidate.parents for allowed in allowed_roots):
         raise MarkdownImportError("Seuls les dossiers PJ, PNJ et Bestiaire sont autorisés.")
     if candidate.suffix.lower() != ".md" or not candidate.is_file():
@@ -76,11 +99,13 @@ def _safe_source(relative_path):
 
 
 def _source_type(path):
-    relative = path.resolve().relative_to(vault_root())
-    first = relative.parts[0].casefold()
-    for source_type, folder in SOURCE_FOLDERS.items():
-        if first == folder.casefold():
-            return source_type
+    resolved = path.resolve()
+    root = vault_root()
+    for source_type, candidates in SOURCE_FOLDERS.items():
+        for relative in candidates:
+            folder = (root / relative).resolve()
+            if resolved == folder or folder in resolved.parents:
+                return source_type
     raise MarkdownImportError("Type de fiche non reconnu.")
 
 
@@ -203,31 +228,49 @@ def parse_markdown(relative_path, portrait_root=None):
     return data
 
 
-def list_markdown_entries(query="", source_type="", portrait_root=None, limit=200):
+def scan_markdown_entries(query="", source_type="", portrait_root=None, limit=200):
     root = vault_root()
     query_folded = query.strip().casefold()
     requested = [source_type] if source_type in SOURCE_FOLDERS else list(SOURCE_FOLDERS)
     entries = []
+    issues = []
     for kind in requested:
-        folder = root / SOURCE_FOLDERS[kind]
+        folder = _source_folder(root, kind)
         if not folder.is_dir():
+            issues.append({
+                "source": SOURCE_FOLDERS[kind][0],
+                "message": "Dossier Obsidian introuvable.",
+            })
             continue
         for path in folder.rglob("*.md"):
             relative = path.relative_to(root).as_posix()
+            try:
+                if _is_webtracker_disabled(path.read_text(encoding="utf-8-sig")):
+                    continue
+            except (OSError, UnicodeError) as error:
+                issues.append({"source": relative, "message": str(error)})
+                continue
             if query_folded and query_folded not in relative.casefold():
                 # Le nom lisible peut ne pas ressembler au nom de fichier : il sera
                 # testé après parsing.
                 pass
             try:
                 entry = parse_markdown(relative, portrait_root)
-            except (MarkdownImportError, OSError, UnicodeError):
+            except (MarkdownImportError, OSError, UnicodeError) as error:
+                issues.append({"source": relative, "message": str(error)})
                 continue
             if query_folded and query_folded not in entry["name"].casefold() and query_folded not in relative.casefold():
                 continue
             entry.pop("_image_source", None)
             entries.append(entry)
     entries.sort(key=lambda item: (item["source_type"], item["name"].casefold()))
-    return entries[:max(1, min(int(limit), 500))]
+    issues.sort(key=lambda item: item["source"].casefold())
+    return entries[:max(1, min(int(limit), 500))], issues
+
+
+def list_markdown_entries(query="", source_type="", portrait_root=None, limit=200):
+    entries, _issues = scan_markdown_entries(query, source_type, portrait_root, limit)
+    return entries
 
 
 def ensure_portrait(entry, portrait_root):

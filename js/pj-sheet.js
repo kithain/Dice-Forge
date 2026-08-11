@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabase-client.js';
 import './tooltips.js?v=20260715-character-help';
 import { showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
@@ -12,11 +12,7 @@ if (IS_EMBEDDED) {
 const STORAGE_KEY = 'dice-forge.pj-markdown.v1';
 const PRINT_STORAGE_KEY = 'dice-forge.pj-print.v1';
 const ROOM_STORAGE_KEY = 'diceforge_room';
-const SUPABASE_URL = window.SUPABASE_CONFIG?.url || '';
-const SUPABASE_ANON_KEY = window.SUPABASE_CONFIG?.anonKey || '';
-const supabase = SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('VOTRE_PROJET')
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+const supabase = getSupabaseClient({ optional: true });
 
 const STATS = [
   ['FOR', 'force', 'Puissance physique : soulever, pousser, briser ou retenir. Contribue au bonus aux dégâts.'],

@@ -1,5 +1,7 @@
 # Dice Forge
 
+[![Qualité](https://github.com/kithain/Dice-Forge/actions/workflows/quality.yml/badge.svg)](https://github.com/kithain/Dice-Forge/actions/workflows/quality.yml)
+
 Suite de jeu pour les parties **BRP-ORC**. Dice Forge réunit les dés 3D, les salons multijoueurs, les fiches, le tracker d'initiative, la Battle Map, l'import Obsidian et les overlays OBS. En local, tout est accessible depuis un cockpit MJ unique.
 
 **[Ouvrir Dice Forge](https://kithain.github.io/Dice-Forge/)** · [Aide joueurs](https://kithain.github.io/Dice-Forge/help.html) · [Livret du joueur](https://kithain.github.io/Dice-Forge/livret_joueur.html)
