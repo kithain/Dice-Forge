@@ -4,6 +4,18 @@ __pycache__/
 .venv/
 *.log
 
+# Application TypeScript V2
+app-v2/node_modules/
+app-v2/dist/
+app-v2/.npm-cache/
+app-v2/data/
+backups/
+
+# Application TypeScript V2
+app-v2/node_modules/
+app-v2/dist/
+app-v2/.npm-cache/
+
 # Données locales générées par le cockpit MJ
 Roll20/Webtracker/data/
 Roll20/Webtracker/app/static/maps/current_map.*
