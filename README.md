@@ -87,7 +87,9 @@ Les politiques RLS garantissent que les données privées restent liées à l'ut
 /view                       vue joueurs
 /portrait_view              portrait du tour actif
 /overlays/map               carte sans contrôles
-/overlays/rolls?room=ABCD   jets publics OBS
+/overlays/dice?room=ABCD    animation des dés OBS
+/overlays/history?room=ABCD historique des jets publics OBS
+/overlays/rolls?room=ABCD   ancien alias de l’historique
 ```
 
 ## Données conservées

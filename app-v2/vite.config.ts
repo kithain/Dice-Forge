@@ -6,7 +6,9 @@ export default defineConfig({
   root: fileURLToPath(new URL('./src/client', import.meta.url)),
   build: {
     outDir: fileURLToPath(new URL('./dist/client', import.meta.url)),
-    emptyOutDir: true,
+    // OBS garde sa page ouverte pendant toute la partie. Conserver les anciens
+    // fichiers hashés évite de casser ses imports dynamiques après un rebuild.
+    emptyOutDir: false,
   },
   server: {
     port: 5173,

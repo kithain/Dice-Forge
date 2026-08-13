@@ -6,14 +6,17 @@ import { api, escapeHtml } from '../http.js';
 
 let rollRefreshTimer: number | undefined;
 
+const ROLL_OVERLAY_PATHS = ['/overlays/dice', '/overlays/history', '/overlays/rolls'];
+
 export async function renderDisplay(workspace: HTMLElement, pathname: string): Promise<void> {
   document.body.classList.add('display-mode');
-  if (pathname !== '/overlays/rolls' && rollRefreshTimer !== undefined) {
+  if (!ROLL_OVERLAY_PATHS.includes(pathname) && rollRefreshTimer !== undefined) {
     window.clearInterval(rollRefreshTimer);
     rollRefreshTimer = undefined;
   }
   if (pathname === '/overlays/map') return renderMap(workspace);
-  if (pathname === '/overlays/rolls') return renderRolls(workspace);
+  if (pathname === '/overlays/dice') return renderDiceOverlay(workspace);
+  if (pathname === '/overlays/history' || pathname === '/overlays/rolls') return renderRollHistory(workspace);
   const combat = await api<CombatState>('/api/combat');
   if (pathname === '/portrait_view') return renderPortrait(workspace, combat);
   renderPlayers(workspace, combat);
@@ -34,21 +37,31 @@ function renderPortrait(workspace: HTMLElement, combat: CombatState): void {
   workspace.innerHTML = participant ? `<div class="portrait-display">${participant.portrait ? `<img src="/portraits/${escapeHtml(participant.portrait)}">` : ''}<div><p>Tour actif · Round ${combat.round_number}</p><h1>${escapeHtml(participant.name)}</h1><strong>${participant.hp} / ${participant.hp_max} PV</strong><span>${participant.statuses.map((status) => escapeHtml(status.name)).join(' · ')}</span></div></div>` : '<p class="empty-state">Aucun combattant actif.</p>';
 }
 
-async function renderRolls(workspace: HTMLElement): Promise<void> {
+function resetRollRefresh(): void {
   if (rollRefreshTimer !== undefined) {
     window.clearInterval(rollRefreshTimer);
     rollRefreshTimer = undefined;
   }
-  const room = new URLSearchParams(location.search).get('room') || '';
+}
+
+function overlayRoom(): string {
+  return (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();
+}
+
+function historyLimit(): number {
+  const requested = Number(new URLSearchParams(location.search).get('limit'));
+  return Number.isInteger(requested) ? Math.max(1, Math.min(10, requested)) : 5;
+}
+
+async function renderDiceOverlay(workspace: HTMLElement): Promise<void> {
+  resetRollRefresh();
+  const room = overlayRoom();
   const { cloud } = await import('../cloud.js');
   const rolls = room ? await cloud.publicRolls(room) : [];
-  workspace.innerHTML = `<div class="obs-roll-stage"><div class="dice-animation obs-dice-animation" id="obs-dice-animation" hidden aria-label="Animation du lancer OBS"></div><div class="obs-roll-caption" id="obs-roll-caption" hidden></div></div><div class="roll-overlay" id="roll-overlay"></div>`;
-  const list = workspace.querySelector<HTMLElement>('#roll-overlay')!;
-  const animation = workspace.querySelector<HTMLElement>('#obs-dice-animation')!;
-  const caption = workspace.querySelector<HTMLElement>('#obs-roll-caption')!;
-  renderRollList(list, rolls, room);
+  workspace.innerHTML = `<div class="obs-roll-stage"><div class="dice-animation obs-dice-animation" id="obs-dice-animation" hidden aria-label="Animation du lancer OBS"></div></div>${room ? '' : '<p class="obs-overlay-setup">Ajoutez <code>?room=CODE</code> à l’adresse OBS.</p>'}`;
   if (!room) return;
 
+  const animation = workspace.querySelector<HTMLElement>('#obs-dice-animation')!;
   let lastSeen = rolls[0]?.id ?? 0;
   let refreshing = false;
   rollRefreshTimer = window.setInterval(() => {
@@ -58,18 +71,36 @@ async function renderRolls(workspace: HTMLElement): Promise<void> {
       const unseen = latest.filter((roll) => roll.id > lastSeen).reverse();
       for (const roll of unseen) {
         const dice = diceFromRoll(roll);
-        if (dice.length) {
-          caption.hidden = false;
-          caption.innerHTML = `<strong>${escapeHtml(roll.player_name)}</strong><span>${escapeHtml(roll.expression)}</span>`;
+        if (!dice.length) continue;
+        try {
           const { animateDice } = await import('../dice-animation.js');
           await animateDice(animation, dice);
-          caption.hidden = true;
+        } catch (error) {
+          console.error('Impossible d’afficher l’animation OBS.', error);
         }
       }
       if (latest[0]) lastSeen = Math.max(lastSeen, latest[0].id);
-      renderRollList(list, latest, room);
     }).catch(() => undefined).finally(() => { refreshing = false; });
-  }, 750);
+  }, 500);
+}
+
+async function renderRollHistory(workspace: HTMLElement): Promise<void> {
+  resetRollRefresh();
+  const room = overlayRoom();
+  const { cloud } = await import('../cloud.js');
+  const rolls = room ? await cloud.publicRolls(room) : [];
+  workspace.innerHTML = '<div class="roll-overlay roll-history-overlay" id="roll-overlay"></div>';
+  const list = workspace.querySelector<HTMLElement>('#roll-overlay')!;
+  renderRollList(list, rolls, room);
+  if (!room) return;
+
+  let refreshing = false;
+  rollRefreshTimer = window.setInterval(() => {
+    if (refreshing) return;
+    refreshing = true;
+    void cloud.publicRolls(room).then((latest) => renderRollList(list, latest, room))
+      .catch(() => undefined).finally(() => { refreshing = false; });
+  }, 1000);
 }
 
 function diceFromRoll(roll: RollRecord): AnimatedDie[] {
@@ -85,6 +116,6 @@ function diceFromRoll(roll: RollRecord): AnimatedDie[] {
 }
 
 function renderRollList(target: HTMLElement, rolls: RollRecord[], room: string): void {
-  target.innerHTML = rolls.map((roll) => `<article><div><strong>${escapeHtml(roll.player_name)}</strong><span>${escapeHtml(roll.expression)}</span></div><b>${roll.total}</b></article>`).join('')
+  target.innerHTML = rolls.slice(0, historyLimit()).map((roll) => `<article><div class="roll-history-detail"><strong>${escapeHtml(roll.player_name)}</strong><span>${escapeHtml(roll.expression)}</span><small>${escapeHtml(roll.rolls_detail)}</small></div><b>${roll.total}</b></article>`).join('')
     || `<p>${room ? 'En attente de jets publics…' : 'Ajoutez ?room=CODE à l’adresse OBS.'}</p>`;
 }

@@ -60,13 +60,14 @@ async function fallbackAnimation(container: HTMLElement, specs: AnimatedDie[], d
   container.replaceChildren();
 }
 
-export async function animateDice(container: HTMLElement, specs: AnimatedDie[], duration = 1800): Promise<void> {
+export async function animateDice(container: HTMLElement, specs: AnimatedDie[], duration = 2000): Promise<void> {
   if (!specs.length) return;
   const concealed = specs.some((spec) => spec.value === undefined);
   container.hidden = false;
   container.classList.add('rolling', 'physical-dice-box');
   container.classList.toggle('concealed-dice', concealed);
   try {
+    const startedAt = performance.now();
     let boxPromise = boxes.get(container);
     if (!boxPromise) {
       boxPromise = createBox(container);
@@ -75,9 +76,10 @@ export async function animateDice(container: HTMLElement, specs: AnimatedDie[], 
     const box = await boxPromise;
     await Promise.race([
       Promise.resolve(box.roll(notationFor(specs))),
-      new Promise((resolve) => setTimeout(resolve, Math.max(duration + 1800, 3600))),
+      new Promise((resolve) => setTimeout(resolve, duration)),
     ]);
-    await new Promise((resolve) => setTimeout(resolve, 220));
+    const remaining = Math.max(0, duration - (performance.now() - startedAt));
+    if (remaining) await new Promise((resolve) => setTimeout(resolve, remaining));
     container.classList.remove('rolling', 'concealed-dice');
     container.hidden = true;
   } catch (error) {

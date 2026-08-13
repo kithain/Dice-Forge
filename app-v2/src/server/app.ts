@@ -12,10 +12,12 @@ import { registerBackupRoutes } from './routes/backup-routes.js';
 import { registerCombatRoutes } from './routes/combat-routes.js';
 import { registerObsidianRoutes } from './routes/obsidian-routes.js';
 import { registerReferenceRoutes } from './routes/reference-routes.js';
+import { registerRoomNpcRoutes } from './routes/room-npc-routes.js';
 import { BattlemapService } from './services/battlemap-service.js';
 import { CombatService } from './services/combat-service.js';
 import { getCloudConfig } from './services/cloud-config.js';
 import { ObsidianService } from './services/obsidian-service.js';
+import { RoomNpcService } from './services/room-npc-service.js';
 import { migrateLegacyData } from './services/legacy-migration.js';
 import { getSystemStatus } from './services/system-status.js';
 
@@ -56,7 +58,8 @@ export async function buildApp(config: AppConfig = loadConfig()): Promise<Fastif
   const combat = new CombatService(config.dataDirectory);
   const battlemap = new BattlemapService(config.dataDirectory, config.mapsDirectory);
   const obsidian = new ObsidianService(config.vaultPath);
-  await Promise.all([combat.initialize(), battlemap.initialize()]);
+  const roomNpcs = new RoomNpcService(config.dataDirectory);
+  await Promise.all([combat.initialize(), battlemap.initialize(), roomNpcs.initialize()]);
 
   app.get('/api/status', async () => getSystemStatus(config));
   app.get('/api/health', async () => ({ ok: true }));
@@ -69,6 +72,7 @@ export async function buildApp(config: AppConfig = loadConfig()): Promise<Fastif
   registerBattlemapRoutes(app, battlemap, realtime);
   registerBackupRoutes(app, config.repositoryRoot);
   registerObsidianRoutes(app, obsidian);
+  registerRoomNpcRoutes(app, roomNpcs);
   registerReferenceRoutes(app, config.repositoryRoot);
 
   app.setNotFoundHandler(async (request, reply) => {

@@ -18,6 +18,9 @@ export interface ObsidianEntry {
   charisma: number;
   movement: number;
   armor_points: number;
+  melee_attack: number;
+  ranged_attack: number;
+  defense: number;
 }
 
 const SOURCE_FOLDERS: Record<ObsidianSource, string[]> = {
@@ -47,7 +50,8 @@ function frontmatterValue(text: string, key: string): string {
 function firstAlias(text: string): string {
   const inline = text.match(/^aliases\s*:\s*\[(.*?)]\s*$/im)?.[1];
   if (inline) return inline.split(',')[0]?.replace(/["']/g, '').trim() ?? '';
-  return text.match(/^\s+-\s*["']?(.+?)["']?\s*$/m)?.[1]?.trim() ?? '';
+  const block = text.match(/^aliases\s*:\s*\r?\n((?:\s+-[^\r\n]*(?:\r?\n|$))*)/im)?.[1] ?? '';
+  return block.match(/^\s+-\s*["']?(.+?)["']?\s*$/m)?.[1]?.trim() ?? '';
 }
 
 function parseStats(text: string): Record<string, number> {
@@ -69,6 +73,41 @@ function fieldNumber(text: string, label: string): number | undefined {
   return values?.length ? Number(values.at(-1)) : undefined;
 }
 
+function explicitPercent(text: string, labels: string[]): number | undefined {
+  for (const label of labels) {
+    const matterValue = frontmatterValue(frontmatter(text), label);
+    const matterScore = matterValue.match(/\d+/)?.[0];
+    if (matterScore) return Number(matterScore);
+    const bodyScore = text.match(new RegExp(`\\*{0,2}${label}\\*{0,2}\\s*:\\s*(\\d+)\\s*%?`, 'i'))?.[1];
+    if (bodyScore) return Number(bodyScore);
+  }
+  return undefined;
+}
+
+function isRangedAttack(label: string): boolean {
+  if (/lanc(?:é|ée|és|ées)/i.test(label)) return true;
+  const normalized = label.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return /\b(?:arc|arbalete|fronde|tir|projectile|javelot|grenade|lancer|trait|eclair|onde|decharge|distorsion|distance|portee|sort|glyphe)\b/i.test(normalized);
+}
+
+export function parseCombatScores(text: string): { meleeAttack: number; rangedAttack: number; defense: number } {
+  const explicitMelee = explicitPercent(text, ['attaque_cac', 'attaque cac', 'melee_attack']);
+  const explicitRanged = explicitPercent(text, ['attaque_distance', 'attaque distance', 'ranged_attack']);
+  const legacyAttack = explicitPercent(text, ['attaque', 'attack']);
+  const attackSection = text.match(/\*\*Attaques?\s*:\*\*([\s\S]*?)(?=\n\s*(?:\*\*[^\n]+:\*\*|##|---)|$)/i)?.[1] ?? '';
+  const attacks = [
+    ...[...text.matchAll(/^\|\s*([^|]+)\|\s*(\d+)\s*%\s*\|([^\r\n]*)/gim)].map((match) => ({ label: `${match[1]} ${match[3]}`, score: Number(match[2]) })),
+    ...[...attackSection.matchAll(/(?:^|[;\n])\s*[-*]?\s*([^;\n]+?)\s+(\d+)\s*%([^;\n]*)/gim)].map((match) => ({ label: `${match[1]} ${match[3]}`, score: Number(match[2]) })),
+  ].filter((attack) => !/\bparade\b/i.test(attack.label));
+  const meleeScores = attacks.filter((attack) => !isRangedAttack(attack.label)).map((attack) => attack.score);
+  const rangedScores = attacks.filter((attack) => isRangedAttack(attack.label)).map((attack) => attack.score);
+  const meleeAttack = explicitMelee ?? legacyAttack ?? (Math.max(0, ...meleeScores) || (attacks.length ? 0 : 50));
+  const rangedAttack = explicitRanged ?? Math.max(0, ...rangedScores);
+  const explicitDefense = explicitPercent(text, ['défense', 'defense', 'defense_score']);
+  const dodge = text.match(/\bEsquive\s+(\d+)\s*%/i)?.[1];
+  return { meleeAttack, rangedAttack, defense: explicitDefense ?? (dodge ? Number(dodge) : Math.max(meleeAttack, rangedAttack, 50)) };
+}
+
 function parseEntry(text: string, relative: string, sourceType: ObsidianSource): ObsidianEntry {
   const matter = frontmatter(text);
   if (['false', 'non', 'no', '0'].includes(frontmatterValue(matter, 'webtracker').toLowerCase())) throw new Error('disabled');
@@ -78,6 +117,7 @@ function parseEntry(text: string, relative: string, sourceType: ObsidianSource):
   const hp = fieldNumber(text, 'Points de [Vv]ie') ?? (stats.CON && stats.TAI ? Math.ceil((stats.CON + stats.TAI) / 2) : undefined);
   if (!hp) throw new Error('Points de vie introuvables.');
   const category = frontmatterValue(matter, 'categorie').toLowerCase();
+  const combat = parseCombatScores(text);
   const base: ObsidianEntry = {
     source: relative.replaceAll('\\', '/'), source_type: sourceType, name,
     default_role: sourceType === 'pj' ? 'player' : sourceType === 'bestiaire' ? 'monster' : ['allies', 'alliés'].includes(category) ? 'ally' : 'monster',
@@ -86,6 +126,7 @@ function parseEntry(text: string, relative: string, sourceType: ObsidianSource):
     intelligence: stats.INT ?? 10, power: stats.POU ?? 10, charisma: stats.APP ?? stats.CHA ?? 10,
     movement: fieldNumber(text, '(?:Déplacement|Mouvement)') ?? 10,
     armor_points: fieldNumber(text, "(?:Points d['’]armure|Armure)") ?? 0,
+    melee_attack: combat.meleeAttack, ranged_attack: combat.rangedAttack, defense: combat.defense,
   };
   for (const [stat, field] of Object.entries(STAT_FIELD)) if (stats[stat] !== undefined) base[field] = stats[stat]!;
   return base;

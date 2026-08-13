@@ -1,7 +1,7 @@
 import './styles.css';
 
 import { fetchSystemStatus } from './api.js';
-import { escapeHtml } from './http.js';
+import { api, escapeHtml } from './http.js';
 import { publishRollToObsRelay } from './obs-relay.js';
 import { RealtimeClient } from './realtime.js';
 import { SessionStore } from './session-store.js';
@@ -10,6 +10,8 @@ import { renderTracker } from './views/tracker.js';
 import { renderDisplay } from './views/display.js';
 import { evaluateBrpTest, parseDiceExpression, rollDice, type BrpDifficulty, type BrpTest, type DiceExpression, type DiceRoll } from '../shared/dice.js';
 import type { ServiceStatus } from '../shared/contracts.js';
+import type { RoomNpc } from '../shared/room-npcs.js';
+import type { ObsidianEntry } from '../server/services/obsidian-service.js';
 import { playableSheet, PLAYABLE_SKILL_GROUPS, structuredSheetToMarkdown, type PlayableSkill } from '../shared/sheet.js';
 
 type ViewId = 'dashboard' | 'dice' | 'tracker' | 'battlemap' | 'characters' | 'references';
@@ -33,7 +35,7 @@ app.innerHTML = `
       <button data-view="dice">Dés</button>
       <button data-view="tracker" data-mj-only hidden>Initiative</button>
       <button data-view="battlemap">Battle Map</button>
-      <button data-view="characters">Personnages</button>
+      <button data-view="characters" data-player-only>Personnages</button>
       <button data-view="references">Références</button>
       <div class="sidebar-note" data-mj-only hidden><strong>Espace MJ</strong><span>Contrôle de la partie et des écrans.</span></div>
     </aside>
@@ -54,7 +56,8 @@ let toastTimer = 0;
 let currentView: ViewId = 'dice';
 let isMj = false;
 let accessRefreshTimer = 0;
-const displayPath = ['/view', '/portrait_view', '/overlays/map', '/overlays/rolls'].includes(location.pathname) ? location.pathname : '';
+let lastAccessRoom = '';
+const displayPath = ['/view', '/portrait_view', '/overlays/map', '/overlays/dice', '/overlays/history', '/overlays/rolls'].includes(location.pathname) ? location.pathname : '';
 
 function showToast(message: string, error = false): void {
   toast.textContent = message;
@@ -108,12 +111,26 @@ function formatRoll(roll: DiceRoll): string {
 }
 
 function diceView(): void {
+  const roleRollForm = isMj
+    ? `<section class="npc-room-panel">
+        <div class="section-title"><div><p class="eyebrow">Room ${escapeHtml(session.value.room || '—')}</p><h2>Ennemis et PNJ</h2></div><span>Un clic sur Attaque ou Défense lance le D100.</span></div>
+        <div class="npc-quick-list" id="npc-room-list"><p class="muted">Chargement…</p></div>
+        <form id="npc-library-form" class="npc-library-form">
+          <div><label for="npc-source">Importer d’Obsidian</label><select id="npc-source"><option value="">PNJ personnalisé</option></select></div>
+          <div><label for="npc-name">Nom</label><input id="npc-name" maxlength="80" placeholder="Ex. Garde orque" required></div>
+          <div><label for="npc-melee-attack">Attaque CaC (%)</label><input id="npc-melee-attack" type="number" min="0" max="100" value="50" required></div>
+          <div><label for="npc-ranged-attack">Attaque distance (%)</label><input id="npc-ranged-attack" type="number" min="0" max="100" value="0" required></div>
+          <div><label for="npc-defense">Défense (%)</label><input id="npc-defense" type="number" min="1" max="100" value="50" required></div>
+          <button class="primary">Ajouter à la room</button>
+        </form>
+      </section>`
+    : `<form id="skill-roll-form" class="brp-form skill-roll-form"><div><label for="skill-roll-select">Compétence de la fiche</label><select id="skill-roll-select" disabled><option>Chargement de la fiche…</option></select><small id="skill-roll-detail">Connectez-vous pour charger vos compétences.</small></div><div><label for="skill-roll-difficulty">Difficulté</label><select id="skill-roll-difficulty"><option value="automatic">Automatique</option><option value="easy">Facile</option><option value="normal" selected>Normale</option><option value="hard">Difficile</option><option value="impossible">Impossible</option></select></div><button disabled>Tester la compétence</button></form>`;
   workspace.innerHTML = `
-    <section class="tool-header"><div><p class="eyebrow">Module natif</p><h1>Lanceur de dés</h1><p>Expressions acceptées : 2D6 + 1D8 + 5, D100 ou 1D20 − 2.</p></div></section>
+    <section class="tool-header"><div><p class="eyebrow">${isMj ? 'Espace MJ' : 'Module natif'}</p><h1>Lanceur de dés</h1><p>${isMj ? 'Lancez les actions des ennemis et PNJ sans créer de fiche de personnage.' : 'Expressions acceptées : 2D6 + 1D8 + 5, D100 ou 1D20 − 2.'}</p></div></section>
     <section class="dice-panel">
       <form id="dice-form"><label for="dice-expression">Expression</label><div><input id="dice-expression" value="1D100" autocomplete="off"><button class="primary">Lancer</button></div><label class="check-line"><input id="hidden-roll" type="checkbox"> Jet caché aux autres joueurs et aux overlays</label></form>
       <div class="quick-dice">${[4, 6, 8, 10, 12, 20, 100].map((side) => `<button data-die="${side}">D${side}</button>`).join('')}</div>
-      <form id="skill-roll-form" class="brp-form skill-roll-form"><div><label for="skill-roll-select">Compétence de la fiche</label><select id="skill-roll-select" disabled><option>Chargement de la fiche…</option></select><small id="skill-roll-detail">Connectez-vous pour charger vos compétences.</small></div><div><label for="skill-roll-difficulty">Difficulté</label><select id="skill-roll-difficulty"><option value="automatic">Automatique</option><option value="easy">Facile</option><option value="normal" selected>Normale</option><option value="hard">Difficile</option><option value="impossible">Impossible</option></select></div><button disabled>Tester la compétence</button></form>
+      ${roleRollForm}
       <form id="brp-form" class="brp-form"><div><label for="brp-score">Test BRP (%)</label><input id="brp-score" type="number" min="1" max="100" value="60" required></div><div><label for="brp-difficulty">Difficulté</label><select id="brp-difficulty"><option value="automatic">Automatique</option><option value="easy">Facile</option><option value="normal" selected>Normale</option><option value="hard">Difficile</option><option value="impossible">Impossible</option></select></div><button>Tester au D100</button></form>
       <article class="roll-result empty" id="roll-result"><span>Le résultat apparaîtra ici.</span></article><div class="cloud-rolls" id="cloud-rolls"></div>
     </section>
@@ -167,6 +184,82 @@ function diceView(): void {
     const outcomeLabels = { critical: 'Réussite critique', special: 'Réussite spéciale', success: 'Réussite', failure: 'Échec', fumble: 'Maladresse' } as const;
     result.classList.remove('empty');
     result.innerHTML = `<small>${escapeHtml(expression)}</small><strong>${test.roll ?? '—'}</strong><span class="brp-outcome ${test.outcome}">${outcomeLabels[test.outcome]}</span><span>Seuil ${test.threshold}% · spéciale ≤ ${test.specialLimit} · critique ≤ ${test.criticalLimit} · maladresse ≥ ${test.fumbleMinimum}</span>`;
+  };
+  const runNpcRoll = async (npc: RoomNpc, action: 'Attaque CaC' | 'Attaque distance' | 'Défense'): Promise<void> => {
+    const score = action === 'Attaque CaC' ? npc.meleeAttack : action === 'Attaque distance' ? npc.rangedAttack : npc.defense;
+    if (score < 1) throw new Error(`${npc.name} n’a pas de valeur d’${action.toLowerCase()}.`);
+    const difficulty: BrpDifficulty = 'normal';
+    const label = `${npc.name} · ${action} ${score}%`;
+    const diceExpression: DiceExpression = { source: label, dice: [{ count: 1, sides: 100, sign: 1 }], modifier: 0 };
+    if (document.querySelector<HTMLInputElement>('#hidden-roll')?.checked) {
+      const hidden = await hiddenRoll(diceExpression, label);
+      if (hidden.total !== null) displayBrp(evaluateBrpTest(score, difficulty, () => hidden.total!), label);
+      return;
+    }
+    const test = evaluateBrpTest(score, difficulty);
+    const roll: DiceRoll = { expression: label, results: [{ count: 1, sides: 100, sign: 1, values: [test.roll!], subtotal: test.roll! }], modifier: 0, total: test.roll! };
+    displayBrp(test, label);
+    publishRoll(roll);
+  };
+  const renderRoomNpcs = (npcs: RoomNpc[]): void => {
+    const target = document.querySelector<HTMLElement>('#npc-room-list');
+    if (!target) return;
+    target.innerHTML = npcs.length ? npcs.map((npc) => `<article class="npc-quick-card" data-room-npc="${escapeHtml(npc.id)}"><div><strong>${escapeHtml(npc.name)}</strong><small>${npc.source ? 'Obsidian' : 'Personnalisé'}</small></div><button data-npc-roll="melee" ${npc.meleeAttack ? '' : 'disabled'}><span>CaC</span><b>${npc.meleeAttack ? `${npc.meleeAttack}%` : '—'}</b></button><button data-npc-roll="ranged" ${npc.rangedAttack ? '' : 'disabled'}><span>Distance</span><b>${npc.rangedAttack ? `${npc.rangedAttack}%` : '—'}</b></button><button data-npc-roll="defense"><span>Défense</span><b>${npc.defense}%</b></button><button class="danger npc-remove" data-npc-remove title="Retirer de la room">×</button></article>`).join('') : '<p class="muted">Aucun PNJ défini pour cette room. Importez-en un depuis Obsidian ou créez-le ci-dessous.</p>';
+    target.querySelectorAll<HTMLElement>('[data-room-npc]').forEach((card) => {
+      const npc = npcs.find((item) => item.id === card.dataset.roomNpc)!;
+      card.querySelector<HTMLButtonElement>('[data-npc-roll="melee"]')?.addEventListener('click', () => void runNpcRoll(npc, 'Attaque CaC').catch((error: Error) => showToast(error.message, true)));
+      card.querySelector<HTMLButtonElement>('[data-npc-roll="ranged"]')?.addEventListener('click', () => void runNpcRoll(npc, 'Attaque distance').catch((error: Error) => showToast(error.message, true)));
+      card.querySelector<HTMLButtonElement>('[data-npc-roll="defense"]')?.addEventListener('click', () => void runNpcRoll(npc, 'Défense').catch((error: Error) => showToast(error.message, true)));
+      card.querySelector<HTMLButtonElement>('[data-npc-remove]')?.addEventListener('click', () => {
+        const room = session.value.room;
+        void api<{ npcs: RoomNpc[] }>(`/api/rooms/${encodeURIComponent(room)}/npcs/${encodeURIComponent(npc.id)}`, { method: 'DELETE' }).then((payload) => renderRoomNpcs(payload.npcs)).catch((error: Error) => showToast(error.message, true));
+      });
+    });
+  };
+  const loadRoomNpcs = async (): Promise<void> => {
+    const room = session.value.room;
+    const target = document.querySelector<HTMLElement>('#npc-room-list');
+    const submit = document.querySelector<HTMLButtonElement>('#npc-library-form button');
+    if (!target) return;
+    if (!room) {
+      target.innerHTML = '<p class="muted">Renseignez un code de room pour constituer sa liste de PNJ.</p>';
+      if (submit) submit.disabled = true;
+      return;
+    }
+    const payload = await api<{ npcs: RoomNpc[] }>(`/api/rooms/${encodeURIComponent(room)}/npcs`);
+    renderRoomNpcs(payload.npcs);
+  };
+  const loadNpcCatalog = async (): Promise<void> => {
+    const select = document.querySelector<HTMLSelectElement>('#npc-source');
+    if (!select) return;
+    const payload = await api<{ entries: ObsidianEntry[] }>('/api/obsidian');
+    const entries = payload.entries.filter((entry) => entry.source_type !== 'pj');
+    select.insertAdjacentHTML('beforeend', entries.map((entry, index) => `<option value="${index}">${escapeHtml(entry.name)} — CaC ${entry.melee_attack || '—'} / Dist. ${entry.ranged_attack || '—'} / Déf. ${entry.defense}%</option>`).join(''));
+    select.addEventListener('change', () => {
+      const entry = entries[Number(select.value)];
+      if (!entry) return;
+      document.querySelector<HTMLInputElement>('#npc-name')!.value = entry.name;
+      document.querySelector<HTMLInputElement>('#npc-melee-attack')!.value = String(entry.melee_attack);
+      document.querySelector<HTMLInputElement>('#npc-ranged-attack')!.value = String(entry.ranged_attack);
+      document.querySelector<HTMLInputElement>('#npc-defense')!.value = String(entry.defense);
+    });
+    document.querySelector<HTMLFormElement>('#npc-library-form')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const room = session.value.room;
+      if (!room) return showToast('Renseignez un code de room.', true);
+      const selected = entries[Number(select.value)];
+      const body = {
+        name: document.querySelector<HTMLInputElement>('#npc-name')!.value,
+        meleeAttack: Number(document.querySelector<HTMLInputElement>('#npc-melee-attack')!.value),
+        rangedAttack: Number(document.querySelector<HTMLInputElement>('#npc-ranged-attack')!.value),
+        defense: Number(document.querySelector<HTMLInputElement>('#npc-defense')!.value),
+        source: selected?.source ?? '',
+      };
+      void api<{ npcs: RoomNpc[] }>(`/api/rooms/${encodeURIComponent(room)}/npcs`, { method: 'POST', body: JSON.stringify(body) }).then((saved) => {
+        renderRoomNpcs(saved.npcs);
+        showToast(`${body.name} ajouté à la room ${room}.`);
+      }).catch((error: Error) => showToast(error.message, true));
+    });
   };
   const loadSkills = async (): Promise<void> => {
     const select = document.querySelector<HTMLSelectElement>('#skill-roll-select');
@@ -232,7 +325,7 @@ function diceView(): void {
       publishRoll(roll);
     })().catch((error: Error) => showToast(error.message || 'Jet impossible.', true));
   });
-  document.querySelector<HTMLFormElement>('#skill-roll-form')!.addEventListener('submit', (event) => {
+  document.querySelector<HTMLFormElement>('#skill-roll-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     void (async () => {
       const select = document.querySelector<HTMLSelectElement>('#skill-roll-select')!;
@@ -281,11 +374,15 @@ function diceView(): void {
     })().catch((error: Error) => showToast(error.message || 'Test BRP impossible.', true));
   });
   void loadHistory();
-  void loadSkills();
+  if (isMj) {
+    void loadRoomNpcs().catch((error: Error) => showToast(error.message, true));
+    void loadNpcCatalog().catch((error: Error) => showToast(`Catalogue Obsidian indisponible : ${error.message}`, true));
+  } else void loadSkills();
 }
 
 function navigate(view: ViewId): void {
   if ((view === 'dashboard' || view === 'tracker') && !isMj) view = 'dice';
+  if (view === 'characters' && isMj) view = 'dice';
   currentView = view;
   document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((button) => {
     button.classList.toggle('active', button.dataset.view === view);
@@ -331,6 +428,8 @@ realtime.addEventListener('message', (event) => {
 
 async function refreshAccess(): Promise<void> {
   const activeSession = session.value;
+  const roomChanged = lastAccessRoom !== activeSession.room;
+  lastAccessRoom = activeSession.room;
   let owner = false;
   if (activeSession.room) {
     try {
@@ -340,9 +439,13 @@ async function refreshAccess(): Promise<void> {
       owner = false;
     }
   }
+  const roleChanged = isMj !== owner;
   isMj = owner;
   document.querySelectorAll<HTMLElement>('[data-mj-only]').forEach((element) => { element.hidden = !owner; });
+  document.querySelectorAll<HTMLElement>('[data-player-only]').forEach((element) => { element.hidden = owner; });
   if (!owner && (currentView === 'dashboard' || currentView === 'tracker')) navigate('dice');
+  else if (owner && currentView === 'characters') navigate('dice');
+  else if ((roleChanged || roomChanged) && currentView === 'dice') diceView();
   if (currentView === 'battlemap') void renderBattlemap(workspace, showToast, owner);
 }
 
