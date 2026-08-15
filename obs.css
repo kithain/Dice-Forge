@@ -31,10 +31,14 @@ body {
 }
 
 body.preview {
-  background:
-    radial-gradient(circle at 18% 20%, rgba(168, 85, 247, .22), transparent 34%),
-    radial-gradient(circle at 80% 72%, rgba(201, 162, 39, .16), transparent 36%),
-    #07071a;
+  background-color: #333;
+  background-image:
+    linear-gradient(45deg, #444 25%, transparent 25%),
+    linear-gradient(-45deg, #444 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #444 75%),
+    linear-gradient(-45deg, transparent 75%, #444 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
 }
 
 .obs-shell {
@@ -66,9 +70,8 @@ body.wide {
 
 .obs-head {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: 6px;
   padding: 3px 2px 5px;
   border-bottom: 0;
 }
@@ -83,27 +86,14 @@ body.wide {
   text-transform: uppercase;
 }
 
-.obs-kicker {
-  font-size: 8px;
-  color: var(--muted);
-}
-
-h1 {
-  margin: 2px 0 0;
-  font-family: "Cinzel", Georgia, serif;
-  font-size: 14px;
-  line-height: 1;
-  color: var(--gold2);
-  text-shadow: 0 0 16px rgba(201, 162, 39, .32);
-}
-
 .obs-room {
-  color: var(--gold);
-  border: 1px solid rgba(201, 162, 39, .34);
-  border-radius: 5px;
-  padding: 4px 5px;
+  color: var(--red);
+  border: 0;
+  padding: 3px 5px;
   background: transparent;
-  font-size: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(239, 68, 68, .7);
   white-space: nowrap;
 }
 
@@ -126,23 +116,19 @@ h1 {
   padding: 7px 8px;
   border: 1px solid rgba(201, 162, 39, .42);
   border-radius: 7px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 42%),
-    #0b0b24;
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, .42),
-    inset 0 1px 0 rgba(255, 255, 255, .08);
+  background: transparent;
+  box-shadow: none;
   animation: rollIn .36s cubic-bezier(.2, .8, .24, 1);
 }
 
 .roll-card.crit {
   border-color: rgba(251, 191, 36, .7);
-  box-shadow: 0 0 24px rgba(251, 191, 36, .28), inset 0 1px 0 rgba(255, 255, 255, .12);
+  box-shadow: 0 0 24px rgba(251, 191, 36, .28);
 }
 
 .roll-card.fail {
   border-color: rgba(239, 68, 68, .65);
-  box-shadow: 0 0 24px rgba(239, 68, 68, .2), inset 0 1px 0 rgba(255, 255, 255, .1);
+  box-shadow: 0 0 24px rgba(239, 68, 68, .2);
 }
 
 .roll-card.hidden {
