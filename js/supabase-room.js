@@ -6,6 +6,7 @@ let sb = null;
 let roomState = { code: null, player: null, userId: null, connected: false };
 let liveSub = null;
 let currentPlayerCharacter = null;
+let invitableCharacters = [];
 
 async function authenticatedUserId() {
   sbInit();
@@ -13,6 +14,31 @@ async function authenticatedUserId() {
   const { data, error } = await sb.auth.getUser();
   if (error || !data.user) return null;
   return data.user.id;
+}
+
+function migrationRpcError(error, rpcName) {
+  const message = String(error?.message || 'Erreur Supabase inconnue');
+  if (new RegExp(`${rpcName}|schema cache`, 'i').test(message)) {
+    return `Migration Supabase requise : réexécute supabase-auth.sql (${rpcName}).`;
+  }
+  return message;
+}
+
+async function joinRoomWithCharacter(code, playerName) {
+  const { error } = await sb.rpc('join_room_with_character', {
+    requested_room: code,
+    requested_player: playerName
+  });
+  if (error) throw new Error(migrationRpcError(error, 'join_room_with_character'));
+}
+
+async function verifyCurrentMembership() {
+  const userId = await authenticatedUserId();
+  if (!userId || userId !== roomState.userId) throw new Error('Session expirée. Reconnecte-toi.');
+  const { data, error } = await sb.rpc('is_room_member', { requested_room: roomState.code });
+  if (error) throw error;
+  if (!data) throw new Error('Tu ne fais pas partie de cette room.');
+  return userId;
 }
 
 const FANTASY_NAMES = [
@@ -123,12 +149,12 @@ export async function joinRoom() {
   if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
   if (!data.length) { showToast('Aucune partie trouvée avec ce code', 'error'); return; }
 
-  const { error: membershipError } = await sb.from('room_members').upsert({
-    room_code: code,
-    user_id: userId,
-    player_name: name
-  }, { onConflict: 'room_code,user_id' });
-  if (membershipError) { showToast('Impossible de rejoindre la partie: ' + membershipError.message, 'error'); return; }
+  try {
+    await joinRoomWithCharacter(code, name);
+  } catch (error) {
+    showToast('Impossible de rejoindre la partie: ' + error.message, 'error');
+    return;
+  }
 
   roomState = { code, player: name, userId, connected: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
@@ -136,6 +162,7 @@ export async function joinRoom() {
   await loadPlayerCharacter(name);
   await checkCreator(code);
   await configureLiveFeed(code, name);
+  await refreshCharacterInvitations();
 }
 
 export async function createRoom() {
@@ -155,12 +182,12 @@ export async function createRoom() {
   });
   if (roomError) { showToast('Erreur création de la partie: ' + roomError.message, 'error'); return; }
 
-  const { error: membershipError } = await sb.from('room_members').insert({
-    room_code: code,
-    user_id: userId,
-    player_name: name
-  });
-  if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
+  try {
+    await joinRoomWithCharacter(code, name);
+  } catch (error) {
+    showToast('Erreur inscription du MJ: ' + error.message, 'error');
+    return;
+  }
 
   const { error } = await sb.from('rolls').insert({
     room_code: code,
@@ -170,7 +197,8 @@ export async function createRoom() {
     rolls_detail: '',
     total: 0,
     is_crit: false,
-    is_fail: false
+    is_fail: false,
+    is_hidden: false
   });
   if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
 
@@ -181,6 +209,7 @@ export async function createRoom() {
   document.getElementById('purge-btn').style.display = '';
   await loadPlayerCharacter(name);
   await configureLiveFeed(code, name);
+  await refreshCharacterInvitations();
 }
 
 export async function purgeRoom() {
@@ -204,6 +233,10 @@ export function leaveRoom() {
   document.getElementById('room-connected').style.display = 'none';
   document.getElementById('live-feed').style.display = 'none';
   document.getElementById('live-list').innerHTML = '';
+  const ownerInvites = document.getElementById('room-invite-owner');
+  const pendingInvites = document.getElementById('room-pending-invitations');
+  if (ownerInvites) ownerInvites.style.display = 'none';
+  if (pendingInvites) pendingInvites.style.display = 'none';
   clearPlayerCharacter();
 }
 
@@ -235,6 +268,8 @@ function updateCreatorUi() {
   const creator = !!roomState.isCreator;
   document.getElementById('live-feed').style.display = creator ? '' : 'none';
   document.getElementById('purge-btn').style.display = creator ? '' : 'none';
+  const endSessionButton = document.getElementById('end-session-btn');
+  if (endSessionButton) endSessionButton.style.display = creator ? '' : 'none';
   document.getElementById('obs-feed-link').style.display = creator ? '' : 'none';
   document.getElementById('obs-dice-link').style.display = creator ? '' : 'none';
   if (!creator) document.getElementById('live-list').innerHTML = '';
@@ -409,20 +444,135 @@ function esc(s) {
   return d.innerHTML;
 }
 
-export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidden) {
+export async function refreshCharacterInvitations() {
   if (!roomState.connected || !sb) return;
+  const ownerPanel = document.getElementById('room-invite-owner');
+  const select = document.getElementById('room-invite-character');
+  const pendingPanel = document.getElementById('room-pending-invitations');
+  const pendingList = document.getElementById('room-pending-invitations-list');
+
+  if (ownerPanel) ownerPanel.style.display = roomState.isCreator ? '' : 'none';
+  if (roomState.isCreator && select) {
+    const { data, error } = await sb.rpc('list_invitable_characters', { requested_room: roomState.code });
+    if (error) {
+      console.warn(migrationRpcError(error, 'list_invitable_characters'));
+      invitableCharacters = [];
+    } else {
+      invitableCharacters = Array.isArray(data) ? data : [];
+    }
+    select.innerHTML = invitableCharacters.length
+      ? invitableCharacters.map((character, index) => `<option value="${index}">${esc(character.character_name || character.player_name)} · ${esc(character.source_room)}</option>`).join('')
+      : '<option value="">Aucun personnage disponible</option>';
+  }
+
+  const { data: invitations, error: pendingError } = await sb.rpc('pending_character_invitations');
+  if (pendingError) {
+    console.warn(migrationRpcError(pendingError, 'pending_character_invitations'));
+    if (pendingPanel) pendingPanel.style.display = 'none';
+    return;
+  }
+  const pending = Array.isArray(invitations) ? invitations : [];
+  if (pendingPanel) pendingPanel.style.display = pending.length ? '' : 'none';
+  if (pendingList) {
+    pendingList.innerHTML = pending.map(invitation => `<div class="room-row"><span>${esc(invitation.character_name || invitation.player_name)} → room ${esc(invitation.room_code)}</span><button class="room-btn" type="button" onclick="acceptCharacterInvitation(${Number(invitation.invitation_id)})">Accepter</button></div>`).join('');
+  }
+}
+
+export async function inviteSelectedCharacter() {
+  if (!roomState.isCreator || !sb) return;
+  const index = Number(document.getElementById('room-invite-character')?.value);
+  const character = invitableCharacters[index];
+  if (!character) {
+    showToast('Aucun personnage à inviter', 'error');
+    return;
+  }
+  const { error } = await sb.rpc('invite_character', {
+    requested_room: roomState.code,
+    target_user: character.user_id,
+    requested_source_room: character.source_room
+  });
+  if (error) {
+    showToast('Invitation impossible : ' + migrationRpcError(error, 'invite_character'), 'error');
+    return;
+  }
+  showToast('Invitation envoyée', 'success');
+  await refreshCharacterInvitations();
+}
+
+export async function acceptCharacterInvitation(invitationId) {
+  if (!sb || !Number.isInteger(Number(invitationId))) return;
+  const { data, error } = await sb.rpc('accept_character_invitation', {
+    requested_invitation: Number(invitationId)
+  });
+  if (error) {
+    showToast('Invitation impossible à accepter : ' + migrationRpcError(error, 'accept_character_invitation'), 'error');
+    return;
+  }
+  const roomCode = String(data || '').trim().toUpperCase();
+  if (!roomCode) {
+    showToast('La room cible est invalide', 'error');
+    return;
+  }
+  document.getElementById('room-code').value = roomCode;
+  await joinRoom();
+  showToast('Invitation acceptée et personnage copié', 'success');
+}
+
+export async function sendRoll(expr, rollsDetail, total, isCrit, isFail) {
+  if (!roomState.connected || !sb) return false;
+  let userId;
+  try {
+    userId = await verifyCurrentMembership();
+  } catch (error) {
+    showToast(error.message, 'error');
+    return false;
+  }
   const { error } = await sb.from('rolls').insert({
     room_code: roomState.code,
-    user_id: roomState.userId,
+    user_id: userId,
     player_name: roomState.player,
     expression: expr,
     rolls_detail: rollsDetail,
     total: total,
     is_crit: isCrit,
     is_fail: isFail,
-    is_hidden: !!isHidden
+    is_hidden: false
   });
-  if (error) console.error('Erreur envoi du jet (vérifie la colonne is_hidden sur la table rolls):', error.message);
+  if (error) {
+    console.error('Erreur envoi du jet visible:', error.message);
+    showToast('Jet non envoyé : ' + error.message, 'error');
+    return false;
+  }
+  return true;
+}
+
+export async function sendHiddenRoll({ expression, terms, modifier = 0, experienceSkill = '', difficulty = 'normal' }) {
+  if (!roomState.connected || !sb) throw new Error('Rejoins une room avant de lancer un jet caché.');
+  await verifyCurrentMembership();
+  const { data, error } = await sb.rpc('roll_hidden_dice', {
+    requested_room: roomState.code,
+    requested_player: roomState.player,
+    requested_expression: expression,
+    requested_terms: terms,
+    requested_modifier: modifier,
+    requested_experience_skill: experienceSkill,
+    requested_difficulty: difficulty
+  });
+  if (error) throw new Error(migrationRpcError(error, 'roll_hidden_dice'));
+  if (!data?.accepted) throw new Error('Le serveur a refusé le jet caché.');
+  return data;
+}
+
+export async function revealHiddenExperience() {
+  if (!roomState.connected || !roomState.isCreator || !sb) {
+    throw new Error('Seul le MJ propriétaire peut terminer la partie.');
+  }
+  await verifyCurrentMembership();
+  const { data, error } = await sb.rpc('reveal_hidden_experience', {
+    requested_room: roomState.code
+  });
+  if (error) throw new Error(migrationRpcError(error, 'reveal_hidden_experience'));
+  return Number(data) || 0;
 }
 
 function emptyToNull(value) {
@@ -553,12 +703,9 @@ export async function restoreSession() {
             showToast('Cette ancienne partie n’existe plus. Crée une nouvelle partie ou saisis un autre code.', 'error');
             return;
           }
-          const { error: membershipError } = await sb.from('room_members').upsert({
-            room_code: r.code,
-            user_id: userId,
-            player_name: authenticatedName
-          }, { onConflict: 'room_code,user_id' });
-          if (membershipError) {
+          try {
+            await joinRoomWithCharacter(r.code, authenticatedName);
+          } catch (membershipError) {
             showToast('Impossible de restaurer la partie: ' + membershipError.message, 'error');
             return;
           }
@@ -566,6 +713,7 @@ export async function restoreSession() {
           await loadPlayerCharacter(authenticatedName);
           await checkCreator(r.code);
           await configureLiveFeed(r.code, authenticatedName);
+          await refreshCharacterInvitations();
           return;
         }
       }

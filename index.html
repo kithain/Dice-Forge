@@ -52,6 +52,7 @@
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
       <a class="room-leave room-obs-link" id="obs-feed-link" href="obs.html" target="_blank" rel="noopener">OBS : jets</a>
       <a class="room-leave room-obs-link" id="obs-dice-link" href="obs-dice.html" target="_blank" rel="noopener">OBS : animation des dés</a>
+      <button class="room-leave" id="end-session-btn" onclick="endRoomSession()" style="display:none">Fin de partie</button>
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
     </div>
@@ -60,6 +61,21 @@
         <span class="room-character-label">Fiche liée</span>
         <span class="room-character-name" id="room-character-name">Aucune fiche</span>
       </div>
+    </div>
+    <div class="room-character-card" id="room-invite-owner" style="display:none">
+      <div class="room-character-head">
+        <span class="room-character-label">Inviter un personnage connu</span>
+      </div>
+      <div class="room-row">
+        <select class="room-input wide" id="room-invite-character"><option value="">Aucun personnage disponible</option></select>
+        <button class="room-btn" type="button" onclick="inviteSelectedCharacter()">Inviter</button>
+      </div>
+    </div>
+    <div class="room-character-card" id="room-pending-invitations" style="display:none">
+      <div class="room-character-head">
+        <span class="room-character-label">Invitations reçues</span>
+      </div>
+      <div id="room-pending-invitations-list"></div>
     </div>
   </div>
 </div>
@@ -238,12 +254,12 @@
       <button class="room-btn" type="button" onclick="forceCharacterSheetSync()">Synchroniser depuis le personnage généré</button>
       <span>Actualise l’identité, les caractéristiques et le MOV sans effacer les compétences, l’équipement ou les notes.</span>
     </div>
-    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20260728-character-sync" loading="lazy"></iframe>
+    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20260813-secure-supabase" loading="lazy"></iframe>
   </div>
 </section>
 
 <section class="tab-panel inventory-tab-panel" id="panel-inventory" role="tabpanel" aria-labelledby="tab-inventory">
-  <iframe id="inventory-sheet-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?v=20260725-equipment-fields-v2" loading="lazy"></iframe>
+  <iframe id="inventory-sheet-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?v=20260813-secure-supabase" loading="lazy"></iframe>
 </section>
 
 </div>
@@ -251,6 +267,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260728-character-sync"></script>
+<script type="module" src="js/app.js?v=20260813-secure-supabase"></script>
 </body>
 </html>

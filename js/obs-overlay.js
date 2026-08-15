@@ -16,7 +16,7 @@ let sub = null;
 
 if (preview) document.body.classList.add('preview');
 if (wide) document.body.classList.add('wide');
-roomEl.textContent = room ? `Room ${room}` : 'Room --';
+roomEl.textContent = room || '--';
 
 boot();
 

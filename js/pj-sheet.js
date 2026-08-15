@@ -509,6 +509,14 @@ function currentRoom() {
   }
 }
 
+async function authenticatedRoom() {
+  const room = currentRoom();
+  if (!room || !supabase) return null;
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return null;
+  return { ...room, userId: data.user.id };
+}
+
 function supabaseErrorMessage(error) {
   if (error?.code === '42P01' || /relation .*pj_sheets.* does not exist/i.test(error?.message || '')) {
     return 'Table pj_sheets absente : exécute le fichier supabase-pj-sheets.sql dans Supabase.';
@@ -517,7 +525,7 @@ function supabaseErrorMessage(error) {
 }
 
 async function saveSheetToSupabase() {
-  const room = currentRoom();
+  const room = await authenticatedRoom();
   if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
   if (!room) { setStatus('Rejoins d’abord une partie dans Dice Forge.'); return; }
   if (!fieldValue('name')) { setStatus('Donne un nom au personnage avant la sauvegarde.'); return; }
@@ -544,7 +552,7 @@ async function saveSheetToSupabase() {
 }
 
 async function loadSheetFromSupabase({ automatic = false } = {}) {
-  const room = currentRoom();
+  const room = await authenticatedRoom();
   if (sheetLoadInProgress) return false;
   if (!supabase) {
     if (!automatic) setStatus('Supabase n’est pas configuré.');
@@ -566,6 +574,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
     const result = await supabase.from('pj_sheets')
       .select('sheet_data, character_name, updated_at')
       .eq('user_id', room.userId)
+      .eq('room_code', room.code)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -631,76 +640,11 @@ function setTransferStatus(message, type = '') {
 }
 
 function openTransferDialog() {
-  const room = currentRoom();
-  if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
-  if (!room) { setStatus('Rejoins d’abord le salon source dans Dice Forge.'); return; }
-  if (!fieldValue('name')) { setStatus('Donne un nom au personnage avant le transfert.'); return; }
-  document.getElementById('pj-transfer-source').textContent = room.code;
-  document.getElementById('pj-transfer-player').textContent = room.player;
-  document.getElementById('pj-transfer-character').textContent = fieldValue('name');
-  document.getElementById('pj-transfer-code').value = '';
-  setTransferStatus('');
-  document.getElementById('pj-transfer-dialog').showModal();
-  document.getElementById('pj-transfer-code').focus();
+  setStatus('Le transfert direct a été remplacé par les invitations sécurisées. Demande au MJ de t’inviter depuis la room cible.');
 }
 
 async function transferSheetToRoom() {
-  const room = currentRoom();
-  const targetCode = document.getElementById('pj-transfer-code').value.trim().toUpperCase();
-  const button = document.getElementById('pj-transfer-submit');
-  if (!supabase || !room) { setTransferStatus('Salon source ou Supabase indisponible.', 'error'); return; }
-  if (!/^[A-Z0-9]{4}$/.test(targetCode)) { setTransferStatus('Saisis un code de salon valide à 4 caractères.', 'error'); return; }
-  if (targetCode === room.code.toUpperCase()) { setTransferStatus('Le salon de destination doit être différent du salon actuel.', 'error'); return; }
-
-  button.disabled = true;
-  setTransferStatus(`Vérification du salon ${targetCode}…`);
-  const { data: roomRows, error: roomError } = await supabase.from('rooms')
-    .select('room_code')
-    .eq('room_code', targetCode)
-    .limit(1);
-  if (roomError) {
-    button.disabled = false;
-    setTransferStatus(`Vérification impossible : ${roomError.message}`, 'error');
-    return;
-  }
-  if (!roomRows?.length) {
-    button.disabled = false;
-    setTransferStatus(`Le salon ${targetCode} n’existe pas.`, 'error');
-    return;
-  }
-
-  const { data: existing, error: existingError } = await supabase.from('pj_sheets')
-    .select('character_name')
-    .eq('room_code', targetCode)
-    .eq('player_name', room.player)
-    .maybeSingle();
-  if (existingError) {
-    button.disabled = false;
-    setTransferStatus(`Transfert impossible : ${supabaseErrorMessage(existingError)}`, 'error');
-    return;
-  }
-  if (existing && !confirm(`${room.player} possède déjà la fiche « ${existing.character_name} » dans le salon ${targetCode}. La remplacer ?`)) {
-    button.disabled = false;
-    setTransferStatus('Transfert annulé.');
-    return;
-  }
-
-  setTransferStatus(`Copie de la fiche vers ${targetCode}…`);
-  const data = collectData();
-  const { error } = await supabase.from('pj_sheets').upsert({
-    user_id: room.userId,
-    room_code: targetCode,
-    player_name: room.player,
-    character_name: fieldValue('name'),
-    sheet_data: data,
-    markdown_content: toMarkdown(),
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'room_code,player_name' });
-  button.disabled = false;
-  if (error) { setTransferStatus(`Transfert impossible : ${supabaseErrorMessage(error)}`, 'error'); return; }
-
-  setTransferStatus(`Fiche copiée dans le salon ${targetCode}.`, 'success');
-  setStatus(`Fiche de ${fieldValue('name')} transférée vers le salon ${targetCode}.`);
+  setTransferStatus('Transfert direct désactivé. Utilise une invitation de personnage depuis la room cible.', 'error');
 }
 
 function slugName(name) {
@@ -875,6 +819,10 @@ document.getElementById('pj-download').addEventListener('click', downloadMarkdow
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
 document.getElementById('pj-cloud-load').addEventListener('click', refreshSheetFromSupabase);
+window.addEventListener('message', event => {
+  if (event.origin !== window.location.origin) return;
+  if (event.data?.type === 'diceforge:sheet-refresh') void refreshSheetFromSupabase();
+});
 document.getElementById('pj-transfer-open').addEventListener('click', openTransferDialog);
 document.getElementById('pj-transfer-submit').addEventListener('click', transferSheetToRoom);
 document.getElementById('pj-transfer-code').addEventListener('input', event => { event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); });

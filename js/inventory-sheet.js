@@ -46,6 +46,13 @@ function identityFromStorage() {
   }
 }
 
+async function authenticatedIdentity() {
+  if (!roomIdentity || !supabase) return null;
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return null;
+  return { ...roomIdentity, userId: data.user.id };
+}
+
 function storageKey() {
   return roomIdentity
     ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}`
@@ -341,12 +348,12 @@ function inventoryError(error) {
   return error?.message || 'Erreur Supabase inconnue';
 }
 
-function cloudPayload() {
+function cloudPayload(identity) {
   collectFromDom();
   return {
-    user_id: roomIdentity.userId,
-    room_code: roomIdentity.code,
-    player_name: roomIdentity.player,
+    user_id: identity.userId,
+    room_code: identity.code,
+    player_name: identity.player,
     character_name: inventory.characterName,
     po: inventory.wallet.po,
     pa: inventory.wallet.pa,
@@ -366,14 +373,15 @@ async function saveCloud({ automatic = false } = {}) {
     if (!automatic) setStatus('Supabase n’est pas configuré.', 'error');
     return false;
   }
-  if (!roomIdentity) {
+  const identity = await authenticatedIdentity();
+  if (!identity) {
     if (!automatic) setStatus('Rejoignez d’abord une partie.', 'error');
     return false;
   }
   const button = document.getElementById('inventory-save');
   button.disabled = true;
   if (!automatic) setStatus('Sauvegarde de l’inventaire…');
-  const { error } = await supabase.from('pj_inventory').upsert(cloudPayload(), { onConflict: 'room_code,player_name' });
+  const { error } = await supabase.from('pj_inventory').upsert(cloudPayload(identity), { onConflict: 'room_code,player_name' });
   button.disabled = false;
   if (error) {
     setStatus(`Sauvegarde impossible : ${inventoryError(error)}`, 'error');
@@ -410,13 +418,14 @@ function importLegacyWallet() {
   }
 }
 
-async function importFromCompleteSheet() {
+async function importFromCompleteSheet(identity) {
   const migrated = emptyInventory();
   migrated.wallet = normalizeInventory({ wallet: importLegacyWallet() }).wallet;
-  if (!supabase || !roomIdentity) return migrated;
+  if (!supabase || !identity) return migrated;
   const { data, error } = await supabase.from('pj_sheets')
     .select('character_name,sheet_data')
-    .eq('user_id', roomIdentity.userId)
+    .eq('user_id', identity.userId)
+    .eq('room_code', identity.code)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -455,7 +464,8 @@ async function importFromCompleteSheet() {
 
 async function loadCloud({ manual = false } = {}) {
   if (cloudLoadInProgress) return;
-  if (!supabase || !roomIdentity) {
+  const identity = await authenticatedIdentity();
+  if (!supabase || !identity) {
     if (manual) setStatus(!supabase ? 'Supabase n’est pas configuré.' : 'Rejoignez d’abord une partie.', 'error');
     return;
   }
@@ -464,7 +474,8 @@ async function loadCloud({ manual = false } = {}) {
   setStatus('Chargement de l’inventaire Supabase…');
   const { data, error } = await supabase.from('pj_inventory')
     .select('*')
-    .eq('user_id', roomIdentity.userId)
+    .eq('user_id', identity.userId)
+    .eq('room_code', identity.code)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -484,7 +495,7 @@ async function loadCloud({ manual = false } = {}) {
     return;
   }
 
-  inventory = await importFromCompleteSheet();
+  inventory = await importFromCompleteSheet(identity);
   render();
   saveLocal({ collect: false });
   setStatus('Nouvel inventaire créé à partir de la fiche complète et de l’ancienne bourse.');

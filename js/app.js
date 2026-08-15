@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260725-obs-dice';
+import { sendRoll, sendHiddenRoll, revealHiddenExperience, inviteSelectedCharacter, acceptCharacterInvitation, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260813-secure-rolls';
 import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
@@ -281,6 +281,11 @@ function rollAll() {
   if (!groups.length) return;
   const mod = parseInt(document.getElementById('mod-input').value) || 0;
 
+  if (cfg.hide && isRoomConnected()) {
+    void rollHiddenGeneric(groups, mod);
+    return;
+  }
+
   rolling = true;
   results = { groups, total: null, mod };
   document.getElementById('roll-btn').classList.add('rolling');
@@ -353,7 +358,31 @@ function broadcastGenericRoll(groups, mod) {
   const expression = values.map(group => `${group.rolls.length}D${group.type}`).join(' + ')
     + (mod !== 0 ? (mod >= 0 ? ` + ${mod}` : ` − ${Math.abs(mod)}`) : '');
   const details = values.map(group => `[${group.rolls.join(', ')}]`).join(' ');
-  sendRoll(expression, details, total, hasCrit, hasFail, cfg.hide);
+  void sendRoll(expression, details, total, hasCrit, hasFail);
+}
+
+async function rollHiddenGeneric(groups, mod) {
+  setRollingUi(true);
+  const expression = groups.map(group => `${group.rolls.length}D${group.type}`).join(' + ')
+    + (mod !== 0 ? (mod >= 0 ? ` + ${mod}` : ` − ${Math.abs(mod)}`) : '');
+  try {
+    const hidden = await sendHiddenRoll({
+      expression,
+      terms: groups.map(group => ({ count: group.rolls.length, sides: group.type, sign: 1 })),
+      modifier: mod
+    });
+    results = hidden.is_owner
+      ? { groups: [], total: hidden.total, rawTotal: hidden.total - mod, mod, blind: false, serverDetail: hidden.rolls_detail, hiddenServerRoll: true }
+      : { groups: [], total: 0, rawTotal: null, mod, blind: true, hiddenServerRoll: true };
+    showToast(hidden.is_owner ? 'Jet caché enregistré' : 'Jet caché envoyé au MJ', 'success');
+  } catch (error) {
+    results = null;
+    showToast(error.message || 'Jet caché impossible', 'error');
+  } finally {
+    finishRollingUi();
+    renderResult();
+    resetCompositionInputs();
+  }
 }
 
 function disableQuick(disabled) {
@@ -1544,7 +1573,7 @@ function brpTestExpression(test) {
 function sendPercentileTest(test, totalValue) {
   const isStrongSuccess = test.level === 'critical' || test.level === 'special';
   const courseDetail = test.kind === 'course' ? ` · ${courseProgressText(test)}` : '';
-  sendRoll(brpTestExpression(test), `[${test.rollLabel}] ${test.label}${courseDetail}`, totalValue, isStrongSuccess, !test.success, cfg.hide);
+  void sendRoll(brpTestExpression(test), `[${test.rollLabel}] ${test.label}${courseDetail}`, totalValue, isStrongSuccess, !test.success);
 }
 
 function courseProgressText(test) {
@@ -1596,16 +1625,22 @@ function renderResult() {
     const critMsg = characterTest
       ? `<div class="test-msg ${characterTest.level}">${characterTest.label}</div>`
       : hasCrit ? '<div class="crit-msg crit">⭐ Coup Critique !</div>' : hasFail ? '<div class="crit-msg fail">💀 Échec Critique !</div>' : '';
-    const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill
+    const experienceOffer = !results.deferredExperience && characterTest?.kind === 'brp' && characterTest.success && characterTest.skill
       ? characterTest.skill.checked
         ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est déjà cochée pour l’expérience.</div>`
         : `<label class="brp-experience-offer"><input type="checkbox" onchange="markBrpSkillExperience(${characterTest.skill.index})"> Cocher ${escapeAttribute(characterTest.skill.name)} pour l’expérience</label>`
+      : results.deferredExperience && characterTest?.kind === 'brp' && characterTest.skill
+        ? '<div class="brp-experience-marked">Expérience cachée : révélation par le MJ en fin de partie.</div>'
+        : '';
+
+    const serverDetail = results.serverDetail
+      ? `<div class="total-brkd">${escapeAttribute(results.serverDetail)}</div>`
       : '';
 
     html += `<div class="total-box">
       <div class="total-lbl">${characterTest ? (characterTest.automatic ? 'Test BRP' : 'Résultat D100') : 'Résultat Total'}</div>
       <div class="total-num${hasCrit ? ' crit-style' : ''}">${characterTest ? characterTest.rollLabel : total}</div>
-      ${brkd}${critMsg}${experienceOffer}
+      ${serverDetail || brkd}${critMsg}${experienceOffer}
     </div>`;
   }
 
@@ -1714,6 +1749,11 @@ function rollBrpPercentileTest() {
     skill: brpSelectedSkill ? { ...brpSelectedSkill, score } : null
   });
 
+  if (cfg.hide && isRoomConnected()) {
+    void rollHiddenPercentileTest(test);
+    return;
+  }
+
   if (test.automatic) {
     const resolved = automaticPercentileResult(test);
     results = { groups: [], total: resolved.success ? 0 : 100, rawTotal: null, mod: 0, characterTest: resolved, blind: isBlindRoll() };
@@ -1726,6 +1766,10 @@ function rollBrpPercentileTest() {
 }
 
 function startPercentileRoll(test) {
+  if (cfg.hide && isRoomConnected()) {
+    void rollHiddenPercentileTest(test);
+    return;
+  }
   const groups = [{
     type: 100,
     rolls: [{ val: null, state: 'rolling' }]
@@ -1748,6 +1792,59 @@ function startPercentileRoll(test) {
     D3D.roll(groups, dur, () => finalizePercentileTest(groups, test));
   } else {
     finalizePercentileTest(groups, test);
+  }
+}
+
+async function rollHiddenPercentileTest(test) {
+  setRollingUi(true);
+  const automatic = !!test.difficulty?.mode;
+  const difficulty = test.difficulty?.value === 'auto' ? 'automatic' : (test.difficulty?.value || 'normal');
+  const modifier = difficulty === 'impossible' ? 100 : 0;
+  try {
+    const hidden = await sendHiddenRoll({
+      expression: brpTestExpression(test),
+      terms: automatic ? [] : [{ count: 1, sides: 100, sign: 1 }],
+      modifier,
+      experienceSkill: !automatic && test.kind === 'brp' ? (test.skill?.name || '') : '',
+      difficulty
+    });
+    if (!hidden.is_owner || hidden.total === null) {
+      results = { groups: [], total: 0, rawTotal: null, mod: modifier, characterTest: test, blind: true, hiddenServerRoll: true };
+      showToast('Jet caché envoyé au MJ', 'success');
+      return;
+    }
+    const resolved = automatic ? automaticPercentileResult(test) : { ...test, ...evaluatePercentile(test.threshold, hidden.total) };
+    results = {
+      groups: automatic ? [] : [{ type: 100, rolls: [{ val: hidden.total, finalVal: hidden.total, state: resolved.success ? 's-high' : 's-low' }] }],
+      total: hidden.total,
+      rawTotal: hidden.total,
+      mod: modifier,
+      characterTest: resolved,
+      blind: false,
+      hiddenServerRoll: true,
+      deferredExperience: !!(!automatic && test.kind === 'brp' && test.skill),
+      serverDetail: hidden.rolls_detail
+    };
+    showToast('Jet caché enregistré', 'success');
+  } catch (error) {
+    results = null;
+    showToast(error.message || 'Jet caché impossible', 'error');
+  } finally {
+    finishRollingUi();
+    renderResult();
+  }
+}
+
+async function endRoomSession() {
+  const confirmed = await showConfirm('Terminer la partie et révéler les gains d’expérience cachés ?');
+  if (!confirmed) return;
+  try {
+    const count = await revealHiddenExperience();
+    showToast(`Fin de partie : ${count} gain${count > 1 ? 's' : ''} d’expérience révélé${count > 1 ? 's' : ''}.`, 'success');
+    document.getElementById('character-sheet-frame')?.contentWindow?.postMessage({ type: 'diceforge:sheet-refresh' }, window.location.origin);
+    window.dispatchEvent(new CustomEvent('diceforge:hidden-experience-revealed', { detail: { count } }));
+  } catch (error) {
+    showToast(error.message || 'Impossible de terminer la partie', 'error');
   }
 }
 
@@ -1790,6 +1887,9 @@ window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;
 window.purgeRoom = purgeRoom;
+window.endRoomSession = endRoomSession;
+window.inviteSelectedCharacter = inviteSelectedCharacter;
+window.acceptCharacterInvitation = acceptCharacterInvitation;
 window.leaveRoom = leaveRoom;
 window.randomFantasyName = randomFantasyName;
 
