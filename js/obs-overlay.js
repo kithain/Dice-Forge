@@ -82,8 +82,8 @@ function addRoll(roll, append = false) {
   const isFail = !!roll.is_fail && !hidden;
   card.className = `roll-card${isCrit ? ' crit' : ''}${isFail ? ' fail' : ''}${hidden ? ' hidden' : ''}`;
 
-  const total = hidden ? '?' : `${roll.total}${isCrit ? ' ★' : isFail ? ' ✕' : ''}`;
-  const detail = hidden ? 'Jet cache' : (roll.rolls_detail || '');
+  const total = hidden ? '??' : `${roll.total}${isCrit ? ' ★' : isFail ? ' ✕' : ''}`;
+  const detail = roll.rolls_detail || '';
   const time = roll.created_at
     ? new Date(roll.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
     : '--:--';
@@ -93,10 +93,10 @@ function addRoll(roll, append = false) {
       <div class="roll-name">${esc(roll.player_name || 'Joueur')}</div>
       <div class="roll-time">${time}</div>
     </div>
-    <div class="roll-body">
+    ${hidden ? '' : `<div class="roll-body">
       <div class="roll-expr">${esc(roll.expression || '')}</div>
       <div class="roll-detail">${esc(detail)}</div>
-    </div>
+    </div>`}
     <div class="roll-total">${esc(total)}</div>
   `;
 

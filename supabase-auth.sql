@@ -113,8 +113,13 @@ create table if not exists public.obs_rolls (
   total integer not null default 0,
   is_crit boolean not null default false,
   is_fail boolean not null default false,
-  is_hidden boolean not null default false check (is_hidden = false)
+  is_hidden boolean not null default false
 );
+
+-- Le flux OBS peut signaler l'existence d'un jet caché, mais uniquement avec
+-- des valeurs neutralisées par le trigger (jamais le résultat réel).
+alter table public.obs_rolls
+  drop constraint if exists obs_rolls_is_hidden_check;
 
 create index if not exists obs_rolls_room_created_idx
   on public.obs_rolls (room_code, created_at desc);
@@ -142,27 +147,31 @@ begin
     return old;
   end if;
 
-  if new.is_hidden then
-    delete from public.obs_rolls where roll_id = new.id;
-  else
-    insert into public.obs_rolls (
-      roll_id, created_at, room_code, player_name, expression,
-      rolls_detail, total, is_crit, is_fail, is_hidden
-    ) values (
-      new.id, new.created_at, new.room_code, new.player_name, new.expression,
-      new.rolls_detail, new.total, new.is_crit, new.is_fail, false
-    )
-    on conflict (roll_id) do update set
-      created_at = excluded.created_at,
-      room_code = excluded.room_code,
-      player_name = excluded.player_name,
-      expression = excluded.expression,
-      rolls_detail = excluded.rolls_detail,
-      total = excluded.total,
-      is_crit = excluded.is_crit,
-      is_fail = excluded.is_fail,
-      is_hidden = false;
-  end if;
+  insert into public.obs_rolls (
+    roll_id, created_at, room_code, player_name, expression,
+    rolls_detail, total, is_crit, is_fail, is_hidden
+  ) values (
+    new.id,
+    new.created_at,
+    new.room_code,
+    new.player_name,
+    case when new.is_hidden then 'Jet caché' else new.expression end,
+    case when new.is_hidden then '' else new.rolls_detail end,
+    case when new.is_hidden then 0 else new.total end,
+    case when new.is_hidden then false else new.is_crit end,
+    case when new.is_hidden then false else new.is_fail end,
+    new.is_hidden
+  )
+  on conflict (roll_id) do update set
+    created_at = excluded.created_at,
+    room_code = excluded.room_code,
+    player_name = excluded.player_name,
+    expression = excluded.expression,
+    rolls_detail = excluded.rolls_detail,
+    total = excluded.total,
+    is_crit = excluded.is_crit,
+    is_fail = excluded.is_fail,
+    is_hidden = excluded.is_hidden;
   return new;
 end;
 $$;
