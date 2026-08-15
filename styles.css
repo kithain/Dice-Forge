@@ -179,6 +179,15 @@ h1{
 }
 .mod-input:focus{border-color:var(--gold)}
 .mod-tip{font-size:.75rem;color:var(--txm);font-style:italic}
+.hidden-roll-control{
+  display:inline-flex;align-items:center;gap:.4rem;margin-left:auto;padding:.3rem .55rem;
+  border:1px solid rgba(239,68,68,.42);border-radius:4px;color:#fca5a5;
+  font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;white-space:nowrap;
+}
+.hidden-roll-control:hover{border-color:var(--red);color:#fecaca}
+.hidden-roll-control input{width:16px;height:16px;margin:0;accent-color:var(--red);cursor:pointer}
+.hidden-roll-control:has(input:checked){background:rgba(239,68,68,.14);border-color:var(--red);color:#fff}
 
 /* ——— roll button ——— */
 .roll-area{text-align:center;margin:1.1rem 0 0}
@@ -458,5 +467,6 @@ select.room-input{appearance:none}
   .dgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .dsel{min-width:0}
   .brp-test-form{grid-template-columns:1fr}
+  .hidden-roll-control{margin-left:0}
   .roll-btn{padding:.8rem 1.8rem;font-size:.95rem}
 }

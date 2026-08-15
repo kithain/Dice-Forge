@@ -86,11 +86,6 @@
           <span class="site-menu-setting-label">Son MP3</span>
           <span class="site-menu-switch on" id="tog-sound" aria-hidden="true"></span>
         </button>
-        <button class="site-menu-setting" id="setting-hide" type="button" data-dice-setting="hide" aria-pressed="false">
-          <span class="site-menu-glyph" aria-hidden="true">🎭</span>
-          <span class="site-menu-setting-label">Cacher mes jets (MJ)</span>
-          <span class="site-menu-switch" id="tog-hide" aria-hidden="true"></span>
-        </button>
       </div>
       <p class="site-menu-laptop-badge">💻 Mode portable actif · animations forcées à l’arrêt</p>`;
     settings.querySelectorAll('[data-dice-setting]').forEach(button => {

@@ -162,6 +162,12 @@ function toggleSetting(k) {
   document.getElementById('setting-' + k)?.setAttribute('aria-pressed', String(cfg[k]));
 }
 
+function setHiddenRoll(enabled) {
+  cfg.hide = !!enabled;
+  const checkbox = document.getElementById('hidden-roll-toggle');
+  if (checkbox) checkbox.checked = cfg.hide;
+}
+
 function applyLaptopMode(matches) {
   if (matches === laptopMode) return;
   laptopMode = matches;
@@ -1766,6 +1772,7 @@ function finalizePercentileTest(groups, test) {
 window.chg = chg;
 window.clearExpr = clearExpr;
 window.toggleSetting = toggleSetting;
+window.setHiddenRoll = setHiddenRoll;
 window.switchTab = switchTab;
 window.rollAll = rollAll;
 window.renderExBar = renderExBar;

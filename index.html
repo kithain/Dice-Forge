@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260727-course">
+<link rel="stylesheet" href="styles.css?v=20260815-hidden-roll-control">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js"></script>
@@ -20,7 +20,7 @@
 </script>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260725-dice-settings" defer></script>
+<script src="js/site-menu.js?v=20260815-hidden-roll-control" defer></script>
 <div class="stars"></div>
 <div class="wrap">
 
@@ -130,6 +130,10 @@
     <span class="mod-lbl">Modificateur</span>
     <input class="mod-input" id="mod-input" type="number" value="0" min="-99" max="99" step="1" onchange="renderExBar()">
     <span class="mod-tip">ex. +5 (Force), −2 (malus)</span>
+    <label class="hidden-roll-control" for="hidden-roll-toggle">
+      <input id="hidden-roll-toggle" type="checkbox" onchange="setHiddenRoll(this.checked)">
+      <span>🎭 Jet caché</span>
+    </label>
   </div>
   <div class="roll-area">
     <button class="roll-btn" id="roll-btn" onclick="rollAll()" disabled>⚔️ &nbsp; Lancer les Dés</button>
@@ -251,6 +255,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260728-character-sync"></script>
+<script type="module" src="js/app.js?v=20260815-hidden-roll-control"></script>
 </body>
 </html>
