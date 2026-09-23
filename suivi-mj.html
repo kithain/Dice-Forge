@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dice Forge — Suivi MJ</title>
+  <link rel="stylesheet" href="suivi-mj.css">
+  <link rel="stylesheet" href="site-menu.css">
+  <script src="js/site-menu.js" defer></script>
+  <script src="supabase-config.js"></script>
+  <script src="js/suivi-mj.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><p class="eyebrow">DICE FORGE / CARNET DU MENEUR</p><h1>Le groupe, en un regard.</h1><p>Les repères pour mener la séance et les détails à garder en mémoire.</p></header>
+    <div class="toolbar"><button id="add-pj" type="button">+ Ajouter un PJ</button><button id="export" type="button">Exporter la sauvegarde</button><button id="import" type="button">Importer une sauvegarde</button><input id="file" type="file" accept=".json,application/json" hidden><span id="save-state" role="status" aria-live="polite"></span></div>
+    <form class="toolbar" method="get"><label>Room<input id="room-code" name="room" maxlength="6" pattern="[A-Za-z0-9]{4,6}" placeholder="Code de la room" autocomplete="off"></label><button type="submit">Ouvrir le carnet</button><button id="refresh-room" type="button">Actualiser les fiches de la room</button><a id="room-login" href="login.html" hidden>Se connecter</a></form>
+    <p id="room-status" role="status" aria-live="polite"></p>
+    <p class="notice">Les fiches sauvegardées en ligne sont chargées à l’ouverture pour le créateur de la room. Actualisez pour récupérer leurs dernières modifications. Vos corrections et notes MJ restent locales et sont conservées. PV actuels et informations absentes des fiches sont à compléter. Chaque room a son carnet ; sans code, vous retrouvez le carnet manuel. Exportez vos notes pour les conserver ailleurs.</p>
+    <label class="campaign-label">Campagne / groupe<input id="campaign" placeholder="Le nom de votre campagne" maxlength="200"></label>
+    <nav class="anchors" aria-label="Rubriques"><a href="#overview">Vue d’ensemble</a><a href="#characters">Fiches PJ</a><a href="#group">Ressources et campagne</a></nav>
+    <section id="overview"><div class="section-heading"><h2>À la table</h2><span id="count"></span></div><p id="empty">Votre groupe attend ses héros. Ajoutez un premier PJ pour commencer.</p><div class="table-scroll"><table><caption class="sr-only">Repères essentiels des personnages</caption><thead><tr><th>PJ / rôle</th><th>Niveau</th><th>PV</th><th>Défense / CA</th><th>Vitesse</th><th>Perception</th><th>Initiative</th><th>État</th></tr></thead><tbody id="roster"></tbody></table></div></section>
+    <section id="characters"><h2>Les personnages</h2><p class="hint">Ouvrez une fiche pour la modifier. Les champs sans objet pour votre système peuvent rester vides.</p><div id="cards"></div></section>
+    <section id="group"><h2>La mémoire du groupe</h2><div id="group-fields" class="group-grid"></div></section>
+  </main>
+</body>
+</html>

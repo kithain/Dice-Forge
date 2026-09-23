@@ -10,6 +10,7 @@ REQUIRED_PUBLIC_FILES = (
     "login.html",
     "account.html",
     "pj.html",
+    "suivi-mj.html",
     "inventory-sheet.html",
     "obs.html",
     "obs-dice.html",

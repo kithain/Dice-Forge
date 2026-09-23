@@ -18,6 +18,7 @@ Suite de jeu pour les parties **BRP-ORC**. Dice Forge réunit les dés 3D, les s
 - Fiche complète éditable, sauvegardée localement ou dans Supabase, exportable en Markdown et imprimable en PDF.
 - Import et export JSON des personnages, ainsi que transfert d'une fiche complète vers un autre salon.
 - Overlay temps réel pour OBS.
+- Timer dramatique de 5, 2 ou 1 minute, piloté depuis le cockpit et synchronisé avec OBS.
 - Livret du joueur, inventaire, écrans joueur/MJ et règles BRP-ORC consultables depuis le menu.
 
 ## Démarrage rapide
@@ -110,6 +111,12 @@ La carte et le portrait actif sont disponibles sur :
 ```text
 http://127.0.0.1:5000/overlays/map
 http://127.0.0.1:5000/portrait_view
+```
+
+Le timer se pilote depuis `http://127.0.0.1:5000/timer`. Ajoutez cette URL comme source navigateur dans OBS :
+
+```text
+http://127.0.0.1:5000/overlays/timer
 ```
 
 Paramètres facultatifs :

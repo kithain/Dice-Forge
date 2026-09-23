@@ -22,7 +22,7 @@ class CockpitRouteTests(unittest.TestCase):
         cls.client = app.test_client()
 
     def test_cockpit_and_tools_are_available(self):
-        for path in ("/", "/tracker", "/battlemap", "/view", "/overlays/map"):
+        for path in ("/", "/tracker", "/battlemap", "/view", "/overlays/map", "/timer", "/overlays/timer"):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 200)
 
@@ -76,6 +76,25 @@ class CockpitRouteTests(unittest.TestCase):
         dice = self.client.get("/overlays/dice?room=8QXJ")
         self.assertEqual(rolls.location, "/dice/obs.html?room=8QXJ")
         self.assertEqual(dice.location, "/dice/obs-dice.html?room=8QXJ")
+
+    def test_timer_controls_and_reports_shared_state(self):
+        started = self.client.post("/api/timer", json={"action": "preset", "seconds": 120})
+        self.assertEqual(started.status_code, 200)
+        self.assertTrue(started.json["running"])
+        self.assertEqual(started.json["duration_ms"], 120_000)
+        self.assertLessEqual(started.json["remaining_ms"], 120_000)
+
+        paused = self.client.post("/api/timer", json={"action": "toggle"})
+        self.assertEqual(paused.status_code, 200)
+        self.assertFalse(paused.json["running"])
+
+        reset = self.client.post("/api/timer", json={"action": "reset"})
+        self.assertEqual(reset.json["remaining_ms"], 120_000)
+        self.assertFalse(reset.json["running"])
+
+    def test_timer_rejects_unknown_duration(self):
+        response = self.client.post("/api/timer", json={"action": "preset", "seconds": 42})
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == "__main__":

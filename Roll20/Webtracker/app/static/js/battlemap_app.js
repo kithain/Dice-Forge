@@ -66,7 +66,7 @@ function applyTokenAppearance(token, color, portraitUrl, marker, hpPercent = 100
     
     token.style.width = `${badgeSize}px`;
     token.style.height = `${badgeSize}px`;
-    token.style.backgroundImage = portraitUrl ? `url(${JSON.stringify(portraitUrl)})` : 'none';
+    token.style.backgroundImage = 'none';
     token.style.backgroundPosition = 'center';
     token.style.backgroundSize = 'cover';
     token.style.backgroundColor = color;
@@ -77,7 +77,7 @@ function applyTokenAppearance(token, color, portraitUrl, marker, hpPercent = 100
     token.replaceChildren();
 
     const badge = document.createElement('div');
-    badge.style.cssText = `width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:2px solid ${contrast};border-radius:50%;color:${contrast};background:transparent;font:bold 20px Arial;line-height:1;position:relative;overflow:hidden;text-shadow:0 1px 3px #000,0 0 4px #000;`;
+    badge.style.cssText = `width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:2px solid ${contrast};border-radius:50%;color:${contrast};background:transparent;font:bold 20px Arial;line-height:1;position:relative;box-sizing:border-box;pointer-events:none;`;
     badge.textContent = String(marker || '?');
     
     // Indicateur de PV perdu (remplissage noir du haut)

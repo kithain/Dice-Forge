@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dice Forge — Timer dramatique</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/timer.css') }}">
+</head>
+<body class="timer-control-page">
+    <main class="timer-control-shell">
+        <header class="timer-heading">
+            <a class="back-link" href="/">← Cockpit</a>
+            <p class="eyebrow">Diffusion OBS</p>
+            <h1>Timer dramatique</h1>
+        </header>
+
+        <section class="timer-console" aria-label="Commandes du compte à rebours">
+            <div class="timer-preview" aria-live="polite">
+                <span class="timer-label">Temps restant</span>
+                <strong id="timer-display">05:00</strong>
+                <span class="timer-state" id="timer-state">Prêt</span>
+            </div>
+
+            <div class="timer-presets" aria-label="Choisir et lancer une durée">
+                <button type="button" data-seconds="300"><strong>5</strong><span>minutes</span></button>
+                <button type="button" data-seconds="120"><strong>2</strong><span>minutes</span></button>
+                <button type="button" data-seconds="60"><strong>1</strong><span>minute</span></button>
+            </div>
+
+            <div class="timer-actions">
+                <button class="action-primary" id="timer-toggle" type="button">Démarrer</button>
+                <button class="action-secondary" id="timer-reset" type="button">Réinitialiser</button>
+            </div>
+        </section>
+
+        <section class="obs-link-panel" aria-labelledby="obs-link-title">
+            <div><p class="eyebrow">Source navigateur</p><h2 id="obs-link-title">Dans OBS</h2></div>
+            <p>Ajoute cette adresse comme source navigateur. Le fond est transparent.</p>
+            <div class="obs-link-row">
+                <code id="obs-url"></code>
+                <button id="copy-obs-url" type="button">Copier l’URL</button>
+                <a href="/overlays/timer?preview=1" target="_blank" rel="noopener">Aperçu</a>
+            </div>
+        </section>
+
+        <div id="timer-toast" class="timer-toast" role="status" aria-live="polite"></div>
+    </main>
+    <script src="{{ url_for('static', filename='js/timer-control.js') }}"></script>
+</body>
+</html>

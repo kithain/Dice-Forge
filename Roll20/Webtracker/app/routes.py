@@ -1,6 +1,8 @@
 import os
+import time
 from datetime import datetime
 from pathlib import Path
+from threading import Lock
 
 from flask import abort, jsonify, redirect, render_template, request, send_from_directory
 
@@ -26,6 +28,34 @@ PUBLIC_DICE_EXTENSIONS = {
     ".js", ".json", ".mp3", ".ogg", ".pdf", ".png", ".svg",
     ".wav", ".webm", ".webp",
 }
+
+TIMER_PRESETS = {60, 120, 300}
+_timer_lock = Lock()
+_timer_state = {
+    "duration_ms": 300_000,
+    "remaining_ms": 300_000,
+    "deadline": None,
+    "running": False,
+    "revision": 0,
+}
+
+
+def _timer_snapshot():
+    """Retourne un état calculé à la demande, partagé par le cockpit et OBS."""
+    now = time.monotonic()
+    if _timer_state["running"]:
+        remaining = max(0, round((_timer_state["deadline"] - now) * 1000))
+        if remaining == 0:
+            _timer_state.update(remaining_ms=0, deadline=None, running=False)
+            _timer_state["revision"] += 1
+        else:
+            _timer_state["remaining_ms"] = remaining
+    return {
+        "duration_ms": _timer_state["duration_ms"],
+        "remaining_ms": _timer_state["remaining_ms"],
+        "running": _timer_state["running"],
+        "revision": _timer_state["revision"],
+    }
 
 
 def _form_int(name, default, minimum=None):
@@ -149,6 +179,64 @@ def rolls_overlay():
 @app.route("/overlays/dice")
 def dice_overlay():
     return _redirect_with_query("/dice/obs-dice.html")
+
+
+@app.route("/timer")
+def timer_control():
+    return render_template("timer.html")
+
+
+@app.route("/overlays/timer")
+def timer_overlay():
+    return render_template("timer_overlay.html")
+
+
+@app.route("/api/timer", methods=["GET", "POST"])
+def timer_api():
+    with _timer_lock:
+        if request.method == "POST":
+            payload = request.get_json(silent=True) or request.form
+            action = payload.get("action", "")
+            now = time.monotonic()
+
+            if action == "preset":
+                try:
+                    seconds = int(payload.get("seconds", 0))
+                except (TypeError, ValueError):
+                    seconds = 0
+                if seconds not in TIMER_PRESETS:
+                    return jsonify({"success": False, "message": "Durée invalide."}), 400
+                duration_ms = seconds * 1000
+                _timer_state.update(
+                    duration_ms=duration_ms,
+                    remaining_ms=duration_ms,
+                    deadline=now + seconds,
+                    running=True,
+                )
+            elif action == "toggle":
+                _timer_snapshot()
+                if _timer_state["running"]:
+                    _timer_state.update(deadline=None, running=False)
+                else:
+                    if _timer_state["remaining_ms"] <= 0:
+                        _timer_state["remaining_ms"] = _timer_state["duration_ms"]
+                    _timer_state.update(
+                        deadline=now + (_timer_state["remaining_ms"] / 1000),
+                        running=True,
+                    )
+            elif action == "reset":
+                _timer_state.update(
+                    remaining_ms=_timer_state["duration_ms"],
+                    deadline=None,
+                    running=False,
+                )
+            else:
+                return jsonify({"success": False, "message": "Action invalide."}), 400
+            _timer_state["revision"] += 1
+
+        response = jsonify({"success": True, **_timer_snapshot()})
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
 
 @app.route("/view")

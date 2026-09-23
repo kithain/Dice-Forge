@@ -8,6 +8,7 @@
     ['inventaire.html', '⌘', 'Équipement'],
     ['ecran_joueur_BRP_ORC.html', '◈', 'Écran joueur'],
     ['ecran_MJ_BRP_ORC.html', '♜', 'Écran MJ'],
+    ['suivi-mj.html', '♟', 'Suivi MJ · Groupe'],
     ['BRP_ORC_traduction_FR_complete.html', '☷', 'Règles BRP complètes'],
     ['help.html', '?', 'Aide']
   ];

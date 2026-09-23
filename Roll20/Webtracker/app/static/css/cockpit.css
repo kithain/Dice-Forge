@@ -41,7 +41,7 @@ section { margin-top: 34px; }
 .health-card.warning .health-dot { background: var(--gold); box-shadow: 0 0 10px #d8a94e66; }
 .health-card h3 { margin: 0 0 5px; font-size: .92rem; }
 .health-card p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.4; }
-.primary-grid { grid-template-columns: repeat(4, 1fr); }
+.primary-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .overlay-grid { grid-template-columns: repeat(2, 1fr); }
 .app-card, .info-panel { border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(145deg, var(--panel), var(--panel-soft)); }
 .app-card { display: flex; min-height: 230px; flex-direction: column; align-items: flex-start; padding: 20px; }

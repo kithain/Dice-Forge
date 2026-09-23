@@ -131,27 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.fillStyle = color;
                 ctx.fill();
 
-                if (token.portraitImg?.complete && token.portraitImg.naturalWidth) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, badgeRadius - 2, 0, Math.PI * 2, false);
-                    ctx.clip();
-                    const imageRatio = token.portraitImg.naturalWidth / token.portraitImg.naturalHeight;
-                    let sourceWidth = token.portraitImg.naturalWidth;
-                    let sourceHeight = token.portraitImg.naturalHeight;
-                    let sourceX = 0;
-                    let sourceY = 0;
-                    if (imageRatio > 1) {
-                        sourceWidth = sourceHeight;
-                        sourceX = (token.portraitImg.naturalWidth - sourceWidth) / 2;
-                    } else {
-                        sourceHeight = sourceWidth;
-                        sourceY = (token.portraitImg.naturalHeight - sourceHeight) / 2;
-                    }
-                    ctx.drawImage(token.portraitImg, sourceX, sourceY, sourceWidth, sourceHeight, tokenX, tokenY, tokenSize, tokenSize);
-                    ctx.restore();
-                }
-
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, badgeRadius, 0, Math.PI * 2, false);
                 ctx.lineWidth = 2;
@@ -171,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.restore();
                 }
                 
-                // Texte du numéro
+                // Numéro centré : les tokens OBS restent de simples marqueurs colorés.
                 ctx.fillStyle = contrast;
                 ctx.font = `bold ${Math.max(14, badgeRadius * 0.8)}px Arial`;
                 ctx.textAlign = 'center';
