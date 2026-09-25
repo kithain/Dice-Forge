@@ -1327,13 +1327,19 @@ function readBrpSheetSkills() {
     console.warn('Compétences locales illisibles.', error);
   }
   const savedSkills = Array.isArray(sheet?.skills) ? sheet.skills : [];
-  return BRP_ACTIVE_SKILLS.map(({ skill: [name], index }) => {
+  const skills = BRP_ACTIVE_SKILLS.map(({ skill: [name], index }) => {
     const saved = savedSkills[index] || {};
     const score = parseInt(saved.score, 10);
     return Number.isFinite(score) && score > 0
-      ? { index, name, score: clampPercentScore(score), checked: !!saved.checked }
+      ? { index, kind: 'skill', name, score: clampPercentScore(score), checked: !!saved.checked }
       : null;
   }).filter(Boolean);
+  const spells = (Array.isArray(sheet?.spells) ? sheet.spells : []).flatMap((spell, index) => {
+    if (!spell?.name) return [];
+    const score = (parseInt(sheet.stats?.intelligence, 10) || 0) + (parseInt(spell.points, 10) || 0);
+    return score > 0 ? [{ index, kind: 'spell', name: spell.name, score: clampPercentScore(score), checked: !!spell.checked }] : [];
+  });
+  return [...skills, ...spells];
 }
 
 function closeBrpSkillOptions() {
@@ -1357,19 +1363,30 @@ function renderBrpSkillOptions() {
   brpSkillActiveIndex = Math.min(brpSkillActiveIndex, brpSkillMatches.length - 1);
 
   if (!allSkills.length) {
-    options.innerHTML = '<div class="brp-skill-empty">Ouvrez puis renseignez la fiche complète pour charger ses compétences.</div>';
+    options.innerHTML = '<div class="brp-skill-empty">Ouvrez puis renseignez la fiche complète pour charger ses compétences et ses sorts.</div>';
     hint.textContent = 'Aucun score disponible dans la fiche complète';
   } else if (!brpSkillMatches.length) {
-    options.innerHTML = '<div class="brp-skill-empty">Aucune compétence ne commence par ce texte.</div>';
-    hint.textContent = `${allSkills.length} compétences disponibles`;
+    options.innerHTML = '<div class="brp-skill-empty">Aucune compétence ni aucun sort ne commence par ce texte.</div>';
+    hint.textContent = `${allSkills.length} compétences et sorts disponibles`;
   } else {
-    options.innerHTML = brpSkillMatches.map((skill, index) => `
+    options.innerHTML = [['skill', 'Compétences'], ['spell', 'Sorts']].map(([kind, label]) => {
+      const entries = brpSkillMatches.filter(skill => skill.kind === kind);
+      if (!entries.length) return '';
+      return `<div role="group" aria-label="${label}">
+        <div class="brp-skill-group" aria-hidden="true">${label} <span>${entries.length}</span></div>
+        ${entries.map(skill => {
+          const index = brpSkillMatches.indexOf(skill);
+          return `
       <button class="brp-skill-option${index === brpSkillActiveIndex ? ' active' : ''}" type="button" role="option"
-        aria-selected="${index === brpSkillActiveIndex}" data-brp-skill-index="${skill.index}">
+        aria-selected="${index === brpSkillActiveIndex}" data-brp-skill-index="${skill.index}" data-brp-skill-kind="${skill.kind}">
         <span>${escapeAttribute(skill.name)}${skill.checked ? ' ✓' : ''}</span>
         <span class="brp-skill-option-score">${skill.score}%</span>
-      </button>`).join('');
-    hint.textContent = `${allSkills.length} compétences disponibles · saisissez le début du nom`;
+      </button>`;
+        }).join('')}</div>`;
+    }).join('');
+    const skillCount = allSkills.filter(skill => skill.kind === 'skill').length;
+    const spellCount = allSkills.length - skillCount;
+    hint.textContent = `${skillCount} compétences · ${spellCount} sorts · saisissez le début du nom`;
   }
   options.hidden = false;
   input.setAttribute('aria-expanded', 'true');
@@ -1420,28 +1437,37 @@ function initBrpSkillPicker() {
     event.preventDefault();
     const button = event.target.closest('[data-brp-skill-index]');
     if (!button) return;
-    selectBrpSkill(brpSkillMatches.find(skill => skill.index === Number(button.dataset.brpSkillIndex)));
+    selectBrpSkill(brpSkillMatches.find(skill => skill.index === Number(button.dataset.brpSkillIndex) && skill.kind === button.dataset.brpSkillKind));
   });
   document.addEventListener('click', event => {
     if (!event.target.closest('.brp-skill-combobox')) closeBrpSkillOptions();
   });
 }
 
-function markBrpSkillExperience(index) {
-  if (!Number.isInteger(index)) return;
+function markBrpSkillExperience(index, kind = 'skill') {
+  if (!Number.isInteger(index) || index < 0 || !['skill', 'spell'].includes(kind)) return;
   let sheet = null;
   try {
     sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY)) || {};
   } catch (error) {
     sheet = {};
   }
-  sheet.skills = Array.isArray(sheet.skills) ? sheet.skills : [];
-  sheet.skills[index] = { ...(sheet.skills[index] || {}), checked: true };
+  const collection = kind === 'spell' ? 'spells' : 'skills';
+  sheet[collection] = Array.isArray(sheet[collection]) ? sheet[collection] : [];
+  sheet[collection][index] = { ...(sheet[collection][index] || {}), checked: true };
   localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(sheet));
-  document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.setSkillChecked(index, true);
+  const pendingKey = `${MARKDOWN_CHARACTER_DRAFT_KEY}.experience`;
+  let pending = {};
+  try { pending = JSON.parse(localStorage.getItem(pendingKey)) || {}; } catch { /* Nouvelle liste. */ }
+  const owner = JSON.stringify([sheet.fields?.name || '', sheet.fields?.player || '']);
+  if (pending.owner !== owner) pending = { owner, checks: [] };
+  pending.checks = (pending.checks || []).filter(check => check.kind !== kind || check.index !== index);
+  pending.checks.push({ kind, index, name: sheet[collection][index].name });
+  localStorage.setItem(pendingKey, JSON.stringify(pending));
+  document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.setSkillChecked(index, true, kind);
 
-  if (brpSelectedSkill?.index === index) brpSelectedSkill.checked = true;
-  if (results?.characterTest?.skill?.index === index) results.characterTest.skill.checked = true;
+  if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
+  if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
   renderResult();
   showToast('Case d’expérience cochée sur la fiche', 'success');
 }
@@ -1605,7 +1631,7 @@ function renderResult() {
     const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill
       ? characterTest.skill.checked
         ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est déjà cochée pour l’expérience.</div>`
-        : `<label class="brp-experience-offer"><input type="checkbox" onchange="markBrpSkillExperience(${characterTest.skill.index})"> Cocher ${escapeAttribute(characterTest.skill.name)} pour l’expérience</label>`
+        : `<label class="brp-experience-offer"><input type="checkbox" onchange="markBrpSkillExperience(${characterTest.skill.index}, '${characterTest.skill.kind || 'skill'}')"> Cocher ${escapeAttribute(characterTest.skill.name)} pour l’expérience</label>`
       : '';
 
     html += `<div class="total-box">

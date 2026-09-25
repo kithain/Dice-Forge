@@ -1,4 +1,5 @@
 .pj-page{max-width:1100px;padding-bottom:4rem}
+.pj-embedded{min-height:0}
 .pj-embedded .pj-nav{display:none}
 .pj-embedded .site-menu-root{display:none}
 .pj-embedded .pj-page{max-width:none;padding:0 1rem 3rem}
@@ -43,11 +44,33 @@
 .pj-skill-budget strong{font-family:'Cinzel',serif;color:var(--gold2);font-size:1.15rem}.pj-skill-budget small{color:var(--txm)}
 .pj-budget-edit input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--brd2);background:transparent;color:var(--gold2);font-family:'Cinzel',serif;font-size:1.1rem;outline:none}
 .pj-skill-budget .over-budget{border-color:rgba(220,38,38,.7);background:rgba(220,38,38,.08)}.pj-skill-budget .over-budget strong{color:#fca5a5}
-.pj-skills-wrap{max-height:650px}.pj-skills-table thead{position:sticky;top:0;z-index:2}.pj-skills-table thead th{background:#0f0f25;box-shadow:0 2px 0 var(--brd2),0 6px 12px rgba(0,0,0,.32)}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
-.pj-skill-group td{position:sticky;top:35px;z-index:1;background:#17172e!important;color:var(--gold)!important;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem!important}
+.pj-skills-wrap{max-height:none}.pj-skills-table thead th{background:#0f0f25}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
+.pj-skill-group td{background:#17172e!important;color:var(--gold)!important;font-family:'Cinzel',serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.55rem!important}
 .pj-spell-group td{background:rgba(201,162,39,.08)!important;color:var(--gold2)!important;font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;letter-spacing:.05em}.pj-spell-base{text-align:center;color:var(--gold2)!important;font-family:'Cinzel',serif;font-weight:700}
 .pj-base-wrap{display:flex;flex-direction:column;gap:.18rem}.pj-base-hint{color:var(--txm);font-size:.62rem;line-height:1.2}.pj-skill-final{font-family:'Cinzel',serif;font-weight:700;color:var(--gold2)!important;text-align:center}
 .pj-base-wrap input[readonly]{cursor:not-allowed;color:var(--txd);background:rgba(7,7,26,.72);border-style:dashed;box-shadow:none}
 .pj-add,.pj-remove{border:1px solid var(--brd2);background:var(--s2);color:var(--gold2);border-radius:4px;cursor:pointer;padding:.38rem .6rem}.pj-remove{color:#fca5a5;padding:.3rem .55rem}
 .pj-two-columns,.pj-history-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}.pj-two-columns>div{min-width:0}.pj-two-columns .pj-field+.pj-field{margin-top:.65rem}
 @media(max-width:700px){.pj-identity,.pj-two-columns,.pj-history-grid{grid-template-columns:1fr}.pj-skill-budget{grid-template-columns:repeat(2,1fr)}.pj-filename{width:100%;margin-left:0}.pj-toolbar{position:static}.pj-nav{align-items:flex-start}.pj-save-state{text-align:right}.pj-transfer-summary{grid-template-columns:1fr}}
+
+/* Navigation de section et défilement principal unique. */
+.pj-toolbar{position:static}
+.pj-section-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;padding:.6rem;background:var(--s1);border:1px solid var(--brd2);border-radius:8px}
+.pj-section-nav a{display:block;padding:.5rem .65rem;border-radius:5px;color:var(--gold2);font: .8rem system-ui,sans-serif;text-decoration:none}
+.pj-section-nav a:hover,.pj-section-nav a:focus-visible{background:var(--s2);outline:2px solid var(--gold)}
+.pj-section{min-width:0;scroll-margin-top:1rem}
+@media(max-width:700px){
+  .pj-section{padding:.65rem}
+  .pj-skills-table{min-width:0;table-layout:fixed}
+  .pj-skills-table th,.pj-skills-table td{padding:.25rem;overflow-wrap:anywhere}
+  .pj-skills-table th:first-child{width:30%}
+  .pj-skills-table th:last-child{width:10%}
+  .pj-skills-table input{min-width:0;padding:.35rem .15rem}
+  .pj-skills-table th{font-size:.6rem;letter-spacing:0}
+}
+.pj-tabs{display:flex;gap:.5rem;margin:0 0 1rem}
+.pj-tabs button{padding:.7rem 1rem;border:1px solid var(--brd2);border-radius:6px;background:var(--s1);color:var(--gold2);font:inherit;cursor:pointer}
+.pj-tabs button[aria-selected=true]{background:var(--s2);border-color:var(--gold);box-shadow:inset 0 -3px var(--gold)}
+.pj-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.pj-panel{display:grid;gap:1rem;min-width:0}
+.pj-panel[hidden],.pj-section-nav[hidden]{display:none}

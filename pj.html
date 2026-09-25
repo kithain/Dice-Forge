@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260727-course">
-  <link rel="stylesheet" href="pj.css?v=20260719-merged-character">
+  <link rel="stylesheet" href="pj.css?v=20260925-navigation">
   <link rel="stylesheet" href="site-menu.css?v=20260719">
   <style>.auth-pending body{visibility:hidden}</style>
   <script src="supabase-config.js"></script>
@@ -72,8 +72,25 @@
       </form>
     </dialog>
 
+    <div class="pj-tabs" role="tablist" aria-label="Vue de la fiche">
+      <button type="button" id="pj-main-tab" role="tab" aria-controls="pj-main-panel" aria-selected="true">Fiche</button>
+      <button type="button" id="pj-magic-tab" role="tab" aria-controls="pj-magic-panel" aria-selected="false" tabindex="-1">Sorts et pouvoirs</button>
+    </div>
+    <nav class="pj-section-nav" aria-label="Sections de la fiche">
+      <a href="#pj-identite">Identité</a>
+      <a href="#pj-caracteristiques">Caractéristiques</a>
+      <a href="#pj-attributs">Attributs</a>
+      <a href="#pj-competences">Compétences</a>
+      <a href="#pj-armes">Armes</a>
+      <a href="#pj-armure-pouvoirs">Armure</a>
+      <a href="#pj-equipement">Équipement</a>
+      <a href="#pj-histoire">Histoire</a>
+      <a href="#pj-notes">Notes</a>
+    </nav>
+
     <form id="pj-form" class="pj-sheet" autocomplete="off">
-      <section class="pj-section pj-identity">
+      <div id="pj-main-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-main-tab">
+      <section id="pj-identite" class="pj-section pj-identity">
         <label class="pj-field pj-name">Nom du personnage
           <input id="pj-name" data-field="name" maxlength="80" placeholder="Nom du personnage">
         </label>
@@ -88,7 +105,7 @@
         </label>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-caracteristiques" class="pj-section">
         <h2>Caractéristiques</h2>
         <div class="pj-table-wrap">
           <table class="pj-table">
@@ -98,7 +115,7 @@
         </div>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-attributs" class="pj-section">
         <h2>Attributs dérivés</h2>
         <div class="pj-derived-grid">
           <label class="pj-derived">Points de vie <input data-derived="hp" readonly></label>
@@ -110,7 +127,7 @@
         </div>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-competences" class="pj-section">
         <div class="pj-section-head">
           <h2>Compétences</h2>
           <button class="pj-add" id="pj-clear-skill-checks" type="button">Décocher toutes les cases</button>
@@ -133,7 +150,7 @@
         </div>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-armes" class="pj-section">
         <div class="pj-section-head">
           <h2>Armes</h2>
           <button class="pj-add" id="pj-add-weapon" type="button">+ Ajouter une arme</button>
@@ -146,24 +163,20 @@
         </div>
       </section>
 
-      <section class="pj-section pj-two-columns">
+      <section id="pj-armure-pouvoirs" class="pj-section">
         <div>
           <h2>Armure</h2>
           <label class="pj-field">Type <input data-field="armorType"></label>
           <label class="pj-field">Points d’armure <input data-field="armorPoints"></label>
         </div>
-        <div>
-          <h2>Sorts / pouvoirs</h2>
-          <textarea data-field="powers" rows="6" placeholder="Un élément par ligne"></textarea>
-        </div>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-equipement" class="pj-section">
         <h2>Équipement et richesse</h2>
         <textarea data-field="equipment" rows="7" placeholder="Un élément par ligne"></textarea>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-histoire" class="pj-section">
         <h2>Histoire et liens</h2>
         <div class="pj-history-grid">
           <label class="pj-field">Origine <textarea data-field="origin" rows="3"></textarea></label>
@@ -173,14 +186,41 @@
         </div>
       </section>
 
-      <section class="pj-section">
+      <section id="pj-notes" class="pj-section">
         <h2>Notes de jeu</h2>
         <textarea data-field="notes" rows="9"></textarea>
       </section>
+      </div>
+      <div id="pj-magic-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-magic-tab" hidden>
+        <section class="pj-section">
+          <h2>Sorts</h2>
+          <div class="pj-skill-budget" aria-label="Budget commun aux compétences et aux sorts">
+            <label class="pj-budget-edit">Pool professionnel
+              <input id="pj-magic-professional" type="number" min="0" max="5000" value="325">
+            </label>
+            <div><span>Points personnels</span><strong id="pj-magic-personal">0</strong><small>INT × 10</small></div>
+            <div><span>Total disponible</span><strong id="pj-magic-total">325</strong></div>
+            <div><span>Points répartis</span><strong id="pj-magic-spent">0</strong></div>
+            <div id="pj-magic-remaining-card"><span>Points restants</span><strong id="pj-magic-remaining">325</strong></div>
+          </div>
+          <p class="pj-help" id="pj-spells-help">Les sorts disponibles dépendent de la profession du personnage.</p>
+          <p class="pj-help">Les points investis dans les sorts sont inclus dans le budget commun de compétences. Utilisez « Sauvegarder en ligne » pour enregistrer vos choix dans la partie.</p>
+          <div class="pj-table-wrap" id="pj-spells-table-wrap">
+            <table class="pj-table pj-skills-table">
+              <thead><tr><th>Sort</th><th>Base INT</th><th>Points à répartir</th><th>Score final</th><th>Coche</th></tr></thead>
+              <tbody id="pj-spells"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="pj-section">
+          <h2>Pouvoirs et notes de magie</h2>
+          <textarea data-field="powers" rows="6" placeholder="Un élément par ligne"></textarea>
+        </section>
+      </div>
     </form>
   </main>
 
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20260925-medfan"></script>
+  <script type="module" src="js/pj-sheet.js?v=20260925-navigation"></script>
 </body>
 </html>

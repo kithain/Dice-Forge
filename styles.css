@@ -122,6 +122,8 @@ h1{
 .brp-skill-option:hover,.brp-skill-option.active{background:rgba(201,162,39,.1);color:var(--gold)}
 .brp-skill-option-score{flex:none;color:var(--gold2);font-weight:700}
 .brp-skill-empty{padding:.65rem;color:var(--txm);font-size:.78rem}
+.brp-skill-group{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;gap:.5rem;padding:.5rem .65rem;background:var(--s2);border-bottom:1px solid var(--brd2);color:var(--gold2);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.brp-skill-group span{font-variant-numeric:tabular-nums}
 .brp-experience-offer{
   display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.75rem;padding:.55rem .7rem;
   border:1px solid rgba(201,162,39,.38);border-radius:5px;background:rgba(201,162,39,.08);color:var(--gold2);cursor:pointer

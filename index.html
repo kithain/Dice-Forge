@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260815-hidden-roll-control">
+<link rel="stylesheet" href="styles.css?v=20260925-skill-groups">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js"></script>
@@ -94,9 +94,9 @@
   <div class="slabel">Test BRP</div>
   <div class="brp-test-form">
     <div class="room-field brp-skill-field">
-      <label for="brp-skill-filter">Compétence</label>
+      <label for="brp-skill-filter">Compétence ou sort</label>
       <div class="brp-skill-combobox">
-        <input class="room-input wide" id="brp-skill-filter" type="search" placeholder="Filtrer une compétence…" autocomplete="off"
+        <input class="room-input wide" id="brp-skill-filter" type="search" placeholder="Rechercher une compétence ou un sort…" autocomplete="off"
           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="brp-skill-options">
         <div class="brp-skill-options" id="brp-skill-options" role="listbox" hidden></div>
       </div>
@@ -255,6 +255,6 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260815-hidden-roll-control"></script>
+<script type="module" src="js/app.js?v=20260925-skill-groups"></script>
 </body>
 </html>

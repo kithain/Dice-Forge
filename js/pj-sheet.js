@@ -7,6 +7,15 @@ const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') 
 const SYNC_FROM_GENERATOR = new URLSearchParams(window.location.search).get('syncGenerated') === '1';
 if (IS_EMBEDDED) {
   document.body.classList.add('pj-embedded');
+  // La page parente porte le défilement ; le cadre suit la hauteur du contenu.
+  const sheetPage = document.querySelector('.pj-page');
+  const frame = window.frameElement;
+  if (frame && sheetPage) {
+    new ResizeObserver(() => {
+      const height = Math.ceil(sheetPage.getBoundingClientRect().bottom + window.scrollY);
+      if (height > 0) frame.style.height = `${height + 2}px`;
+    }).observe(sheetPage);
+  }
 }
 
 const STORAGE_KEY = 'dice-forge.pj-markdown.v1';
@@ -145,6 +154,7 @@ const SKILL_HELP = {
 const form = document.getElementById('pj-form');
 const statsBody = document.getElementById('pj-stats');
 const skillsBody = document.getElementById('pj-skills');
+const spellsBody = document.getElementById('pj-spells');
 const weaponsBody = document.getElementById('pj-weapons');
 let saveTimer;
 let spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false }));
@@ -194,13 +204,14 @@ function availableSpells() {
 }
 
 function renderSpellRows() {
-  skillsBody.querySelectorAll('[data-spell-row], [data-spell-group]').forEach(row => row.remove());
+  spellsBody.replaceChildren();
   const casterClass = spellcasterClass();
+  document.getElementById('pj-spells-help').textContent = casterClass
+    ? `Sorts de ${casterClass} — choisissez vos sorts et répartissez vos points.`
+    : 'Aucune liste de sorts pour cette profession. Vous pouvez noter vos pouvoirs particuliers ci-dessous.';
+  document.getElementById('pj-spells-table-wrap').hidden = !casterClass;
   if (!casterClass) return;
   const options = availableSpells();
-  const groupRows = Array.from(skillsBody.querySelectorAll('.pj-skill-group'));
-  const magicGroup = groupRows.find(row => row.textContent.trim() === 'Magie & pouvoirs');
-  if (!magicGroup) return;
   const fragment = document.createDocumentFragment();
   const heading = document.createElement('tr');
   heading.className = 'pj-spell-group';
@@ -220,7 +231,7 @@ function renderSpellRows() {
     <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche du sort ${index + 1}"${slot.checked ? ' checked' : ''}></td>`;
     fragment.appendChild(row);
   });
-  magicGroup.after(fragment);
+  spellsBody.appendChild(fragment);
   updateSpellOptions();
   updateSkillCalculations();
 }
@@ -385,6 +396,12 @@ function updateSkillCalculations() {
   document.getElementById('pj-skill-spent').textContent = spent;
   document.getElementById('pj-skill-remaining').textContent = remaining;
   document.getElementById('pj-skill-remaining-card').classList.toggle('over-budget', remaining < 0);
+  const magicPool = document.getElementById('pj-magic-professional');
+  magicPool.value = fieldValue('skillProfessionalPool');
+  Object.entries({ personal, total, spent, remaining }).forEach(([key, value]) => {
+    document.getElementById(`pj-magic-${key}`).textContent = value;
+  });
+  document.getElementById('pj-magic-remaining-card').classList.toggle('over-budget', remaining < 0);
 }
 
 function setDerived(key, value) { form.querySelector(`[data-derived="${key}"]`).value = value; }
@@ -434,6 +451,9 @@ function applyData(data) {
   Object.entries(data.fields || {}).forEach(([key, value]) => {
     const input = form.querySelector(`[data-field="${key}"]`); if (input) input.value = value ?? '';
   });
+  // Les brouillons du générateur et les anciennes fiches peuvent omettre ce champ.
+  const professionalPool = form.querySelector('[data-field="skillProfessionalPool"]');
+  if (!professionalPool.value.trim()) professionalPool.value = professionalPool.defaultValue;
   Object.entries(data.stats || {}).forEach(([key, value]) => {
     const input = form.querySelector(`[data-stat="${key}"]`); if (input) input.value = value ?? '';
   });
@@ -480,8 +500,10 @@ function changed() {
   }, 250);
 }
 
-function setSkillChecked(index, checked) {
-  const checkbox = form.querySelector(`[data-skill-check="${index}"]`);
+function setSkillChecked(index, checked, kind = 'skill') {
+  if (!Number.isInteger(index) || index < 0 || !['skill', 'spell'].includes(kind)) return false;
+  const checkbox = form.querySelector(`[data-${kind}-check="${index}"]`);
+  if (kind === 'spell' && spellSlots[index]) spellSlots[index].checked = !!checked;
   if (!checkbox) return false;
   checkbox.checked = !!checked;
   changed();
@@ -498,6 +520,7 @@ async function clearAllSkillChecks() {
   const confirmed = await showConfirm(`Décocher ${countLabel} pour commencer une nouvelle partie ?`);
   if (!confirmed) return;
   checked.forEach(input => { input.checked = false; });
+  localStorage.removeItem(`${STORAGE_KEY}.experience`);
   syncSpellSlotsFromForm();
   changed();
   setStatus(`${checked.length === 1 ? 'Case d’expérience décochée' : `${checked.length} cases d’expérience décochées`}. Pense à sauvegarder la fiche en ligne si nécessaire.`);
@@ -547,6 +570,7 @@ async function saveSheetToSupabase() {
   if (error) { setStatus('Sauvegarde impossible : ' + supabaseErrorMessage(error)); return; }
   clearTimeout(saveTimer);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.removeItem(`${STORAGE_KEY}.experience`);
   setStatus(`Fiche de ${fieldValue('name')} sauvegardée dans la partie ${room.code}.`);
 }
 
@@ -600,6 +624,21 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
   if (automatic && localEditRevision !== revisionAtStart) {
     setStatus('Fiche Supabase trouvée, mais chargement automatique annulé car la fiche locale a été modifiée.');
     return false;
+  }
+  if (automatic) {
+    let pending;
+    try { pending = JSON.parse(localStorage.getItem(`${STORAGE_KEY}.experience`)); } catch { /* Aucune coche à fusionner. */ }
+    const owner = JSON.stringify([data.sheet_data.fields?.name || '', data.sheet_data.fields?.player || '']);
+    if (pending?.owner === owner && Array.isArray(pending.checks)) {
+      pending.checks.forEach(({ kind, index, name }) => {
+        const entries = data.sheet_data[kind === 'spell' ? 'spells' : 'skills'];
+        if (!Number.isInteger(index) || !entries?.[index]) return;
+        if (kind === 'spell' && entries[index].name !== name) return;
+        entries[index].checked = true;
+      });
+    }
+  } else {
+    localStorage.removeItem(`${STORAGE_KEY}.experience`);
   }
   applyData(data.sheet_data);
   clearTimeout(saveTimer);
@@ -863,11 +902,48 @@ async function openMarkdown(file) {
   document.getElementById('pj-save-state').textContent = `Fiche ouverte : ${file.name}`;
 }
 
+const sheetTabs = Array.from(document.querySelectorAll('.pj-tabs [role="tab"]'));
+function selectSheetTab(tab) {
+  sheetTabs.forEach(button => {
+    const selected = button === tab;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
+  });
+  document.querySelector('.pj-section-nav').hidden = tab.id !== 'pj-main-tab';
+}
+sheetTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectSheetTab(tab));
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? sheetTabs.length - 1
+      : (index + (event.key === 'ArrowRight' ? 1 : -1) + sheetTabs.length) % sheetTabs.length;
+    selectSheetTab(sheetTabs[next]);
+    sheetTabs[next].focus();
+  });
+});
+
 renderBaseFields();
 try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) applyData(draft); } catch (error) { console.warn('Brouillon illisible', error); }
 updateDerived(); updateFilename();
 localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
 function formChanged(event) {
+  if (event.target.matches('[data-skill-check], [data-spell-check]') && !event.target.checked) {
+    const kind = event.target.hasAttribute('data-spell-check') ? 'spell' : 'skill';
+    const index = Number(event.target.getAttribute(`data-${kind}-check`));
+    try {
+      const key = `${STORAGE_KEY}.experience`;
+      const pending = JSON.parse(localStorage.getItem(key));
+      if (Array.isArray(pending?.checks)) {
+        pending.checks = pending.checks.filter(check => check.kind !== kind || check.index !== index);
+        localStorage.setItem(key, JSON.stringify(pending));
+      }
+    } catch { /* Aucune coche en attente. */ }
+  }
+  if (event.target.id === 'pj-magic-professional') {
+    form.querySelector('[data-field="skillProfessionalPool"]').value = event.target.value;
+  }
   if (event.target.matches('[data-weapon="name"]')) applyWeaponSelection(event.target);
   if (event.target.matches('[data-field="profession"]')) {
     syncSpellSlotsFromForm();
@@ -896,6 +972,24 @@ document.getElementById('pj-reset').addEventListener('click', () => {
 });
 
 window.diceForgeSheet = { setSkillChecked };
+// Les autres onglets du navigateur reçoivent aussi les coches du lanceur.
+window.addEventListener('storage', event => {
+  if (event.key !== STORAGE_KEY || !event.newValue) return;
+  let data;
+  try { data = JSON.parse(event.newValue); } catch { return; }
+  if (data?.fields?.name !== fieldValue('name') || data?.fields?.player !== fieldValue('player')) return;
+  for (const [collection, kind] of [['skills', 'skill'], ['spells', 'spell']]) {
+    if (!Array.isArray(data[collection])) continue;
+    data[collection].forEach((entry, index) => {
+      if (kind === 'spell' && entry?.name !== spellSlots[index]?.name) return;
+      const checkbox = form.querySelector(`[data-${kind}-check="${index}"]`);
+      if (checkbox) checkbox.checked = !!entry?.checked;
+      if (kind === 'spell' && spellSlots[index]) spellSlots[index].checked = !!entry?.checked;
+    });
+  }
+  localEditRevision += 1;
+  setStatus('Coches d’expérience synchronisées. Pense à sauvegarder en ligne.');
+});
 if (SYNC_FROM_GENERATOR) {
   setStatus('Caractéristiques et mouvement synchronisés depuis le personnage généré.');
 } else {
