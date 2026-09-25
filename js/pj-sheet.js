@@ -95,16 +95,16 @@ const SPELLCASTER_ALIASES = new Map([
 
 const SKILL_HELP = {
   'Estimation': "Évaluer la valeur, la qualité ou l'authenticité d'un objet.",
-  'Art (divers)': 'Créer ou interpréter une œuvre artistique dans une spécialité choisie.',
-  'Artillerie (divers)': "Utiliser une arme de siège ou une pièce d'artillerie adaptée à l'univers.",
+  'Art': 'Créer ou interpréter une œuvre artistique dans une spécialité choisie.',
+  'Artillerie': "Utiliser une arme de siège ou une pièce d'artillerie adaptée à l'univers.",
   'Marchandage': "Négocier un prix, un échange ou les conditions d'un accord.",
   'Bagarre': 'Combattre à mains nues avec coups, prises simples et improvisation.',
   'Escalade': 'Grimper sur une paroi, un mur, un arbre ou une surface difficile.',
   'Commandement': 'Donner des ordres clairs, coordonner un groupe et maintenir son moral.',
-  'Artisanat (divers)': "Fabriquer, entretenir ou examiner des objets d'un métier précis.",
+  'Artisanat': "Fabriquer, entretenir ou examiner des objets d'un métier précis.",
   'Déguisement': "Modifier son apparence pour passer pour quelqu'un d'autre ou rester méconnaissable.",
   'Défense': 'Éviter, bloquer ou dévier une attaque par une esquive ou une parade adaptée.',
-  'Conduite (divers)': 'Diriger un véhicule, un attelage ou une embarcation de la spécialité choisie.',
+  'Conduite': 'Diriger un véhicule, un attelage ou une embarcation de la spécialité choisie.',
   'Étiquette (divers)': 'Connaître les usages, titres et comportements attendus dans un milieu social.',
   'Baratin': "Convaincre rapidement par l'assurance, l'improvisation ou un mensonge plausible.",
   'Manipulation fine': 'Réaliser un geste précis : crochetage, mécanisme délicat ou travail minutieux.',
@@ -120,13 +120,13 @@ const SKILL_HELP = {
   'Écouter': 'Percevoir et identifier des sons faibles, lointains ou dissimulés.',
   'Alphabétisation (option)': "Lire et écrire dans une culture où cette capacité n'est pas automatique.",
   'Médecine': 'Diagnostiquer et traiter blessures, maladies ou empoisonnements sur la durée.',
-  'Arme de mêlée (divers)': 'Attaquer avec une arme de contact de la spécialité choisie.',
-  'Arme de jet (divers)': 'Attaquer à distance avec un arc, une fronde ou une arme lancée selon la spécialité.',
+  'Arme de mêlée': 'Attaquer avec une arme de contact de la spécialité choisie.',
+  'Arme de jet': 'Attaquer à distance avec un arc, une fronde ou une arme lancée selon la spécialité.',
   'Navigation': "S'orienter et tracer une route à l'aide du terrain, des cartes ou des astres.",
   'Représentation': 'Captiver un public par le chant, la musique, le théâtre, la danse ou le rituel.',
   'Intimidation/Persuasion': "Obtenir l'adhésion par la menace, l'autorité ou une argumentation directe.",
-  'Pilotage (divers)': 'Contrôler un appareil ou moyen de transport complexe de la spécialité choisie.',
-  'Réparation (divers)': 'Diagnostiquer une panne et remettre en état un objet ou mécanisme.',
+  'Pilotage': 'Contrôler un appareil ou moyen de transport complexe de la spécialité choisie.',
+  'Réparation': 'Diagnostiquer une panne et remettre en état un objet ou mécanisme.',
   'Recherche': 'Trouver une information dans des archives, une bibliothèque ou un ensemble de documents.',
   'Équitation (divers)': 'Monter, guider et maîtriser une monture de la spécialité choisie.',
   'Science (divers)': 'Appliquer une discipline scientifique ou savante à un problème précis.',
@@ -273,8 +273,8 @@ function skillFinalScore(name) {
 
 function syncWeaponScores() {
   const scores = {
-    contact: skillFinalScore('Arme de mêlée (divers)'),
-    distance: skillFinalScore('Arme de jet (divers)')
+    contact: skillFinalScore('Arme de mêlée'),
+    distance: skillFinalScore('Arme de jet')
   };
   Array.from(weaponsBody.rows).forEach(row => {
     const name = row.querySelector('[data-weapon="name"]')?.value || '';
@@ -813,7 +813,9 @@ function parseMarkdown(text) {
     if (!name) return {};
     const importedNames = name === 'Intimidation/Persuasion'
       ? [name, 'Persuasion']
-      : name === 'Défense' ? [name, 'Esquive'] : [name];
+      : name === 'Défense' ? [name, 'Esquive']
+        : ['Art', 'Artillerie', 'Artisanat', 'Conduite', 'Arme de mêlée', 'Arme de jet', 'Pilotage', 'Réparation'].includes(name)
+          ? [name, `${name} (divers)`] : [name];
     const row = skillSection.split(/\r?\n/).find(line => importedNames.includes(line.split('|')[1]?.trim())), cells = row?.split('|') || [];
     const modern = cells.length >= 7;
     return modern
