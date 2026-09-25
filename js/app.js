@@ -1454,6 +1454,9 @@ function markBrpSkillExperience(index, kind = 'skill') {
   }
   const collection = kind === 'spell' ? 'spells' : 'skills';
   sheet[collection] = Array.isArray(sheet[collection]) ? sheet[collection] : [];
+  if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
+  if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
+  if (sheet[collection][index]?.checked) return;
   sheet[collection][index] = { ...(sheet[collection][index] || {}), checked: true };
   localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(sheet));
   const pendingKey = `${MARKDOWN_CHARACTER_DRAFT_KEY}.experience`;
@@ -1468,8 +1471,13 @@ function markBrpSkillExperience(index, kind = 'skill') {
 
   if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
   if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
-  renderResult();
   showToast('Case d’expérience cochée sur la fiche', 'success');
+}
+
+function markSuccessfulTestExperience(test) {
+  if (test?.kind === 'brp' && test.success && test.skill) {
+    markBrpSkillExperience(test.skill.index, test.skill.kind || 'skill');
+  }
 }
 
 function brpThresholdFor(score, difficulty) {
@@ -1628,10 +1636,8 @@ function renderResult() {
     const critMsg = characterTest
       ? `<div class="test-msg ${characterTest.level}">${characterTest.label}</div>`
       : hasCrit ? '<div class="crit-msg crit">⭐ Coup Critique !</div>' : hasFail ? '<div class="crit-msg fail">💀 Échec Critique !</div>' : '';
-    const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill
-      ? characterTest.skill.checked
-        ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est déjà cochée pour l’expérience.</div>`
-        : `<label class="brp-experience-offer"><input type="checkbox" onchange="markBrpSkillExperience(${characterTest.skill.index}, '${characterTest.skill.kind || 'skill'}')"> Cocher ${escapeAttribute(characterTest.skill.name)} pour l’expérience</label>`
+    const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill?.checked
+      ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est cochée pour l’expérience.</div>`
       : '';
 
     html += `<div class="total-box">
@@ -1749,6 +1755,7 @@ function rollBrpPercentileTest() {
   if (test.automatic) {
     const resolved = automaticPercentileResult(test);
     results = { groups: [], total: resolved.success ? 0 : 100, rawTotal: null, mod: 0, characterTest: resolved, blind: isBlindRoll() };
+    markSuccessfulTestExperience(resolved);
     renderResult();
     sendPercentileTest(resolved, resolved.success ? 0 : 100);
     return;
@@ -1790,6 +1797,7 @@ function finalizePercentileTest(groups, test) {
   roll.state = test.success ? 's-high' : 's-low';
 
   results = { groups, total: roll.val, rawTotal: roll.val, mod: 0, characterTest: test, blind: isBlindRoll() };
+  markSuccessfulTestExperience(test);
   finishRollingUi();
   renderResult();
 }
