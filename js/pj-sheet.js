@@ -1,7 +1,7 @@
 import { getSupabaseClient } from './supabase-client.js';
 import './tooltips.js?v=20260715-character-help';
 import { showConfirm } from './toast.js?v=20260708-brp-orc';
-import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260725-skill-rolls';
+import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
 const SYNC_FROM_GENERATOR = new URLSearchParams(window.location.search).get('syncGenerated') === '1';
@@ -391,6 +391,11 @@ function setDerived(key, value) { form.querySelector(`[data-derived="${key}"]`).
 
 function fieldValue(key) { return form.querySelector(`[data-field="${key}"]`)?.value.trim() || ''; }
 
+// Conserver les valeurs des compétences masquées lors des sauvegardes.
+let hiddenSkillData = {};
+const hiddenSkillIndexes = SKILLS.flatMap(([name], index) =>
+  ['Artillerie', 'Conduite', 'Pilotage', 'Science (divers)'].includes(name) ? [index] : []);
+
 function collectData() {
   syncSpellSlotsFromForm();
   const fields = {};
@@ -398,6 +403,7 @@ function collectData() {
   const stats = {};
   STATS.forEach(([, key]) => { stats[key] = form.querySelector(`[data-stat="${key}"]`).value; });
   const skills = SKILLS.map(() => ({}));
+  hiddenSkillIndexes.forEach(index => { skills[index] = { ...hiddenSkillData[index] }; });
   ACTIVE_SKILLS.forEach(({ index }) => {
     skills[index] = {
       base: form.querySelector(`[data-skill-base="${index}"]`).value,
@@ -439,6 +445,7 @@ function applyData(data) {
   renderSpellRows();
   updateDerived();
   const savedSkills = Array.isArray(data.skills) ? data.skills : [];
+  hiddenSkillData = Object.fromEntries(hiddenSkillIndexes.map(index => [index, { ...savedSkills[index] }]));
   const legacyShield = savedSkills[LEGACY_SHIELD_SKILL_INDEX] || {};
   const shieldHasPointAllocation = legacyShield.points !== undefined;
   const shieldPoints = shieldHasPointAllocation ? Math.max(0, parseInt(legacyShield.points, 10) || 0) : 0;

@@ -24,6 +24,10 @@ export const BRP_SKILLS = [
 ];
 
 export const BRP_NON_MEDFAN_SKILLS = new Set([
+  'Artillerie',
+  'Conduite',
+  'Pilotage',
+  'Science (divers)',
   'Démolition',
   'Arme à énergie (divers)',
   'Arme à feu (divers)',
