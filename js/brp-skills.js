@@ -17,7 +17,7 @@ export const BRP_SKILLS = [
   ['', '', ''], ['Représentation', '05 %', 'Social & mental'], ['Intimidation/Persuasion', '15 %', 'Social & mental'],
   ['Pilotage', '01 %', 'Physique'], ['', '', ''], ['Psychothérapie', '01 % ou 00 %', 'Social & mental'],
   ['Réparation', '15 %', 'Pratique & divers'], ['Recherche', '25 %', 'Connaissances'], ['Équitation (divers)', '05 %', 'Physique'],
-  ['Science (divers)', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['', '', ''],
+  ['Alchimie', '01 %', 'Connaissances'], ['Sens', '10 %', 'Social & mental'], ['', '', ''],
   ['Tour de main', '05 %', 'Pratique & divers'], ['Observation', '25 %', 'Social & mental'], ['Statut', '15 % ou variable', 'Social & mental'], ['Discrétion', '10 %', 'Physique'],
   ['Stratégie', '01 %', 'Connaissances'], ['Nage', '25 %', 'Physique'], ['Enseignement', '10 %', 'Connaissances'],
   ['Compétence technique (divers)', '05 %', 'Connaissances'], ['Lancer', '25 %', 'Physique'], ['Pistage', '10 %', 'Pratique & divers']
@@ -27,7 +27,6 @@ export const BRP_NON_MEDFAN_SKILLS = new Set([
   'Artillerie',
   'Conduite',
   'Pilotage',
-  'Science (divers)',
   'Démolition',
   'Arme à énergie (divers)',
   'Arme à feu (divers)',

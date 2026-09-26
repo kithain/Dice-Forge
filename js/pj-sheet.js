@@ -138,7 +138,7 @@ const SKILL_HELP = {
   'Réparation': 'Diagnostiquer une panne et remettre en état un objet ou mécanisme.',
   'Recherche': 'Trouver une information dans des archives, une bibliothèque ou un ensemble de documents.',
   'Équitation (divers)': 'Monter, guider et maîtriser une monture de la spécialité choisie.',
-  'Science (divers)': 'Appliquer une discipline scientifique ou savante à un problème précis.',
+  'Alchimie': 'Identifier, préparer et transformer des substances alchimiques.',
   'Sens': 'Utiliser un sens particulier pour détecter, reconnaître ou analyser quelque chose.',
   'Tour de main': "Dissimuler ou subtiliser un petit objet par l'adresse et la distraction.",
   'Observation': "Repérer un détail visible, un indice ou une anomalie dans l'environnement.",
@@ -411,7 +411,7 @@ function fieldValue(key) { return form.querySelector(`[data-field="${key}"]`)?.v
 // Conserver les valeurs des compétences masquées lors des sauvegardes.
 let hiddenSkillData = {};
 const hiddenSkillIndexes = SKILLS.flatMap(([name], index) =>
-  ['Artillerie', 'Conduite', 'Pilotage', 'Science (divers)'].includes(name) ? [index] : []);
+  ['Artillerie', 'Conduite', 'Pilotage'].includes(name) ? [index] : []);
 
 function collectData() {
   syncSpellSlotsFromForm();
@@ -859,6 +859,7 @@ function parseMarkdown(text) {
     if (!name) return {};
     const importedNames = name === 'Intimidation/Persuasion'
       ? [name, 'Persuasion']
+      : name === 'Alchimie' ? [name, 'Science (divers)']
       : name === 'Défense' ? [name, 'Esquive']
         : ['Art', 'Artillerie', 'Artisanat', 'Conduite', 'Arme de mêlée', 'Arme de jet', 'Pilotage', 'Réparation'].includes(name)
           ? [name, `${name} (divers)`] : [name];
