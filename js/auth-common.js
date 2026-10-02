@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
 
 export const AUTH_PLAYER_KEY = 'diceforge_player_name';
 

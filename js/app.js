@@ -1,11 +1,11 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-campaign-v2';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-campaign-v2-r1';
 import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
-import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2';
+import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
 import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———

@@ -1,4 +1,4 @@
-import { AUTH_PLAYER_KEY, authClient } from './auth-common.js?v=20261002-campaign-v2';
+import { AUTH_PLAYER_KEY, authClient } from './auth-common.js?v=20261002-campaign-v2-r1';
 
 const client = authClient();
 const playerName = localStorage.getItem(AUTH_PLAYER_KEY) || 'Joueur';

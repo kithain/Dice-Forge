@@ -1,4 +1,4 @@
-import { AUTH_PLAYER_KEY, authClient, playerEmail, safeReturnUrl } from './auth-common.js?v=20261002-campaign-v2';
+import { AUTH_PLAYER_KEY, authClient, playerEmail, safeReturnUrl } from './auth-common.js?v=20261002-campaign-v2-r1';
 
 const form = document.getElementById('login-form');
 const message = document.getElementById('login-message');

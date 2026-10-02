@@ -5,7 +5,8 @@ const vm = require('node:vm');
   const {campaignClient} = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync('js/character-store.js','utf8')).toString('base64'));
   const calls=[];
   let answer={data:{rows:[{id:'state',revision:3,sheet_data:{revision:3}}]},error:null};
-  const legacy={select(){calls.push('legacy-select');return this;},eq(){return this;},maybeSingle(){return Promise.resolve({data:{old:true},error:null});}};
+  const legacy={select(){calls.push('legacy-select');return this;},eq(){return this;},maybeSingle(){return Promise.resolve({data:{old:true},error:null});},
+    upsert(value){assert.equal('expected_revision' in value,false,'Legacy tables cannot accept the v2 revision column');return Promise.resolve({data:null,error:null});}};
   const original={auth:{test:true},from(){return legacy;},async rpc(name,args){calls.push({name,args});return answer;}};
   const client=campaignClient(original,()=>({code:'4SSU'}));
   assert.equal(client.auth,original.auth);
@@ -16,6 +17,8 @@ const vm = require('node:vm');
   answer={data:{legacy:true},error:null};
   result=await client.from('pj_sheets').select('*').eq('user_id','owner').maybeSingle();
   assert.equal(result.data.old,true);
+  result=await client.from('pj_inventory').upsert({user_id:'owner',expected_revision:8,po:5},{});
+  assert.equal(result.error,null,'Inventory remains writable after switching back to legacy');
   answer={data:null,error:{code:'42501',message:'Forbidden'}};
   const count=calls.filter(x=>x==='legacy-select').length;
   result=await client.from('pj_sheets').select('*').maybeSingle();

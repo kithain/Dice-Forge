@@ -1,5 +1,5 @@
 // ——— Supabase multiplayer room logic ———
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
 import { showToast, showConfirm } from './toast.js';
 
 let sb = null;

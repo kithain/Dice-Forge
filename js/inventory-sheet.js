@@ -1,6 +1,6 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
 import { ALCHEMY_POTIONS } from './alchemy-potions.js?v=20261002-potion-doses';
-import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-campaign-v2';
+import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-campaign-v2-r1';
 
 if (new URLSearchParams(location.search).get('embedded') === '1' && window.frameElement) {
   document.body.classList.add('inventory-embedded');

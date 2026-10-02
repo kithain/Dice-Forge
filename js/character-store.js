@@ -43,7 +43,17 @@ export function campaignClient(client, roomProvider) {
             if (result.error) return result;
             if (result.data?.legacy) {
               let query = target.from(resource);
-              for (const [method, args] of steps) query = query[method](...args);
+              for (const [method, args] of steps) {
+                const legacyArgs = [...args];
+                if (['insert', 'update', 'upsert'].includes(method)) {
+                  const clean = value => {
+                    const { expected_revision, ...legacyPayload } = value;
+                    return legacyPayload;
+                  };
+                  legacyArgs[0] = Array.isArray(args[0]) ? args[0].map(clean) : clean(args[0]);
+                }
+                query = query[method](...legacyArgs);
+              }
               return await query;
             }
             let rows = result.data?.rows || [];

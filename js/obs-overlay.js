@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
 
 const params = new URLSearchParams(window.location.search);
 const room = (params.get('room') || params.get('code') || '').trim().toUpperCase();

@@ -142,7 +142,7 @@
     $('refresh-room').disabled = true;
     $('room-status').textContent = `Chargement des fiches de ${room}…`;
     try {
-      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261002-campaign-v2'), import('./mj-room-data.js')]);
+      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261002-campaign-v2-r1'), import('./mj-room-data.js')]);
       const client = getSupabaseClient();
       const { data: auth, error: authError } = await client.auth.getUser();
       if (authError || !auth?.user) {

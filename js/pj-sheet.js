@@ -1,7 +1,7 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
-import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2';
-import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2';
-import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown } from './pj-magic.js?v=20261002-campaign-v2';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
+import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
+import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-r1';
+import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown } from './pj-magic.js?v=20261002-campaign-v2-r1';
 import './tooltips.js?v=20260715-character-help';
 import { showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
