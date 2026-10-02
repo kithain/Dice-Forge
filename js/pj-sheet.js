@@ -3,7 +3,7 @@ import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r
 import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-r1';
 import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown } from './pj-magic.js?v=20261002-campaign-v2-r1';
 import './tooltips.js?v=20260715-character-help';
-import { showConfirm } from './toast.js?v=20260708-brp-orc';
+import { showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
@@ -1090,8 +1090,9 @@ document.getElementById('pj-transfer-code').addEventListener('input', event => {
 document.getElementById('pj-transfer-code').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); transferSheetToRoom(); } });
 document.getElementById('pj-open').addEventListener('click', () => document.getElementById('pj-file').click());
 document.getElementById('pj-file').addEventListener('change', event => { const file = event.target.files[0]; if (file) openMarkdown(file).catch(() => alert('Ce fichier Markdown ne peut pas être ouvert.')); event.target.value = ''; });
-document.getElementById('pj-reset').addEventListener('click', () => {
-  if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
+document.getElementById('pj-reset').addEventListener('click', async () => {
+  const confirmed = await showConfirm('Attention : créer une nouvelle fiche effacera le brouillon actuel et ses modifications non sauvegardées. Une sauvegarde en ligne de la nouvelle fiche remplacera la fiche actuelle dans cette partie. Exportez votre personnage en Markdown ou PDF avant de continuer.', { confirmLabel: 'Créer une nouvelle fiche' });
+  if (!confirmed) return;
   localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = []; spellSheetContext = null; document.getElementById('pj-spell-add-panel').hidden = true; setSpellStatus(''); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
 

@@ -2,7 +2,7 @@
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
 import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-brp-display';
-import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
+import { showToast, showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
@@ -528,7 +528,9 @@ async function rerollCharacterStats() {
   renderCharacterSheet();
 }
 
-function resetCharacterSheet() {
+async function resetCharacterSheet() {
+  const confirmed = await showConfirm('Attention : créer une nouvelle fiche effacera le personnage généré en cours. Enregistrer le nouveau personnage remplacera le personnage associé à votre compte. Exportez votre fiche actuelle en Markdown ou PDF avant de continuer.', { confirmLabel: 'Créer une nouvelle fiche' });
+  if (!confirmed) return;
   characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
   characterSheetNeedsSync = true;
   const nameInput = document.getElementById('character-name');
