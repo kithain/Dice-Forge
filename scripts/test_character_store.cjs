@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const vm = require('node:vm');
 (async () => {
   const {campaignClient} = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync('js/character-store.js','utf8')).toString('base64'));
   const calls=[];
@@ -21,5 +22,20 @@ const fs = require('node:fs');
   assert.equal(result.error.code,'42501');
   assert.equal(calls.filter(x=>x==='legacy-select').length,count,'An access denial must never fall back to legacy');
   assert.equal(client.from('rolls'),legacy,'Dice feed remains on its dedicated table');
+  const app=fs.readFileSync('js/app.js','utf8');
+  const hydrate=app.slice(app.indexOf('function hydrateSavedCharacter('),app.indexOf('async function refreshCharacterFromSupabase('));
+  const frame={dataset:{src:'pj.html?embedded=1'},src:'https://example.test/pj.html?syncGenerated=1',
+    getAttribute(){return this.src;},setAttribute(key,value){this.src=value;}};
+  const context={URL,console,characterSheetNeedsSync:true,normalizeImportedCharacter:r=>r,
+    applyCharacterToSheet(){context.characterSheetNeedsSync=true;},
+    characterDraftKey:()=> 'draft:owner:4SSU',document:{getElementById:()=>frame},
+    window:{location:{href:'https://example.test/index.html'}}};
+  vm.createContext(context); vm.runInContext(hydrate,context);
+  context.hydrateSavedCharacter({state_id:'campaign-state'});
+  assert.equal(context.characterSheetNeedsSync,false,'A saved campaign must load its full sheet instead of the generator draft');
+  assert.equal(new URL(frame.src).searchParams.has('syncGenerated'),false);
+  assert.equal(new URL(frame.src).searchParams.get('state'),'campaign-state');
+  context.hydrateSavedCharacter({nom:'New generator'});
+  assert.equal(context.characterSheetNeedsSync,true,'A new generator still supports sheet creation');
   console.log('Campagnes : lectures, révisions, retour ancien et refus d’accès validés.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

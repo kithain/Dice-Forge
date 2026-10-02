@@ -954,6 +954,21 @@ function hydrateSavedCharacter(record) {
   if (!record) return;
   try {
     applyCharacterToSheet(normalizeImportedCharacter(record), { saved: true });
+    // A campaign character already has a full sheet. Loading its generator
+    // snapshot must never replace skills, spells, or progression with a draft.
+    if (record.state_id) {
+      characterSheetNeedsSync = false;
+      const frame = document.getElementById('character-sheet-frame');
+      if (frame) {
+        const source = new URL(frame.dataset.src, window.location.href);
+        source.searchParams.delete('syncGenerated');
+        source.searchParams.delete('syncRevision');
+        source.searchParams.set('state', record.state_id);
+        source.searchParams.set('context', characterDraftKey());
+        frame.dataset.src = source.href;
+        if (frame.getAttribute('src') && frame.src !== source.href) frame.setAttribute('src', source.href);
+      }
+    }
   } catch (error) {
     console.error('Impossible de remplir la fiche personnage sauvegardée:', error);
   }
