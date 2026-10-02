@@ -2,9 +2,10 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const source = fs.readFileSync('js/app.js', 'utf8').replace(/\r\n/g, '\n');
-const names = ['brpThresholdFor', 'createPercentileTest', 'brpTestSummary', 'brpTestExpression'];
+const names = ['brpThresholdFor', 'createPercentileTest', 'brpTestSummary', 'brpTestExpression', 'evaluatePercentile', 'fumbleMinFor', 'automaticPercentileResult'];
 const context = {};
 vm.createContext(context);
+context.formatPercentile = value => String(value).padStart(2, '0');
 for (const name of names) {
   const start = source.indexOf(`function ${name}(`);
   const end = source.indexOf('\n}\n', start) + 2;
@@ -12,14 +13,21 @@ for (const name of names) {
 }
 const normal = { label: 'Moyen ×1', multiplier: 1 };
 assert.equal(context.brpThresholdFor(65, normal, 30), 35);
-assert.equal(context.brpThresholdFor(65, { multiplier: 2 }, 30), 100);
-assert.equal(context.brpThresholdFor(65, { divisor: 2 }, 10), 23);
+assert.equal(context.brpThresholdFor(65, { multiplier: 2 }, 30), 70);
+assert.equal(context.brpThresholdFor(65, { divisor: 2 }, 10), 28);
 assert.equal(context.brpThresholdFor(20, normal, 40), 0);
-assert.equal(context.brpThresholdFor(65, { mode: 'auto-success' }, 40), 65);
+assert.equal(context.brpThresholdFor(65, { mode: 'auto-success' }, 40), 25);
+assert.equal(context.brpThresholdFor(15, normal, 20), 0);
+assert.equal(context.brpThresholdFor(40, normal, 20), 20);
+assert.equal(context.brpThresholdFor(15, { mode: 'auto-success' }, 20), 0);
 assert.equal(context.brpThresholdFor(65, { mode: 'auto-failure' }, 40), 0);
 const skill = { id: 'observation', name: 'Observation', score: 65 };
 const test = context.createPercentileTest({ kind: 'brp', score: 65, threshold: 35, difficulty: normal, skill, malus: 30 });
 assert.equal(test.skill.id, skill.id);
+assert.equal(context.createPercentileTest({ threshold: 0, difficulty: normal }).automatic, true);
+assert.equal(context.automaticPercentileResult({ threshold: 0, difficulty: normal }).success, false);
+for (let value = 1; value <= 20; value++) assert.equal(context.evaluatePercentile(20, value).success, true);
+assert.equal(context.evaluatePercentile(20, 21).success, false);
 assert.equal(skill.score, 65);
 assert.match(context.brpTestSummary(test), /malus −30.*35%/);
 assert.match(context.brpTestExpression(test), /malus −30.*35%/);

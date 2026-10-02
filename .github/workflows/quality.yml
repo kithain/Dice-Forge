@@ -49,4 +49,5 @@ jobs:
           node scripts/test_character_store.cjs
           node scripts/test_experience_save.cjs
           node scripts/test_brp_malus.cjs
+          node scripts/test_roll_display.cjs
           python -B -m unittest discover -s migrations/character-v2 -p test_prepare.py -v

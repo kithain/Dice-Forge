@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261002-brp-malus-r2">
+<link rel="stylesheet" href="styles.css?v=20261002-brp-display">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
@@ -116,7 +116,7 @@
     </div>
     <div class="room-field">
       <label for="brp-test-malus">Malus</label>
-      <select class="room-input wide" id="brp-test-malus" title="Points retirés après application de la difficulté">
+      <select class="room-input wide" id="brp-test-malus" title="Points retirés au score de compétence avant la difficulté">
         <option value="0">Aucun</option>
         <option value="10">−10</option>
         <option value="20">−20</option>
@@ -288,7 +288,7 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
-<script type="module" src="js/app.js?v=20261002-brp-malus"></script>
+<script type="module" src="js/app.js?v=20261002-brp-display"></script>
 <script type="module" src="js/verbal.js?v=20261002-v5"></script>
 </body>
 </html>

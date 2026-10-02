@@ -1,6 +1,7 @@
 // ——— Supabase multiplayer room logic ———
 import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
 import { showToast, showConfirm } from './toast.js';
+import { compactRoll } from './roll-display.js?v=20261002-brp-display';
 
 let sb = null;
 let roomState = { code: null, player: null, userId: null, connected: false };
@@ -395,13 +396,14 @@ function addLiveItem(r, isSelf, prepend) {
 
   const tCls = masked ? '' : (r.is_crit ? 'crit' : r.is_fail ? 'fail' : '');
   const hiddenTag = r.is_hidden ? ' <span title="Jet caché — visible uniquement par le MJ">🔒</span>' : '';
-  const rollsOut = masked ? '???' : esc(r.rolls_detail);
-  const totOut = masked ? '?' : `${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}`;
+  const compact = masked ? null : compactRoll(r);
+  const rollsOut = masked ? '???' : compact ? '' : esc(r.rolls_detail);
+  const totOut = masked ? '?' : compact ? `${esc(compact.total)}${esc(compact.marker)}` : `${r.total}${r.is_crit ? ' ★' : r.is_fail ? ' ✗' : ''}`;
 
-  const html = `<div class="live-item ${cls}">
-    <span class="live-player">${esc(r.player_name)}${hiddenTag}</span>
-    <span class="live-expr">${esc(r.expression)}</span>
-    <span class="live-rolls">${rollsOut}</span>
+  const html = `<div class="live-item ${cls}${compact ? ' live-compact' : ''}">
+    <span class="live-player">${esc(r.player_name)}${compact ? ' :' : ''}${hiddenTag}</span>
+    <span class="live-expr">${esc(compact ? compact.expression : r.expression)}</span>
+    ${compact ? '' : `<span class="live-rolls">${rollsOut}</span>`}
     <span class="live-tot ${tCls}">${totOut}</span>
     <span class="live-time">${time}</span>
   </div>`;
@@ -415,12 +417,12 @@ function esc(s) {
   return d.innerHTML;
 }
 
-export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidden) {
+export async function sendRoll(expr, rollsDetail, total, isCrit, isFail, isHidden, characterName = null) {
   if (!roomState.connected || !sb) return;
   const { error } = await sb.from('rolls').insert({
     room_code: roomState.code,
     user_id: roomState.userId,
-    player_name: roomState.player,
+    player_name: characterName || roomState.player,
     expression: expr,
     rolls_detail: rollsDetail,
     total: total,

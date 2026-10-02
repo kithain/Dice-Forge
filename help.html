@@ -123,7 +123,7 @@
           <ol class="help-steps compact">
             <li><strong>Sélectionnez une compétence ou un sort de votre fiche.</strong><span>Son score est repris dans le test. Vous pouvez aussi saisir un score en % pour un test libre.</span></li>
             <li><strong>Choisissez la difficulté.</strong><span>Facile, Moyen, Difficile, Automatique ou Impossible.</span></li>
-            <li><strong>Choisissez le malus demandé par le MJ.</strong><span>Aucun, −10, −20, −30 ou −40 points. Le malus est retiré après la difficulté, avec un seuil minimum de 0 %. Exemple : score 65 %, Moyen, malus −30 → seuil 35 %. Le score de la fiche reste inchangé. Automatique et Impossible conservent leur résultat imposé.</span></li>
+            <li><strong>Choisissez le malus demandé par le MJ.</strong><span>Aucun, −10, −20, −30 ou −40 points. Le malus réduit le score de compétence avant la difficulté. Exemple : Escalade 40 %, malus −20, Moyen → seuil 20 %. Si le score réduit tombe à zéro ou moins, le test est impossible et échoue automatiquement. Le score enregistré sur la fiche reste inchangé.</span></li>
             <li><strong>Cliquez sur Tester.</strong><span>Dice Forge lance le D100 et affiche le niveau de réussite.</span></li>
           </ol>
 
@@ -140,6 +140,7 @@
             </table>
           </div>
           <p class="help-muted">Le résultat peut être une réussite critique, spéciale ou normale, un échec ou une maladresse.</p>
+          <p>Le résultat affiche le nom de la compétence, le D100, le niveau de réussite et les seuils de critique, spéciale et maladresse. Les jets en direct montrent le personnage, la compétence et son seuil, le résultat du dé et ✓ ou ✗ ; &lt;!&gt; signale une réussite critique ou spéciale. Les détails du calcul restent conservés dans l’historique de la salle en ligne.</p>
           <h3>Coches d’expérience automatiques</h3>
           <p>Après un test BRP réussi avec une compétence ou un sort sélectionné, sa case d’expérience est cochée et sauvegardée automatiquement en ligne. Un test libre sans compétence sélectionnée ne coche aucune case. La coche ne distribue pas automatiquement de points d’expérience.</p>
           <div class="help-note info"><strong>Vérifiez le message de sauvegarde.</strong> Si l’enregistrement en ligne échoue, la coche reste dans le brouillon de ce navigateur et un message vous prévient. Réessayez le test ou utilisez « Sauvegarder en ligne » sur la fiche. Une coche conservée seulement localement n’est pas encore disponible sur vos autres appareils.</div>

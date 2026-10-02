@@ -290,6 +290,7 @@ select.room-input{appearance:none}
 @keyframes liveIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .live-player{font-family:'Cinzel',serif;font-size:.78rem;color:var(--purp2);min-width:80px;flex-shrink:0}
 .live-expr{font-size:.78rem;color:var(--txd);flex-shrink:0}
+.live-item.live-compact .live-expr{flex:1;min-width:0;flex-shrink:1;overflow-wrap:anywhere}
 .live-rolls{font-size:.72rem;color:var(--txm);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .live-tot{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);min-width:2.5em;text-align:right;flex-shrink:0}
 .live-tot.crit{color:var(--yel)}

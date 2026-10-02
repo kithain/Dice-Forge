@@ -1,7 +1,7 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-campaign-v2-r1';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-brp-display';
 import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
@@ -1483,7 +1483,6 @@ function markBrpSkillExperience(index, kind = 'skill') {
 
   if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
   if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
-  showToast('Case d’expérience cochée sur la fiche', 'success');
   const key = characterDraftKey();
   const check = { kind, index, id: sheet[collection][index].id, name: sheet[collection][index].name };
   const room = JSON.parse(localStorage.getItem('diceforge_room') || 'null');
@@ -1498,7 +1497,6 @@ function markBrpSkillExperience(index, kind = 'skill') {
           document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.adoptCloudRevision(saved.sheet_data);
         }
       }
-      showToast('Coche d’expérience sauvegardée en ligne', 'success');
     } catch (error) {
       showToast(`Coche conservée localement, sauvegarde en ligne impossible : ${error.message || 'erreur réseau'}`, 'error');
     }
@@ -1512,10 +1510,11 @@ function markSuccessfulTestExperience(test) {
 }
 
 function brpThresholdFor(score, difficulty, malus = 0) {
-  if (difficulty.mode === 'auto-success') return score;
+  const adjustedScore = Math.max(0, score - malus);
+  if (!adjustedScore) return 0;
+  if (difficulty.mode === 'auto-success') return adjustedScore;
   if (difficulty.mode === 'auto-failure') return 0;
-  const adjusted = difficulty.divisor ? Math.ceil(score / difficulty.divisor) : Math.ceil(score * (difficulty.multiplier || 1));
-  return Math.max(0, adjusted - malus);
+  return difficulty.divisor ? Math.ceil(adjustedScore / difficulty.divisor) : Math.ceil(adjustedScore * (difficulty.multiplier || 1));
 }
 
 function fumbleMinFor(threshold) {
@@ -1548,7 +1547,7 @@ function evaluatePercentile(threshold, rollValue) {
 }
 
 function automaticPercentileResult(test) {
-  if (test.difficulty?.mode === 'auto-success') {
+  if (test.difficulty?.mode === 'auto-success' && test.threshold > 0) {
     return {
       ...test,
       success: true,
@@ -1587,7 +1586,7 @@ function createPercentileTest({ kind, typeLabel, name, code, score, threshold, d
     skill,
     difficultyLabel: difficulty?.shortLabel || 'Moyen',
     success: false,
-    automatic: !!difficulty?.mode
+    automatic: !!difficulty?.mode || threshold <= 0
   };
 }
 
@@ -1609,14 +1608,14 @@ function brpTestExpression(test) {
   if (test.kind === 'character') return `${test.name} ${test.code} ${test.score}×5 (${test.threshold}%)`;
   if (test.kind === 'course') return `Jet de Course (DEX ${test.dex} + MOV ${test.movement}) × 3 (${test.threshold}%)`;
   const name = test.skill?.name || 'Test BRP';
-  if (test.automatic) return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
   return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}${test.malus ? ` · malus −${test.malus}` : ''} (${test.threshold}%)`;
 }
 
 function sendPercentileTest(test, totalValue) {
   const isStrongSuccess = test.level === 'critical' || test.level === 'special';
   const courseDetail = test.kind === 'course' ? ` · ${courseProgressText(test)}` : '';
-  sendRoll(brpTestExpression(test), `[${test.rollLabel}] ${test.label}${courseDetail}`, totalValue, isStrongSuccess, !test.success, cfg.hide);
+  const rules = test.automatic ? '' : ` · Critique ≤ ${formatPercentile(test.criticalLimit)} · Spéciale ≤ ${formatPercentile(test.specialLimit)} · Maladresse ${formatPercentile(test.fumbleMin)}–00`;
+  sendRoll(brpTestExpression(test), `${brpTestSummary(test)} · [${test.rollLabel}] ${test.label}${rules}${courseDetail}`, totalValue, isStrongSuccess, !test.success, cfg.hide, getPlayerCharacter()?.nom);
 }
 
 function courseProgressText(test) {
@@ -1659,7 +1658,7 @@ function renderResult() {
       const courseLine = characterTest.kind === 'course'
         ? `<div class="total-brkd course-progress">${courseProgressText(characterTest)}</div>`
         : '';
-      brkd = `<div class="total-brkd">${brpTestSummary(characterTest)}</div>${thresholdLine}${courseLine}`;
+      brkd = `${thresholdLine}${courseLine}`;
     } else if (multiDice) {
       const parts = groups.map(g => g.rolls.map(r => r.val).join(' + ')).join(' + ');
       const modStr = mod !== 0 ? (mod >= 0 ? ` <span class="total-mod">+ ${mod}</span>` : ` <span class="total-mod">− ${Math.abs(mod)}</span>`) : '';
@@ -1668,14 +1667,11 @@ function renderResult() {
     const critMsg = characterTest
       ? `<div class="test-msg ${characterTest.level}">${characterTest.label}</div>`
       : hasCrit ? '<div class="crit-msg crit">⭐ Coup Critique !</div>' : hasFail ? '<div class="crit-msg fail">💀 Échec Critique !</div>' : '';
-    const experienceOffer = characterTest?.kind === 'brp' && characterTest.success && characterTest.skill?.checked
-      ? `<div class="brp-experience-marked">✓ ${escapeAttribute(characterTest.skill.name)} est cochée pour l’expérience.</div>`
-      : '';
 
     html += `<div class="total-box">
-      <div class="total-lbl">${characterTest ? (characterTest.automatic ? 'Test BRP' : 'Résultat D100') : 'Résultat Total'}</div>
+      <div class="total-lbl">${characterTest ? escapeAttribute(characterTest.skill?.name || characterTest.name || 'Test BRP') : 'Résultat Total'}</div>
       <div class="total-num${hasCrit ? ' crit-style' : ''}">${characterTest ? characterTest.rollLabel : total}</div>
-      ${brkd}${critMsg}${experienceOffer}
+      ${critMsg}${brkd}
     </div>`;
   }
 
