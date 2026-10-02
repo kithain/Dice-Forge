@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260925-skill-groups">
+<link rel="stylesheet" href="styles.css?v=20261002-verbal-obs">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js"></script>
@@ -66,6 +66,7 @@
 
 <div class="tabs" role="tablist" aria-label="Navigation principale">
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
+  <button class="tab-btn" id="tab-verbal" type="button" role="tab" aria-selected="false" aria-controls="panel-verbal" onclick="switchTab('verbal')">Confrontation verbale</button>
   <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
   <button class="tab-btn" id="tab-inventory" type="button" role="tab" aria-selected="false" aria-controls="panel-inventory" onclick="switchTab('inventory')">Inventaire</button>
   <a class="tab-btn tab-link" id="tab-help" href="help.html" aria-label="Aide joueurs Dice Forge">❔ Help me</a>
@@ -156,6 +157,34 @@
 
 </div>
 </div>
+</section>
+
+<section class="tab-panel" id="panel-verbal" role="tabpanel" aria-labelledby="tab-verbal">
+  <div class="character-panel verbal-panel">
+    <div class="slabel">Confrontation verbale · Aide au RP</div>
+    <p>Choisis ton approche parmi les huit listes de 50 mots, puis conserve cinq mots pour ton argumentation.</p>
+    <p id="verbal-score" aria-live="polite"></p>
+    <label for="verbal-approach">Approche</label>
+    <select class="room-input" id="verbal-approach"></select>
+    <p id="verbal-level"></p>
+    <button class="room-btn" id="verbal-roll" type="button" disabled>Tirer les mots</button>
+    <button class="room-btn" id="verbal-refresh" type="button">Actualiser le score de la fiche</button>
+    <p id="verbal-progress" role="status"></p>
+    <div id="verbal-words" class="verbal-words"></div>
+    <p class="verbal-guidance">Ces mots sont une aide de jeu pour ton argumentation. Tu peux remettre un mot écarté et changer tes jokers à tout moment. Le compteur sert uniquement de repère : le MJ décide des effets et récompense le RP, même maladroit.</p>
+    <p><a href="livret_joueur.html#confrontation-verbale">Consulter les règles de cette aide au RP</a></p>
+    <button class="room-btn" id="verbal-experience" type="button" disabled>Le MJ valide : cocher Intimidation/Persuasion</button>
+    <p id="verbal-experience-status" role="status"></p>
+    <div class="verbal-obs-controls">
+      <div class="slabel">Diffusion OBS</div>
+      <p>Affiche cette aide au RP sur fond transparent. Les mots écartés et placés se mettent à jour en direct.</p>
+      <button class="room-btn" id="verbal-obs-show" type="button" disabled>Afficher dans OBS</button>
+      <button class="room-btn" id="verbal-obs-hide" type="button">Masquer dans OBS</button>
+      <button class="room-btn" id="verbal-obs-copy" type="button">Copier l’URL OBS</button>
+      <p><a id="verbal-obs-url" target="_blank" rel="noopener"></a></p>
+      <p id="verbal-obs-status" role="status"></p>
+    </div>
+  </div>
 </section>
 
 <section class="tab-panel" id="panel-character" role="tabpanel" aria-labelledby="tab-character">
@@ -256,5 +285,6 @@
 
 <script src="supabase-config.js"></script>
 <script type="module" src="js/app.js?v=20260925-skill-groups"></script>
+<script type="module" src="js/verbal.js?v=20261002-v4"></script>
 </body>
 </html>

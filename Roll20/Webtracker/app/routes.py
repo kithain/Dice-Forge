@@ -8,6 +8,7 @@ from flask import abort, jsonify, redirect, render_template, request, send_from_
 
 from app import app
 from app import models, utils
+from verbal_overlay_state import publish as publish_verbal, snapshot as verbal_snapshot
 from app.models import Participant
 from app.markdown_importer import (
     MarkdownImportError,
@@ -179,6 +180,29 @@ def rolls_overlay():
 @app.route("/overlays/dice")
 def dice_overlay():
     return _redirect_with_query("/dice/obs-dice.html")
+
+
+@app.route("/overlays/verbal")
+def verbal_overlay():
+    return _redirect_with_query("/dice/obs-verbal.html")
+
+
+@app.route("/api/verbal-overlay", methods=["GET", "POST"])
+def verbal_overlay_state():
+    try:
+        room = request.args.get('room', 'LOCAL')
+        if request.method == 'GET':
+            response = jsonify(verbal_snapshot(room))
+        else:
+            if request.headers.get('X-DiceForge-Overlay') != '1':
+                abort(403)
+            if request.content_length is None or request.content_length > 8192:
+                abort(413)
+            response = jsonify(publish_verbal(room, request.get_json()))
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+    except ValueError as error:
+        return jsonify(error=str(error)), 400
 
 
 @app.route("/timer")

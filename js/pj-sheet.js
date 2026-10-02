@@ -972,7 +972,7 @@ document.getElementById('pj-reset').addEventListener('click', () => {
   localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false })); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
 
-window.diceForgeSheet = { setSkillChecked };
+window.diceForgeSheet = { setSkillChecked, getData: collectData };
 // Les autres onglets du navigateur reçoivent aussi les coches du lanceur.
 window.addEventListener('storage', event => {
   if (event.key !== STORAGE_KEY || !event.newValue) return;

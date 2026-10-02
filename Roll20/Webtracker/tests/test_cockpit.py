@@ -96,6 +96,21 @@ class CockpitRouteTests(unittest.TestCase):
         response = self.client.post("/api/timer", json={"action": "preset", "seconds": 42})
         self.assertEqual(response.status_code, 400)
 
+    def test_verbal_overlay_is_shared_and_isolated_by_room(self):
+        redirect = self.client.get('/overlays/verbal?room=OBS_TEST')
+        self.assertEqual(redirect.location, '/dice/obs-verbal.html?room=OBS_TEST')
+        payload = {'visible': True, 'character': 'Ilya', 'approach': 'Persuasion',
+                   'words': [{'word': f'Mot {i}', 'discarded': False, 'used': False} for i in range(5)]}
+        endpoint = '/api/verbal-overlay?room=OBS_TEST'
+        self.assertEqual(self.client.post(endpoint, json=payload).status_code, 403)
+        published = self.client.post(endpoint, json=payload, headers={'X-DiceForge-Overlay': '1'})
+        self.assertEqual(published.status_code, 200)
+        self.assertEqual(self.client.get(endpoint).json['character'], 'Ilya')
+        self.assertEqual(self.client.get(endpoint).headers['Cache-Control'], 'no-store')
+        self.assertFalse(self.client.get('/api/verbal-overlay?room=OBS_OTHER').json['visible'])
+        hidden = self.client.post(endpoint, json={'visible': False}, headers={'X-DiceForge-Overlay': '1'})
+        self.assertFalse(hidden.json['visible'])
+
 
 if __name__ == "__main__":
     unittest.main()
