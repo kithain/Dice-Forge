@@ -106,7 +106,8 @@ h1{
 .qbtn:disabled{opacity:.45;cursor:not-allowed}
 .brp-test-panel{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem}
 .brp-test-form{display:grid;grid-template-columns:minmax(210px,1.4fr) minmax(75px,.45fr) minmax(115px,.7fr) minmax(75px,.45fr) auto;gap:.65rem;align-items:end}
-.brp-test-form .room-input{width:100%}
+.brp-test-form .room-field{min-width:0}
+.brp-test-form .room-input.wide,.brp-test-form .room-input.small{width:100%;min-width:0}
 .brp-test-btn{height:36px;white-space:nowrap}
 .brp-skill-field{position:relative}
 .brp-skill-combobox{position:relative}
