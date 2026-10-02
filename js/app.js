@@ -1,10 +1,11 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20260725-obs-dice';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-campaign-v2';
 import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
+import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2';
 import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———
@@ -12,7 +13,6 @@ const DTYPES = [4, 6, 8, 10, 12, 20, 100];
 const MAX_CHARACTER_MOVES = 3;
 const MAX_CHARACTER_REROLLS = 2;
 const CHARACTER_EXPORT_FORMAT = 'dice-forge.character.v1';
-const MARKDOWN_CHARACTER_DRAFT_KEY = 'dice-forge.pj-markdown.v1';
 const BRP_DIFFICULTIES = [
   { value: 'auto', label: 'Automatique', shortLabel: 'Automatique', mode: 'auto-success' },
   { value: 'easy', label: 'Facile ×2', shortLabel: 'Facile', multiplier: 2 },
@@ -726,7 +726,7 @@ function openMarkdownCharacterSheet() {
 
   let draft = {};
   try {
-    draft = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY)) || {};
+    draft = JSON.parse(localStorage.getItem(characterDraftKey())) || {};
   } catch (error) {
     console.warn('Brouillon Markdown illisible, une nouvelle fiche sera créée.', error);
   }
@@ -764,7 +764,7 @@ function openMarkdownCharacterSheet() {
   draft.skills ||= [];
   draft.weapons ||= [{}];
 
-  localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(draft));
+  localStorage.setItem(characterDraftKey(), JSON.stringify(draft));
   return true;
 }
 
@@ -1317,7 +1317,7 @@ function normalizeSkillSearch(value) {
 function readBrpSheetSkills() {
   let sheet = null;
   try {
-    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY));
+    sheet = JSON.parse(localStorage.getItem(characterDraftKey()));
   } catch (error) {
     console.warn('Compétences locales illisibles.', error);
   }
@@ -1326,13 +1326,13 @@ function readBrpSheetSkills() {
     const saved = savedSkills[index] || {};
     const score = parseInt(saved.score, 10);
     return Number.isFinite(score) && score > 0
-      ? { index, kind: 'skill', name, score: clampPercentScore(score), checked: !!saved.checked }
+      ? { index, id: saved.id, kind: 'skill', name, score: clampPercentScore(score), checked: !!saved.checked }
       : null;
   }).filter(Boolean);
   const spells = (Array.isArray(sheet?.spells) ? sheet.spells : []).flatMap((spell, index) => {
     if (!spell?.name) return [];
     const score = (parseInt(sheet.stats?.intelligence, 10) || 0) + (parseInt(spell.points, 10) || 0);
-    return score > 0 ? [{ index, kind: 'spell', name: spell.name, score: clampPercentScore(score), checked: !!spell.checked }] : [];
+    return score > 0 ? [{ index, id: spell.id, kind: 'spell', name: spell.name, score: clampPercentScore(score), checked: !!spell.checked }] : [];
   });
   return [...skills, ...spells];
 }
@@ -1443,7 +1443,7 @@ function markBrpSkillExperience(index, kind = 'skill') {
   if (!Number.isInteger(index) || index < 0 || !['skill', 'spell'].includes(kind)) return;
   let sheet = null;
   try {
-    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY)) || {};
+    sheet = JSON.parse(localStorage.getItem(characterDraftKey())) || {};
   } catch (error) {
     sheet = {};
   }
@@ -1453,14 +1453,14 @@ function markBrpSkillExperience(index, kind = 'skill') {
   if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
   if (sheet[collection][index]?.checked) return;
   sheet[collection][index] = { ...(sheet[collection][index] || {}), checked: true };
-  localStorage.setItem(MARKDOWN_CHARACTER_DRAFT_KEY, JSON.stringify(sheet));
-  const pendingKey = `${MARKDOWN_CHARACTER_DRAFT_KEY}.experience`;
+  localStorage.setItem(characterDraftKey(), JSON.stringify(sheet));
+  const pendingKey = `${characterDraftKey()}.experience`;
   let pending = {};
   try { pending = JSON.parse(localStorage.getItem(pendingKey)) || {}; } catch { /* Nouvelle liste. */ }
   const owner = JSON.stringify([sheet.fields?.name || '', sheet.fields?.player || '']);
   if (pending.owner !== owner) pending = { owner, checks: [] };
   pending.checks = (pending.checks || []).filter(check => check.kind !== kind || check.index !== index);
-  pending.checks.push({ kind, index, name: sheet[collection][index].name });
+  pending.checks.push({ kind, index, id: sheet[collection][index].id, name: sheet[collection][index].name });
   localStorage.setItem(pendingKey, JSON.stringify(pending));
   document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.setSkillChecked(index, true, kind);
 
@@ -1672,7 +1672,7 @@ function quickCharacteristicTest(key) {
 function readCourseProfile() {
   let sheet = null;
   try {
-    sheet = JSON.parse(localStorage.getItem(MARKDOWN_CHARACTER_DRAFT_KEY));
+    sheet = JSON.parse(localStorage.getItem(characterDraftKey()));
   } catch (error) {
     console.warn('Fiche complète locale illisible pour le Jet de Course.', error);
   }
@@ -1845,7 +1845,7 @@ restoreSession();
 openCharacterSheetFromLocation();
 window.addEventListener('hashchange', openCharacterSheetFromLocation);
 window.addEventListener('storage', event => {
-  if (event.key !== MARKDOWN_CHARACTER_DRAFT_KEY) return;
+  if (event.key !== characterDraftKey()) return;
   const refreshed = readBrpSheetSkills().find(skill => skill.index === brpSelectedSkill?.index);
   if (refreshed) brpSelectedSkill = refreshed;
   if (!document.getElementById('brp-skill-options')?.hidden) renderBrpSkillOptions();

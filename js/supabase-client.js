@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { campaignClient } from './character-store.js?v=20261002-campaign-v2';
 
 let sharedClient = null;
 let sharedConfigKey = '';
@@ -24,7 +25,10 @@ export function getSupabaseClient({ optional = false } = {}) {
 
   const configKey = `${config.url}\n${config.anonKey}`;
   if (!sharedClient || sharedConfigKey !== configKey) {
-    sharedClient = createClient(config.url, config.anonKey);
+    const client = createClient(config.url, config.anonKey);
+    sharedClient = window.SUPABASE_CONFIG?.characterV2 ? campaignClient(client, () => {
+      try { return JSON.parse(localStorage.getItem('diceforge_room')); } catch { return null; }
+    }) : client;
     sharedConfigKey = configKey;
   }
   return sharedClient;

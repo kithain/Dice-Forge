@@ -37,6 +37,6 @@ export function regularConsumables(rows) {
 
 // Le répertoire utilise la colonne JSON existante, sans migration Supabase.
 // Le conteneur conserve aussi une liste volontairement vide.
-export function consumablesWithPotions(consumables, potions) {
-  return [...regularConsumables(consumables), { type: TYPE, entries: normalizePotionRows(potions) }];
+export function consumablesWithPotions(consumables, potions, container = {}) {
+  return [...regularConsumables(consumables), { ...container, type: TYPE, entries: normalizePotionRows(potions) }];
 }

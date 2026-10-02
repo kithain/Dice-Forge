@@ -1,0 +1,441 @@
+{
+  "schema_version": 2,
+  "legacy_catalogs": {
+    "brp_57_v1": [
+      "skill.estimation",
+      "skill.art",
+      "skill.artillerie",
+      "skill.marchandage",
+      "skill.bagarre",
+      "skill.escalade",
+      "skill.commandement",
+      "skill.artisanat",
+      "skill.demolition",
+      "skill.deguisement",
+      "skill.defense",
+      "skill.conduite",
+      "skill.arme_a_energie_divers",
+      "skill.etiquette_divers",
+      "skill.baratin",
+      "skill.manipulation_fine",
+      "skill.arme_a_feu_divers",
+      "skill.premiers_secours",
+      "skill.vol",
+      "skill.jeux",
+      "skill.lutte",
+      null,
+      "skill.arme_lourde_divers",
+      "skill.se_cacher",
+      "skill.intuition",
+      "skill.saut",
+      "skill.connaissance_divers",
+      "skill.langue_divers",
+      "skill.ecouter",
+      "skill.alphabetisation_option",
+      null,
+      "skill.medecine",
+      "skill.arme_de_melee",
+      "skill.arme_de_jet",
+      "skill.navigation",
+      null,
+      "skill.representation",
+      "skill.intimidation_persuasion",
+      "skill.pilotage",
+      null,
+      "skill.psychotherapie",
+      "skill.reparation",
+      "skill.recherche",
+      "skill.equitation_divers",
+      "skill.alchimie",
+      "skill.sens",
+      null,
+      "skill.tour_de_main",
+      "skill.observation",
+      "skill.statut",
+      "skill.discretion",
+      "skill.strategie",
+      "skill.nage",
+      "skill.enseignement",
+      "skill.competence_technique_divers",
+      "skill.lancer",
+      "skill.pistage"
+    ]
+  },
+  "skills": [
+    {
+      "id": "skill.estimation",
+      "name": "Estimation"
+    },
+    {
+      "id": "skill.art",
+      "name": "Art"
+    },
+    {
+      "id": "skill.artillerie",
+      "name": "Artillerie"
+    },
+    {
+      "id": "skill.marchandage",
+      "name": "Marchandage"
+    },
+    {
+      "id": "skill.bagarre",
+      "name": "Bagarre"
+    },
+    {
+      "id": "skill.escalade",
+      "name": "Escalade"
+    },
+    {
+      "id": "skill.commandement",
+      "name": "Commandement"
+    },
+    {
+      "id": "skill.artisanat",
+      "name": "Artisanat"
+    },
+    {
+      "id": "skill.demolition",
+      "name": "Démolition"
+    },
+    {
+      "id": "skill.deguisement",
+      "name": "Déguisement"
+    },
+    {
+      "id": "skill.defense",
+      "name": "Défense"
+    },
+    {
+      "id": "skill.conduite",
+      "name": "Conduite"
+    },
+    {
+      "id": "skill.arme_a_energie_divers",
+      "name": "Arme à énergie (divers)"
+    },
+    {
+      "id": "skill.etiquette_divers",
+      "name": "Étiquette (divers)"
+    },
+    {
+      "id": "skill.baratin",
+      "name": "Baratin"
+    },
+    {
+      "id": "skill.manipulation_fine",
+      "name": "Manipulation fine"
+    },
+    {
+      "id": "skill.arme_a_feu_divers",
+      "name": "Arme à feu (divers)"
+    },
+    {
+      "id": "skill.premiers_secours",
+      "name": "Premiers secours"
+    },
+    {
+      "id": "skill.vol",
+      "name": "Vol"
+    },
+    {
+      "id": "skill.jeux",
+      "name": "Jeux"
+    },
+    {
+      "id": "skill.lutte",
+      "name": "Lutte"
+    },
+    {
+      "id": "skill.arme_lourde_divers",
+      "name": "Arme lourde (divers)"
+    },
+    {
+      "id": "skill.se_cacher",
+      "name": "Se cacher"
+    },
+    {
+      "id": "skill.intuition",
+      "name": "Intuition"
+    },
+    {
+      "id": "skill.saut",
+      "name": "Saut"
+    },
+    {
+      "id": "skill.connaissance_divers",
+      "name": "Connaissance (divers)"
+    },
+    {
+      "id": "skill.langue_divers",
+      "name": "Langue (divers)"
+    },
+    {
+      "id": "skill.ecouter",
+      "name": "Écouter"
+    },
+    {
+      "id": "skill.alphabetisation_option",
+      "name": "Alphabétisation (option)"
+    },
+    {
+      "id": "skill.medecine",
+      "name": "Médecine"
+    },
+    {
+      "id": "skill.arme_de_melee",
+      "name": "Arme de mêlée"
+    },
+    {
+      "id": "skill.arme_de_jet",
+      "name": "Arme de jet"
+    },
+    {
+      "id": "skill.navigation",
+      "name": "Navigation"
+    },
+    {
+      "id": "skill.representation",
+      "name": "Représentation"
+    },
+    {
+      "id": "skill.intimidation_persuasion",
+      "name": "Intimidation/Persuasion"
+    },
+    {
+      "id": "skill.pilotage",
+      "name": "Pilotage"
+    },
+    {
+      "id": "skill.psychotherapie",
+      "name": "Psychothérapie"
+    },
+    {
+      "id": "skill.reparation",
+      "name": "Réparation"
+    },
+    {
+      "id": "skill.recherche",
+      "name": "Recherche"
+    },
+    {
+      "id": "skill.equitation_divers",
+      "name": "Équitation (divers)"
+    },
+    {
+      "id": "skill.alchimie",
+      "name": "Alchimie"
+    },
+    {
+      "id": "skill.sens",
+      "name": "Sens"
+    },
+    {
+      "id": "skill.tour_de_main",
+      "name": "Tour de main"
+    },
+    {
+      "id": "skill.observation",
+      "name": "Observation"
+    },
+    {
+      "id": "skill.statut",
+      "name": "Statut"
+    },
+    {
+      "id": "skill.discretion",
+      "name": "Discrétion"
+    },
+    {
+      "id": "skill.strategie",
+      "name": "Stratégie"
+    },
+    {
+      "id": "skill.nage",
+      "name": "Nage"
+    },
+    {
+      "id": "skill.enseignement",
+      "name": "Enseignement"
+    },
+    {
+      "id": "skill.competence_technique_divers",
+      "name": "Compétence technique (divers)"
+    },
+    {
+      "id": "skill.lancer",
+      "name": "Lancer"
+    },
+    {
+      "id": "skill.pistage",
+      "name": "Pistage"
+    }
+  ],
+  "spells": [
+    {
+      "id": "spell.blessure",
+      "name": "Blessure"
+    },
+    {
+      "id": "spell.deflagration",
+      "name": "Déflagration"
+    },
+    {
+      "id": "spell.feu",
+      "name": "Feu"
+    },
+    {
+      "id": "spell.foudre",
+      "name": "Foudre"
+    },
+    {
+      "id": "spell.givre",
+      "name": "Givre"
+    },
+    {
+      "id": "spell.soins",
+      "name": "Soins"
+    },
+    {
+      "id": "spell.guerison_superieure",
+      "name": "Guérison Supérieure"
+    },
+    {
+      "id": "spell.controle",
+      "name": "Contrôle"
+    },
+    {
+      "id": "spell.protection",
+      "name": "Protection"
+    },
+    {
+      "id": "spell.contre_magie",
+      "name": "Contre-magie"
+    },
+    {
+      "id": "spell.dissipation",
+      "name": "Dissipation"
+    },
+    {
+      "id": "spell.metamorphose",
+      "name": "Métamorphose"
+    },
+    {
+      "id": "spell.illusion",
+      "name": "Illusion"
+    },
+    {
+      "id": "spell.invisibilite",
+      "name": "Invisibilité"
+    },
+    {
+      "id": "spell.levitation",
+      "name": "Lévitation"
+    },
+    {
+      "id": "spell.teleportation",
+      "name": "Téléportation"
+    },
+    {
+      "id": "spell.diminution",
+      "name": "Diminution"
+    },
+    {
+      "id": "spell.amelioration",
+      "name": "Amélioration"
+    },
+    {
+      "id": "spell.perception",
+      "name": "Perception"
+    },
+    {
+      "id": "spell.vision",
+      "name": "Vision"
+    },
+    {
+      "id": "spell.parole_mentale",
+      "name": "Parole mentale"
+    },
+    {
+      "id": "spell.lumiere",
+      "name": "Lumière"
+    },
+    {
+      "id": "spell.tenebres",
+      "name": "Ténèbres"
+    },
+    {
+      "id": "spell.mur",
+      "name": "Mur"
+    },
+    {
+      "id": "spell.garde",
+      "name": "Garde"
+    },
+    {
+      "id": "spell.resistance",
+      "name": "Résistance"
+    },
+    {
+      "id": "spell.emoussement",
+      "name": "Émoussement"
+    },
+    {
+      "id": "spell.affutage",
+      "name": "Affûtage"
+    },
+    {
+      "id": "spell.scellement",
+      "name": "Scellement"
+    },
+    {
+      "id": "spell.descelement",
+      "name": "Déscelement"
+    },
+    {
+      "id": "spell.conjurer_elementaire",
+      "name": "Conjurer Élémentaire"
+    },
+    {
+      "id": "spell.benediction",
+      "name": "Bénédiction"
+    },
+    {
+      "id": "spell.malediction",
+      "name": "Malédiction"
+    },
+    {
+      "id": "spell.sanctifier",
+      "name": "Sanctifier"
+    },
+    {
+      "id": "spell.exorcisme",
+      "name": "Exorcisme"
+    },
+    {
+      "id": "spell.renaissance",
+      "name": "Renaissance"
+    },
+    {
+      "id": "spell.transe",
+      "name": "Transe"
+    },
+    {
+      "id": "spell.esprit_gardien",
+      "name": "Esprit Gardien"
+    }
+  ],
+  "aliases": {
+    "Art (divers)": "Art",
+    "Artillerie (divers)": "Artillerie",
+    "Artisanat (divers)": "Artisanat",
+    "Conduite (divers)": "Conduite",
+    "Arme de mêlée (divers)": "Arme de mêlée",
+    "Arme de jet (divers)": "Arme de jet",
+    "Pilotage (divers)": "Pilotage",
+    "Réparation (divers)": "Réparation",
+    "Science (divers)": "Alchimie",
+    "Esquive": "Défense",
+    "Persuasion": "Intimidation/Persuasion"
+  }
+}

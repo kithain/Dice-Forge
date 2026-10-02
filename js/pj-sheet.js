@@ -1,4 +1,7 @@
-import { getSupabaseClient } from './supabase-client.js';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
+import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2';
+import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2';
+import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown } from './pj-magic.js?v=20261002-campaign-v2';
 import './tooltips.js?v=20260715-character-help';
 import { showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
@@ -18,7 +21,7 @@ if (IS_EMBEDDED) {
   }
 }
 
-const STORAGE_KEY = 'dice-forge.pj-markdown.v1';
+const STORAGE_KEY = characterDraftKey();
 const PRINT_STORAGE_KEY = 'dice-forge.pj-print.v1';
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const supabase = getSupabaseClient({ optional: true });
@@ -54,7 +57,6 @@ function weaponDefinition(name) {
   return WEAPON_CATALOG.find(weapon => weapon.name === name);
 }
 
-const SPELL_SLOT_COUNT = 6;
 const SPELLS = [
   ['Blessure', ['Sorcier', 'Étudiant']],
   ['Déflagration', ['Sorcier']],
@@ -157,7 +159,10 @@ const skillsBody = document.getElementById('pj-skills');
 const spellsBody = document.getElementById('pj-spells');
 const weaponsBody = document.getElementById('pj-weapons');
 let saveTimer;
-let spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false }));
+let spellSlots = [];
+let spellSheetContext = null;
+let magicEditRevision = 0;
+let magicSaveInProgress = false;
 let localEditRevision = 0;
 let sheetLoadInProgress = false;
 
@@ -186,71 +191,103 @@ function renderBaseFields() {
   addWeaponRow();
 }
 
-function normalizedProfession() {
-  return fieldValue('profession').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('fr-FR');
-}
-
-function spellcasterClass() {
-  const profession = normalizedProfession();
-  for (const [alias, casterClass] of SPELLCASTER_ALIASES) {
-    if (profession === alias || profession.includes(alias)) return casterClass;
-  }
-  return null;
-}
-
-function availableSpells() {
-  const casterClass = spellcasterClass();
-  return casterClass ? SPELLS.filter(([, classes]) => classes.includes(casterClass)).map(([name]) => name) : [];
-}
-
 function renderSpellRows() {
   spellsBody.replaceChildren();
-  const casterClass = spellcasterClass();
-  document.getElementById('pj-spells-help').textContent = casterClass
-    ? `Sorts de ${casterClass} — choisissez vos sorts et répartissez vos points.`
-    : 'Aucune liste de sorts pour cette profession. Vous pouvez noter vos pouvoirs particuliers ci-dessous.';
-  document.getElementById('pj-spells-table-wrap').hidden = !casterClass;
-  if (!casterClass) return;
-  const options = availableSpells();
-  const fragment = document.createDocumentFragment();
-  const heading = document.createElement('tr');
-  heading.className = 'pj-spell-group';
-  heading.dataset.spellGroup = '';
-  heading.innerHTML = `<td colspan="5">Sorts de ${escapeHtml(casterClass)} — base INT</td>`;
-  fragment.appendChild(heading);
   spellSlots.forEach((slot, index) => {
+    if (!slot.name) return;
     const row = document.createElement('tr');
     row.dataset.spellRow = String(index);
-    row.innerHTML = `<td><select data-spell-name="${index}" aria-label="Sort ${index + 1}">
-      <option value="">Choisir un sort…</option>
-      ${options.map(name => `<option value="${escapeHtml(name)}"${slot.name === name ? ' selected' : ''}>${escapeHtml(name)}</option>`).join('')}
-    </select></td>
-    <td class="pj-spell-base" data-spell-base="${index}">0</td>
-    <td><input type="number" min="0" max="999" value="${escapeHtml(slot.points || '0')}" data-spell-points="${index}" aria-label="Points répartis pour le sort ${index + 1}"></td>
-    <td class="pj-skill-final" data-spell-final="${index}">0</td>
-    <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche du sort ${index + 1}"${slot.checked ? ' checked' : ''}></td>`;
-    fragment.appendChild(row);
+    row.innerHTML = `<td><strong>${escapeHtml(slot.name)}</strong></td>
+      <td class="pj-spell-base" data-spell-base="${index}">0</td>
+      <td><input type="number" min="0" max="999" step="1" value="${escapeHtml(slot.points)}" data-spell-points="${index}" aria-label="Points répartis ${escapeHtml(slot.name)}"></td>
+      <td class="pj-skill-final" data-spell-final="${index}">0</td>
+      <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche ${escapeHtml(slot.name)}"${slot.checked ? ' checked' : ''}></td>`;
+    spellsBody.appendChild(row);
   });
-  spellsBody.appendChild(fragment);
-  updateSpellOptions();
-  updateSkillCalculations();
+  document.getElementById('pj-spells-table-wrap').hidden = !spellSlots.some(slot => slot.name);
+  document.getElementById('pj-spells-empty').hidden = spellSlots.some(slot => slot.name);
+  document.getElementById('pj-spells-help').textContent = spellSheetContext
+    ? 'Sorts de la fiche Supabase : les noms sont fixes, les points répartis sont modifiables.'
+    : 'Sorts de votre brouillon. La fiche Supabase est chargée automatiquement lorsque vous êtes dans une partie.';
+  refreshNewSpellOptions();
+  updateMagicCalculations();
 }
 
 function syncSpellSlotsFromForm() {
-  spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, (_, index) => ({
-    name: form.querySelector(`[data-spell-name="${index}"]`)?.value ?? spellSlots[index]?.name ?? '',
-    points: form.querySelector(`[data-spell-points="${index}"]`)?.value ?? spellSlots[index]?.points ?? '0',
-    checked: form.querySelector(`[data-spell-check="${index}"]`)?.checked ?? !!spellSlots[index]?.checked
+  spellSlots = spellSlots.map((slot, index) => ({ ...slot,
+    points: form.querySelector(`[data-spell-points="${index}"]`)?.value ?? slot.points,
+    checked: form.querySelector(`[data-spell-check="${index}"]`)?.checked ?? slot.checked
   }));
 }
 
-function updateSpellOptions() {
-  const selected = new Set(Array.from(form.querySelectorAll('[data-spell-name]')).map(select => select.value).filter(Boolean));
-  form.querySelectorAll('[data-spell-name]').forEach(select => {
-    Array.from(select.options).forEach(option => {
-      option.disabled = !!option.value && option.value !== select.value && selected.has(option.value);
-    });
+function magicContext() {
+  if (spellSheetContext) return spellSheetContext;
+  return {
+    fields: { profession: fieldValue('profession'), skillProfessionalPool: fieldValue('skillProfessionalPool') },
+    stats: { intelligence: numberValue('intelligence') || 0 },
+    skills: SKILLS.map((_, index) => ({ points: form.querySelector(`[data-skill-points="${index}"]`)?.value || '0' })),
+    spells: spellSlots
+  };
+}
+
+function availableNewSpells() {
+  const profession = String(magicContext().fields?.profession || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const casterClass = Array.from(SPELLCASTER_ALIASES).find(([alias]) => profession.split(/[^a-z]+/).includes(alias))?.[1];
+  return casterClass ? SPELLS.filter(([, classes]) => classes.includes(casterClass)).map(([name]) => name) : [];
+}
+
+function refreshNewSpellOptions() {
+  const select = document.getElementById('pj-new-spell');
+  const previous = select.value;
+  const existing = new Set(spellSlots.map(slot => slot.name));
+  const options = availableNewSpells().filter(name => !existing.has(name));
+  select.innerHTML = '<option value="" disabled selected>Choisir un sort…</option>' + options.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+  if (options.includes(previous)) select.value = previous;
+  document.getElementById('pj-add-spell').disabled = !options.length;
+  document.getElementById('pj-add-spell').title = options.length ? '' : 'Renseignez une profession pratiquant la magie ou tous ses sorts sont déjà présents.';
+}
+
+function updateMagicCalculations() {
+  syncSpellSlotsFromForm();
+  const budget = magicBudget(magicContext(), spellSlots, ACTIVE_SKILLS.map(({ index }) => index));
+  for (const key of ['professional', 'personal', 'total', 'spent', 'remaining']) document.getElementById(`pj-magic-${key}`).textContent = budget[key];
+  document.getElementById('pj-magic-remaining-card').classList.toggle('over-budget', budget.remaining < 0);
+  form.querySelectorAll('[data-spell-row]').forEach(row => {
+    const index = Number(row.dataset.spellRow);
+    form.querySelector(`[data-spell-base="${index}"]`).textContent = budget.intelligence;
+    form.querySelector(`[data-spell-final="${index}"]`).textContent = budget.intelligence + (Number(spellSlots[index].points) || 0);
   });
+  const value = document.getElementById('pj-new-spell-points').value;
+  document.getElementById('pj-new-spell-score').textContent = `Score final : ${value === '' ? '—' : budget.intelligence + (Number(value) || 0)}`;
+}
+
+function setSpellStatus(message, error = false) {
+  const status = document.getElementById('pj-spells-status');
+  status.textContent = message;
+  status.classList.toggle('pj-error', error);
+}
+
+function addSpell() {
+  syncSpellSlotsFromForm();
+  const name = document.getElementById('pj-new-spell').value;
+  const input = document.getElementById('pj-new-spell-points');
+  if (!name || input.value === '' || !input.checkValidity()) {
+    setSpellStatus('Choisissez un sort et attribuez-lui des points répartis entiers entre 0 et 999.', true);
+    return;
+  }
+  if (spellSlots.some(slot => slot.name === name)) { setSpellStatus('Ce sort est déjà présent.', true); return; }
+  const next = { name, points: input.value, checked: false };
+  const proposed = [...spellSlots, next];
+  const errors = magicErrors(magicContext(), proposed, availableNewSpells(), ACTIVE_SKILLS.map(({ index }) => index));
+  if (errors.length) { setSpellStatus(errors.join(' '), true); return; }
+  const empty = spellSlots.findIndex(slot => !slot.name);
+  if (empty < 0) spellSlots.push(next); else spellSlots[empty] = next;
+  document.getElementById('pj-spell-add-panel').hidden = true;
+  document.getElementById('pj-new-spell-points').value = '';
+  renderSpellRows();
+  magicEditRevision += 1;
+  changed();
+  setSpellStatus(`« ${name} » ajouté. Cliquez sur « Sauvegarder les sorts » pour l’enregistrer.`);
 }
 
 function addWeaponRow(weapon = {}) {
@@ -377,15 +414,8 @@ function updateSkillCalculations() {
     spent += points;
     form.querySelector(`[data-skill-final="${index}"]`).textContent = base + points;
   });
-  const spellBase = numberValue('intelligence') || 0;
-  form.querySelectorAll('[data-spell-row]').forEach(row => {
-    const index = row.dataset.spellRow;
-    const name = form.querySelector(`[data-spell-name="${index}"]`)?.value || '';
-    const points = Math.max(0, parseInt(form.querySelector(`[data-spell-points="${index}"]`)?.value, 10) || 0);
-    form.querySelector(`[data-spell-base="${index}"]`).textContent = name ? spellBase : 0;
-    form.querySelector(`[data-spell-final="${index}"]`).textContent = name ? spellBase + points : 0;
-    if (name) spent += points;
-  });
+  syncSpellSlotsFromForm();
+  spent += spellSlots.filter(slot => slot.name).reduce((sum, slot) => sum + (Number(slot.points) || 0), 0);
   const professional = Math.max(0, parseInt(fieldValue('skillProfessionalPool'), 10) || 0);
   const personal = (numberValue('intelligence') || 0) * 10;
   const total = professional + personal;
@@ -396,12 +426,7 @@ function updateSkillCalculations() {
   document.getElementById('pj-skill-spent').textContent = spent;
   document.getElementById('pj-skill-remaining').textContent = remaining;
   document.getElementById('pj-skill-remaining-card').classList.toggle('over-budget', remaining < 0);
-  const magicPool = document.getElementById('pj-magic-professional');
-  magicPool.value = fieldValue('skillProfessionalPool');
-  Object.entries({ personal, total, spent, remaining }).forEach(([key, value]) => {
-    document.getElementById(`pj-magic-${key}`).textContent = value;
-  });
-  document.getElementById('pj-magic-remaining-card').classList.toggle('over-budget', remaining < 0);
+  updateMagicCalculations();
 }
 
 function setDerived(key, value) { form.querySelector(`[data-derived="${key}"]`).value = value; }
@@ -410,6 +435,7 @@ function fieldValue(key) { return form.querySelector(`[data-field="${key}"]`)?.v
 
 // Conserver les valeurs des compétences masquées lors des sauvegardes.
 let hiddenSkillData = {};
+let loadedSheetData = {};
 const hiddenSkillIndexes = SKILLS.flatMap(([name], index) =>
   ['Artillerie', 'Conduite', 'Pilotage'].includes(name) ? [index] : []);
 
@@ -423,6 +449,8 @@ function collectData() {
   hiddenSkillIndexes.forEach(index => { skills[index] = { ...hiddenSkillData[index] }; });
   ACTIVE_SKILLS.forEach(({ index }) => {
     skills[index] = {
+      ...loadedSheetData.skills?.[index],
+      id: SKILL_IDS[index],
       base: form.querySelector(`[data-skill-base="${index}"]`).value,
       points: form.querySelector(`[data-skill-points="${index}"]`).value,
       score: form.querySelector(`[data-skill-final="${index}"]`).textContent,
@@ -432,11 +460,13 @@ function collectData() {
   const weapons = Array.from(weaponsBody.rows).map(row => Object.fromEntries(
     Array.from(row.querySelectorAll('[data-weapon]')).map(input => [input.dataset.weapon, input.value])
   ));
-  return { fields, stats, skills, spells: spellSlots, weapons };
+  return { ...loadedSheetData, fields: { ...loadedSheetData.fields, ...fields }, stats, skills,
+    spells: spellSlots.map(slot => slot.name ? { ...slot, id: slot.id || SPELL_IDS[slot.name] } : slot), weapons };
 }
 
 function applyData(data) {
   if (!data || typeof data !== 'object') return;
+  loadedSheetData = structuredClone(data);
   form.querySelectorAll('[data-field]').forEach(input => { input.value = ''; });
   STATS.forEach(([, key]) => {
     const input = form.querySelector(`[data-stat="${key}"]`);
@@ -457,11 +487,7 @@ function applyData(data) {
   Object.entries(data.stats || {}).forEach(([key, value]) => {
     const input = form.querySelector(`[data-stat="${key}"]`); if (input) input.value = value ?? '';
   });
-  spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, (_, index) => ({
-    name: data.spells?.[index]?.name || '',
-    points: data.spells?.[index]?.points ?? '0',
-    checked: !!data.spells?.[index]?.checked
-  }));
+  spellSlots = normalizeSpells(data.spells);
   renderSpellRows();
   updateDerived();
   const savedSkills = Array.isArray(data.skills) ? data.skills : [];
@@ -546,6 +572,71 @@ function supabaseErrorMessage(error) {
   return error?.message || 'Erreur Supabase inconnue';
 }
 
+async function saveSpells() {
+  if (magicSaveInProgress) return;
+  syncSpellSlotsFromForm();
+  if (!document.getElementById('pj-spell-add-panel').hidden) {
+    setSpellStatus('Terminez l’ajout du nouveau sort ou annulez-le avant la sauvegarde.', true);
+    return;
+  }
+  const proposed = structuredClone(spellSlots);
+  const powers = form.querySelector('[data-field="powers"]').value;
+  const revision = magicEditRevision;
+  const room = currentRoom();
+  if (!supabase || !room) {
+    const errors = magicErrors(magicContext(), proposed, availableNewSpells(), ACTIVE_SKILLS.map(({ index }) => index));
+    if (errors.length) { setSpellStatus(errors.join(' '), true); return; }
+    let local = {};
+    try { local = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { /* Nouveau brouillon. */ }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mergeMagicSheet(local, proposed, powers)));
+    setSpellStatus('Sorts et notes de magie enregistrés localement. Rejoignez une partie pour les sauvegarder dans Supabase.');
+    return;
+  }
+  magicSaveInProgress = true;
+  document.getElementById('pj-save-spells').disabled = true;
+  setSpellStatus('Sauvegarde des sorts…');
+  try {
+    const { data: saved, error: loadError } = await supabase.from('pj_sheets')
+      .select('id, sheet_data, markdown_content, updated_at')
+      .eq('user_id', room.userId).eq('room_code', room.code).eq('player_name', room.player).maybeSingle();
+    if (loadError) throw loadError;
+    if (!saved?.sheet_data) {
+      setSpellStatus('Sauvegardez d’abord votre fiche depuis l’onglet « Fiche » pour créer son enregistrement dans la partie.', true);
+      return;
+    }
+    spellSheetContext = structuredClone(saved.sheet_data);
+    const errors = magicErrors(saved.sheet_data, proposed, availableNewSpells(), ACTIVE_SKILLS.map(({ index }) => index));
+    updateMagicCalculations();
+    if (errors.length) { setSpellStatus(errors.join(' '), true); return; }
+    const merged = mergeMagicSheet(saved.sheet_data, proposed, powers);
+    const { data: result, error } = await supabase.from('pj_sheets').update({
+      sheet_data: merged,
+      markdown_content: patchMagicMarkdown(saved.markdown_content, saved.sheet_data, merged),
+      updated_at: new Date().toISOString()
+    }).eq('id', saved.id).eq('user_id', room.userId).eq('updated_at', saved.updated_at)
+      .select('id').maybeSingle();
+    if (error) throw error;
+    if (!result) { setSpellStatus('La fiche a changé pendant la sauvegarde. Recommencez pour repartir de ses dernières données.', true); return; }
+    if (result.revision) loadedSheetData = { ...loadedSheetData, revision: result.revision };
+    spellSheetContext = result.sheet_data || merged;
+    if (magicEditRevision === revision) {
+      spellSlots = normalizeSpells((result.sheet_data || merged).spells);
+      renderSpellRows();
+      clearTimeout(saveTimer);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+      setStatus('Sorts sauvegardés dans Supabase. Brouillon local conservé.');
+    }
+    setSpellStatus(magicEditRevision === revision
+      ? 'Sorts et notes de magie sauvegardés dans Supabase.'
+      : 'Sorts sauvegardés. Des modifications plus récentes restent à enregistrer.');
+  } catch (error) {
+    setSpellStatus('Sauvegarde des sorts impossible : ' + supabaseErrorMessage(error), true);
+  } finally {
+    magicSaveInProgress = false;
+    document.getElementById('pj-save-spells').disabled = false;
+  }
+}
+
 async function saveSheetToSupabase() {
   const room = currentRoom();
   if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
@@ -556,7 +647,7 @@ async function saveSheetToSupabase() {
   button.disabled = true;
   setStatus('Sauvegarde Supabase en cours…');
   const data = collectData();
-  const { error } = await supabase.from('pj_sheets').upsert({
+  const { data: saved, error } = await supabase.from('pj_sheets').upsert({
     user_id: room.userId,
     room_code: room.code,
     player_name: room.player,
@@ -568,8 +659,11 @@ async function saveSheetToSupabase() {
   button.disabled = false;
 
   if (error) { setStatus('Sauvegarde impossible : ' + supabaseErrorMessage(error)); return; }
+  if (saved?.[0]?.sheet_data) loadedSheetData = structuredClone(saved[0].sheet_data);
+  spellSheetContext = structuredClone(data);
+  renderSpellRows();
   clearTimeout(saveTimer);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, revision: saved?.[0]?.revision || data.revision }));
   localStorage.removeItem(`${STORAGE_KEY}.experience`);
   setStatus(`Fiche de ${fieldValue('name')} sauvegardée dans la partie ${room.code}.`);
 }
@@ -588,6 +682,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
 
   const button = document.getElementById('pj-cloud-load');
   const revisionAtStart = localEditRevision;
+  const magicRevisionAtStart = magicEditRevision;
   sheetLoadInProgress = true;
   button.disabled = true;
   setStatus(automatic ? 'Recherche automatique de la fiche Supabase…' : 'Chargement Supabase en cours…');
@@ -597,6 +692,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
     const result = await supabase.from('pj_sheets')
       .select('sheet_data, character_name, updated_at')
       .eq('user_id', room.userId)
+      .eq('room_code', room.code)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -621,8 +717,19 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
     setStatus('La fiche Supabase existe mais son contenu est illisible. Brouillon local conservé.');
     return false;
   }
+  spellSheetContext = structuredClone(data.sheet_data);
   if (automatic && localEditRevision !== revisionAtStart) {
-    setStatus('Fiche Supabase trouvée, mais chargement automatique annulé car la fiche locale a été modifiée.');
+    if (magicEditRevision === magicRevisionAtStart) {
+      spellSlots = normalizeSpells(data.sheet_data.spells);
+      form.querySelector('[data-field="powers"]').value = data.sheet_data.fields?.powers || '';
+      renderSpellRows();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+      setSpellStatus('Sorts et notes de magie chargés depuis Supabase.');
+      setStatus('Sorts Supabase chargés ; les modifications locales de la fiche sont conservées.');
+    } else {
+      updateMagicCalculations();
+      setStatus('Fiche Supabase trouvée ; vos modifications locales sont conservées.');
+    }
     return false;
   }
   if (automatic) {
@@ -630,8 +737,9 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
     try { pending = JSON.parse(localStorage.getItem(`${STORAGE_KEY}.experience`)); } catch { /* Aucune coche à fusionner. */ }
     const owner = JSON.stringify([data.sheet_data.fields?.name || '', data.sheet_data.fields?.player || '']);
     if (pending?.owner === owner && Array.isArray(pending.checks)) {
-      pending.checks.forEach(({ kind, index, name }) => {
+      pending.checks.forEach(({ kind, index, id, name }) => {
         const entries = data.sheet_data[kind === 'spell' ? 'spells' : 'skills'];
+        if (id) index = entries?.findIndex(entry => entry.id === id);
         if (!Number.isInteger(index) || !entries?.[index]) return;
         if (kind === 'spell' && entries[index].name !== name) return;
         entries[index].checked = true;
@@ -881,7 +989,7 @@ function parseMarkdown(text) {
   data.spells = skillSection.split(/\r?\n/).filter(line => {
     const name = line.split('|')[1]?.trim();
     return spellNames.has(name);
-  }).slice(0, SPELL_SLOT_COUNT).map(line => {
+  }).map(line => {
     const cells = line.split('|');
     return { name: cells[1]?.trim() || '', points: cells[3]?.trim() || '0', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') };
   });
@@ -912,6 +1020,7 @@ function selectSheetTab(tab) {
     document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
   });
   document.querySelector('.pj-section-nav').hidden = tab.id !== 'pj-main-tab';
+  document.querySelector('.pj-toolbar').hidden = tab.id === 'pj-magic-tab';
   if (tab.id === 'pj-inventory-tab') {
     const frame = document.getElementById('pj-inventory-frame');
     if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
@@ -947,21 +1056,30 @@ function formChanged(event) {
       }
     } catch { /* Aucune coche en attente. */ }
   }
-  if (event.target.id === 'pj-magic-professional') {
-    form.querySelector('[data-field="skillProfessionalPool"]').value = event.target.value;
-  }
   if (event.target.matches('[data-weapon="name"]')) applyWeaponSelection(event.target);
   if (event.target.matches('[data-field="profession"]')) {
     syncSpellSlotsFromForm();
     renderSpellRows();
   }
-  if (event.target.matches('[data-spell-name]')) updateSpellOptions();
+  if (event.target.closest('#pj-magic-panel')) magicEditRevision += 1;
   changed();
 }
 form.addEventListener('input', formChanged);
 form.addEventListener('change', formChanged);
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
 document.getElementById('pj-clear-skill-checks').addEventListener('click', clearAllSkillChecks);
+document.getElementById('pj-save-spells').addEventListener('click', saveSpells);
+document.getElementById('pj-add-spell').addEventListener('click', () => {
+  refreshNewSpellOptions();
+  document.getElementById('pj-spell-add-panel').hidden = false;
+  document.getElementById('pj-new-spell').focus();
+});
+document.getElementById('pj-cancel-spell').addEventListener('click', () => {
+  document.getElementById('pj-spell-add-panel').hidden = true;
+  document.getElementById('pj-new-spell-points').value = '';
+  setSpellStatus('');
+});
+document.getElementById('pj-confirm-spell').addEventListener('click', addSpell);
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
@@ -974,7 +1092,7 @@ document.getElementById('pj-open').addEventListener('click', () => document.getE
 document.getElementById('pj-file').addEventListener('change', event => { const file = event.target.files[0]; if (file) openMarkdown(file).catch(() => alert('Ce fichier Markdown ne peut pas être ouvert.')); event.target.value = ''; });
 document.getElementById('pj-reset').addEventListener('click', () => {
   if (!confirm('Effacer le brouillon actuel et créer une nouvelle fiche ?')) return;
-  localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = Array.from({ length: SPELL_SLOT_COUNT }, () => ({ name: '', points: '0', checked: false })); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
+  localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = []; spellSheetContext = null; document.getElementById('pj-spell-add-panel').hidden = true; setSpellStatus(''); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
 
 window.diceForgeSheet = { setSkillChecked, getData: collectData };

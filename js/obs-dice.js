@@ -1,4 +1,4 @@
-import { getSupabaseClient } from './supabase-client.js';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
 
 const params = new URLSearchParams(window.location.search);

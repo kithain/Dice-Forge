@@ -7,10 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260727-course">
-  <link rel="stylesheet" href="pj.css?v=20261002-inventory">
+  <link rel="stylesheet" href="pj.css?v=20261002-campaign-v2">
   <link rel="stylesheet" href="site-menu.css?v=20260719">
   <style>.auth-pending body{visibility:hidden}</style>
-  <script src="supabase-config.js"></script>
+  <script src="supabase-config.js?v=20261002-campaign-v2"></script>
   <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
   <script type="importmap">
   { "imports": {
@@ -194,38 +194,47 @@
       </section>
       </div>
       <div id="pj-inventory-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-inventory-tab" hidden>
-        <iframe id="pj-inventory-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?embedded=1&amp;v=20261002-potion-doses" loading="lazy"></iframe>
+        <iframe id="pj-inventory-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?embedded=1&amp;v=20261002-campaign-v2" loading="lazy"></iframe>
       </div>
       <div id="pj-magic-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-magic-tab" hidden>
         <section class="pj-section">
           <h2>Sorts</h2>
           <div class="pj-skill-budget" aria-label="Budget commun aux compétences et aux sorts">
-            <label class="pj-budget-edit">Pool professionnel
-              <input id="pj-magic-professional" type="number" min="0" max="5000" value="325">
-            </label>
+            <div><span>Points professionnels</span><strong id="pj-magic-professional">325</strong></div>
             <div><span>Points personnels</span><strong id="pj-magic-personal">0</strong><small>INT × 10</small></div>
             <div><span>Total disponible</span><strong id="pj-magic-total">325</strong></div>
             <div><span>Points répartis</span><strong id="pj-magic-spent">0</strong></div>
             <div id="pj-magic-remaining-card"><span>Points restants</span><strong id="pj-magic-remaining">325</strong></div>
           </div>
-          <p class="pj-help" id="pj-spells-help">Les sorts disponibles dépendent de la profession du personnage.</p>
-          <p class="pj-help">Les points investis dans les sorts sont inclus dans le budget commun de compétences. Utilisez « Sauvegarder en ligne » pour enregistrer vos choix dans la partie.</p>
+          <p class="pj-help" id="pj-spells-help">Les sorts enregistrés sont affichés avec leurs points répartis.</p>
+          <p class="pj-help">Le nom d’un sort est fixe. Modifiez ses points répartis ou ajoutez un nouveau sort. Le score final vaut INT + points répartis.</p>
           <div class="pj-table-wrap" id="pj-spells-table-wrap">
             <table class="pj-table pj-skills-table">
-              <thead><tr><th>Sort</th><th>Base INT</th><th>Points à répartir</th><th>Score final</th><th>Coche</th></tr></thead>
+              <thead><tr><th>Sort</th><th>Base INT</th><th>Points répartis</th><th>Score final</th><th>Coche</th></tr></thead>
               <tbody id="pj-spells"></tbody>
             </table>
+          </div>
+          <p class="pj-help" id="pj-spells-empty">Aucun sort enregistré.</p>
+          <button class="pj-add" id="pj-add-spell" type="button">+ Ajouter un sort</button>
+          <div class="pj-spell-add" id="pj-spell-add-panel" hidden>
+            <label>Nouveau sort <select id="pj-new-spell" aria-label="Nouveau sort"><option value="" disabled selected>Choisir un sort…</option></select></label>
+            <label>Points répartis <input id="pj-new-spell-points" aria-label="Points répartis du nouveau sort" type="number" min="0" max="999" step="1" required></label>
+            <p class="pj-help" id="pj-new-spell-score">Score final : —</p>
+            <button class="pj-add" id="pj-confirm-spell" type="button">Ajouter ce sort</button>
+            <button class="pj-add" id="pj-cancel-spell" type="button">Annuler</button>
           </div>
         </section>
         <section class="pj-section">
           <h2>Pouvoirs et notes de magie</h2>
           <textarea data-field="powers" rows="6" placeholder="Un élément par ligne"></textarea>
         </section>
+        <div class="pj-magic-save"><button class="room-btn" id="pj-save-spells" type="button">Sauvegarder les sorts</button></div>
+        <p class="pj-help" id="pj-spells-status" role="status" aria-live="polite"></p>
       </div>
     </form>
   </main>
 
-  <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20261002-inventory"></script>
+  <script src="supabase-config.js?v=20261002-campaign-v2"></script>
+  <script type="module" src="js/pj-sheet.js?v=20261002-campaign-v2"></script>
 </body>
 </html>

@@ -40,3 +40,11 @@ jobs:
 
       - name: Tester les potions et leur sauvegarde
         run: node scripts/test_inventory_potions.cjs
+
+      - name: Tester le grimoire et sa sauvegarde
+        run: node scripts/test_pj_magic.cjs
+
+      - name: Tester les campagnes et la reprise
+        run: |
+          node scripts/test_character_store.cjs
+          python -B -m unittest discover -s migrations/character-v2 -p test_prepare.py -v

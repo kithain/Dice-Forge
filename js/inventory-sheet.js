@@ -1,6 +1,6 @@
-import { getSupabaseClient } from './supabase-client.js';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
 import { ALCHEMY_POTIONS } from './alchemy-potions.js?v=20261002-potion-doses';
-import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-potion-doses';
+import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-campaign-v2';
 
 if (new URLSearchParams(location.search).get('embedded') === '1' && window.frameElement) {
   document.body.classList.add('inventory-embedded');
@@ -61,7 +61,7 @@ function identityFromStorage() {
 
 function storageKey() {
   return roomIdentity
-    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}`
+    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}:${roomIdentity.code}`
     : `${INVENTORY_STORAGE_PREFIX}:local`;
 }
 
@@ -71,7 +71,7 @@ function cleanText(value) {
 
 function safeRows(value, fields) {
   if (!Array.isArray(value)) return [];
-  return value.map(row => Object.fromEntries(fields.map(field => [field, cleanText(row?.[field])])))
+  return value.map(row => ({ ...row, ...Object.fromEntries(fields.map(field => [field, cleanText(row?.[field])])) }))
     .filter(row => Object.values(row).some(Boolean));
 }
 
@@ -82,12 +82,14 @@ function normalizeInventory(value) {
     + (Math.max(0, Number.parseInt(rawWallet.pa, 10) || 0) * 10)
     + Math.max(0, Number.parseInt(rawWallet.pc, 10) || 0);
   return {
+    ...source,
     characterName: cleanText(source.characterName || source.character_name),
     wallet: walletFromTotal(totalPc),
     weapons: safeRows(source.weapons, SECTION_FIELDS.weapons),
     armors: safeRows(source.armors, SECTION_FIELDS.armors),
     equipment: safeRows(source.equipment, SECTION_FIELDS.equipment),
     consumables: safeRows(regularConsumables(source.consumables), SECTION_FIELDS.consumables),
+    potionContainer: source.potionContainer || source.consumables?.find(row => row.type === 'alchemy-potions') || {},
     miscellaneous: safeRows(source.miscellaneous, SECTION_FIELDS.miscellaneous),
     potions: potionRowsFromInventory(source, ALCHEMY_POTIONS)
   };
@@ -331,7 +333,8 @@ function render() {
 
 function collectRowsFromDom(section) {
   return Array.from(document.querySelectorAll(`tr[data-section="${section}"]`)).map(row =>
-    Object.fromEntries(Array.from(row.querySelectorAll('[data-row-field]')).map(input => [input.dataset.rowField, cleanText(input.value)]))
+    ({ ...inventory[section]?.[Number(row.dataset.rowIndex)],
+      ...Object.fromEntries(Array.from(row.querySelectorAll('[data-row-field]')).map(input => [input.dataset.rowField, cleanText(input.value)])) })
   );
 }
 
@@ -400,6 +403,7 @@ function cloudPayload() {
   collectFromDom();
   return {
     user_id: roomIdentity.userId,
+    ...(inventory.revision ? { expected_revision: inventory.revision } : {}),
     room_code: roomIdentity.code,
     player_name: roomIdentity.player,
     character_name: inventory.characterName,
@@ -409,7 +413,7 @@ function cloudPayload() {
     weapons: inventory.weapons,
     armors: inventory.armors,
     equipment: inventory.equipment,
-    consumables: consumablesWithPotions(inventory.consumables, inventory.potions),
+    consumables: consumablesWithPotions(inventory.consumables, inventory.potions, inventory.potionContainer),
     miscellaneous: inventory.miscellaneous,
     updated_at: new Date().toISOString()
   };
@@ -428,12 +432,13 @@ async function saveCloud({ automatic = false } = {}) {
   const button = document.getElementById('inventory-save');
   button.disabled = true;
   if (!automatic) setStatus('Sauvegarde de l’inventaire…');
-  const { error } = await supabase.from('pj_inventory').upsert(cloudPayload(), { onConflict: 'room_code,player_name' });
+  const { data: saved, error } = await supabase.from('pj_inventory').upsert(cloudPayload(), { onConflict: 'room_code,player_name' });
   button.disabled = false;
   if (error) {
     setStatus(`Sauvegarde impossible : ${inventoryError(error)}`, 'error');
     return false;
   }
+  if (saved?.[0]?.revision) inventory.revision = saved[0].revision;
   saveLocal();
   setStatus(`Inventaire sauvegardé dans le salon ${roomIdentity.code}.`, 'success');
   return true;
@@ -441,6 +446,7 @@ async function saveCloud({ automatic = false } = {}) {
 
 function inventoryFromCloud(row) {
   return normalizeInventory({
+    ...row,
     characterName: row.character_name,
     wallet: { po: row.po, pa: row.pa, pc: row.pc },
     weapons: row.weapons,

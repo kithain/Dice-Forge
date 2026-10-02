@@ -75,3 +75,9 @@
 .pj-panel{display:grid;gap:1rem;min-width:0}
 .pj-panel[hidden],.pj-section-nav[hidden]{display:none}
 #pj-inventory-frame{width:100%;min-height:600px;border:0;display:block}
+.pj-toolbar[hidden],.pj-spell-add[hidden]{display:none}
+.pj-spell-add{display:flex;flex-wrap:wrap;align-items:end;gap:.75rem;padding:1rem;border:1px solid var(--brd2);border-radius:6px;margin-top:.75rem}
+.pj-spell-add label{display:grid;gap:.4rem;color:var(--gold2);font-size:.85rem}
+.pj-spell-add input,.pj-spell-add select{padding:.6rem;border:1px solid var(--brd2);border-radius:5px;background:var(--s2);color:var(--txt);max-width:100%}
+.pj-magic-save{margin-top:.5rem}
+.pj-error{color:#fca5a5}

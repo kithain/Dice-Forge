@@ -1,5 +1,5 @@
 // ——— Supabase multiplayer room logic ———
-import { getSupabaseClient } from './supabase-client.js';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2';
 import { showToast, showConfirm } from './toast.js';
 
 let sb = null;
@@ -139,6 +139,7 @@ export async function joinRoom() {
 }
 
 export async function createRoom() {
+  const sourceRoom = roomState.code;
   const name = document.getElementById('player-name').value.trim();
   if (!name) { showToast('Entre ton nom de joueur', 'error'); return; }
   sbInit();
@@ -161,6 +162,11 @@ export async function createRoom() {
     player_name: name
   });
   if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
+
+  if (window.SUPABASE_CONFIG?.characterV2) {
+    const { error: campaignError } = await sb.rpc('df_link_campaign_room', { p_source: sourceRoom, p_target: code });
+    if (campaignError) { showToast('Rattachement à la campagne impossible : ' + campaignError.message, 'error'); return; }
+  }
 
   const { error } = await sb.from('rolls').insert({
     room_code: code,

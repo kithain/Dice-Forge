@@ -1,0 +1,25 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+  const {campaignClient} = await import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync('js/character-store.js','utf8')).toString('base64'));
+  const calls=[];
+  let answer={data:{rows:[{id:'state',revision:3,sheet_data:{revision:3}}]},error:null};
+  const legacy={select(){calls.push('legacy-select');return this;},eq(){return this;},maybeSingle(){return Promise.resolve({data:{old:true},error:null});}};
+  const original={auth:{test:true},from(){return legacy;},async rpc(name,args){calls.push({name,args});return answer;}};
+  const client=campaignClient(original,()=>({code:'4SSU'}));
+  assert.equal(client.auth,original.auth);
+  let result=await client.from('pj_sheets').select('*').eq('user_id','owner').maybeSingle();
+  assert.equal(result.data.id,'state'); assert.equal(calls[0].args.p_room,'4SSU');
+  await client.from('pj_sheets').upsert({user_id:'owner',sheet_data:{revision:2}},{});
+  assert.equal(calls[1].args.p_payload.expected_revision,2);
+  answer={data:{legacy:true},error:null};
+  result=await client.from('pj_sheets').select('*').eq('user_id','owner').maybeSingle();
+  assert.equal(result.data.old,true);
+  answer={data:null,error:{code:'42501',message:'Forbidden'}};
+  const count=calls.filter(x=>x==='legacy-select').length;
+  result=await client.from('pj_sheets').select('*').maybeSingle();
+  assert.equal(result.error.code,'42501');
+  assert.equal(calls.filter(x=>x==='legacy-select').length,count,'An access denial must never fall back to legacy');
+  assert.equal(client.from('rolls'),legacy,'Dice feed remains on its dedicated table');
+  console.log('Campagnes : lectures, révisions, retour ancien et refus d’accès validés.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
