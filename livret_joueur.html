@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr" class="auth-pending">
 <head>
-<style>.auth-pending body{visibility:hidden}</style>
+<style>.auth-pending body{visibility:hidden}.alchemy-table{overflow-x:auto} #alchimie, #alchimie [id]{scroll-margin-top:1rem}
+.alchemy-callout{padding:12px 16px;margin:12px 0;background:#eee7da;border-left:4px solid #0f3460;line-height:1.7}
+@media print{.alchemy-table{overflow:visible} #alchimie tr{break-inside:avoid}}
+</style>
 <script src="supabase-config.js"></script>
 <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
 <meta charset="UTF-8">
@@ -177,6 +180,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 
 <nav class="book-nav" aria-label="Navigation du livret">
     <a href="index.html">← Dice Forge</a>
+    <a href="#alchimie">Alchimie et potions</a>
     <a href="inventaire.html">Inventaire et équipement →</a>
 </nav>
 
@@ -643,7 +647,7 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <div class="skill-entry" data-skill="Alphabétisation (option)"><dt>Alphabétisation (option) <span class="skill-base">Selon profession</span></dt><dd>Lire et écrire une langue connue. Tous les personnages peuvent y investir des points. Base : Érudit ou Étudiant = INT×5 ; Sorcier ou Prêtre = INT×4 ; Noble = INT×3 ; autres professions = 00 %. Cette base représente l'éducation reçue avant le début de l'aventure.</dd></div>
 <div class="skill-entry" data-skill="Médecine"><dt>Médecine <span class="skill-base">05 %</span></dt><dd>Diagnostiquer maladies et blessures graves, pratiquer une chirurgie et organiser des soins de longue durée.</dd></div>
 <div class="skill-entry" data-skill="Recherche"><dt>Recherche <span class="skill-base">25 %</span></dt><dd>Trouver une information dans des archives, une bibliothèque, des registres ou un ensemble de témoignages.</dd></div>
-<div class="skill-entry" data-skill="Science (divers)"><dt>Science (divers) <span class="skill-base">01 %</span></dt><dd>Appliquer un savoir savant adapté au monde : alchimie, herboristerie, astronomie, anatomie ou philosophie naturelle.</dd></div>
+<div class="skill-entry" data-skill="Alchimie"><dt>Alchimie <span class="skill-base">01 %</span></dt><dd>Identifier les substances et fabriquer les préparations de campagne. Voir <a href="#alchimie">Alchimie et potions</a>.</dd></div>
 <div class="skill-entry" data-skill="Stratégie"><dt>Stratégie <span class="skill-base">01 %</span></dt><dd>Planifier une bataille, évaluer le terrain, les ressources et les intentions adverses à l'échelle d'une armée.</dd></div>
 <div class="skill-entry" data-skill="Enseignement"><dt>Enseignement <span class="skill-base">10 %</span></dt><dd>Transmettre méthodiquement une compétence ou un savoir et aider un élève à progresser.</dd></div>
 </dl>
@@ -984,6 +988,430 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 </ol>
 <p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La POU continue d'augmenter séparément via les jets de résistance de POU réussis contre une POU égale ou supérieure.</p>
 <p><b>Exemple :</b> avec INT 13, le bonus d'expérience et la réserve valent 7. Si les jets d'Épée, Défense et Premiers secours réussissent, le joueur répartit librement ces 7 points entre ces trois compétences, par exemple +4 en Épée, +2 en Défense et +1 en Premiers secours.</p>
+
+<section id="alchimie">
+<!-- Généré depuis data/alchimie.md ; SHA256 c4048f99c97f8b3b7d1b8257854970cb864ebfd6924d6ef96d1bd2aaa9f90eaf -->
+<h1 id="alchimie-alchimie" class="chapter">7. Alchimie</h1>
+<p class="note">Règles d’alchimie de la campagne : catégories de réactifs, recettes de degrés I et II et quatre doses transportées par personnage.</p>
+<p>Utilisez le score en pourcentage d’Alchimie indiqué sur votre fiche (base de 1 % + points investis). La mention INT désigne la caractéristique associée ; elle ne remplace pas ce score par un jet d’INT.</p>
+<aside class="alchemy-callout">Repères de jeu<br><strong>Compétence :</strong> Alchimie (INT) · <strong>Transport :</strong> 4 doses par personnage<br><strong>Fabrication :</strong> hors combat · <strong>Réussite :</strong> durée normale · <strong>Critique :</strong> nombre de doses ×2</aside>
+<h2 id="alchimie-sommaire">Sommaire</h2>
+<ul>
+<li><a href="#alchimie-1-competence-et-regles-de-base">Compétence et règles de base</a></li>
+<li><a href="#alchimie-2-composants-et-reactifs">Composants et réactifs</a></li>
+<li><a href="#alchimie-3-materiel-couts-et-conditions-de-fabrication">Fabrication, transport et apprentissage</a></li>
+<li><a href="#alchimie-4-livre-de-recettes">Livre de recettes</a></li>
+</ul>
+<hr>
+<h2 id="alchimie-1-competence-et-regles-de-base">1. Compétence et règles de base</h2>
+<p>Compétence clé : Alchimie (INT)</p>
+<ul>
+<li>Utilisation : L'alchimie est une activité de préparation au repos. Elle ne s'utilise pas directement en plein combat.</li>
+<li>Utilisation des produits : Lancer une fiole utilise "Lancer", enduire une arme utilise "Manipulation fine", verser un poison utilise "discrétion".</li>
+</ul>
+<h3 id="alchimie-resultats-du-jet-d-alchimie-fabrication">Résultats du jet d'alchimie (fabrication)</h3>
+<p>Le score effectif inclut les modificateurs de fabrication. Les seuils suivent <a href="ecran_joueur_BRP_ORC.html#jets">la résolution BRP</a>.</p>
+<ul>
+<li><strong>Critique :</strong> jet ≤ score ÷20, arrondi au supérieur ; nombre de doses ×2, durée normale.</li>
+<li><strong>Spéciale ou ordinaire :</strong> quantité et durée normales.</li>
+<li><strong>Échec :</strong> ingrédients perdus, aucun produit utilisable.</li>
+<li><strong>Maladresse :</strong> accident immédiat (détonation, fuite d’acide ou empoisonnement) ; seuil dépendant du score.</li>
+</ul>
+<p>À Alchimie 71 : critique 01–04, spéciale 05–15, maladresse 99–100. Le transport reste limité à <strong>4 doses</strong>, même après une fabrication critique.</p>
+<h3 id="alchimie-vecteurs-d-utilisation">Vecteurs d'utilisation</h3>
+<ol>
+<li>Contact / Enduit (Manipulation fine): Appliqué sur une arme ou un objet. S'active à la blessure ou au toucher.</li>
+<li>Volatile / Jetable (Lancer): Fiole brisée.</li>
+<li>Ingestion / Inhalation : Consommé directement, dissous dans une boisson ou respiré.</li>
+</ol>
+<hr>
+<h2 id="alchimie-2-composants-et-reactifs">2. Composants et réactifs</h2>
+<p>Chaque recette impose un assemblage précis parmi 4 catégories de réactifs :</p>
+<ul>
+<li>[Solvant] : Alcools, et autres dissolvants .</li>
+<li>[Sel] : Poudres, sels et composés minéraux.</li>
+<li>[Organique] : Matières organiques, extraits, sucs et substances d'origine végétale ou animale.</li>
+<li>[Catalyseur] : Éléments rares utilisés pour provoquer, stabiliser ou amplifier une réaction.</li>
+</ul>
+<h3 id="alchimie-validite-d-une-recette">Validité d'une recette</h3>
+<p>Chaque recette indique les <strong>catégories de réactifs requises</strong> pour pouvoir être fabriquée.</p>
+<p>Exemple :</p>
+<p>[Solvant] + [Organique] + [Sel]</p>
+<p>Le joueur choisit librement un ingrédient appartenant à chacune des catégories demandées.</p>
+<ul>
+<li>Si toutes les catégories requises sont présentes : la fabrication peut être tentée.</li>
+<li>Si une ou plusieurs catégories requises sont absentes ou remplacées par une catégorie incorrecte : la recette est invalide et aucun jet d'Alchimie n'est possible.</li>
+</ul>
+<p>Chaque recette possède également une <strong>Formule classique</strong>, représentant la combinaison d'ingrédients traditionnellement utilisée par les alchimistes.</p>
+<p>Cette formule sert de référence, mais elle n'est pas obligatoire : le joueur peut remplacer un ou plusieurs ingrédients par d'autres réactifs appartenant aux mêmes catégories.</p>
+<p>Le choix des ingrédients n'affecte donc pas la validité de la recette tant que les catégories sont respectées. Il détermine uniquement la difficulté du jet d'Alchimie.</p>
+<h3 id="alchimie-difficulte-du-jet">Difficulté du jet</h3>
+<p>Une fois les catégories respectées, la difficulté du jet d'Alchimie dépend de la cohérence des ingrédients choisis entre eux et avec l'effet recherché.</p>
+<ul>
+<li>Combinaison classique : Les ingrédients correspondent à la recette connue ou possèdent une association évidente. → Jet normal.</li>
+<li>Combinaison exotique : Les ingrédients sont inhabituels, mais leurs propriétés restent compatibles avec la préparation. → Malus de 20%.</li>
+<li>Combinaison peu cohérente : Les ingrédients appartiennent aux bonnes catégories, mais leur association est hasardeuse, contradictoire ou peu adaptée à l'effet recherché. → Malus de 40%.</li>
+</ul>
+<p>Le jet d'Alchimie représente la capacité du personnage à doser, préparer et faire interagir correctement les ingrédients sélectionnés.</p>
+<h3 id="alchimie-regle-generale">Règle générale</h3>
+<p>Les catégories déterminent si la recette peut être tentée. Les ingrédients choisis déterminent la difficulté du jet. Le jet d'Alchimie détermine la réussite de la fabrication.</p>
+<hr>
+<h2 id="alchimie-3-materiel-couts-et-conditions-de-fabrication">3. Matériel, coûts et conditions de fabrication</h2>
+<p>Pour fabriquer un produit alchimique, le personnage doit disposer :</p>
+<ul>
+<li>d'une trousse d'alchimie ou d'un atelier,</li>
+<li>des ingrédients exigés par la recette,</li>
+<li>des fournitures nécessaires à la préparation d'une dose,</li>
+<li>du temps de préparation indiqué dans la recette.</li>
+</ul>
+<p>Sans trousse d'alchimie ou un accès à un atelier, aucune fabrication n'est possible.</p>
+<h3 id="alchimie-materiel-et-tarifs">Matériel et tarifs</h3>
+<div class="alchemy-table"><table>
+<tr><th>Matériel ou service</th><th>Prix</th><th>Utilité</th></tr>
+<tr><td>Trousse d'alchimie transportable</td><td>8 Po</td><td>Permet de fabriquer des produits alchimiques dans un lieu calme.<br>Réutilisable.</td></tr>
+<tr><td>Fournitures pour une dose</td><td>1 Pa</td><td>Consommables nécessaires à chaque fabrication : fiole, bouchon, filtres, combustible et base neutre.</td></tr>
+<tr><td>Location d'un atelier</td><td>1 Po / jour</td><td>Donne accès à un poste de travail et au matériel nécessaire. Les ingrédients et fournitures restent à la charge de l'alchimiste.</td></tr>
+<tr><td>Copie d'une recette de Degré I</td><td>2 Po</td><td>Nécessite 2 heures d'étude et un test d'Alphabétisation pour être apprise.</td></tr>
+<tr><td>Copie d'une recette de Degré II</td><td>5 Po</td><td>Nécessite 1 journée d'étude et un test d'Alphabétisation à -20% pour être apprise.</td></tr>
+</table></div>
+<p>Les fournitures d'une dose sont distinctes des ingrédients indiqués dans la recette.</p>
+<p>Chaque tentative de fabrication consomme donc :</p>
+<ul>
+<li>les ingrédients choisis pour remplir les catégories requises,</li>
+<li>1 lot de fournitures par dose fabriquée.</li>
+</ul>
+<p>La trousse d'alchimie et l'équipement d'un atelier ne sont pas consommés.</p>
+<h3 id="alchimie-conditions-de-fabrication">Conditions de fabrication</h3>
+<p>Un atelier correctement équipé ne confère aucun bonus automatique au jet d'Alchimie.</p>
+<p>La difficulté dépend normalement de la cohérence des ingrédients employés.</p>
+<p>Cependant, les conditions de travail peuvent aggraver cette difficulté.</p>
+<p>Exemples de mauvaises conditions :</p>
+<ul>
+<li>espace instable ou inadapté,</li>
+<li>mauvaise condition météo,</li>
+<li>matériel endommagé,</li>
+<li>absence d'eau propre ou de source de chaleur adaptée,</li>
+<li>nécessité de travailler rapidement ou discrètement.</li>
+</ul>
+<p>Le MJ détermine si les circonstances justifient cette augmentation de difficulté.</p>
+<h3 id="alchimie-temps-et-interruptions">Temps et interruptions</h3>
+<p>L'Alchimie est une activité de préparation.</p>
+<p>Aucune fabrication ne peut être réalisé pendant un combat.</p>
+<p>Le temps indiqué dans chaque recette représente le temps de travail nécessaire pour fabriquer une dose.</p>
+<p>Une courte interruption peut suspendre la préparation sans conséquence.</p>
+<p>Si la préparation est abandonnée pendant plus de 10 minutes :</p>
+<ul>
+<li>la fabrication échoue,</li>
+<li>les ingrédients et fournitures utilisés sont perdus.</li>
+</ul>
+<h3 id="alchimie-transport-des-preparations">Transport des préparations</h3>
+<p>Un personnage peut transporter au maximum <strong>4 doses de produits alchimiques au total</strong>, tous contenants et tous produits confondus, y compris dans son sac. Une dose occupe un emplacement, quelle que soit sa forme.</p>
+<p>Les réserves supplémentaires restent dans un lieu de stockage ou dans un coffre de transport sur une monture ou un véhicule. Elles ne sont pas accessibles pendant un combat. Hors combat, un personnage peut réapprovisionner son équipement sans dépasser 4 doses. PJ et PNJ suivent la même limite.</p>
+<h3 id="alchimie-contrecoups-et-recuperation">Contrecoups et récupération</h3>
+<p>Les quatre fortifiants suivants provoquent toujours un contrecoup : <a href="#alchimie-sang-de-berserker">Sang de berserker</a>, <a href="#alchimie-il-de-lyncee">Œil de Lyncée</a>, <a href="#alchimie-cuirasse-de-titan">Cuirasse de titan</a> et <a href="#alchimie-souffle-de-djinn">Souffle de djinn</a>. Réussir le test de CON×5 atténue le contrecoup, cela ne l'annule pas. Les dégâts de contrecoup ignorent l'armure.</p>
+<p>Un même fortifiant ne cumule pas ses bonus avec lui-même. Une nouvelle dose prise pendant son effet ne prolonge pas sa durée. Une nouvelle dose prise pendant son contrecoup n'accorde aucun bonus et ne supprime ni ne reporte les pénalités. Les contrecoups de produits différents s'appliquent simultanément : leurs pénalités à un même jet s'additionnent.</p>
+<p>Pour ces contrecoups, un repos long signifie 8 heures de repos, dont au moins 6 heures de sommeil, sans effort soutenu. Il ne rend pas automatiquement les PV perdus : les règles habituelles de soins s'appliquent.</p>
+<h3 id="alchimie-apprentissage-des-recettes">Apprentissage des recettes</h3>
+<p>Un personnage doit connaître une recette avant de pouvoir la fabriquer.</p>
+<p>Une recette peut notamment être :</p>
+<ul>
+<li>apprise auprès d'un alchimiste.</li>
+<li>découverte dans un ouvrage.</li>
+<li>achetée sous forme de copie.</li>
+<li>obtenue comme récompense.</li>
+</ul>
+<p>L'apprentissage d'une recette écrite nécessite du temps d'étude ainsi qu'un test d'Alphabétisation.</p>
+<ul>
+<li>Recette de Degré I : 2 heures d'étude, puis test d'Alphabétisation normal.</li>
+<li>Recette de Degré II : 1 journée d'étude, puis test d'Alphabétisation à -20%.</li>
+</ul>
+<h4 id="alchimie-resultat-du-test">Résultat du test</h4>
+<ul>
+<li>Réussite : Le personnage comprend la recette et l'apprend définitivement.</li>
+<li>Échec : Le personnage ne parvient pas à l'apprendre. La copie n'est pas perdue et pourra être étudiée à nouveau après une nouvelle période d'étude complète.</li>
+<li>Échec critique : Le personnage interprète mal certains passages. Il doit recevoir l'aide d'un personnage connaissant déjà la recette ou trouver une autre version du texte avant de pouvoir retenter son apprentissage.</li>
+</ul>
+<p>Le test d'Alphabétisation représente la capacité à comprendre les notations, abréviations, proportions et procédés décrits dans le texte.</p>
+<p>Il ne remplace jamais le jet d'Alchimie nécessaire à la fabrication.</p>
+<hr>
+<h2 id="alchimie-4-livre-de-recettes">4. Livre de recettes</h2>
+<div class="alchemy-table"><table>
+<tr><th>Recette</th><th>Degré et utilisation</th><th>Préparation</th></tr>
+<tr><td><a href="#alchimie-liqueur-de-courtoisie">Liqueur de courtoisie</a></td><td>Degré I : Ingestion</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-brume-de-lethargie">Brume de léthargie</a></td><td>Degré II : Volatile / Gaz</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-huile-du-dernier-argument">Huile du dernier argument</a></td><td>Degré I : Contact / Enduit</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-larmes-de-veuve">Larmes de veuve</a></td><td>Degré II : Ingestion</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-poudre-d-eclat-du-mage">Poudre d&#x27;éclat du mage</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-bouche-d-enfer">Bouche d&#x27;enfer</a></td><td>Degré II : Jetable</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-feu-d-alchimiste">Feu d&#x27;alchimiste</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-linceul-de-naphte">Linceul de naphte</a></td><td>Degré II : Jetable</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-sang-de-ver-pourpre">Sang de ver pourpre</a></td><td>Degré I : Application / Jetable</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-bave-de-rouille">Bave de rouille</a></td><td>Degré II : Application</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-brume-d-ombre">Brume d&#x27;ombre</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
+<tr><td><a href="#alchimie-poussiere-d-eclat-solaire">Poussière d&#x27;éclat solaire</a></td><td>Degré II : Jetable</td><td>3 heures</td></tr>
+<tr><td><a href="#alchimie-sang-de-berserker">Sang de berserker</a></td><td>Degré I : Ingestion</td><td>2 heures</td></tr>
+<tr><td><a href="#alchimie-il-de-lyncee">Œil de Lyncée</a></td><td>Degré I : Application / Gouttes oculaires</td><td>2 heures</td></tr>
+<tr><td><a href="#alchimie-cuirasse-de-titan">Cuirasse de titan</a></td><td>Degré II : Ingestion</td><td>4 heures</td></tr>
+<tr><td><a href="#alchimie-souffle-de-djinn">Souffle de djinn</a></td><td>Degré II : Inhalation</td><td>4 heures</td></tr>
+</table></div>
+<hr>
+<h3 id="alchimie-liqueur-de-courtoisie">Liqueur de courtoisie</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Solvant] + [Organique]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Alcool fort + Suc de pavot</p>
+<h4 id="alchimie-effet">Effet</h4>
+<p>Dissimulée dans une boisson ou administrée directement.</p>
+<p>La cible effectue un test de CON×5.</p>
+<ul>
+<li><strong>Réussite :</strong> La cible résiste à l'effet.</li>
+<li><strong>Échec :</strong> Somnolence pendant 1D4 heures. -20% à Observation, Intuition et aux actions. La cible s'endort si elle n'est pas régulièrement stimulée.</li>
+</ul>
+<hr>
+<h3 id="alchimie-brume-de-lethargie">Brume de léthargie</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Alcool distillé + Herbe léthargique + Sel soporifique</p>
+<h4 id="alchimie-effet-2">Effet</h4>
+<p>Libère un nuage dans un rayon de 3 mètres.</p>
+<p>Les créatures présentes effectuent un test de CON×5 −20 points.</p>
+<ul>
+<li><strong>Réussite :</strong> La créature résiste à l'effet.</li>
+<li><strong>Échec :</strong> Endormissement immédiat pendant 1D6 rounds.</li>
+</ul>
+<p>Une blessure infligeant une perte de PV ou un contact  violent met immédiatement fin à ce sommeil.</p>
+<hr>
+<h3 id="alchimie-huile-du-dernier-argument">Huile du dernier argument</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Solvant] + [Organique]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Huile épaisse + Venin alchimique</p>
+<p><strong>Quantité :</strong> Permet d'enduire 1 arme ou 2 projectiles. Chaque enduit est consommé au premier coup infligeant des dégâts tranchants ou perforants.</p>
+<h4 id="alchimie-effet-3">Effet</h4>
+<p>Le poison s'active lors du premier coup infligeant des dégâts tranchants ou perforants.</p>
+<p>La cible effectue un test de CON×5.</p>
+<ul>
+<li><strong>Réussite :</strong> La cible résiste au poison.</li>
+<li><strong>Échec :</strong> Subit 1D4 PV de dégâts supplémentaires par round pendant 3 rounds.</li>
+</ul>
+<p>Le même poison ne se cumule pas sur une cible : une nouvelle exposition pendant ces 3 rounds n'ajoute aucun dégât, ne prolonge pas la durée et ne déclenche pas de nouveau test. Une fois l'effet terminé, une nouvelle exposition se résout normalement.</p>
+<hr>
+<h3 id="alchimie-larmes-de-veuve">Larmes de veuve</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Eau distillée + Baie de Veuve + Sel noir</p>
+<p><strong>Propriété :</strong> Inodore et incolore.</p>
+<h4 id="alchimie-effet-4">Effet</h4>
+<p>Le poison agit environ 10 minutes après ingestion.</p>
+<p>La cible effectue un test de CON×5 −20 points.</p>
+<ul>
+<li><strong>Réussite :</strong> La cible résiste au poison.</li>
+<li><strong>Échec :</strong> Subit 2D6 PV de dégâts. -1D4 FOR pendant 24 heures.</li>
+</ul>
+<hr>
+<h3 id="alchimie-poudre-d-eclat-du-mage">Poudre d'éclat du mage</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Sel] + [Organique]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Sel fulminant + Charbon alchimique</p>
+<h4 id="alchimie-effet-5">Effet</h4>
+<p>La fiole est utilisée avec la compétence Lancer.</p>
+<p>Zone d'effet : rayon de 2 mètres.</p>
+<ul>
+<li>Inflige 1D8 PV de dégâts de choc.</li>
+<li>Ignore 2 PA d'armure.</li>
+</ul>
+<hr>
+<h3 id="alchimie-bouche-d-enfer">Bouche d'enfer</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Sel] + [Solvant] + [Catalyseur]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Sel fulminant + Goudron alchimique + Cendre de salamandre</p>
+<h4 id="alchimie-effet-6">Effet</h4>
+<p>Produit une violente déflagration.</p>
+<p>Zone d'effet : rayon de 4 mètres.</p>
+<ul>
+<li>Inflige 3D6 PV de dégâts.</li>
+<li>Ignore la moitié des PA d'armure.</li>
+<li>Les créatures touchées effectuent un test de DEX.</li>
+<li><strong>Échec au test de DEX :</strong> La créature tombe à terre.</li>
+</ul>
+<hr>
+<h3 id="alchimie-feu-d-alchimiste">Feu d'alchimiste</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Huile épaisse + Résine ardente + Sel de salamandre</p>
+<h4 id="alchimie-effet-7">Effet</h4>
+<p>Zone d'effet : rayon de 2 mètres.</p>
+<ul>
+<li>Inflige 2D6 PV à l'impact.</li>
+<li>Les créatures touchées prennent feu.</li>
+<li>Inflige ensuite 1D4 PV par round pendant 3 rounds.</li>
+</ul>
+<p>Une action permet d'éteindre les flammes.</p>
+<hr>
+<h3 id="alchimie-linceul-de-naphte">Linceul de naphte</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Solvant] + [Sel] + [Catalyseur]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Huile infernale + Sel phosphorescent + Écaille de salamandre</p>
+<h4 id="alchimie-effet-8">Effet</h4>
+<p>Produit des flammes alchimiques extrêmement difficiles à étouffer. Toutes les créatures dans la zone subissent les effets, sans distinction : PJ, PNJ, alliés et utilisateur compris. Ce produit est volontairement destructeur et doit être utilisé avec précaution.</p>
+<p>Zone d'effet : rayon de 3 mètres.</p>
+<ul>
+<li>Inflige 2D6 PV à l'impact.</li>
+<li>Inflige ensuite 1D6 PV par round pendant 3 rounds.</li>
+<li>Ignore l'armure.</li>
+</ul>
+<hr>
+<h3 id="alchimie-sang-de-ver-pourpre">Sang de ver pourpre</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Solvant] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Vitriol alchimique + Sel mordant</p>
+<h4 id="alchimie-effet-9">Effet</h4>
+<ul>
+<li>Corrode une serrure ordinaire en 1D6 minutes.</li>
+<li>Inflige 1D6 PV de dégâts.</li>
+<li>Réduit de 1 PA l'armure touchée.</li>
+</ul>
+<hr>
+<h3 id="alchimie-bave-de-rouille">Bave de rouille</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Solvant] + [Sel] + [Catalyseur]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Acide alchimique + Sel métallique + Bile de limon rouilleur</p>
+<h4 id="alchimie-effet-10">Effet</h4>
+<ul>
+<li>Réduit de 1D4 PA la protection de l'armure touchée.</li>
+<li>Dégrade des chaînes, barreaux ou grosses serrures en 1D4 rounds.</li>
+</ul>
+<hr>
+<h3 id="alchimie-brume-d-ombre">Brume d'ombre</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>1 heure</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Huile noire + Résine obscure + Suie alchimique</p>
+<h4 id="alchimie-effet-11">Effet</h4>
+<p>Crée une fumée opaque dans un rayon de 5 mètres.</p>
+<p><strong>Durée :</strong> 1D6 rounds.</p>
+<ul>
+<li>-30% aux attaques à distance.</li>
+<li>-30% à la Observation.</li>
+</ul>
+<hr>
+<h3 id="alchimie-poussiere-d-eclat-solaire">Poussière d'éclat solaire</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>3 heures</td><td>[Sel] + [Catalyseur]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Sel lumineux + Poudre d'os consacrée</p>
+<h4 id="alchimie-effet-12">Effet</h4>
+<p>Produit une violente détonation lumineuse et sonore dans un rayon de 4 mètres.</p>
+<p>Les créatures présentes effectuent un test de CON×5 −20 points.</p>
+<ul>
+<li><strong>Réussite :</strong> La créature résiste à l'éblouissement.</li>
+<li><strong>Échec :</strong> Aveuglée et étourdie pendant 1D4 rounds. -40% aux Actions. Esquive divisée par 2.</li>
+</ul>
+<hr>
+<h3 id="alchimie-sang-de-berserker">Sang de berserker</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>2 heures</td><td>[Organique] + [Solvant] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Bile d'ours + Alcool fort + Sulfate de fer</p>
+<h4 id="alchimie-effet-13">Effet</h4>
+<p><strong>Durée :</strong> 1D6 rounds.</p>
+<ul>
+<li>+20% aux attaques de corps à corps.</li>
+<li>+1D4 dégâts.</li>
+<li>Ignore les malus liés aux blessures.</li>
+</ul>
+<h4 id="alchimie-contrecoup">Contrecoup</h4>
+<p>à la fin de l'effet, test de CON×5.</p>
+<ul>
+<li><strong>Réussite (Épuisement musculaire) :</strong> -20 % aux actions physiques pendant 1d4 demi-heures, impossible de sprinter pendant cette durée.</li>
+<li><strong>Échec (Effondrement) :</strong> chute à terre, incapable d'agir ou de se défendre pendant 1D4 rounds,  perte de 1D4 PV. Ensuite, -30 % aux actions physiques et impossibilité de sprinter jusqu'à un repos long.</li>
+</ul>
+<aside class="alchemy-callout">Conséquences RP<br>mains tremblantes, sueurs abondantes et mâchoire crispée pendant la récupération. En cas d'échec, des courbatures empêchent toutes action physique autre que la marche.</aside>
+<hr>
+<h3 id="alchimie-il-de-lyncee">Œil de Lyncée</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>2 heures</td><td>[Organique] + [Solvant] + [Sel]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Belladone alchimique + Eau lunaire + Cristal de lyncide</p>
+<h4 id="alchimie-effet-14">Effet</h4>
+<p><strong>Durée :</strong> 1D6 × 10 minutes.</p>
+<ul>
+<li>Permet de voir dans l'obscurité.</li>
+<li>+20% à la Observation.</li>
+<li>+20% aux tests de Tir et de Lancer.</li>
+</ul>
+<h4 id="alchimie-contrecoup-2">Contrecoup</h4>
+<p>à la fin de l'effet, test de CON×5.</p>
+<ul>
+<li><strong>Réussite  (Photophobie) :</strong> -20 % aux actions reposant sur la vue pendant 1d4 demi-heures, porté à -30 % sous une lumière vive.</li>
+<li><strong>Échec  (Crise oculaire) :</strong> cécité pendant 10 minutes. Ensuite, -30 % aux actions reposant sur la vue jusqu'à un repos long.</li>
+</ul>
+<aside class="alchemy-callout">Conséquences RP<br>yeux rougis, larmoiement et besoin de pénombre pendant la récupération. Lors de la cécité, se déplacer exige un guide ou progresser à tâtons.</aside>
+<hr>
+<h3 id="alchimie-cuirasse-de-titan">Cuirasse de titan</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Organique] + [Sel] + [Solvant]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Carapace de scarabée-titan + Sel métallique + Huile lourde</p>
+<h4 id="alchimie-effet-15">Effet</h4>
+<p><strong>Durée :</strong> 1D6+2 rounds.</p>
+<ul>
+<li>+4 PA naturels.</li>
+<li>+20% aux tests de FOR.</li>
+</ul>
+<h4 id="alchimie-contrecoup-3">Contrecoup</h4>
+<p>à la fin de l'effet, test de CON×5 −20 points.</p>
+<ul>
+<li><strong>Réussite (Raideur musculaire) :</strong> -3 DEX, -20 % en Esquive et déplacement réduit de moitié pendant 1d4 demi-heures.</li>
+<li><strong>Échec  (Pétrification partielle) :</strong> perte de 2D4 PV, incapable de se déplacer, d'agir ou de se défendre pendant 1D6 rounds. Ensuite, -3 DEX, -30 % aux actions physiques et déplacement réduit de moitié jusqu'à un repos long.</li>
+</ul>
+<aside class="alchemy-callout">Conséquences RP<br>peau marbrée, articulations craquantes et démarche raide pendant la récupération. En cas d'échec, paralysie suivit d'une sensation de raideur dans les membres.</aside>
+<hr>
+<h3 id="alchimie-souffle-de-djinn">Souffle de djinn</h3>
+<div class="alchemy-table"><table>
+<tr><th>Préparation</th><th>Catégories requises</th></tr>
+<tr><td>4 heures</td><td>[Organique] + [Solvant] + [Catalyseur]</td></tr>
+</table></div>
+<p><strong>Formule classique :</strong> Mandragore alchimique + Éther des vents + Souffle cristallisé</p>
+<h4 id="alchimie-effet-16">Effet</h4>
+<p><strong>Durée :</strong> 1D4+2 rounds.</p>
+<ul>
+<li>+20% DEX.</li>
+<li>+20% Esquive.</li>
+<li>Initiative doublée.</li>
+<li>+1 action par round.</li>
+</ul>
+<h4 id="alchimie-contrecoup-4">Contrecoup</h4>
+<p>à la fin de l'effet, test de CON×5 −20 points.</p>
+<ul>
+<li><strong>Réussite  (Épuisement nerveux) :</strong> incapable d'agir ou de se défendre pendant 1 round. Ensuite, -30 % aux actions physiques, déplacement réduit de moitié et impossibilité de sprinter pendant 4 heures.</li>
+<li><strong>Échec  (Effondrement nerveux) :</strong> perte de 1D6 PV et perte de connaissance pendant 1D6 minutes. Au réveil, -40 % aux actions physiques, déplacement réduit de moitié et impossibilité de sprinter jusqu'à un repos long. Pendant la première heure suivant le réveil, le personnage ne peut marcher qu'avec l'aide d'une autre personne.</li>
+</ul>
+<aside class="alchemy-callout">Conséquences RP<br>tremblements visibles, souffle court et parole hachée pendant la récupération. Impossible de soutenir un discours, chanter ou réciter un long texte sans pauses fréquentes. En cas d'échec, le personnage doit être protégé et transporté pendant son inconscience, ses compagnons doivent adapter la fuite ou la poursuite à son état.</aside>
+</section>
 
 <hr>
 <p style="text-align: center; font-style: italic; color: #666; margin-top: 20px;">Bon jeu, et que les dés soient avec vous !</p>

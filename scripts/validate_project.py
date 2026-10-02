@@ -23,6 +23,7 @@ JAVASCRIPT_FOLDERS = (
 
 
 def main():
+    subprocess.run([sys.executable, str(ROOT / 'scripts' / 'sync_alchemy_rules.py'), '--check'], check=True)
     missing = [name for name in REQUIRED_PUBLIC_FILES if not (ROOT / name).is_file()]
     if missing:
         print("Fichiers publics manquants : " + ", ".join(missing), file=sys.stderr)

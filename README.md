@@ -81,6 +81,10 @@ Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/D
 
 ## Pages et références
 
+Les règles d’alchimie retenues sont celles du référentiel Obsidian : catégories de réactifs, recettes de degrés I/II, critique doublant les doses et limite de quatre doses transportées. Le livret contient les 16 recettes et leurs contrecoups ; les écrans joueur/MJ et la fiche renvoient à ce même chapitre.
+
+Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/alchimie.md`, puis l’importer avec `python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"`. Le script conserve sa copie dans `data/alchimie.md` et génère la section `#alchimie` du livret. Ne pas modifier cette section HTML séparément : `python scripts/validate_project.py` vérifie sa synchronisation, également dans GitHub Actions. Sans `--source`, le script régénère le chapitre depuis la copie du dépôt. Les sauvegardes historiques ne sont pas des règles actives.
+
 | Page | Description |
 |---|---|
 | [`index.html`](https://kithain.github.io/Dice-Forge/) | Lanceur de dés, salons et génération de personnage |
