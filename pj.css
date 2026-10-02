@@ -68,9 +68,10 @@
   .pj-skills-table input{min-width:0;padding:.35rem .15rem}
   .pj-skills-table th{font-size:.6rem;letter-spacing:0}
 }
-.pj-tabs{display:flex;gap:.5rem;margin:0 0 1rem}
+.pj-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem}
 .pj-tabs button{padding:.7rem 1rem;border:1px solid var(--brd2);border-radius:6px;background:var(--s1);color:var(--gold2);font:inherit;cursor:pointer}
 .pj-tabs button[aria-selected=true]{background:var(--s2);border-color:var(--gold);box-shadow:inset 0 -3px var(--gold)}
 .pj-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .pj-panel{display:grid;gap:1rem;min-width:0}
 .pj-panel[hidden],.pj-section-nav[hidden]{display:none}
+#pj-inventory-frame{width:100%;min-height:600px;border:0;display:block}

@@ -12,6 +12,8 @@ REQUIRED_PUBLIC_FILES = (
     "pj.html",
     "suivi-mj.html",
     "inventory-sheet.html",
+    "livret_joueur.html",
+    "livret_reference.html",
     "obs.html",
     "obs-dice.html",
     "supabase-config.js",

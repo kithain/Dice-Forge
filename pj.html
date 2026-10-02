@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260727-course">
-  <link rel="stylesheet" href="pj.css?v=20260925-navigation">
+  <link rel="stylesheet" href="pj.css?v=20261002-inventory">
   <link rel="stylesheet" href="site-menu.css?v=20260719">
   <style>.auth-pending body{visibility:hidden}</style>
   <script src="supabase-config.js"></script>
@@ -74,7 +74,8 @@
 
     <div class="pj-tabs" role="tablist" aria-label="Vue de la fiche">
       <button type="button" id="pj-main-tab" role="tab" aria-controls="pj-main-panel" aria-selected="true">Fiche</button>
-      <button type="button" id="pj-magic-tab" role="tab" aria-controls="pj-magic-panel" aria-selected="false" tabindex="-1">Sorts et pouvoirs</button>
+      <button type="button" id="pj-inventory-tab" role="tab" aria-controls="pj-inventory-panel" aria-selected="false" tabindex="-1">Inventaire</button>
+      <button type="button" id="pj-magic-tab" role="tab" aria-controls="pj-magic-panel" aria-selected="false" tabindex="-1">Sorts et Pouvoirs</button>
     </div>
     <nav class="pj-section-nav" aria-label="Sections de la fiche">
       <a href="#pj-identite">Identité</a>
@@ -133,7 +134,7 @@
           <button class="pj-add" id="pj-clear-skill-checks" type="button">Décocher toutes les cases</button>
         </div>
         <p class="pj-help">Répartissez les points disponibles. Le score final est calculé automatiquement : base + points répartis.</p>
-        <p class="pj-help">Alchimie : <a href="livret_joueur.html#alchimie" target="_blank" rel="noopener">règles de fabrication, réactifs et recettes</a>.</p>
+        <p class="pj-help">Alchimie : <a href="livret_reference.html#alchimie" target="_blank" rel="noopener">règles de fabrication, réactifs et recettes</a>.</p>
         <div class="pj-skill-budget">
           <label class="pj-budget-edit">Pool professionnel
             <input data-field="skillProfessionalPool" type="number" min="0" max="5000" value="325">
@@ -192,6 +193,9 @@
         <textarea data-field="notes" rows="9"></textarea>
       </section>
       </div>
+      <div id="pj-inventory-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-inventory-tab" hidden>
+        <iframe id="pj-inventory-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?embedded=1&amp;v=20261002-potion-doses" loading="lazy"></iframe>
+      </div>
       <div id="pj-magic-panel" class="pj-panel" role="tabpanel" aria-labelledby="pj-magic-tab" hidden>
         <section class="pj-section">
           <h2>Sorts</h2>
@@ -222,6 +226,6 @@
   </main>
 
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/pj-sheet.js?v=20260925-navigation"></script>
+  <script type="module" src="js/pj-sheet.js?v=20261002-inventory"></script>
 </body>
 </html>

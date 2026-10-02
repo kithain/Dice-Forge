@@ -1,1422 +1,339 @@
 <!DOCTYPE html>
 <html lang="fr" class="auth-pending">
 <head>
-<style>.auth-pending body{visibility:hidden}.alchemy-table{overflow-x:auto} #alchimie, #alchimie [id]{scroll-margin-top:1rem}
-.alchemy-callout{padding:12px 16px;margin:12px 0;background:#eee7da;border-left:4px solid #0f3460;line-height:1.7}
-@media print{.alchemy-table{overflow:visible} #alchimie tr{break-inside:avoid}}
-</style>
-<script src="supabase-config.js"></script>
-<script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Livret du Joueur — Création de Personnage Médiéval-Fantastique</title>
-<style>
-@page { size: A4; margin: 15mm; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 11px;
-    line-height: 1.5;
-    color: #2b2b2b;
-    background: #f5f0e8;
-}
-.cover {
-    text-align: center;
-    padding: 60px 20px;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    color: #e0d8c8;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    page-break-after: always;
-}
-.cover h1 { font-size: 32px; margin-bottom: 10px; color: #f0c040; text-shadow: 2px 2px 4px #000; }
-.cover h2 { font-size: 18px; margin-bottom: 30px; color: #a0b0d0; font-weight: normal; font-style: italic; }
-.cover p { font-size: 13px; max-width: 500px; margin: 10px auto; color: #c0c0d0; }
-.cover .races { font-size: 16px; margin-top: 40px; color: #f0c040; letter-spacing: 3px; }
-
-h1.chapter {
-    font-size: 22px;
-    color: #1a1a2e;
-    border-bottom: 3px solid #0f3460;
-    padding-bottom: 5px;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    page-break-before: always;
-}
-h2 {
-    font-size: 15px;
-    color: #0f3460;
-    margin-top: 18px;
-    margin-bottom: 8px;
-    border-left: 4px solid #0f3460;
-    padding-left: 8px;
-}
-h3 {
-    font-size: 13px;
-    color: #16213e;
-    margin-top: 12px;
-    margin-bottom: 6px;
-}
-p { margin-bottom: 8px; text-align: justify; }
-ul, ol { padding-left: 20px; margin-bottom: 8px; }
-li { margin-bottom: 3px; }
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 8px 0;
-    font-size: 10px;
-}
-th, td {
-    border: 1px solid #888;
-    padding: 4px 6px;
-    text-align: left;
-}
-th {
-    background: #0f3460;
-    color: #fff;
-    font-weight: bold;
-}
-tr:nth-child(even) { background: #e8e0d0; }
-.page { max-width: 800px; margin: 0 auto; padding: 20px; }
-.formula {
-    background: #d4edda;
-    padding: 4px 10px;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-    margin: 6px 0;
-    font-size: 12px;
-}
-.note { font-style: italic; color: #555; font-size: 10px; }
-.warning { background: #fff3cd; padding: 6px 10px; border-radius: 4px; margin: 8px 0; }
-.race-box {
-    border: 2px solid #0f3460;
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin: 12px 0;
-    background: #faf8f0;
-    page-break-inside: avoid;
-}
-.race-box h2 { border-left: none; margin-top: 0; }
-.race-box .modifiers {
-    display: inline-block;
-    background: #0f3460;
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-.spell-list { font-size: 10px; }
-.spell-list td:nth-child(1) { font-weight: bold; width: 20%; }
-.spell-list td:nth-child(2) { text-align: center; width: 9%; }
-.spell-list td:nth-child(4) { text-align: center; width: 14%; font-size: 9px; }
-.spell-list th:nth-child(4) { text-align: center; width: 14%; }
-.prof-tag { display: inline-block; background: #6f42c1; color: #fff; padding: 0 3px; border-radius: 2px; font-size: 8px; font-weight: bold; margin: 0 1px; }
-.prof-tag-p { background: #007bff; }
-.prof-tag-c { background: #28a745; }
-.prof-tag-e { background: #fd7e14; }
-.prof-tag-s { background: #6f42c1; }
-.step {
-    background: #e8e0d0;
-    border-left: 5px solid #0f3460;
-    padding: 8px 12px;
-    margin: 10px 0;
-    border-radius: 0 4px 4px 0;
-}
-.step h3 { margin-top: 0; color: #0f3460; }
-.tag {
-    display: inline-block;
-    background: #0f3460;
-    color: #fff;
-    padding: 1px 6px;
-    border-radius: 3px;
-    font-size: 9px;
-    font-weight: bold;
-}
-.tag-spec { background: #28a745; }
-.tag-magic { background: #6f42c1; }
-hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
-.two-col { column-count: 2; column-gap: 15px; }
-.two-col table { font-size: 9px; }
-.origin-table {
-    font-size: 8.6px;
-    line-height: 1.35;
-}
-.origin-table th:nth-child(1) { width: 10%; }
-.origin-table th:nth-child(2) { width: 18%; }
-.origin-table th:nth-child(3) { width: 36%; }
-.origin-table th:nth-child(4) { width: 36%; }
-.origin-table td { vertical-align: top; }
-.book-nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-    padding: 8px 10px;
-    border: 1px solid #b8a98e;
-    border-radius: 6px;
-    background: #fffaf0;
-}
-.book-nav a { color: #0f3460; font-weight: bold; text-decoration: none; }
-.book-nav a:hover { text-decoration: underline; }
-.skill-intro { background: #e8e0d0; border-left: 5px solid #0f3460; padding: 9px 12px; margin-bottom: 14px; }
-.skill-group-title { margin-top: 20px; padding: 6px 9px; color: #fff; background: #0f3460; border: 0; }
-.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 8px 0 14px; }
-.skill-entry { border: 1px solid #b8a98e; border-radius: 5px; padding: 7px 9px; background: #faf8f0; page-break-inside: avoid; }
-.skill-entry dt { color: #16213e; font-weight: bold; font-size: 11px; }
-.skill-entry dd { margin: 3px 0 0; font-size: 9.5px; line-height: 1.4; }
-.skill-base { float: right; color: #fff; background: #6f42c1; border-radius: 3px; padding: 1px 5px; font-size: 8px; }
-@media(max-width: 620px) { .skill-grid { grid-template-columns: 1fr; } }
-@media print { .book-nav { display: none; } }
-</style>
-<link rel="stylesheet" href="site-menu.css?v=20260719">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Livret joueur — Dice Forge</title>
+  <script src="supabase-config.js"></script>
+  <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
+  <script>
+    if (location.hash === '#competences' || location.hash.startsWith('#alchimie-')) {
+      location.replace(`livret_reference.html${location.hash}`);
+    }
+  </script>
+  <style>
+    :root { color-scheme: light; --ink:#243444; --muted:#586570; --paper:#fffdf8; --ground:#f2eee5; --line:#ded8ca; --accent:#805a20; --soft:#f6f0e3; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:24px; }
+    .auth-pending body { visibility:hidden; }
+    body { margin:0; background:var(--ground); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:#265a73; text-underline-offset:3px; }
+    a:hover { color:var(--accent); }
+    a:focus-visible, summary:focus-visible, button:focus-visible { outline:3px solid #bb852d; outline-offset:4px; }
+    .skip { position:absolute; left:16px; top:-80px; padding:10px; background:white; z-index:10; }
+    .skip:focus { top:10px; }
+    .frame { max-width:1140px; margin:auto; padding:0 28px; }
+    .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:20px; padding-bottom:20px; font-size:14px; }
+    .toolbar a { text-decoration:none; }
+    .tools { display:flex; align-items:center; gap:22px; }
+    button { padding:7px 13px; border:1px solid #c8bfad; border-radius:5px; color:var(--ink); background:transparent; font:inherit; cursor:pointer; }
+    button:hover { background:var(--paper); }
+    .hero { background:#243444; color:#fffdf8; padding:42px 48px; border-radius:10px; }
+    .eyebrow { margin:0 0 12px; color:#e7c88f; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:0 0 12px; font:normal clamp(36px,5vw,56px)/1.15 Georgia,serif; }
+    .hero p:last-child { max-width:650px; margin:0; color:#d9e0e4; font-size:17px; }
+    .layout { display:grid; grid-template-columns:210px minmax(0,1fr); gap:34px; align-items:start; padding-top:32px; padding-bottom:50px; }
+    .contents { position:sticky; top:24px; padding:8px 0; font-size:14px; }
+    .contents p { margin:0 0 14px; color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .contents a { display:block; padding:8px 0; text-decoration:none; color:var(--ink); }
+    .contents a:hover { color:var(--accent); }
+    .contents small { display:block; margin-top:22px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); line-height:1.5; }
+    main { min-width:0; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:30px 38px; }
+    .start { margin-bottom:32px; padding-bottom:26px; border-bottom:1px solid var(--line); }
+    .start p { margin:0 0 12px; }
+    .quick { display:flex; gap:10px; flex-wrap:wrap; }
+    .quick a { padding:6px 12px; background:var(--soft); border-radius:5px; text-decoration:none; font-size:14px; }
+    section + section { margin-top:36px; padding-top:30px; border-top:1px solid var(--line); }
+    h2 { display:flex; align-items:baseline; gap:14px; margin:0 0 16px; font:normal 29px/1.25 Georgia,serif; }
+    .number { flex-shrink:0; color:var(--accent); font:600 12px system-ui,sans-serif; letter-spacing:.08em; }
+    h3 { margin:23px 0 8px; font-size:17px; }
+    p { margin:0 0 13px; }
+    ul, ol { margin:10px 0 16px; padding-left:23px; }
+    li { padding-left:3px; margin-bottom:8px; }
+    .lead { color:var(--muted); }
+    .rule { margin:18px 0; padding:14px 18px; border-left:3px solid #b08541; background:var(--soft); }
+    .rule p:last-child { margin-bottom:0; }
+    .formula { font-weight:650; }
+    .table-wrap { max-width:100%; overflow-x:auto; margin:15px 0; }
+    table { width:100%; border-collapse:collapse; font-size:14px; text-align:left; }
+    caption { text-align:left; font-weight:650; margin-bottom:8px; }
+    th { color:var(--muted); background:#f0ede5; font-size:12px; }
+    th, td { padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top; }
+    details { margin:14px 0; padding:12px 16px; border:1px solid var(--line); border-radius:5px; }
+    summary { font-size:14px; font-weight:650; cursor:pointer; }
+    details[open] summary { margin-bottom:14px; }
+    details p, details li { font-size:14px; }
+    details > :last-child { margin-bottom:0; }
+    .reference { font-size:14px; margin:16px 0 0; }
+    .approaches { display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; list-style:none; padding:0; font-size:14px; }
+    .approaches li { margin:0; padding:0; }
+    .references { list-style:none; padding:0; }
+    .references li { padding:12px 0; border-bottom:1px solid var(--line); margin:0; }
+    .references span { display:block; color:var(--muted); font-size:14px; }
+    footer { padding-top:26px; margin-top:30px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); }
+    @media(max-width:850px) {
+      .layout { grid-template-columns:1fr; gap:20px; }
+      .contents { position:static; padding:0; }
+      .contents p, .contents small { display:none; }
+      .contents div { display:flex; flex-wrap:wrap; gap:4px 18px; }
+      .contents a { padding:4px 0; }
+    }
+    @media(max-width:540px) {
+      .frame { padding:0 16px; }
+      .toolbar { font-size:12px; }
+      .tools { gap:12px; }
+      .hero { padding:28px 24px; }
+      .hero p:last-child { font-size:15px; }
+      .layout { padding-top:20px; }
+      main { padding:24px 20px; }
+      h2 { font-size:25px; gap:10px; }
+      .approaches { grid-template-columns:1fr; }
+      th, td { padding:8px; }
+    }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    @page { size:A4; margin:16mm; }
+    @media print {
+      body { font-size:10pt; line-height:1.45; background:white; color:#111; }
+      .toolbar, .contents, .skip, .start, details, .quick { display:none; }
+      .frame { max-width:none; padding:0; }
+      .hero { padding:0 0 16px; background:none; color:#111; border-bottom:2px solid #333; border-radius:0; }
+      .hero p:last-child, .eyebrow { color:#444; font-size:10pt; }
+      h1 { font-size:28pt; }
+      .layout { display:block; padding-top:18px; }
+      main { border:0; padding:0; }
+      h2 { font-size:19pt; break-after:avoid; }
+      h3 { font-size:12pt; break-after:avoid; }
+      section + section { margin-top:22px; padding-top:18px; }
+      p, li { orphans:3; widows:3; }
+      .rule, tr { break-inside:avoid; }
+      .table-wrap { overflow:visible; }
+      table, .approaches, .reference, .references span { font-size:9pt; }
+      a { color:inherit; }
+      footer { font-size:8pt; }
+    }
+  </style>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
-<div class="page">
-
-<nav class="book-nav" aria-label="Navigation du livret">
-    <a href="index.html">← Dice Forge</a>
-    <a href="#alchimie">Alchimie et potions</a>
-    <a href="inventaire.html">Inventaire et équipement →</a>
-</nav>
-
-<!-- ============ COUVERTURE ============ -->
-<div class="cover">
-    <h1>BRP — ORC</h1>
-    <h2>Livret du Joueur</h2>
-    <p>Création de personnage pour un univers Médiéval-Fantastique</p>
-    <p>Magie, épées, donjons et dragons — un guide complet pour créer votre héros</p>
-    <div class="races">Humains · Nains · Elfes · Demi-Elfes · Demi-Orcs</div>
-</div>
-
-<!-- ============ CHAPITRE 1 : ESPÈCES ============ -->
-<h1 class="chapter">1. Espèces Jouables</h1>
-
-<p>Cinq espèces sont disponibles pour les personnages joueurs dans cet univers. Chaque espèce possède des modificateurs de caractéristiques reflétant sa nature. Les valeurs indiquées sont des <b>modificateurs appliqués après le jet de dés</b>. Aucune caractéristique ne peut dépasser 21 ni descendre sous 3 après modification.</p>
-
-<div class="race-box">
-<h2>Humain</h2>
-<span class="modifiers">Aucun modificateur</span>
-<p>Les humains sont l'espèce la plus répandue et la plus adaptable. Ils n'ont ni les grâces des elfes, ni la robustesse des nains, mais leur polyvalence et leur ambition les mènent partout. Toutes les professions leur sont ouvertes.</p>
-<ul>
-<li><b>Caractéristiques :</b> Standard (FOR 3D6, CON 3D6, TAI 2D6+6, INT 2D6+6, POU 3D6, DEX 3D6, CHA 3D6)</li>
-<li><b>Mouvement :</b> 10</li>
-<li><b>Professions suggérées :</b> Toutes</li>
-<li><b>Traits suggérés :</b> Ambitieux, adaptable, déterminé</li>
-</ul>
-</div>
-
-<div class="race-box">
-<h2>Nain</h2>
-<span class="modifiers">+1D6 CON, +1D6 FOR, −1D6 DEX, −1D6 CHA</span>
-<p>Les nains sont un peuple robuste et fier, vivant dans les montagnes et les profondeurs de la terre. Ils sont réputés pour leur artisanat, leur courage au combat et leur mémoire longue des griefs. Les nains sont petits et trapus, mais extrêmement solides.</p>
-<ul>
-<li><b>Caractéristiques :</b> FOR 2d6+6, CON 3d6+6, TAI 2d6, INT 2d6+6, POU 3d6, DEX 3d6, CHA 3d6</li>
-<li><b>Mouvement :</b> 8</li>
-<li><b>Vision nocturne :</b> Les nains voient dans l'obscurité totale jusqu'à 30 mètres (seulement en noir et blanc).</li>
-<li><b>Professions suggérées :</b> Guerrier, Artisan, Soldat, Chasseur, Érudit, Prêtre</li>
-<li><b>Compétences culturelles :</b> Artisanat (Forge ou Maçonnerie) +10%, Connaissance (Géologie) +10%, Observation (Souterrains) +10%</li>
-<li><b>Traits suggérés :</b> Rancunier, loyal, travailleur, têtu</li>
-</ul>
-</div>
-
-<div class="race-box">
-<h2>Elfe</h2>
-<span class="modifiers">+1D6 DEX, +1D6 CHA, −1D6 CON, −1D6 TAI</span>
-<p>Les elfes sont un peuple ancien et gracieux, lié à la magie et aux forêts. Ils vivent des siècles et voient le monde avec une perspective que les humains ne peuvent qu'imaginer. Ils sont agiles, beaux et magiquement doués, mais frêles.</p>
-<ul>
-<li><b>Caractéristiques :</b> FOR 3d6, CON 2d6+6, TAI 2d6+4, INT 2d6+6, POU 3d6, DEX 3d6+6, CHA 3d6+6</li>
-<li><b>Mouvement :</b> 12</li>
-<li><b>Vision nocturne :</b> Les elfes voient dans l'obscurité totale jusqu'à 60 mètres.</li>
-<li><b>Professions suggérées :</b> Sorcier, Érudit, Guerrier, Chasseur, Amuseur, Prêtre</li>
-<li><b>Compétences culturelles :</b> Arme de mêlée (Épée ou Arc) +10%, Discrétion (Forêt) +10%, Connaissance (Histoire) +10%</li>
-<li><b>Spécial :</b> Les elfes commencent avec la capacité d'apprendre la magie. S'ils choisissent la profession de Sorcier, ils connaissent un sort supplémentaire au départ.</li>
-<li><b>Traits suggérés :</b> Serein, mélancolique, élégant, distant</li>
-</ul>
-</div>
-
-<div class="race-box">
-<h2>Demi-Elfe</h2>
-<span class="modifiers">+1D6 DEX, +1D6 CHA, −1D6 CON</span>
-<p>Nés de l'union d'un humain et d'un elfe, les demi-elfes combinent l'adaptabilité humaine avec la grâce elfique. Ils appartiennent à deux mondes mais ne sont pleinement acceptés dans aucun, ce qui forge des personnalités indépendantes et nuancées.</p>
-<ul>
-<li><b>Caractéristiques :</b> FOR 3d6, CON 3d6, TAI 2d6+6, INT 2d6+6, POU 3d6, DEX 3d6+6, CHA 3d6+6</li>
-<li><b>Mouvement :</b> 11</li>
-<li><b>Vision nocturne :</b> Les demi-elfes voient dans l'obscurité totale jusqu'à 30 mètres.</li>
-<li><b>Professions suggérées :</b> Toutes (particulièrement Sorcier, Guerrier, Voleur, Érudit, Explorateur)</li>
-<li><b>Compétences culturelles :</b> Une compétence au choix +10% (reflétant leur éducation humaine ou elfique)</li>
-<li><b>Spécial :</b> Les demi-elfes peuvent choisir un sort de magie supplémentaire s'ils prennent la profession de Sorcier.</li>
-<li><b>Traits suggérés :</b> Indépendant, charismatique, entre-deux-mondes</li>
-</ul>
-</div>
-
-<div class="race-box">
-<h2>Demi-Orc</h2>
-<span class="modifiers">+1D6 FOR, +1D6 CON, −1D6 INT, −1D6 CHA</span>
-<p>Les demi-orcs sont nés de l'union violente ou improbable entre humains et orcs. Ils sont plus grands et plus forts que les humains, avec une endurance remarquable, mais souvent rejetés par les deux cultures. Ils survivent par leur force et leur détermination brute.</p>
-<ul>
-<li><b>Caractéristiques :</b> FOR 3d6+6, CON 3d6+6, TAI 2d6+6, INT 2d6+6, POU 3d6, DEX 3d6, CHA 3d6</li>
-<li><b>Mouvement :</b> 10</li>
-<li><b>Vision nocturne :</b> Les demi-orcs voient dans l'obscurité totale jusqu'à 15 mètres.</li>
-<li><b>Professions suggérées :</b> Guerrier, Soldat, Chasseur, Tribal, Assassin, Voleur</li>
-<li><b>Compétences culturelles :</b> Bagarre +10%, Pistage +10%, Intimidation/Persuasion +10%</li>
-<li><b>Traits suggérés :</b> Brutal, direct, marginal, colérique</li>
-</ul>
-</div>
-
-<!-- ============ CHAPITRE 2 : CRÉATION DE PERSONNAGE ============ -->
-<h1 class="chapter">2. Création de Personnage — Étape par Étape</h1>
-
-<p>Suivez ces étapes dans l'ordre pour créer votre personnage. Le niveau de pouvoir recommandé pour un univers médiéval-fantastique est <b>Héroïque</b> (325 points de compétence professionnels, 6 sorts pour un magicien).</p>
-
-<div class="step">
-<h3>Étape 1 — Nom et Caractéristiques</h3>
-<ol>
-<li>Choisissez le nom et le genre de votre personnage.</li>
-<li>Choisissez votre espèce (voir Chapitre 1).</li>
-<li>Lancez les caractéristiques selon votre espèce :
-<ul>
-<li><b>FOR, CON, POU, DEX, CHA :</b> 3D6 (ou selon modificateurs d'espèce)</li>
-<li><b>INT, TAI :</b> 2D6+6 (ou selon modificateurs d'espèce)</li>
-</ul></li>
-<li>Appliquez les modificateurs d'espèce.</li>
-<li>Redistribuez jusqu'à <b>3 points</b> entre vos caractéristiques (aucune ne peut dépasser 21 ni être inférieure à 3).</li>
-</ol>
-<p class="note">Option : Lancez 3D6 sept fois et répartissez les résultats où vous le souhaitez. TAI et INT ne peuvent pas être inférieurs à 8.</p>
-</div>
-
-<div class="step">
-<h3>Étape 2 — Origines et motivations</h3>
-<p>Choisissez un profil lié à Valombre ou inspirez-vous de ces propositions pour définir le passé de votre personnage et l'événement qui l'a poussé à choisir la vie d'aventurier.</p>
-<table class="origin-table">
-<tr><th>Espèce</th><th>Profil</th><th>Origine &amp; Attache à Valombre</th><th>Déclencheur de l'aventure</th></tr>
-<!-- HUMAINS -->
-<tr><td>Humains</td><td>Universitaire déchu</td><td>Ancien élève de l’Université Arcanique, poussé vers la sortie après un échec cuisant ou un renvoi discret.</td><td>Prouver sa valeur par des faits d'armes impossibles à ignorer pour l'académie.</td></tr>
-<tr><td>Humains</td><td>Héritier sur le déclin</td><td>Membre d'une famille de marchands modestes des Hauteurs, dont la survie dépend du commerce et des mines.</td><td>Sauver l'entreprise familiale, au bord de la faillite depuis la perte d'un de ses parents.</td></tr>
-<tr><td>Humains</td><td>Milicien dissident</td><td>Ancien membre de la Garde civique. Il maîtrise les rouages de la Prévôté et le plan des patrouilles.</td><td>Agir selon sa propre justice après avoir refusé d'obéir à un ordre inique.</td></tr>
-<tr><td>Humains</td><td>Novice de Saint-Aldric</td><td>Formé au sein du pôle religieux du Centre Civique, habitué aux rituels et aux offices publics.</td><td>Quitter le confort du temple pour confronter ses dogmes à la dure réalité de la rue.</td></tr>
-<tr><td>Humains</td><td>Rescapé de Nyx</td><td>Issu d'une famille installée près de la zone du désastre de Nyx, murée dans un silence suspect.</td><td>Percer le secret de sa famille et comprendre ce qu'ils cherchent à cacher.</td></tr>
-<tr><td>Humains</td><td>Archiviste banni</td><td>Ancien copiste ou assistant de bibliothèque dans le Quartier du Savoir.</td><td>Retrouver un statut après avoir été renvoyé pour avoir lu un ouvrage interdit.</td></tr>
-<tr><td>Humains</td><td>Artisan sinistré</td><td>Artisan de la Vieille Ville ou du Centre Civique ayant perdu son atelier dans un incendie suspect.</td><td>Rebâtir sa vie et réunir les fonds nécessaires pour se venger ou se réinstaller.</td></tr>
-<!-- NAINS -->
-<tr><td>Nains</td><td>Enfant des Terrasses</td><td>Né au cœur du quartier nain, entre le Temple-Forgeron, la mine et la Place des Terrasses.</td><td>Porter la voix et défendre les intérêts de son peuple au-delà de son quartier d'origine.</td></tr>
-<tr><td>Nains</td><td>Initié du Temple-Forgeron</td><td>Formé à la forge sacrée et aux rites religieux de sa communauté.</td><td>Accomplir un exploit pour prouver sa valeur avant de recevoir ses fonctions officielles.</td></tr>
-<tr><td>Nains</td><td>Fils de la mine</td><td>Issu d'une lignée de contremaîtres dévoués à la Guilde des Mineurs depuis des générations.</td><td>Échapper au destin tout tracé de la mine pour tracer sa propre voie.</td></tr>
-<tr><td>Nains</td><td>Forgeron sans feu</td><td>Artisan talentueux des Terrasses, contraint de travailler sans son propre outil de travail.</td><td>Financer l'achat de sa propre forge à force de contrats et d'aventures.</td></tr>
-<tr><td>Nains</td><td>Gardien des cryptes</td><td>Membre d'une lignée chargée de veiller sur le Cimetière des Terrasses.</td><td>Traquer les responsables d'une profanation récente qui a souillé ses tombes.</td></tr>
-<tr><td>Nains</td><td>Déraciné</td><td>Nain élevé parmi les humains, ignorant la majeure partie des coutumes et traditions de son peuple.</td><td>Découvrir le monde et définir lui-même son identité de nain à Valombre.</td></tr>
-<tr><td>Nains</td><td>Diplomate en devenir</td><td>Membre d'une famille influente gérant les tensions entre les Terrasses et le Conseil de la ville.</td><td>Se forger une solide expérience de terrain avant d'affronter l'arène politique.</td></tr>
-<!-- DEMI-ORCS -->
-<tr><td>Demi-orcs</td><td>Manœuvre des chantiers</td><td>Ouvrier exploité dans les galeries de mines, les entrepôts ou les chantiers de la ville.</td><td>Échapper aux tâches ingrates et prouver qu'il vaut bien plus que sa simple force brute.</td></tr>
-<tr><td>Demi-orcs</td><td>Garde démis</td><td>Ancien vigile chargé de sécuriser des entrepôts ou des résidences privées.</td><td>Se racheter après avoir été renvoyé pour avoir fermé les yeux au mauvais moment.</td></tr>
-<tr><td>Demi-orcs</td><td>Videur repenti</td><td>Ancien homme de main dans les tripots et auberges malfamées de la Vieille Ville.</td><td>Changer de vie après avoir été témoin d'un excès de violence gratuite de trop.</td></tr>
-<tr><td>Demi-orcs</td><td>Pupille de la milice</td><td>Orphelin recueilli et protégé par un sergent bienveillant de la Garde civique.</td><td>Prendre son destin en main suite à la disparition, la mutation ou la mort de son mentor.</td></tr>
-<tr><td>Demi-orcs</td><td>Corbillard des rues</td><td>Ancien préposé au transport des corps lors des épidémies, accidents et rixes de quartiers.</td><td>S'extirper de la misère et trouver un travail plus digne et moins macabre.</td></tr>
-<tr><td>Demi-orcs</td><td>Taupe des égouts</td><td>Ouvrier affecté à l'entretien insalubre des canaux et réseaux souterrains de la ville.</td><td>Fuir un poste au taux de mortalité effrayant pour respirer enfin à l'air libre.</td></tr>
-<tr><td>Demi-orcs</td><td>Fossoyeur traqué</td><td>Terrassier occasionnel ayant travaillé aux abords du cimetière de la ville.</td><td>Laver son nom après avoir été accusé à tort d'avoir pillé une sépulture.</td></tr>
-<!-- ELFES -->
-<tr><td>Elfes</td><td>Guérisseur des ombres</td><td>Praticien clandestin soignant les exclus, les malades et les fugitifs des bas-fonds.</td><td>Financer ou légitimer ses recherches pour intégrer officiellement le Quartier du Savoir.</td></tr>
-<tr><td>Elfes</td><td>Barde des bas-fonds</td><td>Musicien itinérant se produisant dans les tavernes coupe-gorge de la Vieille Ville.</td><td>Trouver des alliés solides après qu'une chanson de son répertoire a déplu à des gens dangereux.</td></tr>
-<tr><td>Elfes</td><td>Érudit sans chaire</td><td>Lecteur et traducteur indépendant n'ayant jamais réussi à se faire accepter par l'Université.</td><td>Mettre la main sur un manuscrit rare pour forcer les portes du Quartier du Savoir.</td></tr>
-<tr><td>Elfes</td><td>Passeur de remèdes</td><td>Contrebandier transportant herbes médicinales et potions entre la Vieille Ville et les beaux quartiers.</td><td>Trouver rapidement de l'or pour rembourser une dette contractée auprès d'un client influent.</td></tr>
-<tr><td>Elfes</td><td>Domestique déchu</td><td>Ancien serviteur au sein d'une demeure aristocratique ou marchande des Hauteurs.</td><td>Laver son honneur en récupérant la preuve qu'il a été piégé et injustement renvoyé.</td></tr>
-<tr><td>Elfes</td><td>Enfant de la rue</td><td>Orphelin ayant grandi au milieu de la misère et des laissés-pour-compte de la Vieille Ville.</td><td>Enquêter sur la disparition suspecte et répétée de plusieurs malades de son quartier.</td></tr>
-<tr><td>Elfes</td><td>Voltigeur des toits</td><td>Agile monte-en-l'air habitué à franchir les toits et les ruelles suspendues de la Vieille Ville.</td><td>Échapper à la prison en acceptant des missions officieuses pour le Quartier du Savoir.</td></tr>
-<!-- DEMI-ELFES -->
-<tr><td>Demi-elfes</td><td>Magicien sans tuteur</td><td>Doté d'un don inné pour la magie, mais privé des appuis requis pour rester à l'Université.</td><td>Trouver un mentor excentrique ou un mécène prêt à financer son apprentissage.</td></tr>
-<tr><td>Demi-elfes</td><td>Bâtard des Hauteurs</td><td>Enfant illégitime et ignoré d'une puissante famille marchande ou noble.</td><td>Se faire un nom par ses propres moyens pour réclamer sa part d'héritage.</td></tr>
-<tr><td>Demi-elfes</td><td>Apothicaire limogé</td><td>Ancien assistant dans une herboristerie de la Vieille Ville.</td><td>Trouver un nouveau but après avoir servi de bouc émissaire pour un remède frelaté.</td></tr>
-<tr><td>Demi-elfes</td><td>Imposteur mondain</td><td>Usurpateur d'identité se faisant passer pour un émissaire noble pour naviguer entre les quartiers.</td><td>Prendre le large avant que son réseau de mensonges ne le rattrape.</td></tr>
-<tr><td>Demi-elfes</td><td>Passeur trahi</td><td>Contrebandier assurant le transit de messages et de vivres vers la Vieille Ville.</td><td>Découvrir qui a saboté sa dernière livraison et l'a vendu aux autorités.</td></tr>
-<tr><td>Demi-elfes</td><td>Marqué par l'occulte</td><td>Ancienne victime d'un rituel clandestin de quartier durant sa jeunesse.</td><td>Comprendre pourquoi les stigmates et symboles de ce rituel recommencent à se manifester.</td></tr>
-</table>
-</div>
-
-<div class="step">
-<h3>Étape 3 — Pouvoirs (Magie)</h3>
-<p>Si votre personnage utilise la magie (professions : Sorcier, Prêtre, Chaman, Étudiant en arts arcaniques), déterminez vos sorts initiaux :</p>
-<ul>
-<li><b>Niveau Normal :</b> 4 sorts, compétence = INT × 1</li>
-<li><b>Niveau Héroïque (recommandé) :</b> 6 sorts, compétence = INT × 1</li>
-<li><b>Niveau Épique :</b> 8 sorts, compétence = INT × 1 (+ familier gratuit)</li>
-</ul>
-<p>Choisissez vos sorts dans la liste du Chapitre 4, <b>parmi ceux disponibles pour votre profession</b> (voir la colonne « Prof. » du tableau des sorts). Plusieurs professions peuvent partager les mêmes sorts, mais aucune profession n'a accès à tous les sorts. Tous les sorts connus sont inscrits dans votre grimoire. Vous pouvez mémoriser un nombre de sorts égal à votre INT.</p>
-</div>
-
-<div class="step">
-<h3>Étape 4 — Âge</h3>
-<p>Âge par défaut : <b>17 + 1D6</b> ans (pour les humains et demi-orcs). Les elfes peuvent commencer à 50 + 2D10 ans, les demi-elfes à 20 + 1D10 ans, les nains à 30 + 2D6 ans.</p>
-<ul>
-<li>+10 ans au-dessus de l'âge de départ : +20 points de compétence professionnels (Héroïque)</li>
-<li>50 ans et +10 ans : −1 à une caractéristique physique (FOR, CON, DEX ou CHA au choix)</li>
-</ul>
-</div>
-
-<div class="step">
-<h3>Étape 5 — Jets de Caractéristique</h3>
-<p>Multipliez chaque caractéristique par 5 pour obtenir les jets de caractéristique :</p>
-<table>
-<tr><th>Caractéristique</th><th>Jet</th><th>Usage</th></tr>
-<tr><td>FOR × 5</td><td>Effort</td><td>Forcer, soulever, briser</td></tr>
-<tr><td>CON × 5</td><td>Endurance</td><td>Résister au poison, maladie, fatigue</td></tr>
-<tr><td>INT × 5</td><td>Idée</td><td>Déduire, comprendre, résoudre</td></tr>
-<tr><td>POU × 5</td><td>Chance</td><td>Tirage aléatoire, éviter la malchance</td></tr>
-<tr><td>DEX × 5</td><td>Agilité</td><td>Éviter, réagir vite</td></tr>
-<tr><td>CHA × 5</td><td>Charme</td><td>Séduire, impressionner</td></tr>
-</table>
-</div>
-
-<div class="step">
-<h3>Étape 6 — Caractéristiques Dérivées</h3>
-<table>
-<tr><th>Caractéristique</th><th>Calcul</th></tr>
-<tr><td><b>Points de vie (PV)</b></td><td>(CON + TAI) / 2, arrondi au supérieur</td></tr>
-<tr><td><b>Seuil de blessure majeure</b></td><td>½ PV total, arrondi au supérieur</td></tr>
-<tr><td><b>Points de pouvoir (PP)</b></td><td>Égal à POU (max temporaire = 2 × POU)</td></tr>
-<tr><td><b>Modificateur de dégâts</b></td><td>Voir table ci-dessous (FOR + TAI)</td></tr>
-<tr><td><b>Bonus d'expérience</b></td><td>INT / 2, arrondi au supérieur</td></tr>
-</table>
-
-<h3>Table des modificateurs de dégâts</h3>
-<table>
-<tr><th>FOR+TAI</th><th>Mod.</th><th>FOR+TAI</th><th>Mod.</th></tr>
-<tr><td>2–12</td><td>−1D6</td><td>73–88</td><td>+4D6</td></tr>
-<tr><td>13–16</td><td>−1D4</td><td>89–104</td><td>+5D6</td></tr>
-<tr><td>17–24</td><td>Aucun</td><td>105–120</td><td>+6D6</td></tr>
-<tr><td>25–32</td><td>+1D4</td><td>121–136</td><td>+7D6</td></tr>
-<tr><td>33–40</td><td>+1D6</td><td>137–152</td><td>+8D6</td></tr>
-<tr><td>41–56</td><td>+2D6</td><td>153–168</td><td>+9D6</td></tr>
-<tr><td>57–72</td><td>+3D6</td><td>+16 au-dessus</td><td>+1D6 sup.</td></tr>
-</table>
-<p class="note">Armes de jet : mod. positif ÷ 2 (arr. sup.). Armes à feu : pas de modificateur.</p>
-</div>
-
-<div class="step">
-<h3>Étape 7 — Personnalité (Option)</h3>
-<p>Choisissez ou lancez 1D4 pour déterminer la personnalité de votre personnage. Ajoutez <b>20 points</b> à chacune des 13 compétences indiquées.</p>
-<table>
-<tr><th>D4</th><th>Type</th><th>Description</th></tr>
-<tr><td>1</td><td><b>Brutal</b></td><td>Force avant tout. Bagarre, Escalade, Défense, Lutte, Intuition, Saut, Équitation, Sens, Discrétion, Nage, Lancer + 2 compétences de Combat</td></tr>
-<tr><td>2</td><td><b>Habile</b></td><td>Technique et expertise. Estimation, Art, Déguisement, Défense, Manipulation Fine, Premiers Secours, Connaissance, Navigation, Pilotage, Équitation, Tour de main, Discrétion + 1 Combat</td></tr>
-<tr><td>3</td><td><b>Rusé</b></td><td>Intelligence d'abord. Estimation, Marchandage, Déguisement, Intuition, 2 Connaissances, Écouter, Recherche, Sens, Observation, Discrétion, Technique + 1 Combat</td></tr>
-<tr><td>4</td><td><b>Charmant</b></td><td>Intimidation/Persuasion. Estimation, Marchandage, Commandement, Étiquette, Baratin, Intuition, Représentation, Intimidation/Persuasion, Langue (Autre), Langue (Natale), Sens, Statut + 1 Combat</td></tr>
-</table>
-</div>
-
-<div class="step">
-<h3>Étape 8 — Profession et Compétences</h3>
-<p>Choisissez une profession (voir Chapitre 3). Déterminez vos pools de points de compétence :</p>
-<table>
-<tr><th>Niveau</th><th>Points professionnels</th><th>Limite par compétence</th><th>Points personnels</th></tr>
-<tr><td>Normal</td><td>250</td><td>75 %</td><td>INT × 10</td></tr>
-<tr><td><b>Héroïque (recommandé)</b></td><td><b>325</b></td><td><b>90 %</b></td><td><b>INT × 10</b></td></tr>
-<tr><td>Épique</td><td>400</td><td>101 %</td><td>INT × 10</td></tr>
-</table>
-<ol>
-<li>Distribuez les points professionnels parmi les compétences de votre profession.</li>
-<li>Calculez vos points personnels : <b>INT × 10</b>. Dépensez-les sur n'importe quelle compétence (avec l'accord du MJ).</li>
-<li>Ajoutez tous les bonus (base + personnalité + professionnel + personnel + culturels).</li>
-</ol>
-</div>
-
-<div class="step">
-<h3>Étape 9 — Possessions</h3>
-<p>Votre personnage commence avec :</p>
-<ul>
-<li>Un ensemble de vêtements approprié</li>
-<li>Argent de poche et économies selon votre niveau de richesse</li>
-<li>Un objet personnel (héritage, souvenir, bibelot)</li>
-<li>Outils de métier appropriés</li>
-<li>Toute arme dans laquelle vous avez 50 % ou plus</li>
-<li>Éventuellement une monture (cheval, mule) selon la profession et le Statut</li>
-</ul>
-<p><a href="inventaire.html">Consulter le catalogue d’équipement →</a></p>
-</div>
-
-<div class="step">
-<h3>Étape 10 — Taille et Traits Distinctifs</h3>
-<p>Déterminez la taille et le poids selon la TAI (10–13 = moyenne humaine). Choisissez 1D3 traits distinctifs (cicatrices, tatouages, particularités physiques, manies, etc.) qui rendent votre personnage mémorable.</p>
-</div>
-
-<div class="step">
-<h3>Étape 11 — Touches Finales</h3>
-<p>Définissez l'apparence, le passé, la famille, les motivations et les liens de votre personnage. Répondez à quelques questions :</p>
-<ul>
-<li>Où a-t-il grandi ?</li>
-<li>Qui est sa famille ?</li>
-<li>Qu'a-t-il accompli ou subi ?</li>
-<li>Que veut-il accomplir ?</li>
-<li>A-t-il des amis ? Des ennemis ?</li>
-</ul>
-</div>
-
-<!-- ============ CHAPITRE 3 : PROFESSIONS ============ -->
-<h1 class="chapter">3. Professions Médiéval-Fantastiques</h1>
-
-<p>Voici les professions les plus adaptées à un univers médiéval-fantastique. Chaque profession liste ses compétences (10 compétences) et son niveau de richesse suggéré. Distribuez vos points de compétence professionnels parmi ces compétences.</p>
-
-<div class="two-col">
-
-<h3>Guerrier <span class="tag">Combat</span></h3>
-<p>Combattant individuel, mercenaire, chevalier ou barbare.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Moyen</li>
-<li><b>Compétences :</b> Bagarre, Défense, Lutte, Arme de mêlée (au choix), Arme de jet (au choix) + 5 parmi : Escalade, Arme de jet (Arc), Se cacher, Écouter, Saut, Langue (Autre), Équitation, Observation, Discrétion, Nage, Lancer, Pistage</li>
-</ul>
-
-<h3>Sorcier <span class="tag tag-magic">Magie</span></h3>
-<p>Magicien ou sorcier, maître des sorts et du grimoire.</p>
-<ul>
-<li><b>Richesse :</b> Aisé</li>
-<li><b>Compétences :</b> Artisanat (au choix), Intuition, Connaissance (Occulte), 2 autres Connaissances, Langue (Autre), Écouter, Représentation (Rituels), Intimidation/Persuasion, Recherche</li>
-<li><b>Spécial :</b> Accès à la magie arcane. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage. <b>Ne peut pas apprendre :</b> Soins, Guérison Supérieure, Bénédiction, Malédiction, Sanctifier, Renaissance, Transe, Esprit Gardien.</li>
-</ul>
-
-<h3>Prêtre <span class="tag tag-magic">Magie</span></h3>
-<p>Serviteur d'une divinité, prédicateur et guérisseur.</p>
-<ul>
-<li><b>Richesse :</b> Moyen</li>
-<li><b>Compétences :</b> Baratin, Intuition, Connaissance (Histoire), Connaissance (Philosophie), Connaissance (Religion), Langue (Natale), Représentation (Rituels), Intimidation/Persuasion + 2 parmi : Connaissance (Occulte), Langue (Autre), Écouter, Alphabétisation, Représentation (Éloquence), Recherche, Statut, Enseignement</li>
-<li><b>Spécial :</b> Accès à la magie divine. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Bénédiction, Malédiction, Guérison Supérieure, Sanctifier, Renaissance. <b>Ne peut pas apprendre :</b> Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Contrôle, Illusion, Émoussement, Affûtage, Conjurer Élémentaire, Transe, Esprit Gardien. Peut utiliser l'allégeance divine (voir Chapitre 4).</li>
-</ul>
-
-<h3>Voleur <span class="tag">Ruse</span></h3>
-<p>Pickpocket, brigand, ou voleur d'aventure.</p>
-<ul>
-<li><b>Richesse :</b> Variable</li>
-<li><b>Compétences :</b> Estimation, Défense, Baratin, Se cacher, Discrétion + 5 parmi : Marchandage, Bagarre, Escalade, Déguisement, Manipulation Fine, Lutte, Intuition, Écouter, Saut, Connaissance (Droit), Intimidation/Persuasion, Observation</li>
-</ul>
-
-<h3>Chasseur</h3>
-<p>Traqueur, chasseur, pister des proies ou des ennemis.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Moyen</li>
-<li><b>Compétences :</b> Escalade, Défense, Se cacher, Connaissance (Histoire Naturelle), Écouter, Observation, Pistage, Arme de jet (Arc), Discrétion + 1 parmi : Bagarre, Premiers Secours, Saut, Équitation, Nage</li>
-</ul>
-
-<h3>Artisan</h3>
-<p>Forgeron, menuisier, tanneur, fabricant d'armes.</p>
-<ul>
-<li><b>Richesse :</b> Moyen</li>
-<li><b>Compétences :</b> Estimation, Art (au choix), Marchandage, 2 Artisanats (au choix), Observation, Recherche, Statut, Manipulation Fine et Réparation (au choix)</li>
-</ul>
-
-<h3>Noble</h3>
-<p>Aristocrate, seigneur, courtisan.</p>
-<ul>
-<li><b>Richesse :</b> Aisé à Riche</li>
-<li><b>Compétences :</b> Marchandage, Étiquette, Baratin, Intuition, Connaissance (Histoire), Intimidation/Persuasion, Statut, Arme de mêlée (au choix) + 2 parmi : Connaissance (Droit), Écouter, Langue (Autre), Représentation (Éloquence), Recherche, Équitation</li>
-</ul>
-
-<h3>Chaman <span class="tag tag-magic">Magie</span></h3>
-<p>Magicien tribal, lien avec les esprits.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre (niveau tribal)</li>
-<li><b>Compétences :</b> Art (au choix), Intuition, Connaissance (Histoire), Connaissance (Occulte), Langue (Natale), Écouter, Représentation (Rituels), Intimidation/Persuasion + 2 parmi : Artisanat, Baratin, Premiers Secours, Se cacher, Connaissance (Anthropologie), Langue (Autre), Médecine, Statut</li>
-<li><b>Spécial :</b> Accès à la magie spirituelle. Commence avec 6 sorts (niveau Héroïque). Sorts exclusifs : Transe, Esprit Gardien. <b>Ne peut pas apprendre :</b> Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage, Scellement, Déscelement, Bénédiction, Malédiction, Guérison Supérieure, Sanctifier, Renaissance.</li>
-</ul>
-
-<h3>Érudit</h3>
-<p>Savant, bibliothécaire, sage.</p>
-<ul>
-<li><b>Richesse :</b> Moyen</li>
-<li><b>Compétences :</b> Langue (Autre), Langue (Natale), Intimidation/Persuasion, Recherche, Enseignement + 5 compétences de Connaissance ou Science appropriées</li>
-</ul>
-
-<h3>Assassin</h3>
-<p>Tueur à gages, ombre silencieuse.</p>
-<ul>
-<li><b>Richesse :</b> Aisé</li>
-<li><b>Compétences :</b> Défense, Se cacher, Écouter, Observation, Discrétion + 5 parmi : Bagarre, Déguisement, Lutte, Arme de mêlée (au choix), Arme de jet (au choix), Équitation, Lancer, Pistage</li>
-</ul>
-
-<h3>Soldat</h3>
-<p>Militaire, garde, mercenaire en groupe.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Moyen</li>
-<li><b>Compétences :</b> Bagarre, Escalade, Défense, Premiers Secours + 6 parmi : Commandement, Arme de mêlée (au choix), Arme de jet (au choix), Se cacher, Écouter, Saut, Équitation, Observation, Discrétion, Lancer</li>
-</ul>
-
-<h3>Amuseur</h3>
-<p>Barde, ménestrel, jongleur, conteur.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Aisé</li>
-<li><b>Compétences :</b> Art (au choix), Déguisement, Baratin, Manipulation Fine, Intuition, Langue (Autre), Écouter, Représentation (au choix), Intimidation/Persuasion + 1 au choix</li>
-</ul>
-
-<h3>Explorateur</h3>
-<p>Aventurier, cartographe, découvreur.</p>
-<ul>
-<li><b>Richesse :</b> Moyen</li>
-<li><b>Compétences :</b> Escalade, Langue (Autre), Intimidation/Persuasion, Recherche, Observation + 4 parmi : Connaissance (Histoire, Monde Naturel, ou Région), Baratin, Arme de jet (au choix), Navigation, Équitation, Nage, Pistage</li>
-</ul>
-
-<h3>Fermier</h3>
-<p>Cultivateur, éleveur, homme du peuple.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Moyen</li>
-<li><b>Compétences :</b> Marchandage, Artisanat (au choix), Connaissance (Histoire Naturelle), Écouter, Observation + 5 parmi : Bagarre, Premiers Secours, Connaissance (Histoire), Équitation, Pistage, Arme de mêlée (au choix), Arme de jet (au choix)</li>
-</ul>
-
-<h3>Tribal</h3>
-<p>Membre d'une tribu primitive, chasseur-cueilleur.</p>
-<ul>
-<li><b>Richesse :</b> Indigent à Pauvre</li>
-<li><b>Compétences :</b> Artisanat (au choix), Défense, Lutte, Se cacher, Connaissance (Histoire Naturelle), Observation, Lancer, Pistage + 2 parmi : Bagarre, Escalade, Premiers Secours, Écouter, Saut, Arme de mêlée (Lance ou Matraque), Arme de jet (Arc), Équitation, Discrétion, Nage</li>
-</ul>
-
-<h3>Marchand</h3>
-<p>Commerçant, négociant, caravanier.</p>
-<ul>
-<li><b>Richesse :</b> Moyen à Riche</li>
-<li><b>Compétences :</b> Estimation, Marchandage, Baratin, Intuition, Langue (Autre), Langue (Natale), Intimidation/Persuasion, Statut, Observation + 1 au choix</li>
-</ul>
-
-<h3>Étudiant <span class="tag tag-magic">Magie</span></h3>
-<p>Apprenti mage, élève d'académie, novice.</p>
-<ul>
-<li><b>Richesse :</b> Pauvre à Moyen</li>
-<li><b>Compétences :</b> Langue (Natale), Recherche + 8 au choix parmi : Art, Artisanat, Premiers Secours, Intuition, Connaissance (au choix), Langue (Autre), Écouter, Médecine, Représentation, Intimidation/Persuasion, Science (au choix)</li>
-<li><b>Spécial :</b> Accès limité à la magie. Commence avec 4 sorts (niveau Héroïque : 6 sorts). <b>Sorts disponibles :</b> Blessure, Soins, Protection, Illusion, Lévitation, Perception, Parole mentale, Lumière, Scellement, Déscelement. <b>Ne peut pas apprendre les sorts exclusifs des autres professions.</b></li>
-</ul>
-
-</div>
-
-<!-- ============ CHAPITRE 4 : MAGIE ============ -->
-<!-- ============ CHAPITRE 4 : COMPÉTENCES ============ -->
-<h1 class="chapter" id="competences">4. Référence des Compétences</h1>
-
-<div class="skill-intro">
-<p><b>Score final = base + points répartis.</b> La base représente ce qu'un personnage non entraîné peut déjà accomplir. Les compétences d'arme utilisent la base de l'arme choisie. Les bases liées à une caractéristique sont recalculées quand celle-ci change.</p>
-<p class="note">Cette liste est adaptée à l'univers médiéval-fantastique du livret. Le MJ peut demander une spécialité précise, appliquer une difficulté ou déclarer une compétence indisponible selon la culture du personnage.</p>
-</div>
-
-<h2 class="skill-group-title">Combat</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Artillerie (divers)"><dt>Artillerie (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Manœuvrer et tirer avec un engin de siège comme une baliste, une catapulte ou un trébuchet. Un équipage et du temps de préparation sont généralement nécessaires.</dd></div>
-<div class="skill-entry" data-skill="Bagarre"><dt>Bagarre <span class="skill-base">25 %</span></dt><dd>Combattre sans arme avec coups de poing, coups de pied, morsures ou armes naturelles improvisées.</dd></div>
-<div class="skill-entry" data-skill="Lutte"><dt>Lutte <span class="skill-base">25 %</span></dt><dd>Saisir, immobiliser, renverser ou désarmer un adversaire au corps à corps.</dd></div>
-<div class="skill-entry" data-skill="Arme de mêlée (divers)"><dt>Arme de mêlée (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Attaquer avec une spécialité précise : épée, hache, lance, masse, dague, etc. Chaque famille peut constituer une compétence distincte.</dd></div>
-<div class="skill-entry" data-skill="Arme de jet (divers)"><dt>Arme de jet (divers) <span class="skill-base">Selon l'arme</span></dt><dd>Utiliser arcs, arbalètes, frondes, javelots ou autres armes propulsées. Pour lancer un objet à la main, utilisez Lancer.</dd></div>
-<div class="skill-entry" data-skill="Défense"><dt>Défense <span class="skill-base">Base : DEX×2</span></dt><dd>Éviter, bloquer ou dévier une attaque. Le score final est égal à la base DEX×2, augmentée des points investis et du bonus de bouclier éventuel. Le joueur décrit une esquive, une parade avec une arme adaptée ou un blocage avec un bouclier ; ces trois modes utilisent le même score. Une défense exige d'avoir perçu l'attaque et de pouvoir accomplir le mouvement annoncé. Les tentatives supplémentaires dans le même round subissent une pénalité cumulative.</dd></div>
-</dl>
-
-<h2 class="skill-group-title">Physique</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Escalade"><dt>Escalade <span class="skill-base">40 %</span></dt><dd>Grimper sur murs, arbres, falaises ou cordages. La surface, la météo, l'équipement et la vitesse modifient la difficulté.</dd></div>
-<div class="skill-entry" data-skill="Conduite (divers)"><dt>Conduite (divers) <span class="skill-base">20 % ou 01 %</span></dt><dd>Diriger une carriole, un chariot, un traîneau ou un véhicule terrestre similaire. La base faible s'applique à un véhicule inconnu.</dd></div>
-<div class="skill-entry" data-skill="Se cacher"><dt>Se cacher <span class="skill-base">10 %</span></dt><dd>Trouver une cachette, profiter du décor et rester hors de vue sans nécessairement se déplacer.</dd></div>
-<div class="skill-entry" data-skill="Saut"><dt>Saut <span class="skill-base">25 %</span></dt><dd>Franchir une distance, sauter en hauteur ou amortir une chute. L'élan et l'encombrement influencent le jet.</dd></div>
-<div class="skill-entry" data-skill="Pilotage (divers)"><dt>Pilotage (divers) <span class="skill-base">01 %</span></dt><dd>Manœuvrer une embarcation complexe, un navire ou un moyen de transport fantastique nécessitant une formation spécialisée.</dd></div>
-<div class="skill-entry" data-skill="Équitation (divers)"><dt>Équitation (divers) <span class="skill-base">05 %</span></dt><dd>Monter, guider et calmer une espèce de monture, notamment pendant une poursuite ou un combat.</dd></div>
-<div class="skill-entry" data-skill="Discrétion"><dt>Discrétion <span class="skill-base">10 %</span></dt><dd>Se déplacer silencieusement et sans attirer l'attention. Elle s'oppose généralement à Écouter ou Observation.</dd></div>
-<div class="skill-entry" data-skill="Nage"><dt>Nage <span class="skill-base">25 %</span></dt><dd>Se déplacer dans l'eau, résister au courant et éviter la noyade malgré l'armure ou la fatigue.</dd></div>
-<div class="skill-entry" data-skill="Lancer"><dt>Lancer <span class="skill-base">25 %</span></dt><dd>Lancer avec précision une pierre, une corde, une torche, une fiole ou une arme improvisée.</dd></div>
-</dl>
-
-<h2 class="skill-group-title">Magie &amp; pouvoirs</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Vol"><dt>Vol <span class="skill-base">½ DEX</span></dt><dd>Contrôler et manœuvrer un déplacement aérien accordé par un sort ou un pouvoir. Cette compétence ne donne pas la capacité de voler : elle s'utilise seulement lorsque l'effet magique est déjà actif.</dd></div>
-</dl>
-
-<h2 class="skill-group-title">Social &amp; mental</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Marchandage"><dt>Marchandage <span class="skill-base">05 %</span></dt><dd>Négocier un prix ou un compromis quand chaque partie doit céder quelque chose.</dd></div>
-<div class="skill-entry" data-skill="Commandement"><dt>Commandement <span class="skill-base">05 %</span></dt><dd>Donner des ordres clairs, coordonner un groupe et maintenir sa discipline sous pression.</dd></div>
-<div class="skill-entry" data-skill="Déguisement"><dt>Déguisement <span class="skill-base">01 %</span></dt><dd>Modifier son apparence, sa voix et son comportement pour passer pour quelqu'un d'autre.</dd></div>
-<div class="skill-entry" data-skill="Étiquette (divers)"><dt>Étiquette (divers) <span class="skill-base">05 %</span></dt><dd>Connaître les usages d'une cour, d'une guilde, d'un temple ou d'une culture afin d'éviter les impairs.</dd></div>
-<div class="skill-entry" data-skill="Baratin"><dt>Baratin <span class="skill-base">05 %</span></dt><dd>Tromper ou convaincre rapidement par le bagout. L'effet est immédiat mais résiste rarement à une vérification ultérieure.</dd></div>
-<div class="skill-entry" data-skill="Jeux"><dt>Jeux <span class="skill-base">INT+POU</span></dt><dd>Jouer aux dés, aux cartes ou aux jeux de stratégie, en combinant connaissance des règles, calcul et chance.</dd></div>
-<div class="skill-entry" data-skill="Intuition"><dt>Intuition <span class="skill-base">05 %</span></dt><dd>Pressentir les intentions, mensonges, émotions ou motivations d'une personne.</dd></div>
-<div class="skill-entry" data-skill="Écouter"><dt>Écouter <span class="skill-base">25 %</span></dt><dd>Percevoir et identifier des sons faibles, lointains ou dissimulés.</dd></div>
-<div class="skill-entry" data-skill="Représentation"><dt>Représentation <span class="skill-base">05 %</span></dt><dd>Chanter, danser, jouer d'un instrument, déclamer ou accomplir un rituel spectaculaire devant un public.</dd></div>
-<div class="skill-entry" data-skill="Intimidation/Persuasion"><dt>Intimidation/Persuasion <span class="skill-base">15 %</span></dt><dd>Faire évoluer durablement une opinion par des arguments, l'éloquence, la pression ou l'intimidation.</dd></div>
-<div class="skill-entry" data-skill="Sens"><dt>Sens <span class="skill-base">10 %</span></dt><dd>Exploiter l'odorat, le goût et le toucher pour détecter un poison, une piste, une vibration ou une anomalie.</dd></div>
-<div class="skill-entry" data-skill="Observation"><dt>Observation <span class="skill-base">25 %</span></dt><dd>Repérer visuellement un détail, une embuscade, un mécanisme ou un indice dissimulé.</dd></div>
-<div class="skill-entry" data-skill="Statut"><dt>Statut <span class="skill-base">15 %</span></dt><dd>Faire valoir sa réputation, son rang social, ses titres ou ses relations pour obtenir accès, crédit ou respect.</dd></div>
-</dl>
-
-<h2 class="skill-group-title">Connaissances</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Connaissance (divers)"><dt>Connaissance (divers) <span class="skill-base">05 % ou 00 %</span></dt><dd>Maîtriser un domaine précis : histoire, religion, occultisme, droit, nature, région, monstres, etc.</dd></div>
-<div class="skill-entry" data-skill="Langue (divers)"><dt>Langue (divers) <span class="skill-base">INT×5 ou 00 %</span></dt><dd>Comprendre et parler une langue. La langue natale utilise normalement INT×5 ; une langue inconnue commence à 00 %.</dd></div>
-<div class="skill-entry" data-skill="Alphabétisation (option)"><dt>Alphabétisation (option) <span class="skill-base">Selon profession</span></dt><dd>Lire et écrire une langue connue. Tous les personnages peuvent y investir des points. Base : Érudit ou Étudiant = INT×5 ; Sorcier ou Prêtre = INT×4 ; Noble = INT×3 ; autres professions = 00 %. Cette base représente l'éducation reçue avant le début de l'aventure.</dd></div>
-<div class="skill-entry" data-skill="Médecine"><dt>Médecine <span class="skill-base">05 %</span></dt><dd>Diagnostiquer maladies et blessures graves, pratiquer une chirurgie et organiser des soins de longue durée.</dd></div>
-<div class="skill-entry" data-skill="Recherche"><dt>Recherche <span class="skill-base">25 %</span></dt><dd>Trouver une information dans des archives, une bibliothèque, des registres ou un ensemble de témoignages.</dd></div>
-<div class="skill-entry" data-skill="Alchimie"><dt>Alchimie <span class="skill-base">01 %</span></dt><dd>Identifier les substances et fabriquer les préparations de campagne. Voir <a href="#alchimie">Alchimie et potions</a>.</dd></div>
-<div class="skill-entry" data-skill="Stratégie"><dt>Stratégie <span class="skill-base">01 %</span></dt><dd>Planifier une bataille, évaluer le terrain, les ressources et les intentions adverses à l'échelle d'une armée.</dd></div>
-<div class="skill-entry" data-skill="Enseignement"><dt>Enseignement <span class="skill-base">10 %</span></dt><dd>Transmettre méthodiquement une compétence ou un savoir et aider un élève à progresser.</dd></div>
-</dl>
-
-<h2 class="skill-group-title">Pratique &amp; divers</h2>
-<dl class="skill-grid">
-<div class="skill-entry" data-skill="Estimation"><dt>Estimation <span class="skill-base">15 %</span></dt><dd>Évaluer la valeur, la qualité, l'âge ou l'authenticité d'un objet et reconnaître une contrefaçon.</dd></div>
-<div class="skill-entry" data-skill="Art (divers)"><dt>Art (divers) <span class="skill-base">05 %</span></dt><dd>Créer une œuvre dans une spécialité : peinture, sculpture, poésie, composition, enluminure, etc.</dd></div>
-<div class="skill-entry" data-skill="Artisanat (divers)"><dt>Artisanat (divers) <span class="skill-base">05 %</span></dt><dd>Fabriquer ou entretenir des objets dans un métier : forge, cuisine, maçonnerie, menuiserie, couture, poterie, etc.</dd></div>
-<div class="skill-entry" data-skill="Manipulation fine"><dt>Manipulation fine <span class="skill-base">05 %</span></dt><dd>Accomplir un travail manuel minutieux : crocheter une serrure, désamorcer un piège ou manipuler un petit mécanisme.</dd></div>
-<div class="skill-entry" data-skill="Premiers secours"><dt>Premiers secours <span class="skill-base">30 %</span></dt><dd>Stabiliser rapidement une blessure, arrêter un saignement et rendre immédiatement quelques points de vie.</dd></div>
-<div class="skill-entry" data-skill="Navigation"><dt>Navigation <span class="skill-base">10 %</span></dt><dd>Trouver son chemin grâce aux cartes, aux étoiles, au terrain, à une boussole ou à des repères mémorisés.</dd></div>
-<div class="skill-entry" data-skill="Réparation (divers)"><dt>Réparation (divers) <span class="skill-base">15 %</span></dt><dd>Remettre en état un objet, une arme, une armure, un chariot ou une structure avec les outils appropriés.</dd></div>
-<div class="skill-entry" data-skill="Tour de main"><dt>Tour de main <span class="skill-base">05 %</span></dt><dd>Dissimuler ou subtiliser un petit objet, tricher discrètement ou réaliser un geste de prestidigitation.</dd></div>
-<div class="skill-entry" data-skill="Pistage"><dt>Pistage <span class="skill-base">10 %</span></dt><dd>Suivre des traces, estimer leur ancienneté et déduire le nombre, l'allure ou l'état des créatures poursuivies.</dd></div>
-</dl>
-
-<!-- ============ CHAPITRE 5 : MAGIE ============ -->
-<h1 class="chapter">5. La Magie</h1>
-
-<h2>Principes généraux</h2>
-<p>La magie est traitée comme une compétence : chaque sort connu est une compétence distincte avec un pourcentage de succès. Le magicien dépense des <b>points de pouvoir (PP)</b> pour lancer ses sorts. Les PP sont égaux à la POU du personnage et se régénèrent avec le repos.</p>
-
-<div class="formula">Lancer un sort = Jet de compétence (D100 ≤ score du sort)</div>
-
-<h2>Coûts et temps d'incantation</h2>
-<ul>
-<li>Chaque sort a un <b>coût en PP par niveau</b> (voir la liste des sorts).</li>
-<li>Un sort de niveau 1 se lance au <b>rang de DEX − 1</b> dans le round de combat.</li>
-<li>Chaque niveau supplémentaire baisse le rang de DEX de <b>−1</b>.</li>
-<li>Limite de niveaux : <b>½ INT</b> (arrondi au supérieur).</li>
-<li>En cas d'<b>échec</b> : 1 PP est perdu, le sort n'a aucun effet.</li>
-<li>En cas de <b>maladresse</b> : tous les PP investis sont perdus + le magicien ne peut pas utiliser ce sort au round suivant.</li>
-</ul>
-
-<h2>Niveaux de succès des sorts</h2>
-<table>
-<tr><th>Résultat</th><th>Effet</th></tr>
-<tr><td><b>Critique</b></td><td>Le sort fonctionne parfaitement. Dégâts max, ignore l'armure. Ou double l'efficacité d'un aspect du sort.</td></tr>
-<tr><td><b>Spéciale</b></td><td>Efficacité accrue. Dégâts spéciaux si applicable. Ou 150 % d'effet / niveau × 1,5 pour les jets de résistance.</td></tr>
-<tr><td><b>Réussite</b></td><td>Le sort fonctionne normalement.</td></tr>
-<tr><td><b>Échec</b></td><td>1 PP perdu, aucun effet.</td></tr>
-<tr><td><b>Maladresse</b></td><td>Tous les PP perdus. Jet de Chance : succès = échec simple ; échec = le sort frappe une cible involontaire !</td></tr>
-</table>
-
-<h2>Récupération des points de pouvoir</h2>
-<table>
-<tr><th>PP Max</th><th>Endormi</th><th>Éveillé</th></tr>
-<tr><td>1–4</td><td>1/heure</td><td>1/2 heures</td></tr>
-<tr><td>5–8</td><td>2/heure</td><td>1/heure</td></tr>
-<tr><td>9–12</td><td>3/heure</td><td>1/40 min</td></tr>
-<tr><td>13–16</td><td>4/heure</td><td>1/30 min</td></tr>
-<tr><td>17+</td><td>+1/heure</td><td>temps ÷ 2</td></tr>
-</table>
-<p class="note">PP = 0 → évanouissement. Max temporaire = 2 × POU. Activité pénible = pas de récupération.</p>
-
-<h2>Grimoire et mémorisation</h2>
-<ul>
-<li>Le grimoire contient tous les sorts connus du magicien.</li>
-<li>Le magicien peut mémoriser un nombre de sorts égal à son <b>INT</b>.</li>
-<li>Les sorts mémorisés peuvent être lancés directement.</li>
-<li>Changer un sort mémorisé prend <b>10 minutes</b> par sort.</li>
-<li>Un magicien peut librement ajouter un sort mémorisé à son grimoire.</li>
-</ul>
-
-<h2>Apprendre de nouveaux sorts</h2>
-<ul>
-<li><b>À partir d'un grimoire ou parchemin :</b> 1 mois d'étude par sort, puis jet d'INT+POU. Succès = sort appris à INT×1.</li>
-<li><b>Inventer un nouveau sort :</b> 6 mois de recherche, jet d'INT+POU chaque mois. 6 réussites nécessaires.</li>
-<li><b>Non-magiciens :</b> Peuvent apprendre jusqu'à ¼ de leur INT en sorts, à INT×1. Temps d'apprentissage : 30 − INT en semaines.</li>
-</ul>
-
-<h2>Gagner de la POU</h2>
-<p>Quand un magicien réussit un jet de résistance de POU contre une POU <b>égale ou supérieure</b>, il coche une expérience sur POU. Lors de la vérification d'expérience, la POU peut augmenter de <b>1D3−1</b> points. Une seule coche par aventure.</p>
-
-<h2>Liste des sorts de magie</h2>
-<p>Portée standard : <b>100 mètres</b> (sauf indication contraire). La cible doit être en ligne de vue.</p>
-<p><b>Légende des professions :</b> <span class="prof-tag prof-tag-s">S</span> Sorcier · <span class="prof-tag prof-tag-p">P</span> Prêtre · <span class="prof-tag prof-tag-c">C</span> Chaman · <span class="prof-tag prof-tag-e">E</span> Étudiant</p>
-
-<table class="spell-list">
-<tr><th>Sort</th><th>Coût/niv.</th><th>Effet (par niveau)</th><th>Prof.</th></tr>
-<tr><td><b>Blessure</b></td><td>3 PP</td><td>Inflige 1D6 points de dégâts par niveau</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Déflagration</b></td><td>3 PP</td><td>Rayon d'énergie, 1D6 dégâts/niv. Esquivable, armure absorbe</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Feu</b></td><td>3 PP</td><td>1D6 dégâts de feu/niv. Peut enflammer</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Foudre</b></td><td>3 PP</td><td>1D6 dégâts de foudre/niv.</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Givre</b></td><td>3 PP</td><td>1D6 dégâts de froid/niv. Peut geler</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Soins</b></td><td>3 PP</td><td>Soigne 1D6 PV/niv. Sur une créature vivante</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Guérison Supérieure</b></td><td>3 PP</td><td>Soigne 2D6 PV/niv. + guérit maladie et poison</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Contrôle</b></td><td>3 PP</td><td>Contrôle l'esprit d'un être intelligent. Jet POU vs POU. 1 cible/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Protection</b></td><td>1 PP</td><td>+1 point d'armure/niv. contre attaques physiques</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Contre-magie</b></td><td>1 PP</td><td>Renvoie les sorts entrants vers leur lanceur</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Dissipation</b></td><td>1 PP</td><td>Élimine les effets de sorts existants, bannit êtres surnaturels</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Métamorphose</b></td><td>1 PP</td><td>Transforme 3 points de TAI/niv. Durée : 15 min</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Illusion</b></td><td>1 PP</td><td>Crée 3 points de TAI d'illusion/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Invisibilité</b></td><td>1 PP</td><td>Rend 3 points de TAI invisible/niv.</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Lévitation</b></td><td>1 PP</td><td>Soulève 3 points de TAI/niv.</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Téléportation</b></td><td>1 PP</td><td>Téléporte 3 points de TAI/niv. dans la portée</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Diminution</b></td><td>1 PP</td><td>−1 à une caractéristique/niv. de la cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Amélioration</b></td><td>1 PP</td><td>+1 à une caractéristique/niv. de la cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Perception</b></td><td>1 PP</td><td>Détecte une chose dans la portée</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Vision</b></td><td>1 PP</td><td>Voir ailleurs ou dans le passé</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Parole mentale</b></td><td>1 PP</td><td>Communication mentale avec une cible</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Lumière</b></td><td>1 PP</td><td>Remplit une zone de lumière</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Ténèbres</b></td><td>1 PP</td><td>Remplit une zone de ténèbres</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Mur</b></td><td>1 PP</td><td>Crée une barrière protectrice</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Garde</b></td><td>1 PP</td><td>Zone protégée par Déflagration et Contre-magie</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Résistance</b></td><td>1 PP</td><td>−1 dégât de chaleur/froid/niv.</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Émoussement</b></td><td>1 PP</td><td>Réduit chance d'attaque et dégâts d'une arme</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Affûtage</b></td><td>1 PP</td><td>Augmente chance d'attaque et dégâts d'une arme</td><td><span class="prof-tag prof-tag-s">S</span></td></tr>
-<tr><td><b>Scellement</b></td><td>1 PP</td><td>Joint deux objets inanimés</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Déscelement</b></td><td>1 PP</td><td>Sépare deux objets connectés</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-e">E</span></td></tr>
-<tr><td><b>Conjurer Élémentaire</b></td><td>1 PP/POU</td><td>Invoque un élémentaire (Air, Terre, Feu, Eau). Durée : 10 rounds</td><td><span class="prof-tag prof-tag-s">S</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Bénédiction</b></td><td>1 PP</td><td>+10 % à un jet de compétence/niv. Durée : 1 combat</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Malédiction</b></td><td>1 PP</td><td>−10 % à un jet de compétence de la cible/niv. Durée : 1 combat</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Sanctifier</b></td><td>1 PP</td><td>Zone bénie de 3 m/niv. Maléfices repoussés, sorts hostiles −20 %</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Exorcisme</b></td><td>2 PP</td><td>Bannit un esprit ou démon d'un hôte. Jet POU vs POU</td><td><span class="prof-tag prof-tag-p">P</span> <span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Renaissance</b></td><td>5 PP</td><td>Ressuscite un mort depuis ≤ 1 heure/niv. Coûte 1 POU permanent</td><td><span class="prof-tag prof-tag-p">P</span></td></tr>
-<tr><td><b>Transe</b></td><td>1 PP</td><td>Communication avec esprits et ancêtres. Durée : 10 min/niv.</td><td><span class="prof-tag prof-tag-c">C</span></td></tr>
-<tr><td><b>Esprit Gardien</b></td><td>1 PP</td><td>Invoque un esprit protecteur. +1D4 PV temporaires/niv. pendant 1 heure</td><td><span class="prof-tag prof-tag-c">C</span></td></tr>
-</table>
-
-<h2>Résumé des sorts par profession</h2>
-<table>
-<tr><th>Profession</th><th>Nb. sorts</th><th>Sorts exclusifs</th><th>Style de magie</th></tr>
-<tr><td><b>Sorcier</b> <span class="prof-tag prof-tag-s">S</span></td><td>28</td><td>Déflagration, Foudre, Métamorphose, Invisibilité, Téléportation, Illusion, Émoussement, Affûtage</td><td>Arcane : offensif, transformation, utilitaire</td></tr>
-<tr><td><b>Prêtre</b> <span class="prof-tag prof-tag-p">P</span></td><td>19</td><td>Guérison Supérieure, Bénédiction, Malédiction, Sanctifier, Renaissance</td><td>Divin : guérison, protection, soutien, allégeance</td></tr>
-<tr><td><b>Chaman</b> <span class="prof-tag prof-tag-c">C</span></td><td>15</td><td>Transe, Esprit Gardien</td><td>Spirituel : éléments, esprits, nature</td></tr>
-<tr><td><b>Étudiant</b> <span class="prof-tag prof-tag-e">E</span></td><td>10</td><td>Aucun (accès limité)</td><td>Arcane limité : bases polyvalentes</td></tr>
-</table>
-<p class="note">Aucune profession n'a accès aux 37 sorts. Les sorts partagés entre professions sont indiqués par plusieurs lettres dans la colonne « Prof. » du tableau ci-dessus.</p>
-
-<h2>Allégeance et magie divine (Prêtre)</h2>
-<p>Le prêtre tire une partie de son pouvoir de son allégeance à une divinité ou force divine. L'allégeance se mesure en <b>points d'allégeance</b>, gagnés en agissant selon les préceptes de la divinité (actions majeures : 3 pts, significatives : 2 pts, mineures : 1 pt).</p>
-
-<h3>Allégeance de départ</h3>
-<ul>
-<li>Lancez 1D6−1 (minimum 0) pour les points d'allégeance initiaux.</li>
-<li>Un prêtre ajoute <b>½ POU</b> (arrondi au supérieur) points d'allégeance supplémentaires distribués selon ses choix.</li>
-<li>Le personnage est considéré <b>allié</b> si son score d'allégeance dépasse de 20+ celui de toute autre allégeance.</li>
-</ul>
-
-<h3>Avantages de l'allégeance</h3>
-<ul>
-<li><b>Points de pouvoir supplémentaires :</b> Quand les PP sont épuisés, un jet d'allégeance réussi octroie jusqu'à 10 % du score d'allégeance en PP supplémentaires. Jusqu'à 3 fois par séance.</li>
-<li><b>Points de vie temporaires :</b> Un jet d'allégeance réussi octroie jusqu'à 20 % du score d'allégeance en PV temporaires, 1 fois par séance. Ces PV sont dépensés en premier et ne se régénèrent pas.</li>
-<li><b>Bonus de compétence :</b> Un jet d'allégeance réussi permet de créer un pool égal au score d'allégeance en points de compétence bonus pour des jets spécifiques. Jusqu'à 3 fois par séance. Déclarer avant le jet de dés.</li>
-<li><b>Intervention divine :</b> Un personnage allié peut demander une intervention divine. Chance de réussite = <b>critique</b> (1/20 du score d'allégeance). En cas de succès, la divinité intervient directement ou par proxy.</li>
-</ul>
-
-<h3>Apothéose</h3>
-<p>Si le personnage atteint <b>100+ points d'allégeance</b> et est allié, il peut être appelé à devenir l'apothéose de cette force — son avatar vivant. Avantages possibles :</p>
-<ul>
-<li>Immortalité limitée (pas de vieillissement ni maladie)</li>
-<li>PV permanents doublés (CON+TAI)</li>
-<li>Triple score de trois compétences appropriées</li>
-<li>Artefact divin fourni par la divinité</li>
-<li>PP maximum doublé (POU reste inchangé)</li>
-<li>Chance de POU×3 de communication directe avec la force divine</li>
-</ul>
-<p class="note">L'apothéose n'est pas automatique : le personnage doit la mériter par sa foi et ses actes. Il garde son libre arbitre et peut même trahir la force qu'il sert.</p>
-
-<h3>Passion : Dévotion (divinité)</h3>
-<p>La <b>Dévotion</b> est une passion évaluée comme une compétence (D100). Un jet réussi rend le personnage <b>inspiré</b> : ses actions sont chargées par sa foi, lui permettant un effort surhumain. Un échec peut mener au <b>désespoir</b>. La dévotion représente la dédication personnelle et émotionnelle envers une divinité ou force divine.</p>
-
-<h2>Le familier du magicien</h2>
-<p>Un magicien peut lier un animal comme familier. Conditions :</p>
-<ul>
-<li>TAI de la créature ≤ ¼ POU du magicien</li>
-<li>3 mois de cohabitation (pas de séparation > 1 jour)</li>
-<li>Coût : <b>1 point de POU permanent</b></li>
-<li>Jet de résistance POU vs POU à la fin du rituel</li>
-</ul>
-<p><b>Avantages :</b> Drainer les PP du familier, voir par ses yeux, communiquer télépathiquement, parler par sa bouche, défendre avec son INT/POU. Portée : POU du magicien en mètres.</p>
-
-<h2>Le bâton du sorcier</h2>
-<p>Un bâton de sorcier est un focus magique et un réservoir de points de pouvoir. Fabrication :</p>
-<ul>
-<li>6 mois de travail à temps plein</li>
-<li>Coût financier : très élevé (à la discrétion du MJ, équivalent à l'achat d'un cheval de guerre ou d'une armure complète de plate)</li>
-<li>Coût : <b>1 point de POU permanent</b></li>
-<li>Stocke jusqu'à POU−1 points de pouvoir</li>
-<li>Récupère ses PP au même taux qu'un personnage</li>
-<li>En combat : 1D8 + mod. dégâts + 1D6 si PP du bâton > PP de la cible (coûte 1 PP)</li>
-<li>20 PV. Si brisé, devient inutile.</li>
-</ul>
-
-<!-- ============ CHAPITRE 5 : RÉSUMÉ DES RÈGLES ============ -->
-<h1 class="chapter">6. Résumé des Règles Clés</h1>
-
-<section id="confrontation-verbale">
-<h2>Confrontation verbale — aide de jeu</h2>
-<p>Convaincre un garde, négocier un prix, apaiser une dispute… La confrontation verbale sert à résoudre les échanges sociaux importants. Vous tirez des <strong>mots-clés</strong> qui vous donnent des idées pour prendre la parole et construire vos arguments. Votre objectif : en placer <strong>cinq</strong> naturellement dans l’échange.</p>
-
-<h3>1. Choisir une approche</h3>
-<p>Dans l’onglet <strong>Confrontation verbale</strong> du lanceur, choisissez l’approche qui correspond à votre intention :</p>
-<ul>
-  <li><strong>Persuader :</strong> convaincre par la morale.</li>
-  <li><strong>Intimider :</strong> convaincre par la peur ou la menace.</li>
-  <li><strong>Séduire :</strong> convaincre par le charme.</li>
-  <li><strong>Négocier :</strong> convaincre par l’intérêt.</li>
-  <li><strong>Bluffer :</strong> convaincre par la ruse.</li>
-  <li><strong>Contraindre :</strong> convaincre par le chantage.</li>
-  <li><strong>Railler :</strong> convaincre par la moquerie.</li>
-  <li><strong>Apaiser :</strong> convaincre par la bienveillance.</li>
-</ul>
-<p>Chaque approche contient <strong>50 mots</strong>, tirés au hasard, sans doublon.</p>
-
-<h3>2. Tirer les mots</h3>
-<p>C’est votre score <strong>Intimidation/Persuasion</strong> (fiche de personnage) qui détermine le nombre de mots tirés, <em>quelle que soit l’approche choisie</em>. Plus le score est élevé, plus vous avez de choix pour garder les cinq meilleurs.</p>
-
-<table>
-  <tr>
-    <th>Score</th><th>Niveau</th><th>Mots tirés</th><th>Jokers</th><th>Mots conservés</th>
-  </tr>
-  <tr><td>Moins de 40 %</td><td>Novice</td><td>5</td><td>0</td><td>5</td></tr>
-  <tr><td>40 à 69 %</td><td>Intermédiaire</td><td>6</td><td>1</td><td>5</td></tr>
-  <tr><td>70 à 89 %</td><td>Expert</td><td>7</td><td>2</td><td>5</td></tr>
-  <tr><td>90 % et plus</td><td>Maître</td><td>8</td><td>3</td><td>5</td></tr>
-</table>
-
-<p><strong>Un joker = un mot écarté.</strong> Exemple : avec 75 % en Intimidation/Persuasion, vous tirez 7 mots, vous en écartez 2, il vous reste 5 mots à placer dans votre discours.</p>
-
-<h3>3. Prendre la parole</h3>
-<p>Placez les cinq mots conservés dans votre dialogue, <strong>dans l’ordre que vous voulez</strong> et <strong>où vous voulez</strong> dans l’échange. Aucun ordre n’est imposé, aucun mot n’a de position obligatoire : le seul but est de les intégrer naturellement à votre argumentation.</p>
-<p>Vous pouvez les marquer comme « placés » au fur et à mesure pour vous repérer. Le compteur sert uniquement de suivi : <strong>atteindre 5 mots ne déclenche aucun résultat automatique</strong>, c’est le MJ qui apprécie l’ensemble.</p>
-
-<h3>4. Le MJ tranche</h3>
-<p>Le MJ écoute votre proposition et décide de ses effets. Il tient compte de :</p>
-<ul>
-  <li>la qualité et la pertinence de vos arguments ;</li>
-  <li>la personnalité et les intérêts de l’interlocuteur ;</li>
-  <li>le contexte de la scène.</li>
-</ul>
-<p>Si vous n’avez pas placé tous les mots, <strong>ce n’est pas un échec automatique</strong> : un discours percutant, drôle ou bien amené reste un bon discours. <strong>L’effort de roleplay mérite toujours d’être pris en compte</strong>, même hésitant ou maladroit.</p>
-
-<h3>5. Cocher l’expérience</h3>
-<p>Si le MJ valide votre participation, cliquez sur <strong>« Le MJ valide : cocher Intimidation/Persuasion »</strong>. Cela coche l’expérience sur votre fiche, même si vous n’avez pas marqué les cinq mots comme placés. Pensez ensuite à <strong>sauvegarder votre fiche</strong>.</p>
-</section>
-
-<!-- 
-<h2>Niveaux de réussite</h2>
-<table>
-<tr><th>Résultat</th><th>Condition</th><th>Effet</th></tr>
-<tr><td>Critique</td><td>≤ 1/20 du score</td><td>Meilleur résultat possible</td></tr>
-<tr><td>Spéciale</td><td>≤ 1/5 du score</td><td>Résultat supérieur</td></tr>
-<tr><td>Réussite</td><td>≤ score</td><td>Résultat normal</td></tr>
-<tr><td>Échec</td><td>&gt; score, &lt; maladresse</td><td>Échec. Auto sur 96+</td></tr>
-<tr><td>Maladresse</td><td>Voir table</td><td>Échec spectaculaire. 00 = toujours</td></tr>
-</table>
--->
-<h2>Modificateurs de difficulté</h2>
-<table>
-<tr><th>Niveau</th><th>Modificateur</th></tr>
-<tr><td>Automatique</td><td>Aucun jet requis</td></tr>
-<tr><td>Facile</td><td>×2 (double le score)</td></tr>
-<tr><td>Moyen</td><td>Normal (×1)</td></tr>
-<tr><td>Difficile</td><td>÷2 (arrondi au supérieur)</td></tr>
-<tr><td>Impossible</td><td>Échec automatique</td></tr>
-</table>
-
-<h2>Points de vie et blessures</h2>
-<ul>
-<li><b>PV ≤ 2 :</b> Perte de connaissance</li>
-<li><b>PV = 0 :</b> Mort à la fin du round suivant</li>
-<li><b>Blessure majeure :</b> Dégâts ≥ ½ PV en un coup → jet sur la Table des blessures majeures</li>
-<li><b>Guérison naturelle :</b> 1D3 PV / semaine</li>
-<li><b>Premiers Secours réussis :</b> +1D3 PV par blessure (immédiat, 1 fois/blessure)</li>
-<li><b>Premiers Secours en combat ou pendant un voyage rude :</b> coûte une action et exige un jet. Un échec ne rend aucun PV.</li>
-<li><b>Sort Soins :</b> 1D6 PV par niveau (immédiat, 3 PP par niveau)</li>
-<li><b>Guérison Supérieure :</b> 2D6 PV par niveau et guérit une maladie ou un poison (immédiat, 3 PP par niveau)</li>
-</ul>
-
-<h2>Table de résistance</h2>
-<div class="formula">Base = 50 + (Actif × 5) − (Passif × 5)</div>
-<p>Écart de 10+ = réussite/échec automatique. Lancez 1D100 ≤ la valeur indiquée.</p>
-
-<h2>Combat — résumé</h2>
-<h3>Déroulement d'un round</h3>
-<ul>
-<li><b>Round de combat :</b> 4 phases — Déclarations, Pouvoirs, Action, Résolution</li>
-<li><b>Déclarations :</b> intentions annoncées en ordre de DEX croissant ; les personnages les plus lents déclarent en premier.</li>
-<li><b>Ordre d'action :</b> les personnages agissent de la DEX la plus élevée à la plus basse. Lorsque sa valeur de DEX est appelée, un personnage joue son tour.</li>
-<li><b>Attaque :</b> Jet de compétence d'arme. Une attaque réussie peut être opposée par un jet de Défense.</li>
-<li><b>Défense :</b> Un seul score pour esquiver, parer avec une arme ou bloquer avec un bouclier.</li>
-<li><b>Défenses multiples :</b> première au score normal, puis −30 %, −60 %, −90 %, etc.</li>
-<li><b>Combat défensif :</b> renoncer à son attaque accorde une défense supplémentaire sans augmenter la pénalité cumulative.</li>
-<li><b>Critique :</b> Dégâts maximum + mod. dégâts normal, ignore l'armure</li>
-<li><b>Spéciale :</b> Dégâts spéciaux selon le type d'arme (saignement, écrasement, empalement, renversement, entrave)</li>
-</ul>
-<p class="note"><b>Exemple — DEX 16 :</b> le personnage déclare après celui de DEX 12 et avant celui de DEX 18. Lors des actions, l'ordre s'inverse : il agit après le personnage de DEX 18 et avant celui de DEX 12.</p>
-
-<h3>Choisir sa Défense</h3>
-<ul>
-<li><b>Esquive :</b> nécessite assez de liberté pour se déplacer.</li>
-<li><b>Parade :</b> nécessite une arme adaptée à l'attaque ; une petite arme ne peut normalement pas dévier un projectile.</li>
-<li><b>Blocage :</b> nécessite un bouclier. Le bouclier n'est pas une compétence séparée : il ajoute son bonus au jet de Défense lorsque le blocage est possible.</li>
-</ul>
-<table>
-<tr><th>Bouclier</th><th>Bonus de Défense</th></tr>
-<tr><td>Rondache</td><td>+10 %</td></tr>
-<tr><td>Écu</td><td>+20 %</td></tr>
-<tr><td>Bouclier en amande</td><td>+20 %, utilisable contre les projectiles visibles</td></tr>
-<tr><td>Pavois</td><td>+30 %, très encombrant</td></tr>
-<tr><td>Bouclier runique</td><td>+20 %, parfois contre une attaque magique directe</td></tr>
-</table>
-
-<h3>Matrice attaque / Défense</h3>
-<table>
-<tr><th>Attaque</th><th>Défense</th><th>Résultat</th></tr>
-<tr><td>Critique</td><td>Critique</td><td>L'attaque touche et inflige des dégâts normaux</td></tr>
-<tr><td>Critique</td><td>Spéciale, normale ou échec</td><td>Dégâts critiques, l'armure est ignorée</td></tr>
-<tr><td>Spéciale</td><td>Critique</td><td>Attaque entièrement esquivée, parée ou bloquée : aucun dégât</td></tr>
-<tr><td>Spéciale</td><td>Spéciale</td><td>L'attaque touche et inflige des dégâts normaux</td></tr>
-<tr><td>Spéciale</td><td>Normale ou échec</td><td>Dégâts spéciaux</td></tr>
-<tr><td>Normale</td><td>Critique ou spéciale</td><td>Attaque entièrement esquivée, parée ou bloquée : aucun dégât</td></tr>
-<tr><td>Normale</td><td>Normale</td><td>Coup amorti : moitié des dégâts restant après l'armure</td></tr>
-<tr><td>Normale</td><td>Échec ou maladresse</td><td>La cible est touchée et subit les dégâts complets</td></tr>
-<tr><td>Échec ou maladresse</td><td>—</td><td>Aucune Défense nécessaire ; appliquer la maladresse éventuelle</td></tr>
-</table>
-
-<h3>Dégâts, armure et blessures</h3>
-<p>Lancez les dégâts de l'arme et ajoutez le modificateur de dégâts du personnage lorsque l'arme le permet. L'armure possède une valeur fixe en points d'armure (PA) : soustrayez-la des dégâts reçus. Un bouclier n'ajoute pas de PA et ne réduit pas une seconde fois les dégâts.</p>
-<div class="formula">Dégâts subis = dégâts de l'arme + mod. dégâts − PA de l'armure (minimum 0)</div>
-<div class="formula">Coup amorti = dégâts subis ÷ 2 (arrondi au supérieur)</div>
-<p class="note">Un coup amorti compte comme une attaque ayant touché, mais il ne produit aucun effet spécial. Calculez d'abord les dégâts et l'absorption de l'armure, puis divisez le résultat restant par deux.</p>
-<p>Une blessure infligeant en un seul coup au moins la moitié des PV totaux est une blessure majeure. À 2 PV ou moins, le personnage perd connaissance ; à 0 PV, il meurt à la fin du round suivant sans intervention.</p>
-
-<h3>Exemple</h3>
-<p>Arthas possède Épée 65 % et obtient 42 : son attaque est une réussite normale. L'orque tente une parade avec Défense 50 % et obtient 73 : sa Défense échoue. Arthas lance 1D8 et obtient 6, puis ajoute 2 points de modificateur de dégâts. L'armure de l'orque absorbe 3 points : il perd donc 5 PV.</p>
-
-<h2>Amélioration par l'expérience</h2>
-<ol>
-<li>Cochez une compétence après toute réussite obtenue avec cette compétence durant la partie.</li>
-<li>À la fin de la session ou de l'aventure, effectuez un jet d'apprentissage pour chaque compétence cochée : lancez <b>D100 + bonus d'expérience</b>. Si le résultat est supérieur au score actuel, la compétence devient admissible à une amélioration.</li>
-<li>Créez une <b>réserve d'expérience égale au bonus d'expérience</b> du personnage (INT/2, arrondi au supérieur).</li>
-<li>Répartissez librement tous les points de cette réserve entre les compétences dont le jet d'apprentissage a réussi. Il n'y a pas de maximum par compétence.</li>
-<li>Les points qui ne peuvent ou ne veulent pas être attribués sont perdus, puis toutes les coches sont effacées.</li>
-</ol>
-<p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La POU continue d'augmenter séparément via les jets de résistance de POU réussis contre une POU égale ou supérieure.</p>
-<p><b>Exemple :</b> avec INT 13, le bonus d'expérience et la réserve valent 7. Si les jets d'Épée, Défense et Premiers secours réussissent, le joueur répartit librement ces 7 points entre ces trois compétences, par exemple +4 en Épée, +2 en Défense et +1 en Premiers secours.</p>
-
-<section id="alchimie">
-<!-- Généré depuis data/alchimie.md ; SHA256 c4048f99c97f8b3b7d1b8257854970cb864ebfd6924d6ef96d1bd2aaa9f90eaf -->
-<h1 id="alchimie-alchimie" class="chapter">7. Alchimie</h1>
-<p class="note">Règles d’alchimie de la campagne : catégories de réactifs, recettes de degrés I et II et quatre doses transportées par personnage.</p>
-<p>Utilisez le score en pourcentage d’Alchimie indiqué sur votre fiche (base de 1 % + points investis). La mention INT désigne la caractéristique associée ; elle ne remplace pas ce score par un jet d’INT.</p>
-<aside class="alchemy-callout">Repères de jeu<br><strong>Compétence :</strong> Alchimie (INT) · <strong>Transport :</strong> 4 doses par personnage<br><strong>Fabrication :</strong> hors combat · <strong>Réussite :</strong> durée normale · <strong>Critique :</strong> nombre de doses ×2</aside>
-<h2 id="alchimie-sommaire">Sommaire</h2>
-<ul>
-<li><a href="#alchimie-1-competence-et-regles-de-base">Compétence et règles de base</a></li>
-<li><a href="#alchimie-2-composants-et-reactifs">Composants et réactifs</a></li>
-<li><a href="#alchimie-3-materiel-couts-et-conditions-de-fabrication">Fabrication, transport et apprentissage</a></li>
-<li><a href="#alchimie-4-livre-de-recettes">Livre de recettes</a></li>
-</ul>
-<hr>
-<h2 id="alchimie-1-competence-et-regles-de-base">1. Compétence et règles de base</h2>
-<p>Compétence clé : Alchimie (INT)</p>
-<ul>
-<li>Utilisation : L'alchimie est une activité de préparation au repos. Elle ne s'utilise pas directement en plein combat.</li>
-<li>Utilisation des produits : Lancer une fiole utilise "Lancer", enduire une arme utilise "Manipulation fine", verser un poison utilise "discrétion".</li>
-</ul>
-<h3 id="alchimie-resultats-du-jet-d-alchimie-fabrication">Résultats du jet d'alchimie (fabrication)</h3>
-<p>Le score effectif inclut les modificateurs de fabrication. Les seuils suivent <a href="ecran_joueur_BRP_ORC.html#jets">la résolution BRP</a>.</p>
-<ul>
-<li><strong>Critique :</strong> jet ≤ score ÷20, arrondi au supérieur ; nombre de doses ×2, durée normale.</li>
-<li><strong>Spéciale ou ordinaire :</strong> quantité et durée normales.</li>
-<li><strong>Échec :</strong> ingrédients perdus, aucun produit utilisable.</li>
-<li><strong>Maladresse :</strong> accident immédiat (détonation, fuite d’acide ou empoisonnement) ; seuil dépendant du score.</li>
-</ul>
-<p>À Alchimie 71 : critique 01–04, spéciale 05–15, maladresse 99–100. Le transport reste limité à <strong>4 doses</strong>, même après une fabrication critique.</p>
-<h3 id="alchimie-vecteurs-d-utilisation">Vecteurs d'utilisation</h3>
-<ol>
-<li>Contact / Enduit (Manipulation fine): Appliqué sur une arme ou un objet. S'active à la blessure ou au toucher.</li>
-<li>Volatile / Jetable (Lancer): Fiole brisée.</li>
-<li>Ingestion / Inhalation : Consommé directement, dissous dans une boisson ou respiré.</li>
-</ol>
-<hr>
-<h2 id="alchimie-2-composants-et-reactifs">2. Composants et réactifs</h2>
-<p>Chaque recette impose un assemblage précis parmi 4 catégories de réactifs :</p>
-<ul>
-<li>[Solvant] : Alcools, et autres dissolvants .</li>
-<li>[Sel] : Poudres, sels et composés minéraux.</li>
-<li>[Organique] : Matières organiques, extraits, sucs et substances d'origine végétale ou animale.</li>
-<li>[Catalyseur] : Éléments rares utilisés pour provoquer, stabiliser ou amplifier une réaction.</li>
-</ul>
-<h3 id="alchimie-validite-d-une-recette">Validité d'une recette</h3>
-<p>Chaque recette indique les <strong>catégories de réactifs requises</strong> pour pouvoir être fabriquée.</p>
-<p>Exemple :</p>
-<p>[Solvant] + [Organique] + [Sel]</p>
-<p>Le joueur choisit librement un ingrédient appartenant à chacune des catégories demandées.</p>
-<ul>
-<li>Si toutes les catégories requises sont présentes : la fabrication peut être tentée.</li>
-<li>Si une ou plusieurs catégories requises sont absentes ou remplacées par une catégorie incorrecte : la recette est invalide et aucun jet d'Alchimie n'est possible.</li>
-</ul>
-<p>Chaque recette possède également une <strong>Formule classique</strong>, représentant la combinaison d'ingrédients traditionnellement utilisée par les alchimistes.</p>
-<p>Cette formule sert de référence, mais elle n'est pas obligatoire : le joueur peut remplacer un ou plusieurs ingrédients par d'autres réactifs appartenant aux mêmes catégories.</p>
-<p>Le choix des ingrédients n'affecte donc pas la validité de la recette tant que les catégories sont respectées. Il détermine uniquement la difficulté du jet d'Alchimie.</p>
-<h3 id="alchimie-difficulte-du-jet">Difficulté du jet</h3>
-<p>Une fois les catégories respectées, la difficulté du jet d'Alchimie dépend de la cohérence des ingrédients choisis entre eux et avec l'effet recherché.</p>
-<ul>
-<li>Combinaison classique : Les ingrédients correspondent à la recette connue ou possèdent une association évidente. → Jet normal.</li>
-<li>Combinaison exotique : Les ingrédients sont inhabituels, mais leurs propriétés restent compatibles avec la préparation. → Malus de 20%.</li>
-<li>Combinaison peu cohérente : Les ingrédients appartiennent aux bonnes catégories, mais leur association est hasardeuse, contradictoire ou peu adaptée à l'effet recherché. → Malus de 40%.</li>
-</ul>
-<p>Le jet d'Alchimie représente la capacité du personnage à doser, préparer et faire interagir correctement les ingrédients sélectionnés.</p>
-<h3 id="alchimie-regle-generale">Règle générale</h3>
-<p>Les catégories déterminent si la recette peut être tentée. Les ingrédients choisis déterminent la difficulté du jet. Le jet d'Alchimie détermine la réussite de la fabrication.</p>
-<hr>
-<h2 id="alchimie-3-materiel-couts-et-conditions-de-fabrication">3. Matériel, coûts et conditions de fabrication</h2>
-<p>Pour fabriquer un produit alchimique, le personnage doit disposer :</p>
-<ul>
-<li>d'une trousse d'alchimie ou d'un atelier,</li>
-<li>des ingrédients exigés par la recette,</li>
-<li>des fournitures nécessaires à la préparation d'une dose,</li>
-<li>du temps de préparation indiqué dans la recette.</li>
-</ul>
-<p>Sans trousse d'alchimie ou un accès à un atelier, aucune fabrication n'est possible.</p>
-<h3 id="alchimie-materiel-et-tarifs">Matériel et tarifs</h3>
-<div class="alchemy-table"><table>
-<tr><th>Matériel ou service</th><th>Prix</th><th>Utilité</th></tr>
-<tr><td>Trousse d'alchimie transportable</td><td>8 Po</td><td>Permet de fabriquer des produits alchimiques dans un lieu calme.<br>Réutilisable.</td></tr>
-<tr><td>Fournitures pour une dose</td><td>1 Pa</td><td>Consommables nécessaires à chaque fabrication : fiole, bouchon, filtres, combustible et base neutre.</td></tr>
-<tr><td>Location d'un atelier</td><td>1 Po / jour</td><td>Donne accès à un poste de travail et au matériel nécessaire. Les ingrédients et fournitures restent à la charge de l'alchimiste.</td></tr>
-<tr><td>Copie d'une recette de Degré I</td><td>2 Po</td><td>Nécessite 2 heures d'étude et un test d'Alphabétisation pour être apprise.</td></tr>
-<tr><td>Copie d'une recette de Degré II</td><td>5 Po</td><td>Nécessite 1 journée d'étude et un test d'Alphabétisation à -20% pour être apprise.</td></tr>
-</table></div>
-<p>Les fournitures d'une dose sont distinctes des ingrédients indiqués dans la recette.</p>
-<p>Chaque tentative de fabrication consomme donc :</p>
-<ul>
-<li>les ingrédients choisis pour remplir les catégories requises,</li>
-<li>1 lot de fournitures par dose fabriquée.</li>
-</ul>
-<p>La trousse d'alchimie et l'équipement d'un atelier ne sont pas consommés.</p>
-<h3 id="alchimie-conditions-de-fabrication">Conditions de fabrication</h3>
-<p>Un atelier correctement équipé ne confère aucun bonus automatique au jet d'Alchimie.</p>
-<p>La difficulté dépend normalement de la cohérence des ingrédients employés.</p>
-<p>Cependant, les conditions de travail peuvent aggraver cette difficulté.</p>
-<p>Exemples de mauvaises conditions :</p>
-<ul>
-<li>espace instable ou inadapté,</li>
-<li>mauvaise condition météo,</li>
-<li>matériel endommagé,</li>
-<li>absence d'eau propre ou de source de chaleur adaptée,</li>
-<li>nécessité de travailler rapidement ou discrètement.</li>
-</ul>
-<p>Le MJ détermine si les circonstances justifient cette augmentation de difficulté.</p>
-<h3 id="alchimie-temps-et-interruptions">Temps et interruptions</h3>
-<p>L'Alchimie est une activité de préparation.</p>
-<p>Aucune fabrication ne peut être réalisé pendant un combat.</p>
-<p>Le temps indiqué dans chaque recette représente le temps de travail nécessaire pour fabriquer une dose.</p>
-<p>Une courte interruption peut suspendre la préparation sans conséquence.</p>
-<p>Si la préparation est abandonnée pendant plus de 10 minutes :</p>
-<ul>
-<li>la fabrication échoue,</li>
-<li>les ingrédients et fournitures utilisés sont perdus.</li>
-</ul>
-<h3 id="alchimie-transport-des-preparations">Transport des préparations</h3>
-<p>Un personnage peut transporter au maximum <strong>4 doses de produits alchimiques au total</strong>, tous contenants et tous produits confondus, y compris dans son sac. Une dose occupe un emplacement, quelle que soit sa forme.</p>
-<p>Les réserves supplémentaires restent dans un lieu de stockage ou dans un coffre de transport sur une monture ou un véhicule. Elles ne sont pas accessibles pendant un combat. Hors combat, un personnage peut réapprovisionner son équipement sans dépasser 4 doses. PJ et PNJ suivent la même limite.</p>
-<h3 id="alchimie-contrecoups-et-recuperation">Contrecoups et récupération</h3>
-<p>Les quatre fortifiants suivants provoquent toujours un contrecoup : <a href="#alchimie-sang-de-berserker">Sang de berserker</a>, <a href="#alchimie-il-de-lyncee">Œil de Lyncée</a>, <a href="#alchimie-cuirasse-de-titan">Cuirasse de titan</a> et <a href="#alchimie-souffle-de-djinn">Souffle de djinn</a>. Réussir le test de CON×5 atténue le contrecoup, cela ne l'annule pas. Les dégâts de contrecoup ignorent l'armure.</p>
-<p>Un même fortifiant ne cumule pas ses bonus avec lui-même. Une nouvelle dose prise pendant son effet ne prolonge pas sa durée. Une nouvelle dose prise pendant son contrecoup n'accorde aucun bonus et ne supprime ni ne reporte les pénalités. Les contrecoups de produits différents s'appliquent simultanément : leurs pénalités à un même jet s'additionnent.</p>
-<p>Pour ces contrecoups, un repos long signifie 8 heures de repos, dont au moins 6 heures de sommeil, sans effort soutenu. Il ne rend pas automatiquement les PV perdus : les règles habituelles de soins s'appliquent.</p>
-<h3 id="alchimie-apprentissage-des-recettes">Apprentissage des recettes</h3>
-<p>Un personnage doit connaître une recette avant de pouvoir la fabriquer.</p>
-<p>Une recette peut notamment être :</p>
-<ul>
-<li>apprise auprès d'un alchimiste.</li>
-<li>découverte dans un ouvrage.</li>
-<li>achetée sous forme de copie.</li>
-<li>obtenue comme récompense.</li>
-</ul>
-<p>L'apprentissage d'une recette écrite nécessite du temps d'étude ainsi qu'un test d'Alphabétisation.</p>
-<ul>
-<li>Recette de Degré I : 2 heures d'étude, puis test d'Alphabétisation normal.</li>
-<li>Recette de Degré II : 1 journée d'étude, puis test d'Alphabétisation à -20%.</li>
-</ul>
-<h4 id="alchimie-resultat-du-test">Résultat du test</h4>
-<ul>
-<li>Réussite : Le personnage comprend la recette et l'apprend définitivement.</li>
-<li>Échec : Le personnage ne parvient pas à l'apprendre. La copie n'est pas perdue et pourra être étudiée à nouveau après une nouvelle période d'étude complète.</li>
-<li>Échec critique : Le personnage interprète mal certains passages. Il doit recevoir l'aide d'un personnage connaissant déjà la recette ou trouver une autre version du texte avant de pouvoir retenter son apprentissage.</li>
-</ul>
-<p>Le test d'Alphabétisation représente la capacité à comprendre les notations, abréviations, proportions et procédés décrits dans le texte.</p>
-<p>Il ne remplace jamais le jet d'Alchimie nécessaire à la fabrication.</p>
-<hr>
-<h2 id="alchimie-4-livre-de-recettes">4. Livre de recettes</h2>
-<div class="alchemy-table"><table>
-<tr><th>Recette</th><th>Degré et utilisation</th><th>Préparation</th></tr>
-<tr><td><a href="#alchimie-liqueur-de-courtoisie">Liqueur de courtoisie</a></td><td>Degré I : Ingestion</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-brume-de-lethargie">Brume de léthargie</a></td><td>Degré II : Volatile / Gaz</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-huile-du-dernier-argument">Huile du dernier argument</a></td><td>Degré I : Contact / Enduit</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-larmes-de-veuve">Larmes de veuve</a></td><td>Degré II : Ingestion</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-poudre-d-eclat-du-mage">Poudre d&#x27;éclat du mage</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-bouche-d-enfer">Bouche d&#x27;enfer</a></td><td>Degré II : Jetable</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-feu-d-alchimiste">Feu d&#x27;alchimiste</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-linceul-de-naphte">Linceul de naphte</a></td><td>Degré II : Jetable</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-sang-de-ver-pourpre">Sang de ver pourpre</a></td><td>Degré I : Application / Jetable</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-bave-de-rouille">Bave de rouille</a></td><td>Degré II : Application</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-brume-d-ombre">Brume d&#x27;ombre</a></td><td>Degré I : Jetable</td><td>1 heure</td></tr>
-<tr><td><a href="#alchimie-poussiere-d-eclat-solaire">Poussière d&#x27;éclat solaire</a></td><td>Degré II : Jetable</td><td>3 heures</td></tr>
-<tr><td><a href="#alchimie-sang-de-berserker">Sang de berserker</a></td><td>Degré I : Ingestion</td><td>2 heures</td></tr>
-<tr><td><a href="#alchimie-il-de-lyncee">Œil de Lyncée</a></td><td>Degré I : Application / Gouttes oculaires</td><td>2 heures</td></tr>
-<tr><td><a href="#alchimie-cuirasse-de-titan">Cuirasse de titan</a></td><td>Degré II : Ingestion</td><td>4 heures</td></tr>
-<tr><td><a href="#alchimie-souffle-de-djinn">Souffle de djinn</a></td><td>Degré II : Inhalation</td><td>4 heures</td></tr>
-</table></div>
-<hr>
-<h3 id="alchimie-liqueur-de-courtoisie">Liqueur de courtoisie</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Solvant] + [Organique]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Alcool fort + Suc de pavot</p>
-<h4 id="alchimie-effet">Effet</h4>
-<p>Dissimulée dans une boisson ou administrée directement.</p>
-<p>La cible effectue un test de CON×5.</p>
-<ul>
-<li><strong>Réussite :</strong> La cible résiste à l'effet.</li>
-<li><strong>Échec :</strong> Somnolence pendant 1D4 heures. -20% à Observation, Intuition et aux actions. La cible s'endort si elle n'est pas régulièrement stimulée.</li>
-</ul>
-<hr>
-<h3 id="alchimie-brume-de-lethargie">Brume de léthargie</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Alcool distillé + Herbe léthargique + Sel soporifique</p>
-<h4 id="alchimie-effet-2">Effet</h4>
-<p>Libère un nuage dans un rayon de 3 mètres.</p>
-<p>Les créatures présentes effectuent un test de CON×5 −20 points.</p>
-<ul>
-<li><strong>Réussite :</strong> La créature résiste à l'effet.</li>
-<li><strong>Échec :</strong> Endormissement immédiat pendant 1D6 rounds.</li>
-</ul>
-<p>Une blessure infligeant une perte de PV ou un contact  violent met immédiatement fin à ce sommeil.</p>
-<hr>
-<h3 id="alchimie-huile-du-dernier-argument">Huile du dernier argument</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Solvant] + [Organique]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Huile épaisse + Venin alchimique</p>
-<p><strong>Quantité :</strong> Permet d'enduire 1 arme ou 2 projectiles. Chaque enduit est consommé au premier coup infligeant des dégâts tranchants ou perforants.</p>
-<h4 id="alchimie-effet-3">Effet</h4>
-<p>Le poison s'active lors du premier coup infligeant des dégâts tranchants ou perforants.</p>
-<p>La cible effectue un test de CON×5.</p>
-<ul>
-<li><strong>Réussite :</strong> La cible résiste au poison.</li>
-<li><strong>Échec :</strong> Subit 1D4 PV de dégâts supplémentaires par round pendant 3 rounds.</li>
-</ul>
-<p>Le même poison ne se cumule pas sur une cible : une nouvelle exposition pendant ces 3 rounds n'ajoute aucun dégât, ne prolonge pas la durée et ne déclenche pas de nouveau test. Une fois l'effet terminé, une nouvelle exposition se résout normalement.</p>
-<hr>
-<h3 id="alchimie-larmes-de-veuve">Larmes de veuve</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Eau distillée + Baie de Veuve + Sel noir</p>
-<p><strong>Propriété :</strong> Inodore et incolore.</p>
-<h4 id="alchimie-effet-4">Effet</h4>
-<p>Le poison agit environ 10 minutes après ingestion.</p>
-<p>La cible effectue un test de CON×5 −20 points.</p>
-<ul>
-<li><strong>Réussite :</strong> La cible résiste au poison.</li>
-<li><strong>Échec :</strong> Subit 2D6 PV de dégâts. -1D4 FOR pendant 24 heures.</li>
-</ul>
-<hr>
-<h3 id="alchimie-poudre-d-eclat-du-mage">Poudre d'éclat du mage</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Sel] + [Organique]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Sel fulminant + Charbon alchimique</p>
-<h4 id="alchimie-effet-5">Effet</h4>
-<p>La fiole est utilisée avec la compétence Lancer.</p>
-<p>Zone d'effet : rayon de 2 mètres.</p>
-<ul>
-<li>Inflige 1D8 PV de dégâts de choc.</li>
-<li>Ignore 2 PA d'armure.</li>
-</ul>
-<hr>
-<h3 id="alchimie-bouche-d-enfer">Bouche d'enfer</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Sel] + [Solvant] + [Catalyseur]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Sel fulminant + Goudron alchimique + Cendre de salamandre</p>
-<h4 id="alchimie-effet-6">Effet</h4>
-<p>Produit une violente déflagration.</p>
-<p>Zone d'effet : rayon de 4 mètres.</p>
-<ul>
-<li>Inflige 3D6 PV de dégâts.</li>
-<li>Ignore la moitié des PA d'armure.</li>
-<li>Les créatures touchées effectuent un test de DEX.</li>
-<li><strong>Échec au test de DEX :</strong> La créature tombe à terre.</li>
-</ul>
-<hr>
-<h3 id="alchimie-feu-d-alchimiste">Feu d'alchimiste</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Huile épaisse + Résine ardente + Sel de salamandre</p>
-<h4 id="alchimie-effet-7">Effet</h4>
-<p>Zone d'effet : rayon de 2 mètres.</p>
-<ul>
-<li>Inflige 2D6 PV à l'impact.</li>
-<li>Les créatures touchées prennent feu.</li>
-<li>Inflige ensuite 1D4 PV par round pendant 3 rounds.</li>
-</ul>
-<p>Une action permet d'éteindre les flammes.</p>
-<hr>
-<h3 id="alchimie-linceul-de-naphte">Linceul de naphte</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Solvant] + [Sel] + [Catalyseur]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Huile infernale + Sel phosphorescent + Écaille de salamandre</p>
-<h4 id="alchimie-effet-8">Effet</h4>
-<p>Produit des flammes alchimiques extrêmement difficiles à étouffer. Toutes les créatures dans la zone subissent les effets, sans distinction : PJ, PNJ, alliés et utilisateur compris. Ce produit est volontairement destructeur et doit être utilisé avec précaution.</p>
-<p>Zone d'effet : rayon de 3 mètres.</p>
-<ul>
-<li>Inflige 2D6 PV à l'impact.</li>
-<li>Inflige ensuite 1D6 PV par round pendant 3 rounds.</li>
-<li>Ignore l'armure.</li>
-</ul>
-<hr>
-<h3 id="alchimie-sang-de-ver-pourpre">Sang de ver pourpre</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Solvant] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Vitriol alchimique + Sel mordant</p>
-<h4 id="alchimie-effet-9">Effet</h4>
-<ul>
-<li>Corrode une serrure ordinaire en 1D6 minutes.</li>
-<li>Inflige 1D6 PV de dégâts.</li>
-<li>Réduit de 1 PA l'armure touchée.</li>
-</ul>
-<hr>
-<h3 id="alchimie-bave-de-rouille">Bave de rouille</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Solvant] + [Sel] + [Catalyseur]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Acide alchimique + Sel métallique + Bile de limon rouilleur</p>
-<h4 id="alchimie-effet-10">Effet</h4>
-<ul>
-<li>Réduit de 1D4 PA la protection de l'armure touchée.</li>
-<li>Dégrade des chaînes, barreaux ou grosses serrures en 1D4 rounds.</li>
-</ul>
-<hr>
-<h3 id="alchimie-brume-d-ombre">Brume d'ombre</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>1 heure</td><td>[Solvant] + [Organique] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Huile noire + Résine obscure + Suie alchimique</p>
-<h4 id="alchimie-effet-11">Effet</h4>
-<p>Crée une fumée opaque dans un rayon de 5 mètres.</p>
-<p><strong>Durée :</strong> 1D6 rounds.</p>
-<ul>
-<li>-30% aux attaques à distance.</li>
-<li>-30% à la Observation.</li>
-</ul>
-<hr>
-<h3 id="alchimie-poussiere-d-eclat-solaire">Poussière d'éclat solaire</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>3 heures</td><td>[Sel] + [Catalyseur]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Sel lumineux + Poudre d'os consacrée</p>
-<h4 id="alchimie-effet-12">Effet</h4>
-<p>Produit une violente détonation lumineuse et sonore dans un rayon de 4 mètres.</p>
-<p>Les créatures présentes effectuent un test de CON×5 −20 points.</p>
-<ul>
-<li><strong>Réussite :</strong> La créature résiste à l'éblouissement.</li>
-<li><strong>Échec :</strong> Aveuglée et étourdie pendant 1D4 rounds. -40% aux Actions. Esquive divisée par 2.</li>
-</ul>
-<hr>
-<h3 id="alchimie-sang-de-berserker">Sang de berserker</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>2 heures</td><td>[Organique] + [Solvant] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Bile d'ours + Alcool fort + Sulfate de fer</p>
-<h4 id="alchimie-effet-13">Effet</h4>
-<p><strong>Durée :</strong> 1D6 rounds.</p>
-<ul>
-<li>+20% aux attaques de corps à corps.</li>
-<li>+1D4 dégâts.</li>
-<li>Ignore les malus liés aux blessures.</li>
-</ul>
-<h4 id="alchimie-contrecoup">Contrecoup</h4>
-<p>à la fin de l'effet, test de CON×5.</p>
-<ul>
-<li><strong>Réussite (Épuisement musculaire) :</strong> -20 % aux actions physiques pendant 1d4 demi-heures, impossible de sprinter pendant cette durée.</li>
-<li><strong>Échec (Effondrement) :</strong> chute à terre, incapable d'agir ou de se défendre pendant 1D4 rounds,  perte de 1D4 PV. Ensuite, -30 % aux actions physiques et impossibilité de sprinter jusqu'à un repos long.</li>
-</ul>
-<aside class="alchemy-callout">Conséquences RP<br>mains tremblantes, sueurs abondantes et mâchoire crispée pendant la récupération. En cas d'échec, des courbatures empêchent toutes action physique autre que la marche.</aside>
-<hr>
-<h3 id="alchimie-il-de-lyncee">Œil de Lyncée</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>2 heures</td><td>[Organique] + [Solvant] + [Sel]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Belladone alchimique + Eau lunaire + Cristal de lyncide</p>
-<h4 id="alchimie-effet-14">Effet</h4>
-<p><strong>Durée :</strong> 1D6 × 10 minutes.</p>
-<ul>
-<li>Permet de voir dans l'obscurité.</li>
-<li>+20% à la Observation.</li>
-<li>+20% aux tests de Tir et de Lancer.</li>
-</ul>
-<h4 id="alchimie-contrecoup-2">Contrecoup</h4>
-<p>à la fin de l'effet, test de CON×5.</p>
-<ul>
-<li><strong>Réussite  (Photophobie) :</strong> -20 % aux actions reposant sur la vue pendant 1d4 demi-heures, porté à -30 % sous une lumière vive.</li>
-<li><strong>Échec  (Crise oculaire) :</strong> cécité pendant 10 minutes. Ensuite, -30 % aux actions reposant sur la vue jusqu'à un repos long.</li>
-</ul>
-<aside class="alchemy-callout">Conséquences RP<br>yeux rougis, larmoiement et besoin de pénombre pendant la récupération. Lors de la cécité, se déplacer exige un guide ou progresser à tâtons.</aside>
-<hr>
-<h3 id="alchimie-cuirasse-de-titan">Cuirasse de titan</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Organique] + [Sel] + [Solvant]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Carapace de scarabée-titan + Sel métallique + Huile lourde</p>
-<h4 id="alchimie-effet-15">Effet</h4>
-<p><strong>Durée :</strong> 1D6+2 rounds.</p>
-<ul>
-<li>+4 PA naturels.</li>
-<li>+20% aux tests de FOR.</li>
-</ul>
-<h4 id="alchimie-contrecoup-3">Contrecoup</h4>
-<p>à la fin de l'effet, test de CON×5 −20 points.</p>
-<ul>
-<li><strong>Réussite (Raideur musculaire) :</strong> -3 DEX, -20 % en Esquive et déplacement réduit de moitié pendant 1d4 demi-heures.</li>
-<li><strong>Échec  (Pétrification partielle) :</strong> perte de 2D4 PV, incapable de se déplacer, d'agir ou de se défendre pendant 1D6 rounds. Ensuite, -3 DEX, -30 % aux actions physiques et déplacement réduit de moitié jusqu'à un repos long.</li>
-</ul>
-<aside class="alchemy-callout">Conséquences RP<br>peau marbrée, articulations craquantes et démarche raide pendant la récupération. En cas d'échec, paralysie suivit d'une sensation de raideur dans les membres.</aside>
-<hr>
-<h3 id="alchimie-souffle-de-djinn">Souffle de djinn</h3>
-<div class="alchemy-table"><table>
-<tr><th>Préparation</th><th>Catégories requises</th></tr>
-<tr><td>4 heures</td><td>[Organique] + [Solvant] + [Catalyseur]</td></tr>
-</table></div>
-<p><strong>Formule classique :</strong> Mandragore alchimique + Éther des vents + Souffle cristallisé</p>
-<h4 id="alchimie-effet-16">Effet</h4>
-<p><strong>Durée :</strong> 1D4+2 rounds.</p>
-<ul>
-<li>+20% DEX.</li>
-<li>+20% Esquive.</li>
-<li>Initiative doublée.</li>
-<li>+1 action par round.</li>
-</ul>
-<h4 id="alchimie-contrecoup-4">Contrecoup</h4>
-<p>à la fin de l'effet, test de CON×5 −20 points.</p>
-<ul>
-<li><strong>Réussite  (Épuisement nerveux) :</strong> incapable d'agir ou de se défendre pendant 1 round. Ensuite, -30 % aux actions physiques, déplacement réduit de moitié et impossibilité de sprinter pendant 4 heures.</li>
-<li><strong>Échec  (Effondrement nerveux) :</strong> perte de 1D6 PV et perte de connaissance pendant 1D6 minutes. Au réveil, -40 % aux actions physiques, déplacement réduit de moitié et impossibilité de sprinter jusqu'à un repos long. Pendant la première heure suivant le réveil, le personnage ne peut marcher qu'avec l'aide d'une autre personne.</li>
-</ul>
-<aside class="alchemy-callout">Conséquences RP<br>tremblements visibles, souffle court et parole hachée pendant la récupération. Impossible de soutenir un discours, chanter ou réciter un long texte sans pauses fréquentes. En cas d'échec, le personnage doit être protégé et transporté pendant son inconscience, ses compagnons doivent adapter la fuite ou la poursuite à son état.</aside>
-</section>
-
-<hr>
-<p style="text-align: center; font-style: italic; color: #666; margin-top: 20px;">Bon jeu, et que les dés soient avec vous !</p>
-
-</div>
-<script src="js/reading-zoom.js"></script>
+  <a class="skip" href="#contenu">Aller au livret</a>
+  <div class="frame">
+    <nav class="toolbar" aria-label="Navigation générale">
+      <a href="index.html">← Dice Forge</a>
+      <div class="tools">
+        <a href="livret_reference.html">Livret complet</a>
+        <button type="button" onclick="window.print()">Imprimer</button>
+      </div>
+    </nav>
+    <header class="hero">
+      <p class="eyebrow">BRP — ORC · Livret joueur</p>
+      <h1>L’essentiel pour jouer</h1>
+      <p>Créer votre personnage, agir dans une scène et retrouver les règles utiles au bon moment.</p>
+    </header>
+    <div class="layout">
+      <nav class="contents" aria-label="Sommaire du livret">
+        <p>Dans ce livret</p>
+        <div>
+          <a href="#creation">01 · Créer son personnage</a>
+          <a href="#agir">02 · Agir et lancer les dés</a>
+          <a href="#combat">03 · Combattre et se soigner</a>
+          <a href="#confrontation-verbale">04 · Prendre la parole</a>
+          <a href="#magie-alchimie">05 · Magie et alchimie</a>
+          <a href="#experience">06 · Progresser</a>
+          <a href="#references">Références détaillées</a>
+        </div>
+        <small>Les encadrés donnent les repères à retenir. Dépliez les précisions lorsque vous en avez besoin.</small>
+      </nav>
+      <main id="contenu">
+        <div class="start">
+          <p><strong>Votre personnage est déjà prêt ?</strong> Passez directement aux règles de la scène.</p>
+          <div class="quick">
+            <a href="#agir">Faire un jet</a>
+            <a href="#combat">Mon tour de combat</a>
+            <a href="#confrontation-verbale">Un échange social</a>
+          </div>
+        </div>
+
+        <section id="creation" aria-labelledby="titre-creation">
+          <h2 id="titre-creation"><span class="number">01</span> Créer son personnage</h2>
+          <p class="lead">Commencez par une idée simple : qui êtes-vous, que savez-vous faire et pourquoi partez-vous à l’aventure ?</p>
+          <ol>
+            <li><strong>Choisissez une identité.</strong> Un nom, une espèce — humain, nain, elfe, demi-elfe ou demi-orc — et une motivation. Ajoutez un lien avec Valombre ou un autre personnage.</li>
+            <li><strong>Déterminez vos caractéristiques.</strong> Générez-les dans Dice Forge selon votre espèce, puis vérifiez vos PV, vos PP et votre modificateur de dégâts.</li>
+            <li><strong>Choisissez une profession.</strong> Elle indique les compétences dans lesquelles investir vos points professionnels. Vos points personnels permettent de compléter le personnage.</li>
+            <li><strong>Préparez ce que vous emportez.</strong> Vêtements, outils, armes, argent et objet personnel. Si vous pratiquez la magie, choisissez aussi vos sorts autorisés par votre profession.</li>
+            <li><strong>Vérifiez et sauvegardez la fiche.</strong> Relisez vos scores et votre équipement avec le MJ avant la première partie.</li>
+          </ol>
+          <div class="rule">
+            <p><strong>Création héroïque recommandée :</strong> 325 points professionnels, INT × 10 points personnels, limite de 90 % par compétence à la création. Les magiciens commencent avec 6 sorts.</p>
+          </div>
+          <details>
+            <summary>Les calculs utiles sur la fiche</summary>
+            <ul>
+              <li><strong>PV :</strong> (CON + TAI) ÷ 2, arrondi au supérieur.</li>
+              <li><strong>Blessure majeure :</strong> moitié des PV totaux, arrondie au supérieur.</li>
+              <li><strong>PP :</strong> POU ; maximum temporaire de 2 × POU.</li>
+              <li><strong>Bonus d’expérience :</strong> INT ÷ 2, arrondi au supérieur.</li>
+              <li><strong>Dégâts :</strong> le modificateur dépend de FOR + TAI.</li>
+            </ul>
+            <p>La génération détaillée, les modificateurs d’espèce, l’âge et les options de personnalité figurent dans le <a href="livret_reference.html">livret complet</a>.</p>
+          </details>
+          <p class="reference"><a href="index.html#fiche-personnage">Ouvrir ma fiche</a> · <a href="inventaire.html">Choisir mon équipement</a></p>
+        </section>
+
+        <section id="agir" aria-labelledby="titre-agir">
+          <h2 id="titre-agir"><span class="number">02</span> Agir et lancer les dés</h2>
+          <p>Décrivez votre intention et la manière dont vous vous y prenez. Le MJ détermine si un jet est nécessaire, la compétence utilisée et la difficulté.</p>
+          <div class="rule"><p class="formula">Lancez 1D100 : un résultat inférieur ou égal au score effectif est une réussite, sous réserve des échecs automatiques.</p></div>
+          <p>Le score effectif est votre score après les modificateurs. Une action facile double le score ; une action difficile le divise par deux, arrondi au supérieur. Une action automatique ne demande aucun jet.</p>
+          <div class="table-wrap">
+            <table>
+              <caption>Lire le résultat du jet</caption>
+              <thead><tr><th scope="col">Résultat</th><th scope="col">Repère</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Critique</strong></td><td>Jusqu’à score ÷ 20, arrondi au supérieur.</td></tr>
+                <tr><td><strong>Spéciale</strong></td><td>Au-delà du critique, jusqu’à score ÷ 5, arrondi au supérieur.</td></tr>
+                <tr><td><strong>Ordinaire</strong></td><td>Au-delà de la spéciale, jusqu’au score effectif.</td></tr>
+                <tr><td><strong>Échec / maladresse</strong></td><td>Au-dessus du score. 96 à 100 échouent toujours ; 100 (00) est toujours une maladresse. Le seuil des autres maladresses dépend du score.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Exemple :</strong> avec 65 %, 01–04 est critique, 05–13 est spécial et 14–65 est ordinaire.</p>
+          <details>
+            <summary>Quand le MJ demande un jet de caractéristique ou de résistance</summary>
+            <p>Effort = FOR × 5 ; Endurance = CON × 5 ; Idée = INT × 5 ; Chance = POU × 5 ; Agilité = DEX × 5 ; Charme = CHA × 5.</p>
+            <p>Une résistance oppose deux valeurs : <strong>50 + 5 × (valeur active − valeur passive)</strong>. Un écart d’au moins 10 entraîne une réussite ou un échec automatique.</p>
+          </details>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#jets">Consulter les tables de jets</a> · <a href="livret_reference.html#competences">Retrouver une compétence</a></p>
+        </section>
+
+        <section id="combat" aria-labelledby="titre-combat">
+          <h2 id="titre-combat"><span class="number">03</span> Combattre et se soigner</h2>
+          <h3>Le déroulement d’un round</h3>
+          <ol>
+            <li><strong>Annoncez votre intention.</strong> Les déclarations vont de la DEX la plus basse à la plus haute.</li>
+            <li><strong>Résolvez les pouvoirs</strong> selon leur règle et leur moment d’incantation.</li>
+            <li><strong>Agissez à votre tour.</strong> Les actions vont de la DEX la plus haute à la plus basse. Une attaque utilise votre compétence d’arme.</li>
+            <li><strong>Appliquez les résultats.</strong> Dégâts, protection de l’armure, perte de PV et effets éventuels.</li>
+          </ol>
+          <h3>Lorsque vous êtes attaqué</h3>
+          <p>La compétence <strong>Défense</strong> sert à esquiver, parer avec une arme ou bloquer avec un bouclier, si la situation le permet. La première défense est au score normal ; les suivantes subissent −30, −60, −90 points, etc., dans le même round.</p>
+          <div class="rule">
+            <p><strong>Attaque ordinaire contre défense ordinaire :</strong> retirez d’abord l’armure, puis divisez les dégâts restants par deux, arrondi au supérieur.</p>
+            <p>Une défense spéciale ou critique annule une attaque ordinaire. Face à une attaque spéciale ou critique, consultez la matrice.</p>
+          </div>
+          <details>
+            <summary>Défense, bouclier et dégâts particuliers</summary>
+            <p>Renoncer à votre attaque permet une défense supplémentaire sans augmenter la pénalité cumulative. Un bouclier ajoute son bonus à la Défense lorsque le blocage est possible ; il n’ajoute pas de points d’armure.</p>
+            <p>Une attaque critique inflige les dégâts maximum de l’arme, ajoute le modificateur de dégâts normal et ignore l’armure, sauf résultat particulier de la matrice. Une attaque spéciale applique l’effet propre au type d’arme.</p>
+            <p><a href="ecran_joueur_BRP_ORC.html#combat">Voir la matrice complète et les effets des armes</a></p>
+          </details>
+          <h3>Surveillez vos blessures</h3>
+          <ul>
+            <li><strong>Un seul coup atteint la moitié de vos PV totaux :</strong> blessure majeure, à résoudre avec le MJ.</li>
+            <li><strong>À 2 PV ou moins :</strong> perte de connaissance. À 0 PV, mort à la fin du round suivant sans intervention.</li>
+            <li><strong>Premiers Secours réussis :</strong> récupérez 1D3 PV, une fois par blessure. En combat ou lors d’un voyage rude, cela coûte une action et exige un jet.</li>
+            <li><strong>Guérison naturelle :</strong> 1D3 PV par semaine. Une nuit de repos ne rend pas automatiquement les PV perdus.</li>
+          </ul>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#combat">Aide de combat complète</a> · <a href="ecran_joueur_BRP_ORC.html#personnage">Soins et points de vie</a></p>
+        </section>
+
+        <section id="confrontation-verbale" aria-labelledby="titre-parole">
+          <h2 id="titre-parole"><span class="number">04</span> Prendre la parole</h2>
+          <p class="lead">Convaincre un garde, négocier un prix, apaiser une dispute… Les mots-clés vous aident à construire votre argumentation.</p>
+          <p>Dans l’onglet <strong>Confrontation verbale</strong> du lanceur, choisissez une approche. Chacune propose une liste de <strong>50 mots</strong> ; le tirage ne contient aucun doublon.</p>
+          <details>
+            <summary>Les huit approches</summary>
+            <ul class="approaches">
+              <li><strong>Persuader :</strong> convaincre par la morale.</li>
+              <li><strong>Intimider :</strong> par la peur ou la menace.</li>
+              <li><strong>Séduire :</strong> par le charme.</li>
+              <li><strong>Négocier :</strong> par l’intérêt.</li>
+              <li><strong>Bluffer :</strong> par la ruse.</li>
+              <li><strong>Contraindre :</strong> par le chantage.</li>
+              <li><strong>Railler :</strong> par la moquerie.</li>
+              <li><strong>Apaiser :</strong> par la bienveillance.</li>
+            </ul>
+          </details>
+          <div class="table-wrap">
+            <table>
+              <caption>Votre score Intimidation/Persuasion, quelle que soit l’approche</caption>
+              <thead><tr><th scope="col">Score</th><th scope="col">Mots tirés</th><th scope="col">Jokers</th></tr></thead>
+              <tbody>
+                <tr><td>Moins de 40 %</td><td>5</td><td>0</td></tr>
+                <tr><td>40 à 69 %</td><td>6</td><td>1</td></tr>
+                <tr><td>70 à 89 %</td><td>7</td><td>2</td></tr>
+                <tr><td>90 % et plus</td><td>8</td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Un joker permet d’écarter un mot pour en conserver cinq.</strong> Vous pouvez réintégrer un mot écarté et revoir votre sélection. Placez les cinq mots <strong>dans l’ordre et où vous voulez</strong> dans l’échange, naturellement. Marquez-les comme « placés » pour vous repérer.</p>
+          <div class="rule">
+            <p><strong>Le MJ apprécie l’ensemble.</strong> Le compteur n’impose ni réussite ni échec : les arguments, l’interlocuteur et la scène déterminent les effets. L’effort de roleplay mérite toujours d’être récompensé, même hésitant ou maladroit.</p>
+          </div>
+          <p>Si le MJ valide votre participation, utilisez <strong>« Le MJ valide : cocher Intimidation/Persuasion »</strong>, même si les cinq mots ne sont pas marqués comme placés. Sauvegardez ensuite votre fiche.</p>
+          <p class="reference"><a href="index.html">Ouvrir le lanceur</a>, puis choisir l’onglet Confrontation verbale.</p>
+        </section>
+
+        <section id="magie-alchimie" aria-labelledby="titre-specialites">
+          <h2 id="titre-specialites"><span class="number">05</span> Magie et alchimie</h2>
+          <p class="lead">Retenez les règles de votre spécialité ; consultez sa fiche pour les effets précis.</p>
+          <h3 id="magie">Lancer un sort</h3>
+          <p>Chaque sort connu possède son propre score. Choisissez le niveau du sort, vérifiez son coût en <strong>points de pouvoir (PP)</strong> et lancez le D100 sous son score.</p>
+          <ul>
+            <li><strong>Incantation :</strong> le sort part au rang DEX − niveau du sort. Le niveau maximal vaut la moitié de votre INT, arrondie au supérieur.</li>
+            <li><strong>Échec :</strong> aucun effet, 1 PP perdu. En cas de maladresse, tous les PP investis sont perdus ; appliquez aussi ses conséquences.</li>
+            <li><strong>Mémorisation :</strong> jusqu’à INT sorts mémorisés ; changer un sort prend 10 minutes. Le grimoire conserve tous vos sorts connus.</li>
+            <li><strong>À 0 PP :</strong> évanouissement. La récupération dépend du repos ; une activité pénible l’empêche.</li>
+          </ul>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#magie">Sorts et règles de magie</a> · <a href="ecran_joueur_BRP_ORC.html#personnage">Récupération des PP</a></p>
+          <h3 id="alchimie">Préparer un produit alchimique</h3>
+          <ol>
+            <li><strong>Choisissez une recette connue.</strong> Réunissez toutes ses catégories de réactifs : Solvant, Sel, Organique et/ou Catalyseur, selon la recette.</li>
+            <li><strong>Préparez le matériel.</strong> Une trousse ou un atelier, les ingrédients, les fournitures et le temps requis. La fabrication se fait hors combat.</li>
+            <li><strong>Lancez votre compétence Alchimie.</strong> Utilisez son pourcentage sur la fiche. Combinaison classique : score normal ; exotique : −20 points ; peu cohérente : −40 points. Le MJ tient aussi compte des conditions de travail.</li>
+          </ol>
+          <div class="rule">
+            <p><strong>Quatre doses transportées au total par personnage.</strong> Les réserves supplémentaires restent stockées et ne sont pas accessibles en combat.</p>
+            <p>Une réussite ordinaire ou spéciale donne la quantité et la durée normales. Un critique double les doses, sans prolonger la durée. Un échec détruit les ingrédients ; une maladresse provoque un accident.</p>
+          </div>
+          <details>
+            <summary>Coûts, degrés I / II et utilisation</summary>
+            <p><strong>Matériel :</strong> trousse 8 Po ; fournitures 1 Pa par dose, en plus des ingrédients ; atelier 1 Po par jour. Le temps de chaque recette est indiqué pour une dose. Un abandon de plus de 10 minutes fait perdre les ingrédients et fournitures utilisés.</p>
+            <p><strong>Apprendre une recette écrite :</strong> degré I, copie 2 Po et 2 heures d’étude, puis Alphabétisation ; degré II, copie 5 Po et une journée d’étude, puis Alphabétisation à −20 points.</p>
+            <p><strong>Utiliser le produit :</strong> une fiole lancée utilise Lancer ; un enduit utilise Manipulation fine ; un poison versé discrètement utilise Discrétion. Respectez le mode d’application de la recette.</p>
+            <p><strong>Fortifiants :</strong> Sang de berserker, Œil de Lyncée, Cuirasse de titan et Souffle de djinn provoquent toujours un contrecoup, même si le jet de CON réussit. Consultez leur recette avant de les prendre.</p>
+          </details>
+          <p class="reference"><a href="livret_reference.html#alchimie-4-livre-de-recettes">Livre de recettes</a> · <a href="livret_reference.html#alchimie">Règles complètes d’alchimie</a></p>
+        </section>
+
+        <section id="experience" aria-labelledby="titre-experience">
+          <h2 id="titre-experience"><span class="number">06</span> Progresser</h2>
+          <p>Pendant la partie, cochez une compétence après une réussite obtenue avec elle. Pour la confrontation verbale, la coche dépend de la validation du MJ.</p>
+          <ol>
+            <li><strong>En fin de séance ou d’aventure,</strong> lancez D100 + bonus d’expérience pour chaque compétence cochée. Un total strictement supérieur au score actuel rend la compétence admissible.</li>
+            <li><strong>Répartissez votre réserve</strong> entre les compétences admissibles, sans maximum par compétence. Bonus et réserve valent INT ÷ 2, arrondi au supérieur.</li>
+            <li><strong>Effacez les coches et sauvegardez.</strong> Les points non attribués sont perdus. Si aucun jet d’apprentissage ne réussit, aucun point n’est distribué.</li>
+          </ol>
+          <div class="rule"><p><strong>Exemple :</strong> avec INT 13, votre bonus et votre réserve valent 7. Si Épée et Défense sont admissibles, vous pouvez répartir ces 7 points en +5 et +2.</p></div>
+          <details>
+            <summary>La progression de la POU</summary>
+            <p>La POU progresse séparément : cochez-la après un jet de résistance de POU réussi contre une POU au moins égale. À la vérification d’expérience, le gain est de 1D3 − 1 points. Une seule coche par aventure.</p>
+          </details>
+        </section>
+
+        <section id="references" aria-labelledby="titre-references">
+          <h2 id="titre-references">Références détaillées</h2>
+          <p class="lead">Pour un choix de personnage, une table précise ou un effet particulier.</p>
+          <ul class="references">
+            <li><a href="livret_reference.html">Création, espèces et professions</a><span>Modificateurs, origines à Valombre, options et listes de compétences professionnelles.</span></li>
+            <li><a href="livret_reference.html#competences">Dictionnaire des compétences</a><span>Les usages de chaque compétence et ses bases.</span></li>
+            <li><a href="ecran_joueur_BRP_ORC.html">Écran du joueur</a><span>Jets, combat, soins, magie et tables de consultation.</span></li>
+            <li><a href="ecran_joueur_BRP_ORC.html#magie">Sorts</a> · <a href="livret_reference.html#alchimie-4-livre-de-recettes">Recettes alchimiques</a><span>Les effets, les coûts et les conditions de chaque préparation ou sort.</span></li>
+            <li><a href="inventaire.html">Équipement</a><span>Armes, protections, outils et prix.</span></li>
+          </ul>
+        </section>
+        <footer>Livret joueur · Guide abrégé des règles de la campagne. Les fiches de sorts, recettes et tables détaillées complètent ces repères.</footer>
+      </main>
+    </div>
+  </div>
 </body>
 </html>

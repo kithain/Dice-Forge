@@ -1,6 +1,18 @@
 :root{color-scheme:dark}
 *{box-sizing:border-box}
 .inventory-body{margin:0;min-height:100vh;background:#07071a;color:var(--txt);font-family:system-ui,sans-serif}
+.inventory-embedded{min-height:0}
+.inventory-tabs{display:flex;gap:.5rem;margin:0 0 1rem}
+.inventory-tabs button{border:1px solid var(--brd2);border-radius:6px;padding:.65rem 1rem;background:var(--s1);color:var(--gold2);font:inherit;cursor:pointer}
+.inventory-tabs button[aria-selected=true]{border-color:var(--gold);background:var(--s2);box-shadow:inset 0 -3px var(--gold)}
+.inventory-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+[role=tabpanel][hidden]{display:none}
+.inventory-potions-help{padding:0 .85rem;color:var(--txd);font-size:.8rem;line-height:1.5}
+.inventory-potions-help a{color:var(--gold2)}
+.potion-table{table-layout:fixed;min-width:740px}
+.potion-table th:first-child{width:19%}.potion-table th:nth-child(2),.potion-table th:nth-child(3){width:9%}.potion-table th:nth-child(4){width:31%}.potion-table th:nth-child(5){width:28%}.potion-table th:last-child{width:4%}
+.potion-table input[type=number]{min-width:0;text-align:center}
+.potion-table textarea{min-height:80px;line-height:1.5;font-size:.83rem}
 .inventory-page{width:min(1180px,calc(100% - 2rem));margin:0 auto;padding:1rem 0 3rem}
 .inventory-header{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:.45rem}
 .inventory-kicker{margin:0;color:var(--gold2);font:700 .68rem 'Cinzel',serif;letter-spacing:.25em;text-transform:uppercase}
@@ -46,3 +58,4 @@
 .inventory-coin input:focus{border-color:var(--gold)}
 .inventory-coin button{cursor:pointer;font-size:1rem}.inventory-coin button:hover{border-color:var(--gold);color:var(--gold)}.inventory-coin button:disabled{opacity:.35;cursor:not-allowed}
 @media(max-width:760px){.inventory-page{width:min(100% - 1rem,1180px)}.inventory-header{align-items:flex-start;flex-direction:column}.inventory-wallet,.inventory-other-grid{grid-template-columns:1fr}.inventory-other-grid .inventory-section:last-child{grid-column:auto}.inventory-section-head{align-items:flex-start;flex-wrap:wrap}}
+@media(max-width:760px){.potion-table{min-width:0}.potion-table thead{display:none}.potion-table tr{display:block;border-bottom:2px solid var(--brd2);padding:.45rem}.potion-table td{display:block;width:auto!important;text-align:left!important;border:0}.potion-table td:nth-child(1)::before{content:'Nom'}.potion-table td:nth-child(2)::before{content:'Inventaire (doses)'}.potion-table td:nth-child(3)::before{content:'Stock (doses)'}.potion-table td:nth-child(4)::before{content:'Effet'}.potion-table td:nth-child(5)::before{content:'Contrecoup'}.potion-table td::before{display:block;color:var(--gold2);font-size:.75rem;margin-bottom:.3rem}.potion-table textarea,.potion-table input{min-width:0}}

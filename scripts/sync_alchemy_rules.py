@@ -7,13 +7,15 @@ Le rendu prend en charge le sous-ensemble Markdown utilisé par ce document.
 import argparse
 import hashlib
 import html
+import json
 from pathlib import Path
 import re
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'data' / 'alchimie.md'
-BOOK = ROOT / 'livret_joueur.html'
+BOOK = ROOT / 'livret_reference.html'
+POTIONS = ROOT / 'js' / 'alchemy-potions.js'
 SECTION = r'<section id="alchimie">.*?</section>'
 
 
@@ -133,6 +135,34 @@ def render(source):
     return section
 
 
+def potion_catalog(source):
+    """Extrait les effets et contrecoups sans créer une seconde règle éditable."""
+    recipes = source.split('## 4. Livre de recettes', 1)[1]
+    catalog = []
+    for match in re.finditer(r'^### ([^\n]+)\n(.*?)(?=^### |\Z)', recipes, re.M | re.S):
+        name, body = match.groups()
+        effect = re.search(r'^#### Effet\s*\n(.*?)(?=^#### |\Z)', body, re.M | re.S)
+        backlash = re.search(r'^#### Contrecoup\s*\n(.*?)(?=^#### |\Z)', body, re.M | re.S)
+        if not effect:
+            raise ValueError(f'Effet absent : {name}')
+
+        def plain(text):
+            text = re.sub(r'^---\s*$', '', text, flags=re.M)
+            text = re.sub(r'\[\[#([^]|]+)(?:\|([^]]+))?\]\]', lambda m: m[2] or m[1], text)
+            text = text.replace('**', '').strip()
+            text = re.sub(r'^>\s*\[!\w+\]\s*', '', text, flags=re.M)
+            text = re.sub(r'^> ?', '', text, flags=re.M)
+            return re.sub(r'\n{3,}', '\n\n', text)
+
+        extras = re.findall(r'^\*\*(?:Quantité|Propriété) :\*\* .+$', body, re.M)
+        catalog.append({'name': name, 'effect': plain('\n\n'.join(extras + [effect[1]])),
+                        'backlash': plain(backlash[1]) if backlash else 'Aucun contrecoup indiqué.'})
+    if len(catalog) != 16:
+        raise ValueError(f'Nombre de recettes inattendu : {len(catalog)}')
+    return ('// Généré depuis data/alchimie.md par scripts/sync_alchemy_rules.py.\n'
+            + 'export const ALCHEMY_POTIONS = ' + json.dumps(catalog, ensure_ascii=False, indent=2) + ';\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path)
@@ -142,6 +172,7 @@ def main():
         parser.error('--source et --check sont incompatibles')
     source = (args.source or SOURCE).read_text(encoding='utf-8-sig')
     section = render(source)
+    potions = potion_catalog(source)
     book = BOOK.read_text(encoding='utf-8')
     existing = re.search(SECTION, book, re.S)
     if not existing:
@@ -149,12 +180,15 @@ def main():
     if args.check:
         if existing.group() != section or SOURCE.read_text(encoding='utf-8') != source:
             raise SystemExit('Chapitre Alchimie désynchronisé : lancer scripts/sync_alchemy_rules.py')
-        print('Alchimie : source et livret synchronisés.')
+        if not POTIONS.is_file() or POTIONS.read_text(encoding='utf-8') != potions:
+            raise SystemExit('Catalogue des potions désynchronisé : lancer scripts/sync_alchemy_rules.py')
+        print('Alchimie : source, références et potions synchronisées.')
         return
     if args.source:
         SOURCE.parent.mkdir(exist_ok=True)
         SOURCE.write_text(source, encoding='utf-8', newline='\n')
     BOOK.write_text(book[:existing.start()] + section + book[existing.end():], encoding='utf-8', newline='\n')
+    POTIONS.write_text(potions, encoding='utf-8', newline='\n')
     print('Alchimie : référentiel importé et chapitre généré.')
 
 

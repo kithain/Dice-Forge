@@ -200,11 +200,6 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === 'panel-' + tab);
   });
-  if (tab === 'inventory') {
-    const frame = document.getElementById('inventory-sheet-frame');
-    if (frame && !frame.getAttribute('src')) frame.src = frame.dataset.src;
-    frame?.contentWindow?.postMessage({ type: 'diceforge:inventory-refresh' }, '*');
-  }
 }
 
 function initCharacterOptions() {

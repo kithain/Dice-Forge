@@ -81,9 +81,13 @@ Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/D
 
 ## Pages et références
 
-Les règles d’alchimie retenues sont celles du référentiel Obsidian : catégories de réactifs, recettes de degrés I/II, critique doublant les doses et limite de quatre doses transportées. Le livret contient les 16 recettes et leurs contrecoups ; les écrans joueur/MJ et la fiche renvoient à ce même chapitre.
+Le livret joueur présente les règles essentielles. Les listes et tables détaillées sont regroupées dans `livret_reference.html`. L’ancien lien `livret_joueurV2.html` redirige vers le livret principal.
 
-Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/alchimie.md`, puis l’importer avec `python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"`. Le script conserve sa copie dans `data/alchimie.md` et génère la section `#alchimie` du livret. Ne pas modifier cette section HTML séparément : `python scripts/validate_project.py` vérifie sa synchronisation, également dans GitHub Actions. Sans `--source`, le script régénère le chapitre depuis la copie du dépôt. Les sauvegardes historiques ne sont pas des règles actives.
+La fiche propose trois onglets : Fiche, Inventaire, Sorts et Pouvoirs. Dans Inventaire, l’onglet Potions démarre vide. Choisir l’une des 16 préparations du catalogue remplit son effet et son contrecoup. Chaque ligne distingue les doses transportées des doses en stock ; le total transporté est limité à 4. Les modifications sont sauvegardées avec l’inventaire ; les consommables existants sont conservés. Au chargement d’une sauvegarde incohérente, les doses transportées excédentaires sont conservées dans le stock.
+
+Les règles d’alchimie retenues sont celles du référentiel Obsidian : catégories de réactifs, recettes de degrés I/II, critique doublant les doses et limite de quatre doses transportées. Les références contiennent les 16 recettes et leurs contrecoups ; les écrans joueur/MJ et la fiche renvoient à ce même chapitre.
+
+Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/alchimie.md`, puis l’importer avec `python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"`. Le script conserve sa copie dans `data/alchimie.md`, génère la section `#alchimie` de `livret_reference.html` et le catalogue `js/alchemy-potions.js`. Ne pas modifier ces sorties séparément : `python scripts/validate_project.py` vérifie leur synchronisation, également dans GitHub Actions. Sans `--source`, le script régénère ces sorties depuis la copie du dépôt. Les sauvegardes historiques ne sont pas des règles actives.
 
 | Page | Description |
 |---|---|
@@ -91,6 +95,7 @@ Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/a
 | [`pj.html`](https://kithain.github.io/Dice-Forge/pj.html) | Fiche de personnage complète |
 | [`help.html`](https://kithain.github.io/Dice-Forge/help.html) | Guide d'utilisation destiné aux joueurs |
 | [`livret_joueur.html`](https://kithain.github.io/Dice-Forge/livret_joueur.html) | Livret du joueur |
+| [`livret_reference.html`](https://kithain.github.io/Dice-Forge/livret_reference.html) | Création détaillée, compétences, sorts et recettes |
 | [`inventaire.html`](https://kithain.github.io/Dice-Forge/inventaire.html) | Armes, armures et équipement |
 | [`ecran_joueur_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html) | Écran de référence joueur |
 | [`ecran_MJ_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html) | Écran de référence meneur de jeu |

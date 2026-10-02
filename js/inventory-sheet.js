@@ -1,4 +1,15 @@
 import { getSupabaseClient } from './supabase-client.js';
+import { ALCHEMY_POTIONS } from './alchemy-potions.js?v=20261002-potion-doses';
+import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-potion-doses';
+
+if (new URLSearchParams(location.search).get('embedded') === '1' && window.frameElement) {
+  document.body.classList.add('inventory-embedded');
+  const page = document.querySelector('.inventory-page');
+  new ResizeObserver(() => {
+    const height = Math.ceil(page.getBoundingClientRect().bottom + window.scrollY);
+    if (height > 0) window.frameElement.style.height = `${height + 2}px`;
+  }).observe(page);
+}
 
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const LEGACY_WALLET_KEY = 'dice-forge.wallet.v1';
@@ -13,14 +24,15 @@ const SECTION_FIELDS = {
   armors: ['name', 'description', 'type', 'protection', 'mobility', 'stealth', 'specials'],
   equipment: ['name', 'description'],
   consumables: ['name', 'description'],
-  miscellaneous: ['name', 'description']
+  miscellaneous: ['name', 'description'],
+  potions: ['name', 'carried', 'stock', 'effect', 'backlash']
 };
 
 let inventory = emptyInventory();
 let saveTimer = null;
 let cloudLoadInProgress = false;
 let roomIdentity = identityFromStorage();
-let equipmentCatalog = { weapons: [], armors: [] };
+let equipmentCatalog = { weapons: [], armors: [], potions: ALCHEMY_POTIONS };
 let weaponSkillScores = { contact: '', distance: '' };
 
 function emptyInventory() {
@@ -31,7 +43,8 @@ function emptyInventory() {
     armors: [],
     equipment: [],
     consumables: [],
-    miscellaneous: []
+    miscellaneous: [],
+    potions: []
   };
 }
 
@@ -74,8 +87,9 @@ function normalizeInventory(value) {
     weapons: safeRows(source.weapons, SECTION_FIELDS.weapons),
     armors: safeRows(source.armors, SECTION_FIELDS.armors),
     equipment: safeRows(source.equipment, SECTION_FIELDS.equipment),
-    consumables: safeRows(source.consumables, SECTION_FIELDS.consumables),
-    miscellaneous: safeRows(source.miscellaneous, SECTION_FIELDS.miscellaneous)
+    consumables: safeRows(regularConsumables(source.consumables), SECTION_FIELDS.consumables),
+    miscellaneous: safeRows(source.miscellaneous, SECTION_FIELDS.miscellaneous),
+    potions: potionRowsFromInventory(source, ALCHEMY_POTIONS)
   };
 }
 
@@ -105,15 +119,18 @@ function setStatus(message, type = '') {
 }
 
 function rowMarkup(section, row, index) {
-  const list = section === 'weapons' ? ' list="weapon-catalog-list"' : section === 'armors' ? ' list="armor-catalog-list"' : '';
+  const list = section === 'weapons' ? ' list="weapon-catalog-list"' : section === 'armors' ? ' list="armor-catalog-list"' : section === 'potions' ? ' list="potion-catalog-list"' : '';
   const input = (field, label, multiline = false) => multiline
     ? `<textarea data-row-field="${field}" aria-label="${label}">${escapeHtml(row[field])}</textarea>`
     : `<input data-row-field="${field}" value="${escapeHtml(row[field])}" aria-label="${label}"${field === 'name' ? list : ''}>`;
+  const doses = (field, label) => `<input type="number" min="0" step="1"${field === 'carried' ? ` max="${MAX_CARRIED_DOSES}"` : ''} data-row-field="${field}" value="${doseCount(row[field])}" aria-label="${label}">`;
   const cells = section === 'weapons'
     ? `${input('name', 'Nom de l’arme')}${input('description', 'Description de l’arme', true)}${input('category', 'Catégorie de l’arme')}${input('brp', 'Pourcentage BRP')}${input('damage', 'Dégâts')}${input('hands', 'Nombre de mains')}${input('specials', 'Spécial de l’arme', true)}`
     : section === 'armors'
       ? `${input('name', 'Nom de l’armure')}${input('description', 'Description de l’armure', true)}${input('type', 'Type d’armure')}${input('protection', 'Protection')}${input('mobility', 'Mobilité')}${input('stealth', 'Discrétion')}${input('specials', 'Spécial de l’armure', true)}`
-      : `${input('name', 'Nom de l’objet')}${input('description', 'Description de l’objet', true)}`;
+      : section === 'potions'
+        ? `${input('name', 'Nom de la potion')}${doses('carried', 'Doses dans l’inventaire')}${doses('stock', 'Doses en stock')}${input('effect', 'Effet de la potion', true)}${input('backlash', 'Contrecoup de la potion', true)}`
+        : `${input('name', 'Nom de l’objet')}${input('description', 'Description de l’objet', true)}`;
   return `<tr data-section="${section}" data-row-index="${index}">
     ${cells.split(/(?=<(?:input|textarea))/).filter(Boolean).map(cell => `<td>${cell}</td>`).join('')}
     <td><button class="inventory-remove" type="button" data-remove-row="${section}" data-row-index="${index}" aria-label="Supprimer cette ligne" title="Supprimer cette ligne">×</button></td>
@@ -176,7 +193,7 @@ async function loadEquipmentCatalog() {
       stealth: '',
       specials: cells[3]
     }));
-    equipmentCatalog = { weapons: [...melee, ...distance], armors: [...armors, ...shields] };
+    equipmentCatalog = { weapons: [...melee, ...distance], armors: [...armors, ...shields], potions: ALCHEMY_POTIONS };
     document.getElementById('weapon-catalog-list').innerHTML = equipmentCatalog.weapons
       .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.damage)}</option>`).join('');
     document.getElementById('armor-catalog-list').innerHTML = equipmentCatalog.armors
@@ -194,9 +211,15 @@ function findCatalogEntry(section, name) {
 function applyCatalogSelection(input) {
   const row = input.closest('tr');
   const section = row?.dataset.section;
-  if (!row || !['weapons', 'armors'].includes(section)) return false;
+  if (!row || !['weapons', 'armors', 'potions'].includes(section)) return false;
   const entry = findCatalogEntry(section, input.value);
   if (!entry) return false;
+  if (section === 'potions') {
+    row.querySelector('[data-row-field="effect"]').value = entry.effect;
+    row.querySelector('[data-row-field="backlash"]').value = entry.backlash;
+    resizePotionFields();
+    return true;
+  }
   row.querySelector('[data-row-field="description"]').value = entry.description;
   if (section === 'weapons') {
     row.querySelector('[data-row-field="category"]').value = entry.category;
@@ -251,6 +274,37 @@ async function loadWeaponSkillScores() {
 function renderSection(section) {
   const body = document.getElementById(`inventory-${section}`);
   body.innerHTML = inventory[section].map((row, index) => rowMarkup(section, row, index)).join('');
+  if (section === 'potions') {
+    resizePotionFields();
+    updatePotionCapacity();
+  }
+}
+
+function updatePotionCapacity(message = '') {
+  const rows = collectRowsFromDom('potions');
+  const total = rows.reduce((sum, row) => sum + doseCount(row.carried), 0);
+  document.getElementById('inventory-potion-capacity').textContent = `Inventaire : ${total} / ${MAX_CARRIED_DOSES} doses${message ? ` — ${message}` : ''}`;
+  document.getElementById('inventory-potions-empty').hidden = rows.length > 0;
+  document.querySelectorAll('#inventory-potions [data-row-field="carried"]').forEach((input, index) => {
+    input.max = availablePotionCapacity(rows, index);
+  });
+}
+
+function potionDoseChanged(input) {
+  const field = input.dataset.rowField;
+  if (!['carried', 'stock'].includes(field)) return;
+  const index = Number(input.closest('tr').dataset.rowIndex);
+  const requested = doseCount(input.value);
+  const allowed = field === 'carried' ? availablePotionCapacity(collectRowsFromDom('potions'), index) : requested;
+  input.value = Math.min(requested, allowed);
+  updatePotionCapacity(requested > allowed ? 'Limite de 4 doses transportées atteinte. Les réserves vont dans « Stock ».' : '');
+}
+
+function resizePotionFields() {
+  document.querySelectorAll('#inventory-potions textarea').forEach(input => {
+    input.style.height = 'auto';
+    if (input.scrollHeight) input.style.height = `${input.scrollHeight + 2}px`;
+  });
 }
 
 function renderWallet() {
@@ -285,6 +339,7 @@ function collectFromDom() {
   Object.keys(SECTION_FIELDS).forEach(section => {
     inventory[section] = collectRowsFromDom(section);
   });
+  inventory.potions = normalizePotionRows(inventory.potions);
   return inventory;
 }
 
@@ -354,7 +409,7 @@ function cloudPayload() {
     weapons: inventory.weapons,
     armors: inventory.armors,
     equipment: inventory.equipment,
-    consumables: inventory.consumables,
+    consumables: consumablesWithPotions(inventory.consumables, inventory.potions),
     miscellaneous: inventory.miscellaneous,
     updated_at: new Date().toISOString()
   };
@@ -512,7 +567,9 @@ document.addEventListener('input', event => {
   const unit = event.target.id?.match(/^inventory-(po|pa|pc)$/)?.[1];
   if (unit) moneyInputChanged(unit);
   else if (event.target.matches('[data-row-field]')) {
+    if (event.target.closest('#inventory-potions')) potionDoseChanged(event.target);
     if (event.target.dataset.rowField === 'name') applyCatalogSelection(event.target);
+    if (event.target.closest('#inventory-potions')) resizePotionFields();
     scheduleSave();
   }
 });
@@ -527,7 +584,7 @@ document.addEventListener('click', event => {
 document.getElementById('inventory-save').addEventListener('click', () => saveCloud());
 document.getElementById('inventory-refresh').addEventListener('click', () => loadCloud({ manual: true }));
 window.addEventListener('message', event => {
-  if (event.data?.type === 'diceforge:inventory-refresh') reloadIdentity();
+  if (event.origin === location.origin && event.data?.type === 'diceforge:inventory-refresh') reloadIdentity();
 });
 window.addEventListener('storage', event => {
   if (event.key === ROOM_STORAGE_KEY) reloadIdentity();
@@ -539,6 +596,29 @@ try {
   inventory = emptyInventory();
 }
 render();
+document.getElementById('potion-catalog-list').innerHTML = ALCHEMY_POTIONS
+  .map(item => `<option value="${escapeHtml(item.name)}"></option>`).join('');
+const inventoryTabs = Array.from(document.querySelectorAll('.inventory-tabs [role="tab"]'));
+function selectInventoryTab(tab) {
+  inventoryTabs.forEach(button => {
+    const selected = button === tab;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
+  });
+  resizePotionFields();
+}
+inventoryTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectInventoryTab(tab));
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? inventoryTabs.length - 1
+      : (index + (event.key === 'ArrowRight' ? 1 : -1) + inventoryTabs.length) % inventoryTabs.length;
+    selectInventoryTab(inventoryTabs[next]);
+    inventoryTabs[next].focus();
+  });
+});
 Promise.all([loadEquipmentCatalog(), loadWeaponSkillScores()]).then(() => {
   enrichInventoryFromCatalog();
   render();

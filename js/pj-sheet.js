@@ -912,6 +912,11 @@ function selectSheetTab(tab) {
     document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
   });
   document.querySelector('.pj-section-nav').hidden = tab.id !== 'pj-main-tab';
+  if (tab.id === 'pj-inventory-tab') {
+    const frame = document.getElementById('pj-inventory-frame');
+    if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
+    frame.contentWindow?.postMessage({ type: 'diceforge:inventory-refresh' }, location.origin);
+  }
 }
 sheetTabs.forEach((tab, index) => {
   tab.addEventListener('click', () => selectSheetTab(tab));

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20260725-inventory">
-  <link rel="stylesheet" href="inventory-sheet.css?v=20260725-equipment-fields">
+  <link rel="stylesheet" href="inventory-sheet.css?v=20261002-potion-doses">
   <style>.auth-pending body{visibility:hidden}</style>
   <script src="supabase-config.js"></script>
   <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
@@ -31,6 +31,11 @@
       </div>
     </header>
     <p class="inventory-status" id="inventory-status" role="status">Inventaire local prêt.</p>
+    <div class="inventory-tabs" role="tablist" aria-label="Contenu de l’inventaire">
+      <button type="button" id="inventory-equipment-tab" role="tab" aria-selected="true" aria-controls="inventory-equipment-panel">Équipement</button>
+      <button type="button" id="inventory-potions-tab" role="tab" aria-selected="false" aria-controls="inventory-potions-panel" tabindex="-1">Potions</button>
+    </div>
+    <div id="inventory-equipment-panel" role="tabpanel" aria-labelledby="inventory-equipment-tab">
 
     <section class="inventory-section wallet-section">
       <div class="inventory-section-head">
@@ -125,11 +130,31 @@
         </table></div>
       </section>
     </div>
+    </div>
+    <div id="inventory-potions-panel" role="tabpanel" aria-labelledby="inventory-potions-tab" hidden>
+      <section class="inventory-section">
+        <div class="inventory-section-head">
+          <div><span class="inventory-icon">⚗</span><h2>Potions et préparations</h2></div>
+          <button class="inventory-add" type="button" data-add-row="potions">+ Ajouter une potion</button>
+        </div>
+        <p class="inventory-potions-help">Ajoutez vos potions puis choisissez leur nom pour remplir l’effet et le contrecoup. Vous pouvez transporter au total <strong>4 doses</strong>, toutes potions confondues. Les réserves restent dans le <strong>Stock</strong>, hors combat.</p>
+        <p class="inventory-potions-help" id="inventory-potion-capacity" role="status" aria-live="polite">Inventaire : 0 / 4 doses</p>
+        <p class="inventory-potions-help"><a href="livret_reference.html#alchimie-4-livre-de-recettes" target="_blank" rel="noopener">Recettes, ingrédients et règles d’utilisation</a></p>
+        <div class="inventory-table-wrap">
+          <table class="inventory-table potion-table">
+            <thead><tr><th>Nom</th><th>Inventaire<br>(doses)</th><th>Stock<br>(doses)</th><th>Effet</th><th>Contrecoup</th><th></th></tr></thead>
+            <tbody id="inventory-potions"></tbody>
+          </table>
+        </div>
+        <p class="inventory-potions-help" id="inventory-potions-empty">Aucune potion. Cliquez sur « Ajouter une potion » pour commencer.</p>
+      </section>
+    </div>
   </main>
 
   <datalist id="weapon-catalog-list"></datalist>
   <datalist id="armor-catalog-list"></datalist>
+  <datalist id="potion-catalog-list"></datalist>
   <script src="supabase-config.js"></script>
-  <script type="module" src="js/inventory-sheet.js?v=20260725-equipment-fields-v2"></script>
+  <script type="module" src="js/inventory-sheet.js?v=20261002-potion-doses"></script>
 </body>
 </html>

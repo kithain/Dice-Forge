@@ -68,7 +68,6 @@
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
   <button class="tab-btn" id="tab-verbal" type="button" role="tab" aria-selected="false" aria-controls="panel-verbal" onclick="switchTab('verbal')">Confrontation verbale</button>
   <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
-  <button class="tab-btn" id="tab-inventory" type="button" role="tab" aria-selected="false" aria-controls="panel-inventory" onclick="switchTab('inventory')">Inventaire</button>
   <a class="tab-btn tab-link" id="tab-help" href="help.html" aria-label="Aide joueurs Dice Forge">❔ Help me</a>
   <a class="tab-btn tab-link" href="ecran_joueur_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence des joueurs">Écran joueur</a>
   <a class="tab-btn tab-link" href="ecran_MJ_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence du meneur de jeu">Écran MJ</a>
@@ -271,20 +270,17 @@
       <button class="room-btn" type="button" onclick="forceCharacterSheetSync()">Synchroniser depuis le personnage généré</button>
       <span>Actualise l’identité, les caractéristiques et le MOV sans effacer les compétences, l’équipement ou les notes.</span>
     </div>
-    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20260728-character-sync" loading="lazy"></iframe>
+    <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20261002-inventory" loading="lazy"></iframe>
   </div>
 </section>
 
-<section class="tab-panel inventory-tab-panel" id="panel-inventory" role="tabpanel" aria-labelledby="tab-inventory">
-  <iframe id="inventory-sheet-frame" title="Inventaire du personnage" data-src="inventory-sheet.html?v=20260725-equipment-fields-v2" loading="lazy"></iframe>
-</section>
 
 </div>
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js"></script>
-<script type="module" src="js/app.js?v=20260925-skill-groups"></script>
+<script type="module" src="js/app.js?v=20261002-inventory"></script>
 <script type="module" src="js/verbal.js?v=20261002-v5"></script>
 </body>
 </html>

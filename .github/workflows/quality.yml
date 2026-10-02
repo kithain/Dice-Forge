@@ -37,3 +37,6 @@ jobs:
 
       - name: Valider le site et JavaScript
         run: python scripts/validate_project.py
+
+      - name: Tester les potions et leur sauvegarde
+        run: node scripts/test_inventory_potions.cjs
