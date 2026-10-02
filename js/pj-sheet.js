@@ -1095,7 +1095,9 @@ document.getElementById('pj-reset').addEventListener('click', () => {
   localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = []; spellSheetContext = null; document.getElementById('pj-spell-add-panel').hidden = true; setSpellStatus(''); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
 
-window.diceForgeSheet = { setSkillChecked, getData: collectData };
+window.diceForgeSheet = { setSkillChecked, getData: collectData, adoptCloudRevision(data) {
+  if (loadedSheetData?.state_id === data.state_id) loadedSheetData.revision = data.revision;
+} };
 // Les autres onglets du navigateur reçoivent aussi les coches du lanceur.
 window.addEventListener('storage', event => {
   if (event.key !== STORAGE_KEY || !event.newValue) return;

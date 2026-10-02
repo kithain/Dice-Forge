@@ -6,6 +6,8 @@ import { showToast, showConfirm } from './toast.js?v=20260708-brp-orc';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
+import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
+import { saveExperienceCheck } from './experience-save.js?v=20261002-autocheck';
 import './tooltips.js?v=20260715-character-help';
 
 // ——— config ———
@@ -1454,6 +1456,7 @@ function initBrpSkillPicker() {
   });
 }
 
+let experienceSaveQueue = Promise.resolve();
 function markBrpSkillExperience(index, kind = 'skill') {
   if (!Number.isInteger(index) || index < 0 || !['skill', 'spell'].includes(kind)) return;
   let sheet = null;
@@ -1466,7 +1469,6 @@ function markBrpSkillExperience(index, kind = 'skill') {
   sheet[collection] = Array.isArray(sheet[collection]) ? sheet[collection] : [];
   if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
   if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
-  if (sheet[collection][index]?.checked) return;
   sheet[collection][index] = { ...(sheet[collection][index] || {}), checked: true };
   localStorage.setItem(characterDraftKey(), JSON.stringify(sheet));
   const pendingKey = `${characterDraftKey()}.experience`;
@@ -1482,6 +1484,25 @@ function markBrpSkillExperience(index, kind = 'skill') {
   if (brpSelectedSkill?.index === index && (brpSelectedSkill.kind || 'skill') === kind) brpSelectedSkill.checked = true;
   if (results?.characterTest?.skill?.index === index && (results.characterTest.skill.kind || 'skill') === kind) results.characterTest.skill.checked = true;
   showToast('Case d’expérience cochée sur la fiche', 'success');
+  const key = characterDraftKey();
+  const check = { kind, index, id: sheet[collection][index].id, name: sheet[collection][index].name };
+  const room = JSON.parse(localStorage.getItem('diceforge_room') || 'null');
+  experienceSaveQueue = experienceSaveQueue.then(async () => {
+    try {
+      const saved = await saveExperienceCheck(getSupabaseClient(), room, check, sheet.state_id);
+      if (characterDraftKey() === key) {
+        const draft = JSON.parse(localStorage.getItem(key) || 'null');
+        if (draft && draft.state_id === sheet.state_id) {
+          draft.revision = saved.sheet_data.revision;
+          localStorage.setItem(key, JSON.stringify(draft));
+          document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.adoptCloudRevision(saved.sheet_data);
+        }
+      }
+      showToast('Coche d’expérience sauvegardée en ligne', 'success');
+    } catch (error) {
+      showToast(`Coche conservée localement, sauvegarde en ligne impossible : ${error.message || 'erreur réseau'}`, 'error');
+    }
+  });
 }
 
 function markSuccessfulTestExperience(test) {
