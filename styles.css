@@ -105,7 +105,7 @@ h1{
 .qbtn.stat-test{border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.06)}
 .qbtn:disabled{opacity:.45;cursor:not-allowed}
 .brp-test-panel{background:var(--s1);border:1px solid var(--brd);border-radius:8px;padding:1.1rem;margin-bottom:1.25rem}
-.brp-test-form{display:grid;grid-template-columns:minmax(210px,1.4fr) minmax(90px,.55fr) minmax(150px,1fr) auto;gap:.65rem;align-items:end}
+.brp-test-form{display:grid;grid-template-columns:minmax(210px,1.4fr) minmax(75px,.45fr) minmax(115px,.7fr) minmax(75px,.45fr) auto;gap:.65rem;align-items:end}
 .brp-test-form .room-input{width:100%}
 .brp-test-btn{height:36px;white-space:nowrap}
 .brp-skill-field{position:relative}
@@ -435,7 +435,7 @@ select.room-input{appearance:none}
   body.laptop-mode .builder{padding:.65rem;margin-bottom:.55rem}
   body.laptop-mode .slabel{margin-bottom:.4rem}
   body.laptop-mode .qbtn{padding:.32rem .55rem;font-size:.68rem}
-  body.laptop-mode .brp-test-form{grid-template-columns:minmax(175px,1.35fr) 72px minmax(125px,.9fr) auto;gap:.4rem}
+  body.laptop-mode .brp-test-form{grid-template-columns:minmax(175px,1.35fr) 72px minmax(110px,.7fr) 75px auto;gap:.4rem}
   body.laptop-mode .field-hint{display:none}
   body.laptop-mode .room-input{padding:.38rem .55rem}
   body.laptop-mode .dgrid{grid-template-columns:repeat(7,minmax(0,1fr));gap:.3rem;margin-bottom:.45rem}

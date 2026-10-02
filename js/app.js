@@ -1511,11 +1511,11 @@ function markSuccessfulTestExperience(test) {
   }
 }
 
-function brpThresholdFor(score, difficulty) {
+function brpThresholdFor(score, difficulty, malus = 0) {
   if (difficulty.mode === 'auto-success') return score;
   if (difficulty.mode === 'auto-failure') return 0;
-  if (difficulty.divisor) return Math.ceil(score / difficulty.divisor);
-  return Math.ceil(score * (difficulty.multiplier || 1));
+  const adjusted = difficulty.divisor ? Math.ceil(score / difficulty.divisor) : Math.ceil(score * (difficulty.multiplier || 1));
+  return Math.max(0, adjusted - malus);
 }
 
 function fumbleMinFor(threshold) {
@@ -1574,7 +1574,7 @@ function automaticPercentileResult(test) {
   };
 }
 
-function createPercentileTest({ kind, typeLabel, name, code, score, threshold, difficulty, skill = null }) {
+function createPercentileTest({ kind, typeLabel, name, code, score, threshold, difficulty, skill = null, malus = 0 }) {
   return {
     kind,
     typeLabel,
@@ -1583,6 +1583,7 @@ function createPercentileTest({ kind, typeLabel, name, code, score, threshold, d
     score,
     threshold,
     difficulty,
+    malus,
     skill,
     difficultyLabel: difficulty?.shortLabel || 'Moyen',
     success: false,
@@ -1599,7 +1600,7 @@ function brpTestSummary(test) {
     return `DEX ${test.dex} + MOV ${test.movement} = ${test.dex + test.movement} × 3 = ${test.rawThreshold}%${capped} · jet ${test.rollLabel}`;
   }
 
-  const base = `${test.skill?.name || 'Test BRP'} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
+  const base = `${test.skill?.name || 'Test BRP'} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}${!test.automatic && test.malus ? ` · malus −${test.malus}` : ''}`;
   if (test.automatic) return `${base} => ${test.label}`;
   return `${base} => ${test.threshold}% · jet ${test.rollLabel}`;
 }
@@ -1609,7 +1610,7 @@ function brpTestExpression(test) {
   if (test.kind === 'course') return `Jet de Course (DEX ${test.dex} + MOV ${test.movement}) × 3 (${test.threshold}%)`;
   const name = test.skill?.name || 'Test BRP';
   if (test.automatic) return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}`;
-  return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel} (${test.threshold}%)`;
+  return `${name} ${test.score}% · ${test.difficulty?.label || test.difficultyLabel}${test.malus ? ` · malus −${test.malus}` : ''} (${test.threshold}%)`;
 }
 
 function sendPercentileTest(test, totalValue) {
@@ -1772,7 +1773,9 @@ function rollBrpPercentileTest() {
   }
 
   if (scoreInput) scoreInput.value = score;
-  const threshold = brpThresholdFor(score, difficulty);
+  const selectedMalus = Number(document.getElementById('brp-test-malus')?.value || 0);
+  const malus = [0, 10, 20, 30, 40].includes(selectedMalus) ? selectedMalus : 0;
+  const threshold = brpThresholdFor(score, difficulty, malus);
   const test = createPercentileTest({
     kind: 'brp',
     typeLabel: 'Test BRP',
@@ -1780,6 +1783,7 @@ function rollBrpPercentileTest() {
     score,
     threshold,
     difficulty,
+    malus,
     skill: brpSelectedSkill ? { ...brpSelectedSkill, score } : null
   });
 

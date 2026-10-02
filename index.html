@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261002-verbal-obs">
+<link rel="stylesheet" href="styles.css?v=20261002-brp-malus">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
@@ -105,13 +105,23 @@
       <input class="room-input small" id="brp-test-score" type="number" min="1" max="300" step="1" value="50">
     </div>
     <div class="room-field">
-      <label>Difficulté</label>
+      <label for="brp-test-difficulty">Difficulté</label>
       <select class="room-input wide" id="brp-test-difficulty">
         <option value="normal">Moyen ×1</option>
         <option value="easy">Facile ×2</option>
         <option value="hard">Difficile ÷2</option>
         <option value="auto">Automatique</option>
         <option value="impossible">Impossible</option>
+      </select>
+    </div>
+    <div class="room-field">
+      <label for="brp-test-malus">Malus</label>
+      <select class="room-input wide" id="brp-test-malus" title="Points retirés après application de la difficulté">
+        <option value="0">Aucun</option>
+        <option value="10">−10</option>
+        <option value="20">−20</option>
+        <option value="30">−30</option>
+        <option value="40">−40</option>
       </select>
     </div>
     <button class="room-btn brp-test-btn" type="button" onclick="rollBrpPercentileTest()">Tester</button>
@@ -278,7 +288,7 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
-<script type="module" src="js/app.js?v=20261002-autocheck"></script>
+<script type="module" src="js/app.js?v=20261002-brp-malus"></script>
 <script type="module" src="js/verbal.js?v=20261002-v5"></script>
 </body>
 </html>
