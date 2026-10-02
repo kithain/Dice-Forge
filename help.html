@@ -58,10 +58,10 @@
               <h2>Démarrage rapide</h2>
             </div>
           </div>
-          <p>Dice Forge fonctionne dans un navigateur récent. Aucun compte n'est nécessaire pour lancer des dés seul. Une connexion Internet est requise pour charger l'application et utiliser les fonctions en ligne.</p>
+          <p>Dice Forge fonctionne dans un navigateur récent. Connectez-vous à votre compte pour accéder à l’application. Une connexion Internet est nécessaire pour charger le site, partager les jets et sauvegarder vos données en ligne.</p>
 
           <ol class="help-steps">
-            <li><strong>Ouvrez Dice Forge.</strong><span>Revenez à l'application avec le bouton situé en haut de cette page.</span></li>
+            <li><strong>Ouvrez Dice Forge et connectez-vous.</strong><span>Utilisez le même compte sur vos différents appareils pour retrouver votre personnage.</span></li>
             <li><strong>Choisissez votre usage.</strong><span>Lancez immédiatement des dés, ou rejoignez une salle pour jouer avec votre table.</span></li>
             <li><strong>Effectuez votre jet.</strong><span>Utilisez un lancer rapide, un test BRP ou le compositeur de dés.</span></li>
           </ol>
@@ -77,13 +77,16 @@
 
           <h3>Rejoindre une salle existante</h3>
           <ol class="help-steps compact">
-            <li><strong>Saisissez votre nom.</strong><span>Gardez exactement le même nom pendant la campagne pour retrouver votre fiche.</span></li>
+            <li><strong>Saisissez votre nom de joueur.</strong><span>Ce nom identifie vos jets dans la salle. Votre personnage est lié à votre compte.</span></li>
             <li><strong>Entrez le code de partie.</strong><span>Le créateur de la salle vous communique ce code.</span></li>
             <li><strong>Cliquez sur Rejoindre.</strong><span>Les 20 jets les plus récents sont chargés dans le flux en direct.</span></li>
           </ol>
 
           <h3>Créer une salle</h3>
           <p>Saisissez votre nom puis cliquez sur <strong>Créer</strong>. Dice Forge génère un code à partager avec les autres participants. Le créateur peut utiliser <strong>Purger</strong> pour effacer l'historique de la salle.</p>
+          <h3>Personnage et campagne</h3>
+          <p>Votre personnage possède une identité permanente. Sa progression, ses compétences, ses sorts, ses coches d’expérience et son inventaire sont suivis par campagne. Les salles liées à une même campagne partagent cet état : une nouvelle séance ne crée pas une nouvelle copie de la fiche.</p>
+          <p>Lorsque le MJ crée une salle depuis une campagne déjà rejointe et dont il est propriétaire, la nouvelle salle est liée à cette campagne. Un autre code de salle ne signifie donc pas forcément une autre campagne.</p>
 
           <div class="help-note info"><strong>Jet secret</strong> Activez « Cacher mes jets (MJ) » pour envoyer un résultat visible par le créateur de la salle, mais pas par les autres joueurs. Cette option ne s'applique pas au créateur lui-même.</div>
         </section>
@@ -118,7 +121,7 @@
           </div>
 
           <ol class="help-steps compact">
-            <li><strong>Saisissez le score en %.</strong><span>Utilisez la valeur de la compétence ou du test demandé.</span></li>
+            <li><strong>Sélectionnez une compétence ou un sort de votre fiche.</strong><span>Son score est repris dans le test. Vous pouvez aussi saisir un score en % pour un test libre.</span></li>
             <li><strong>Choisissez la difficulté.</strong><span>Facile, Moyen, Difficile, Automatique ou Impossible.</span></li>
             <li><strong>Cliquez sur Tester.</strong><span>Dice Forge lance le D100 et affiche le niveau de réussite.</span></li>
           </ol>
@@ -136,6 +139,9 @@
             </table>
           </div>
           <p class="help-muted">Le résultat peut être une réussite critique, spéciale ou normale, un échec ou une maladresse.</p>
+          <h3>Coches d’expérience automatiques</h3>
+          <p>Après un test BRP réussi avec une compétence ou un sort sélectionné, sa case d’expérience est cochée et sauvegardée automatiquement en ligne. Un test libre sans compétence sélectionnée ne coche aucune case. La coche ne distribue pas automatiquement de points d’expérience.</p>
+          <div class="help-note info"><strong>Vérifiez le message de sauvegarde.</strong> Si l’enregistrement en ligne échoue, la coche reste dans le brouillon de ce navigateur et un message vous prévient. Réessayez le test ou utilisez « Sauvegarder en ligne » sur la fiche. Une coche conservée seulement localement n’est pas encore disponible sur vos autres appareils.</div>
 
           <h3>Jet de Course</h3>
           <p>Le bouton <strong>Jet de Course</strong> utilise automatiquement <code>(DEX + MOV) × 3</code>, avec un maximum de 95&nbsp;%. En cas de réussite, le personnage progresse de <code>MOV × 2</code> mètres par tour de six secondes. Une réussite spéciale accorde un avantage et une réussite critique un avantage majeur. Ce jet sert aux poursuites, aux fuites et aux dangers en mouvement, comme un pont qui s’effondre.</p>
@@ -166,7 +172,7 @@
           </div>
 
           <h3>Importer et exporter</h3>
-          <p><strong>Exporter</strong> télécharge une copie JSON. <strong>Importer</strong> ouvre une fiche JSON existante. Après un import dans une autre salle, cliquez sur Enregistrer pour l'associer à votre nom courant.</p>
+          <p><strong>Exporter</strong> télécharge les données de génération au format JSON. <strong>Importer</strong> recharge ces données. Ce fichier ne remplace pas une sauvegarde de la fiche complète et de l’inventaire. Après un import, vérifiez le personnage et la campagne avant d’enregistrer.</p>
           <p><strong>Actualiser depuis Supabase</strong> remplace, après confirmation, toutes les données de génération affichées par la dernière sauvegarde en ligne du joueur. Utilisez cette action pour annuler une erreur de manipulation locale.</p>
         </section>
 
@@ -176,17 +182,23 @@
             <div><p>Suivi de campagne</p><h2>Compléter la fiche personnage</h2></div>
           </div>
 
-          <p>Dans l’onglet « Fiche personnage », passez de la génération à la fiche complète. Les caractéristiques générées sont reportées automatiquement et le brouillon reste enregistré localement dans votre navigateur.</p>
+          <p>Dans l’onglet « Fiche personnage », ouvrez « 2. Fiche complète ». Une fiche existante est chargée depuis votre campagne, avec sa progression. Pour un nouveau personnage, les valeurs de génération sont reportées dans la fiche. Vos modifications restent aussi dans un brouillon local au compte et à la salle sur ce navigateur.</p>
           <div class="help-action-list">
             <article><strong>Synchroniser depuis le personnage généré</strong><span>Remplace l’identité, les caractéristiques et le MOV par les valeurs du personnage actuel, sans effacer les compétences, l’équipement ou les notes.</span></article>
             <article><strong>Enregistrer en .md</strong><span>Télécharge la fiche sous le nom du personnage.</span></article>
             <article><strong>Ouvrir un .md</strong><span>Recharge une fiche Markdown déjà enregistrée.</span></article>
             <article><strong>Créer le PDF</strong><span>Ouvre un aperçu A4 à imprimer ou enregistrer en PDF.</span></article>
-            <article><strong>Sauvegarder en ligne</strong><span>Associe la fiche au nom du joueur et au code de partie actuels.</span></article>
-            <article><strong>Actualiser depuis Supabase</strong><span>Après confirmation, remplace toute la fiche locale par la dernière sauvegarde en ligne de la même salle.</span></article>
+            <article><strong>Sauvegarder en ligne</strong><span>Enregistre les modifications de la fiche de votre personnage dans la campagne actuelle. Les autres modifications de la fiche, hors coches automatiques, nécessitent cette action.</span></article>
+            <article><strong>Actualiser depuis Supabase</strong><span>Après confirmation, remplace toute la fiche locale par la dernière sauvegarde en ligne de la campagne associée à votre salle.</span></article>
             <article><strong>Nouvelle fiche</strong><span>Efface le brouillon courant après confirmation.</span></article>
           </div>
           <div class="help-note"><strong>Changement d'appareil</strong> Le brouillon local ne suit pas automatiquement. Téléchargez le fichier .md ou utilisez la sauvegarde en ligne.</div>
+          <h3>Sorts et Pouvoirs</h3>
+          <p>Ouvrez l’onglet <strong>Sorts et Pouvoirs</strong> pour consulter le grimoire, les points attribués et les scores des sorts. Choisissez un sort disponible pour votre personnage, répartissez ses points puis cliquez sur <strong>Sauvegarder les sorts</strong>. Les points et les choix sont vérifiés avant l’enregistrement. Les sorts enregistrés peuvent être sélectionnés dans le lanceur BRP.</p>
+          <h3>Inventaire</h3>
+          <p>L’onglet <strong>Inventaire</strong> regroupe l’équipement, les objets, les potions et les monnaies du personnage dans la campagne. Les modifications sont sauvegardées automatiquement lorsque vous êtes connecté à une salle. Attendez le message de confirmation ; en cas d’erreur, utilisez le bouton de sauvegarde de l’inventaire pour réessayer.</p>
+          <h3>Décocher les cases d’expérience</h3>
+          <p>Le bouton <strong>Décocher toutes les cases</strong> demande confirmation et retire les coches de la fiche locale. Cliquez ensuite sur <strong>Sauvegarder en ligne</strong> pour enregistrer cette remise à zéro dans la campagne.</p>
         </section>
 
         <section class="help-section" id="reglages">
@@ -209,14 +221,16 @@
             <details><summary>Aucun son ne se déclenche</summary><p>Cliquez une fois dans la page, vérifiez l'option Son MP3 et le volume du navigateur, puis relancez.</p></details>
             <details><summary>Les dés 3D ne s'affichent pas</summary><p>Rechargez la page ou désactivez Animations. Vérifiez aussi que l'accélération graphique et WebGL sont disponibles.</p></details>
             <details><summary>Je ne peux pas rejoindre la salle</summary><p>Vérifiez votre connexion, votre nom et le code de partie. Supprimez tout espace ajouté avant ou après le code.</p></details>
-            <details><summary>Ma fiche liée n'apparaît pas</summary><p>Reconnectez-vous avec exactement le même nom de joueur que lors de l'enregistrement.</p></details>
-            <details><summary>Ma fiche complète en ligne est introuvable</summary><p>Rejoignez la bonne salle avec le bon nom, puis réessayez « Actualiser depuis Supabase ».</p></details>
+            <details><summary>Ma fiche liée n'apparaît pas</summary><p>Vérifiez que vous êtes connecté au compte propriétaire du personnage et que vous avez rejoint une salle de la bonne campagne. Utilisez ensuite « Actualiser depuis Supabase ».</p></details>
+            <details><summary>Ma fiche complète en ligne est introuvable</summary><p>Vérifiez votre compte et le code de salle avec le MJ. Les salles de campagnes différentes ne partagent pas la même progression. Réessayez ensuite « Actualiser depuis Supabase ».</p></details>
+            <details><summary>La fiche a changé pendant ma sauvegarde</summary><p>Une modification plus récente a été enregistrée en ligne. Conservez vos changements utiles, actualisez depuis Supabase puis réappliquez-les avant de sauvegarder.</p></details>
+            <details><summary>Une coche automatique n’apparaît pas sur un autre appareil</summary><p>Vérifiez le message de sauvegarde sur l’appareil du jet, puis actualisez la fiche sur l’autre appareil avec le même compte et dans la même campagne. Si la sauvegarde a échoué, la coche est encore locale.</p></details>
             <details><summary>Le PDF ne se télécharge pas</summary><p>Dans l'aperçu, ouvrez la boîte d'impression du navigateur puis choisissez « Enregistrer au format PDF ».</p></details>
           </div>
         </section>
 
         <footer class="help-footer">
-          <strong>Bon jeu !</strong>
+          <strong>Guide actualisé le 2 octobre 2026 — Bon jeu !</strong>
           <a class="room-btn" href="index.html">Retour à Dice Forge</a>
         </footer>
       </main>
