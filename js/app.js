@@ -16,11 +16,10 @@ const MAX_CHARACTER_MOVES = 3;
 const MAX_CHARACTER_REROLLS = 2;
 const CHARACTER_EXPORT_FORMAT = 'dice-forge.character.v1';
 const BRP_DIFFICULTIES = [
-  { value: 'auto', label: 'Automatique', shortLabel: 'Automatique', mode: 'auto-success' },
   { value: 'easy', label: 'Facile ×2', shortLabel: 'Facile', multiplier: 2 },
   { value: 'normal', label: 'Moyen ×1', shortLabel: 'Moyen', multiplier: 1 },
   { value: 'hard', label: 'Difficile ÷2', shortLabel: 'Difficile', divisor: 2 },
-  { value: 'impossible', label: 'Impossible', shortLabel: 'Impossible', mode: 'auto-failure' }
+  { value: 'impossible', label: 'Impossible', shortLabel: 'Impossible', mode: 'impossible' }
 ];
 const CHARACTER_STATS = [
   { key: 'force', code: 'FOR', label: 'Force', count: 3, type: 6, mod: 0, test: 'Effort', help: 'Puissance physique. Sert à soulever, pousser, briser ou retenir, et contribue au bonus aux dégâts.' },
@@ -1512,8 +1511,7 @@ function markSuccessfulTestExperience(test) {
 function brpThresholdFor(score, difficulty, malus = 0) {
   const adjustedScore = Math.max(0, score - malus);
   if (!adjustedScore) return 0;
-  if (difficulty.mode === 'auto-success') return adjustedScore;
-  if (difficulty.mode === 'auto-failure') return 0;
+  if (difficulty.mode === 'impossible') return 0;
   return difficulty.divisor ? Math.ceil(adjustedScore / difficulty.divisor) : Math.ceil(adjustedScore * (difficulty.multiplier || 1));
 }
 
@@ -1527,12 +1525,15 @@ function fumbleMinFor(threshold) {
 
 function evaluatePercentile(threshold, rollValue) {
   const criticalLimit = Math.max(1, Math.ceil(threshold / 20));
-  const specialLimit = Math.max(1, Math.ceil(threshold / 5));
+  const specialLimit = Math.max(0, Math.ceil(threshold / 5));
   const fumbleMin = fumbleMinFor(threshold);
   const rollLabel = formatPercentile(rollValue);
 
   if (rollValue >= fumbleMin) {
     return { success: false, level: 'fumble', label: 'Maladresse', criticalLimit, specialLimit, fumbleMin, rollLabel };
+  }
+  if (rollValue === 1) {
+    return { success: true, level: 'critical', label: 'Réussite critique', criticalLimit, specialLimit, fumbleMin, rollLabel };
   }
   if (rollValue >= 96 || rollValue > threshold) {
     return { success: false, level: 'failure', label: 'Échec', criticalLimit, specialLimit, fumbleMin, rollLabel };
@@ -1544,33 +1545,6 @@ function evaluatePercentile(threshold, rollValue) {
     return { success: true, level: 'special', label: 'Réussite spéciale', criticalLimit, specialLimit, fumbleMin, rollLabel };
   }
   return { success: true, level: 'success', label: 'Réussite', criticalLimit, specialLimit, fumbleMin, rollLabel };
-}
-
-function automaticPercentileResult(test) {
-  if (test.difficulty?.mode === 'auto-success' && test.threshold > 0) {
-    return {
-      ...test,
-      success: true,
-      level: 'success',
-      label: 'Réussite automatique',
-      rollLabel: 'AUTO',
-      criticalLimit: Math.max(1, Math.ceil(test.threshold / 20)),
-      specialLimit: Math.max(1, Math.ceil(test.threshold / 5)),
-      fumbleMin: fumbleMinFor(test.threshold),
-      automatic: true
-    };
-  }
-  return {
-    ...test,
-    success: false,
-    level: 'failure',
-    label: 'Échec automatique',
-    rollLabel: 'AUTO',
-    criticalLimit: 0,
-    specialLimit: 0,
-    fumbleMin: 100,
-    automatic: true
-  };
 }
 
 function createPercentileTest({ kind, typeLabel, name, code, score, threshold, difficulty, skill = null, malus = 0 }) {
@@ -1586,7 +1560,7 @@ function createPercentileTest({ kind, typeLabel, name, code, score, threshold, d
     skill,
     difficultyLabel: difficulty?.shortLabel || 'Moyen',
     success: false,
-    automatic: !!difficulty?.mode || threshold <= 0
+    automatic: false
   };
 }
 
@@ -1782,15 +1756,6 @@ function rollBrpPercentileTest() {
     malus,
     skill: brpSelectedSkill ? { ...brpSelectedSkill, score } : null
   });
-
-  if (test.automatic) {
-    const resolved = automaticPercentileResult(test);
-    results = { groups: [], total: resolved.success ? 0 : 100, rawTotal: null, mod: 0, characterTest: resolved, blind: isBlindRoll() };
-    markSuccessfulTestExperience(resolved);
-    renderResult();
-    sendPercentileTest(resolved, resolved.success ? 0 : 100);
-    return;
-  }
 
   startPercentileRoll(test);
 }
