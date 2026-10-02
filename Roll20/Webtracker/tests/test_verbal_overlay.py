@@ -8,7 +8,7 @@ from verbal_overlay_state import publish, snapshot
 
 class VerbalOverlayTests(unittest.TestCase):
     def payload(self):
-        return {'visible': True, 'character': 'Ilya', 'approach': 'Persuasion',
+        return {'visible': True, 'character': 'Ilya', 'approach': 'Persuader',
                 'words': [{'word': f'Mot {i}', 'discarded': False, 'used': False} for i in range(7)]}
 
     def test_update_restore_and_hide(self):

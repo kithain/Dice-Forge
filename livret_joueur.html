@@ -834,19 +834,53 @@ hr { border: none; border-top: 1px dashed #aaa; margin: 15px 0; }
 <h1 class="chapter">6. Résumé des Règles Clés</h1>
 
 <section id="confrontation-verbale">
-<h2>Confrontation verbale : aide au RP (BRP maison)</h2>
-<p>Cette aide de jeu propose <strong>cinq mots à placer</strong> dans une argumentation. Elle ne donne aucun verdict automatique de réussite ou d’échec. Le joueur choisit une approche : Persuasion, Intimidation, Séduction, Négociation, Bluff / Duperie, Chantage / Pression, Provocation / Moquerie ou Rassurer / Apaisement. Chaque approche possède une liste de <strong>50 mots</strong>.</p>
-<p>Pour toutes les approches, le nombre de mots tirés dépend du score <strong>Intimidation/Persuasion</strong> de la fiche complète. Chaque tirage choisit une entrée de 1 à 50 ; les doublons sont relancés pour obtenir des mots distincts.</p>
+<h2>Confrontation verbale — aide de jeu</h2>
+<p>Convaincre un garde, négocier un prix, apaiser une dispute… La confrontation verbale sert à résoudre les échanges sociaux importants. Vous tirez des <strong>mots-clés</strong> qui vous donnent des idées pour prendre la parole et construire vos arguments. Votre objectif : en placer <strong>cinq</strong> naturellement dans l’échange.</p>
+
+<h3>1. Choisir une approche</h3>
+<p>Dans l’onglet <strong>Confrontation verbale</strong> du lanceur, choisissez l’approche qui correspond à votre intention :</p>
+<ul>
+  <li><strong>Persuader :</strong> convaincre par la morale.</li>
+  <li><strong>Intimider :</strong> convaincre par la peur ou la menace.</li>
+  <li><strong>Séduire :</strong> convaincre par le charme.</li>
+  <li><strong>Négocier :</strong> convaincre par l’intérêt.</li>
+  <li><strong>Bluffer :</strong> convaincre par la ruse.</li>
+  <li><strong>Contraindre :</strong> convaincre par le chantage.</li>
+  <li><strong>Railler :</strong> convaincre par la moquerie.</li>
+  <li><strong>Apaiser :</strong> convaincre par la bienveillance.</li>
+</ul>
+<p>Chaque approche contient <strong>50 mots</strong>, tirés au hasard, sans doublon.</p>
+
+<h3>2. Tirer les mots</h3>
+<p>C’est votre score <strong>Intimidation/Persuasion</strong> (fiche de personnage) qui détermine le nombre de mots tirés, <em>quelle que soit l’approche choisie</em>. Plus le score est élevé, plus vous avez de choix pour garder les cinq meilleurs.</p>
+
 <table>
-<tr><th>Score</th><th>Niveau</th><th>Mots tirés</th><th>Jokers</th><th>Mots à conserver</th></tr>
-<tr><td>Moins de 40 %</td><td>Novice</td><td>5</td><td>0</td><td>5</td></tr>
-<tr><td>40 à 69 %</td><td>Intermédiaire</td><td>6</td><td>1</td><td>5</td></tr>
-<tr><td>70 à 89 %</td><td>Expert</td><td>7</td><td>2</td><td>5</td></tr>
-<tr><td>90 % et plus</td><td>Maître</td><td>8</td><td>3</td><td>5</td></tr>
+  <tr>
+    <th>Score</th><th>Niveau</th><th>Mots tirés</th><th>Jokers</th><th>Mots conservés</th>
+  </tr>
+  <tr><td>Moins de 40 %</td><td>Novice</td><td>5</td><td>0</td><td>5</td></tr>
+  <tr><td>40 à 69 %</td><td>Intermédiaire</td><td>6</td><td>1</td><td>5</td></tr>
+  <tr><td>70 à 89 %</td><td>Expert</td><td>7</td><td>2</td><td>5</td></tr>
+  <tr><td>90 % et plus</td><td>Maître</td><td>8</td><td>3</td><td>5</td></tr>
 </table>
-<p>Un joker permet d’écarter un mot. Un mot écarté peut être remis à tout moment pour modifier son choix, dans la limite des jokers disponibles. Les marques « placé » et le compteur servent uniquement à suivre l’argumentation.</p>
-<p><strong>Le MJ décide de la validation, de la portée de l’action et d’un éventuel jet D100.</strong> Le RP mérite d’être récompensé, même maladroit. Après validation du MJ, le bouton en bas de l’onglet permet de cocher la case d’expérience Intimidation/Persuasion sur la fiche, sans exiger cinq mots cochés. La fiche doit être sauvegardée en ligne pour conserver cette coche dans Supabase.</p>
-<p><em>Construction des listes :</em> les définitions du document de préparation ont servi à choisir les mots ; elles ne sont pas nécessaires à l’utilisation de l’aide de jeu. Les termes rares repérés comme « pépites » dans ce document peuvent être valorisés par le MJ, sans bonus automatique. L’interface affiche uniquement les mots, sans leurs définitions ni les marqueurs de préparation.</p>
+
+<p><strong>Un joker = un mot écarté.</strong> Exemple : avec 75 % en Intimidation/Persuasion, vous tirez 7 mots, vous en écartez 2, il vous reste 5 mots à placer dans votre discours.</p>
+
+<h3>3. Prendre la parole</h3>
+<p>Placez les cinq mots conservés dans votre dialogue, <strong>dans l’ordre que vous voulez</strong> et <strong>où vous voulez</strong> dans l’échange. Aucun ordre n’est imposé, aucun mot n’a de position obligatoire : le seul but est de les intégrer naturellement à votre argumentation.</p>
+<p>Vous pouvez les marquer comme « placés » au fur et à mesure pour vous repérer. Le compteur sert uniquement de suivi : <strong>atteindre 5 mots ne déclenche aucun résultat automatique</strong>, c’est le MJ qui apprécie l’ensemble.</p>
+
+<h3>4. Le MJ tranche</h3>
+<p>Le MJ écoute votre proposition et décide de ses effets. Il tient compte de :</p>
+<ul>
+  <li>la qualité et la pertinence de vos arguments ;</li>
+  <li>la personnalité et les intérêts de l’interlocuteur ;</li>
+  <li>le contexte de la scène.</li>
+</ul>
+<p>Si vous n’avez pas placé tous les mots, <strong>ce n’est pas un échec automatique</strong> : un discours percutant, drôle ou bien amené reste un bon discours. <strong>L’effort de roleplay mérite toujours d’être pris en compte</strong>, même hésitant ou maladroit.</p>
+
+<h3>5. Cocher l’expérience</h3>
+<p>Si le MJ valide votre participation, cliquez sur <strong>« Le MJ valide : cocher Intimidation/Persuasion »</strong>. Cela coche l’expérience sur votre fiche, même si vous n’avez pas marqué les cinq mots comme placés. Pensez ensuite à <strong>sauvegarder votre fiche</strong>.</p>
 </section>
 
 <!-- 

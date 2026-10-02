@@ -99,7 +99,7 @@ class CockpitRouteTests(unittest.TestCase):
     def test_verbal_overlay_is_shared_and_isolated_by_room(self):
         redirect = self.client.get('/overlays/verbal?room=OBS_TEST')
         self.assertEqual(redirect.location, '/dice/obs-verbal.html?room=OBS_TEST')
-        payload = {'visible': True, 'character': 'Ilya', 'approach': 'Persuasion',
+        payload = {'visible': True, 'character': 'Ilya', 'approach': 'Persuader',
                    'words': [{'word': f'Mot {i}', 'discarded': False, 'used': False} for i in range(5)]}
         endpoint = '/api/verbal-overlay?room=OBS_TEST'
         self.assertEqual(self.client.post(endpoint, json=payload).status_code, 403)

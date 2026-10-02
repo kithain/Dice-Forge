@@ -19,7 +19,7 @@ vm.createContext(context);
 vm.runInContext(source + '\nthis.update = createVerbalObs();', context);
 const settle = () => new Promise(resolve => setImmediate(resolve));
 (async () => {
-  const payload = { character: 'Ilya', approach: 'Persuasion', words: [] };
+  const payload = { character: 'Ilya', approach: 'Persuader', words: [] };
   context.update(payload);
   assert.equal(sent.length, 0, 'Pas de publication avant Afficher');
   elements['verbal-obs-show'].listeners.click();

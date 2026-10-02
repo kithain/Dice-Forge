@@ -106,7 +106,9 @@ class PlayerViewStatusStyleTests(unittest.TestCase):
         self.assertNotIn('class="rank"', table)
         self.assertNotIn("strokeText(", obs)
         self.assertIn("fillText(String(token.marker", obs)
-        self.assertIn("ctx.drawImage(token.portraitImg", obs)
+        # Les tokens OBS sont des marqueurs colorés numérotés, sans portrait.
+        self.assertIn("ctx.fillStyle = color", obs)
+        self.assertNotIn("ctx.drawImage(token.portraitImg", obs)
         self.assertIn("participant.portrait || null", connector)
         self.assertIn("token.style.border = `5px solid ${color}`", battlemap)
 
