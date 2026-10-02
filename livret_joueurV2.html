@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr" class="auth-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Livret joueur V2 — Dice Forge</title>
+  <script src="supabase-config.js"></script>
+  <script type="module" src="js/auth-guard.js?v=20260810-auth"></script>
+  <style>
+    :root { color-scheme: light; --ink:#243444; --muted:#586570; --paper:#fffdf8; --ground:#f2eee5; --line:#ded8ca; --accent:#805a20; --soft:#f6f0e3; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:24px; }
+    .auth-pending body { visibility:hidden; }
+    body { margin:0; background:var(--ground); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:#265a73; text-underline-offset:3px; }
+    a:hover { color:var(--accent); }
+    a:focus-visible, summary:focus-visible, button:focus-visible { outline:3px solid #bb852d; outline-offset:4px; }
+    .skip { position:absolute; left:16px; top:-80px; padding:10px; background:white; z-index:10; }
+    .skip:focus { top:10px; }
+    .frame { max-width:1140px; margin:auto; padding:0 28px; }
+    .toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:20px; padding-bottom:20px; font-size:14px; }
+    .toolbar a { text-decoration:none; }
+    .tools { display:flex; align-items:center; gap:22px; }
+    button { padding:7px 13px; border:1px solid #c8bfad; border-radius:5px; color:var(--ink); background:transparent; font:inherit; cursor:pointer; }
+    button:hover { background:var(--paper); }
+    .hero { background:#243444; color:#fffdf8; padding:42px 48px; border-radius:10px; }
+    .eyebrow { margin:0 0 12px; color:#e7c88f; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:0 0 12px; font:normal clamp(36px,5vw,56px)/1.15 Georgia,serif; }
+    .hero p:last-child { max-width:650px; margin:0; color:#d9e0e4; font-size:17px; }
+    .layout { display:grid; grid-template-columns:210px minmax(0,1fr); gap:34px; align-items:start; padding-top:32px; padding-bottom:50px; }
+    .contents { position:sticky; top:24px; padding:8px 0; font-size:14px; }
+    .contents p { margin:0 0 14px; color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .contents a { display:block; padding:8px 0; text-decoration:none; color:var(--ink); }
+    .contents a:hover { color:var(--accent); }
+    .contents small { display:block; margin-top:22px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); line-height:1.5; }
+    main { min-width:0; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:30px 38px; }
+    .start { margin-bottom:32px; padding-bottom:26px; border-bottom:1px solid var(--line); }
+    .start p { margin:0 0 12px; }
+    .quick { display:flex; gap:10px; flex-wrap:wrap; }
+    .quick a { padding:6px 12px; background:var(--soft); border-radius:5px; text-decoration:none; font-size:14px; }
+    section + section { margin-top:36px; padding-top:30px; border-top:1px solid var(--line); }
+    h2 { display:flex; align-items:baseline; gap:14px; margin:0 0 16px; font:normal 29px/1.25 Georgia,serif; }
+    .number { flex-shrink:0; color:var(--accent); font:600 12px system-ui,sans-serif; letter-spacing:.08em; }
+    h3 { margin:23px 0 8px; font-size:17px; }
+    p { margin:0 0 13px; }
+    ul, ol { margin:10px 0 16px; padding-left:23px; }
+    li { padding-left:3px; margin-bottom:8px; }
+    .lead { color:var(--muted); }
+    .rule { margin:18px 0; padding:14px 18px; border-left:3px solid #b08541; background:var(--soft); }
+    .rule p:last-child { margin-bottom:0; }
+    .formula { font-weight:650; }
+    .table-wrap { max-width:100%; overflow-x:auto; margin:15px 0; }
+    table { width:100%; border-collapse:collapse; font-size:14px; text-align:left; }
+    caption { text-align:left; font-weight:650; margin-bottom:8px; }
+    th { color:var(--muted); background:#f0ede5; font-size:12px; }
+    th, td { padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top; }
+    details { margin:14px 0; padding:12px 16px; border:1px solid var(--line); border-radius:5px; }
+    summary { font-size:14px; font-weight:650; cursor:pointer; }
+    details[open] summary { margin-bottom:14px; }
+    details p, details li { font-size:14px; }
+    details > :last-child { margin-bottom:0; }
+    .reference { font-size:14px; margin:16px 0 0; }
+    .approaches { display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; list-style:none; padding:0; font-size:14px; }
+    .approaches li { margin:0; padding:0; }
+    .references { list-style:none; padding:0; }
+    .references li { padding:12px 0; border-bottom:1px solid var(--line); margin:0; }
+    .references span { display:block; color:var(--muted); font-size:14px; }
+    footer { padding-top:26px; margin-top:30px; color:var(--muted); font-size:12px; border-top:1px solid var(--line); }
+    @media(max-width:850px) {
+      .layout { grid-template-columns:1fr; gap:20px; }
+      .contents { position:static; padding:0; }
+      .contents p, .contents small { display:none; }
+      .contents div { display:flex; flex-wrap:wrap; gap:4px 18px; }
+      .contents a { padding:4px 0; }
+    }
+    @media(max-width:540px) {
+      .frame { padding:0 16px; }
+      .toolbar { font-size:12px; }
+      .tools { gap:12px; }
+      .hero { padding:28px 24px; }
+      .hero p:last-child { font-size:15px; }
+      .layout { padding-top:20px; }
+      main { padding:24px 20px; }
+      h2 { font-size:25px; gap:10px; }
+      .approaches { grid-template-columns:1fr; }
+      th, td { padding:8px; }
+    }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    @page { size:A4; margin:16mm; }
+    @media print {
+      body { font-size:10pt; line-height:1.45; background:white; color:#111; }
+      .toolbar, .contents, .skip, .start, details, .quick { display:none; }
+      .frame { max-width:none; padding:0; }
+      .hero { padding:0 0 16px; background:none; color:#111; border-bottom:2px solid #333; border-radius:0; }
+      .hero p:last-child, .eyebrow { color:#444; font-size:10pt; }
+      h1 { font-size:28pt; }
+      .layout { display:block; padding-top:18px; }
+      main { border:0; padding:0; }
+      h2 { font-size:19pt; break-after:avoid; }
+      h3 { font-size:12pt; break-after:avoid; }
+      section + section { margin-top:22px; padding-top:18px; }
+      p, li { orphans:3; widows:3; }
+      .rule, tr { break-inside:avoid; }
+      .table-wrap { overflow:visible; }
+      table, .approaches, .reference, .references span { font-size:9pt; }
+      a { color:inherit; }
+      footer { font-size:8pt; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#contenu">Aller au livret</a>
+  <div class="frame">
+    <nav class="toolbar" aria-label="Navigation générale">
+      <a href="index.html">← Dice Forge</a>
+      <div class="tools">
+        <a href="livret_joueur.html">Livret complet</a>
+        <button type="button" onclick="window.print()">Imprimer</button>
+      </div>
+    </nav>
+    <header class="hero">
+      <p class="eyebrow">BRP — ORC · Livret joueur · V2</p>
+      <h1>L’essentiel pour jouer</h1>
+      <p>Créer votre personnage, agir dans une scène et retrouver les règles utiles au bon moment.</p>
+    </header>
+    <div class="layout">
+      <nav class="contents" aria-label="Sommaire du livret">
+        <p>Dans ce livret</p>
+        <div>
+          <a href="#creation">01 · Créer son personnage</a>
+          <a href="#agir">02 · Agir et lancer les dés</a>
+          <a href="#combat">03 · Combattre et se soigner</a>
+          <a href="#confrontation-verbale">04 · Prendre la parole</a>
+          <a href="#magie-alchimie">05 · Magie et alchimie</a>
+          <a href="#experience">06 · Progresser</a>
+          <a href="#references">Références détaillées</a>
+        </div>
+        <small>Les encadrés donnent les repères à retenir. Dépliez les précisions lorsque vous en avez besoin.</small>
+      </nav>
+      <main id="contenu">
+        <div class="start">
+          <p><strong>Votre personnage est déjà prêt ?</strong> Passez directement aux règles de la scène.</p>
+          <div class="quick">
+            <a href="#agir">Faire un jet</a>
+            <a href="#combat">Mon tour de combat</a>
+            <a href="#confrontation-verbale">Un échange social</a>
+          </div>
+        </div>
+
+        <section id="creation" aria-labelledby="titre-creation">
+          <h2 id="titre-creation"><span class="number">01</span> Créer son personnage</h2>
+          <p class="lead">Commencez par une idée simple : qui êtes-vous, que savez-vous faire et pourquoi partez-vous à l’aventure ?</p>
+          <ol>
+            <li><strong>Choisissez une identité.</strong> Un nom, une espèce — humain, nain, elfe, demi-elfe ou demi-orc — et une motivation. Ajoutez un lien avec Valombre ou un autre personnage.</li>
+            <li><strong>Déterminez vos caractéristiques.</strong> Générez-les dans Dice Forge selon votre espèce, puis vérifiez vos PV, vos PP et votre modificateur de dégâts.</li>
+            <li><strong>Choisissez une profession.</strong> Elle indique les compétences dans lesquelles investir vos points professionnels. Vos points personnels permettent de compléter le personnage.</li>
+            <li><strong>Préparez ce que vous emportez.</strong> Vêtements, outils, armes, argent et objet personnel. Si vous pratiquez la magie, choisissez aussi vos sorts autorisés par votre profession.</li>
+            <li><strong>Vérifiez et sauvegardez la fiche.</strong> Relisez vos scores et votre équipement avec le MJ avant la première partie.</li>
+          </ol>
+          <div class="rule">
+            <p><strong>Création héroïque recommandée :</strong> 325 points professionnels, INT × 10 points personnels, limite de 90 % par compétence à la création. Les magiciens commencent avec 6 sorts.</p>
+          </div>
+          <details>
+            <summary>Les calculs utiles sur la fiche</summary>
+            <ul>
+              <li><strong>PV :</strong> (CON + TAI) ÷ 2, arrondi au supérieur.</li>
+              <li><strong>Blessure majeure :</strong> moitié des PV totaux, arrondie au supérieur.</li>
+              <li><strong>PP :</strong> POU ; maximum temporaire de 2 × POU.</li>
+              <li><strong>Bonus d’expérience :</strong> INT ÷ 2, arrondi au supérieur.</li>
+              <li><strong>Dégâts :</strong> le modificateur dépend de FOR + TAI.</li>
+            </ul>
+            <p>La génération détaillée, les modificateurs d’espèce, l’âge et les options de personnalité figurent dans le <a href="livret_joueur.html">livret complet</a>.</p>
+          </details>
+          <p class="reference"><a href="index.html#fiche-personnage">Ouvrir ma fiche</a> · <a href="inventaire.html">Choisir mon équipement</a></p>
+        </section>
+
+        <section id="agir" aria-labelledby="titre-agir">
+          <h2 id="titre-agir"><span class="number">02</span> Agir et lancer les dés</h2>
+          <p>Décrivez votre intention et la manière dont vous vous y prenez. Le MJ détermine si un jet est nécessaire, la compétence utilisée et la difficulté.</p>
+          <div class="rule"><p class="formula">Lancez 1D100 : un résultat inférieur ou égal au score effectif est une réussite, sous réserve des échecs automatiques.</p></div>
+          <p>Le score effectif est votre score après les modificateurs. Une action facile double le score ; une action difficile le divise par deux, arrondi au supérieur. Une action automatique ne demande aucun jet.</p>
+          <div class="table-wrap">
+            <table>
+              <caption>Lire le résultat du jet</caption>
+              <thead><tr><th scope="col">Résultat</th><th scope="col">Repère</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Critique</strong></td><td>Jusqu’à score ÷ 20, arrondi au supérieur.</td></tr>
+                <tr><td><strong>Spéciale</strong></td><td>Au-delà du critique, jusqu’à score ÷ 5, arrondi au supérieur.</td></tr>
+                <tr><td><strong>Ordinaire</strong></td><td>Au-delà de la spéciale, jusqu’au score effectif.</td></tr>
+                <tr><td><strong>Échec / maladresse</strong></td><td>Au-dessus du score. 96 à 100 échouent toujours ; 100 (00) est toujours une maladresse. Le seuil des autres maladresses dépend du score.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Exemple :</strong> avec 65 %, 01–04 est critique, 05–13 est spécial et 14–65 est ordinaire.</p>
+          <details>
+            <summary>Quand le MJ demande un jet de caractéristique ou de résistance</summary>
+            <p>Effort = FOR × 5 ; Endurance = CON × 5 ; Idée = INT × 5 ; Chance = POU × 5 ; Agilité = DEX × 5 ; Charme = CHA × 5.</p>
+            <p>Une résistance oppose deux valeurs : <strong>50 + 5 × (valeur active − valeur passive)</strong>. Un écart d’au moins 10 entraîne une réussite ou un échec automatique.</p>
+          </details>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#jets">Consulter les tables de jets</a> · <a href="livret_joueur.html#competences">Retrouver une compétence</a></p>
+        </section>
+
+        <section id="combat" aria-labelledby="titre-combat">
+          <h2 id="titre-combat"><span class="number">03</span> Combattre et se soigner</h2>
+          <h3>Le déroulement d’un round</h3>
+          <ol>
+            <li><strong>Annoncez votre intention.</strong> Les déclarations vont de la DEX la plus basse à la plus haute.</li>
+            <li><strong>Résolvez les pouvoirs</strong> selon leur règle et leur moment d’incantation.</li>
+            <li><strong>Agissez à votre tour.</strong> Les actions vont de la DEX la plus haute à la plus basse. Une attaque utilise votre compétence d’arme.</li>
+            <li><strong>Appliquez les résultats.</strong> Dégâts, protection de l’armure, perte de PV et effets éventuels.</li>
+          </ol>
+          <h3>Lorsque vous êtes attaqué</h3>
+          <p>La compétence <strong>Défense</strong> sert à esquiver, parer avec une arme ou bloquer avec un bouclier, si la situation le permet. La première défense est au score normal ; les suivantes subissent −30, −60, −90 points, etc., dans le même round.</p>
+          <div class="rule">
+            <p><strong>Attaque ordinaire contre défense ordinaire :</strong> retirez d’abord l’armure, puis divisez les dégâts restants par deux, arrondi au supérieur.</p>
+            <p>Une défense spéciale ou critique annule une attaque ordinaire. Face à une attaque spéciale ou critique, consultez la matrice.</p>
+          </div>
+          <details>
+            <summary>Défense, bouclier et dégâts particuliers</summary>
+            <p>Renoncer à votre attaque permet une défense supplémentaire sans augmenter la pénalité cumulative. Un bouclier ajoute son bonus à la Défense lorsque le blocage est possible ; il n’ajoute pas de points d’armure.</p>
+            <p>Une attaque critique inflige les dégâts maximum de l’arme, ajoute le modificateur de dégâts normal et ignore l’armure, sauf résultat particulier de la matrice. Une attaque spéciale applique l’effet propre au type d’arme.</p>
+            <p><a href="ecran_joueur_BRP_ORC.html#combat">Voir la matrice complète et les effets des armes</a></p>
+          </details>
+          <h3>Surveillez vos blessures</h3>
+          <ul>
+            <li><strong>Un seul coup atteint la moitié de vos PV totaux :</strong> blessure majeure, à résoudre avec le MJ.</li>
+            <li><strong>À 2 PV ou moins :</strong> perte de connaissance. À 0 PV, mort à la fin du round suivant sans intervention.</li>
+            <li><strong>Premiers Secours réussis :</strong> récupérez 1D3 PV, une fois par blessure. En combat ou lors d’un voyage rude, cela coûte une action et exige un jet.</li>
+            <li><strong>Guérison naturelle :</strong> 1D3 PV par semaine. Une nuit de repos ne rend pas automatiquement les PV perdus.</li>
+          </ul>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#combat">Aide de combat complète</a> · <a href="ecran_joueur_BRP_ORC.html#personnage">Soins et points de vie</a></p>
+        </section>
+
+        <section id="confrontation-verbale" aria-labelledby="titre-parole">
+          <h2 id="titre-parole"><span class="number">04</span> Prendre la parole</h2>
+          <p class="lead">Convaincre un garde, négocier un prix, apaiser une dispute… Les mots-clés vous aident à construire votre argumentation.</p>
+          <p>Dans l’onglet <strong>Confrontation verbale</strong> du lanceur, choisissez une approche. Chacune propose une liste de <strong>50 mots</strong> ; le tirage ne contient aucun doublon.</p>
+          <details>
+            <summary>Les huit approches</summary>
+            <ul class="approaches">
+              <li><strong>Persuader :</strong> convaincre par la morale.</li>
+              <li><strong>Intimider :</strong> par la peur ou la menace.</li>
+              <li><strong>Séduire :</strong> par le charme.</li>
+              <li><strong>Négocier :</strong> par l’intérêt.</li>
+              <li><strong>Bluffer :</strong> par la ruse.</li>
+              <li><strong>Contraindre :</strong> par le chantage.</li>
+              <li><strong>Railler :</strong> par la moquerie.</li>
+              <li><strong>Apaiser :</strong> par la bienveillance.</li>
+            </ul>
+          </details>
+          <div class="table-wrap">
+            <table>
+              <caption>Votre score Intimidation/Persuasion, quelle que soit l’approche</caption>
+              <thead><tr><th scope="col">Score</th><th scope="col">Mots tirés</th><th scope="col">Jokers</th></tr></thead>
+              <tbody>
+                <tr><td>Moins de 40 %</td><td>5</td><td>0</td></tr>
+                <tr><td>40 à 69 %</td><td>6</td><td>1</td></tr>
+                <tr><td>70 à 89 %</td><td>7</td><td>2</td></tr>
+                <tr><td>90 % et plus</td><td>8</td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Un joker permet d’écarter un mot pour en conserver cinq.</strong> Vous pouvez réintégrer un mot écarté et revoir votre sélection. Placez les cinq mots <strong>dans l’ordre et où vous voulez</strong> dans l’échange, naturellement. Marquez-les comme « placés » pour vous repérer.</p>
+          <div class="rule">
+            <p><strong>Le MJ apprécie l’ensemble.</strong> Le compteur n’impose ni réussite ni échec : les arguments, l’interlocuteur et la scène déterminent les effets. L’effort de roleplay mérite toujours d’être récompensé, même hésitant ou maladroit.</p>
+          </div>
+          <p>Si le MJ valide votre participation, utilisez <strong>« Le MJ valide : cocher Intimidation/Persuasion »</strong>, même si les cinq mots ne sont pas marqués comme placés. Sauvegardez ensuite votre fiche.</p>
+          <p class="reference"><a href="index.html">Ouvrir le lanceur</a>, puis choisir l’onglet Confrontation verbale.</p>
+        </section>
+
+        <section id="magie-alchimie" aria-labelledby="titre-specialites">
+          <h2 id="titre-specialites"><span class="number">05</span> Magie et alchimie</h2>
+          <p class="lead">Retenez les règles de votre spécialité ; consultez sa fiche pour les effets précis.</p>
+          <h3 id="magie">Lancer un sort</h3>
+          <p>Chaque sort connu possède son propre score. Choisissez le niveau du sort, vérifiez son coût en <strong>points de pouvoir (PP)</strong> et lancez le D100 sous son score.</p>
+          <ul>
+            <li><strong>Incantation :</strong> le sort part au rang DEX − niveau du sort. Le niveau maximal vaut la moitié de votre INT, arrondie au supérieur.</li>
+            <li><strong>Échec :</strong> aucun effet, 1 PP perdu. En cas de maladresse, tous les PP investis sont perdus ; appliquez aussi ses conséquences.</li>
+            <li><strong>Mémorisation :</strong> jusqu’à INT sorts mémorisés ; changer un sort prend 10 minutes. Le grimoire conserve tous vos sorts connus.</li>
+            <li><strong>À 0 PP :</strong> évanouissement. La récupération dépend du repos ; une activité pénible l’empêche.</li>
+          </ul>
+          <p class="reference"><a href="ecran_joueur_BRP_ORC.html#magie">Sorts et règles de magie</a> · <a href="ecran_joueur_BRP_ORC.html#personnage">Récupération des PP</a></p>
+          <h3 id="alchimie">Préparer un produit alchimique</h3>
+          <ol>
+            <li><strong>Choisissez une recette connue.</strong> Réunissez toutes ses catégories de réactifs : Solvant, Sel, Organique et/ou Catalyseur, selon la recette.</li>
+            <li><strong>Préparez le matériel.</strong> Une trousse ou un atelier, les ingrédients, les fournitures et le temps requis. La fabrication se fait hors combat.</li>
+            <li><strong>Lancez votre compétence Alchimie.</strong> Utilisez son pourcentage sur la fiche. Combinaison classique : score normal ; exotique : −20 points ; peu cohérente : −40 points. Le MJ tient aussi compte des conditions de travail.</li>
+          </ol>
+          <div class="rule">
+            <p><strong>Quatre doses transportées au total par personnage.</strong> Les réserves supplémentaires restent stockées et ne sont pas accessibles en combat.</p>
+            <p>Une réussite ordinaire ou spéciale donne la quantité et la durée normales. Un critique double les doses, sans prolonger la durée. Un échec détruit les ingrédients ; une maladresse provoque un accident.</p>
+          </div>
+          <details>
+            <summary>Coûts, degrés I / II et utilisation</summary>
+            <p><strong>Matériel :</strong> trousse 8 Po ; fournitures 1 Pa par dose, en plus des ingrédients ; atelier 1 Po par jour. Le temps de chaque recette est indiqué pour une dose. Un abandon de plus de 10 minutes fait perdre les ingrédients et fournitures utilisés.</p>
+            <p><strong>Apprendre une recette écrite :</strong> degré I, copie 2 Po et 2 heures d’étude, puis Alphabétisation ; degré II, copie 5 Po et une journée d’étude, puis Alphabétisation à −20 points.</p>
+            <p><strong>Utiliser le produit :</strong> une fiole lancée utilise Lancer ; un enduit utilise Manipulation fine ; un poison versé discrètement utilise Discrétion. Respectez le mode d’application de la recette.</p>
+            <p><strong>Fortifiants :</strong> Sang de berserker, Œil de Lyncée, Cuirasse de titan et Souffle de djinn provoquent toujours un contrecoup, même si le jet de CON réussit. Consultez leur recette avant de les prendre.</p>
+          </details>
+          <p class="reference"><a href="livret_joueur.html#alchimie-4-livre-de-recettes">Livre de recettes</a> · <a href="livret_joueur.html#alchimie">Règles complètes d’alchimie</a></p>
+        </section>
+
+        <section id="experience" aria-labelledby="titre-experience">
+          <h2 id="titre-experience"><span class="number">06</span> Progresser</h2>
+          <p>Pendant la partie, cochez une compétence après une réussite obtenue avec elle. Pour la confrontation verbale, la coche dépend de la validation du MJ.</p>
+          <ol>
+            <li><strong>En fin de séance ou d’aventure,</strong> lancez D100 + bonus d’expérience pour chaque compétence cochée. Un total strictement supérieur au score actuel rend la compétence admissible.</li>
+            <li><strong>Répartissez votre réserve</strong> entre les compétences admissibles, sans maximum par compétence. Bonus et réserve valent INT ÷ 2, arrondi au supérieur.</li>
+            <li><strong>Effacez les coches et sauvegardez.</strong> Les points non attribués sont perdus. Si aucun jet d’apprentissage ne réussit, aucun point n’est distribué.</li>
+          </ol>
+          <div class="rule"><p><strong>Exemple :</strong> avec INT 13, votre bonus et votre réserve valent 7. Si Épée et Défense sont admissibles, vous pouvez répartir ces 7 points en +5 et +2.</p></div>
+          <details>
+            <summary>La progression de la POU</summary>
+            <p>La POU progresse séparément : cochez-la après un jet de résistance de POU réussi contre une POU au moins égale. À la vérification d’expérience, le gain est de 1D3 − 1 points. Une seule coche par aventure.</p>
+          </details>
+        </section>
+
+        <section id="references" aria-labelledby="titre-references">
+          <h2 id="titre-references">Références détaillées</h2>
+          <p class="lead">Pour un choix de personnage, une table précise ou un effet particulier.</p>
+          <ul class="references">
+            <li><a href="livret_joueur.html">Création, espèces et professions</a><span>Modificateurs, origines à Valombre, options et listes de compétences professionnelles.</span></li>
+            <li><a href="livret_joueur.html#competences">Dictionnaire des compétences</a><span>Les usages de chaque compétence et ses bases.</span></li>
+            <li><a href="ecran_joueur_BRP_ORC.html">Écran du joueur</a><span>Jets, combat, soins, magie et tables de consultation.</span></li>
+            <li><a href="ecran_joueur_BRP_ORC.html#magie">Sorts</a> · <a href="livret_joueur.html#alchimie-4-livre-de-recettes">Recettes alchimiques</a><span>Les effets, les coûts et les conditions de chaque préparation ou sort.</span></li>
+            <li><a href="inventaire.html">Équipement</a><span>Armes, protections, outils et prix.</span></li>
+          </ul>
+        </section>
+        <footer>Livret joueur V2 · Guide abrégé des règles de la campagne. Les fiches de sorts, recettes et tables détaillées complètent ces repères.</footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Écran du Joueur — BRP ORC</title>
-<meta name="description" content="Écran de référence en ligne pour les joueurs BRP ORC : jets, combat, personnage et magie.">
+<meta name="description" content="Écran de référence pour les joueurs BRP ORC : jets, combat, expérience, magie, confrontation verbale et alchimie.">
 <style>
 @page { size: A4 landscape; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,6 +36,7 @@ body {
 }
 .panel:last-child { border-right: none; }
 .panel:nth-child(even) { background: #f0ede5; }
+.panel-pair { display: contents; }
 h1 {
     font-size: 13px;
     text-align: center;
@@ -184,6 +185,11 @@ table { font-size: 12px; }
 .resistance-table { display: block; overflow-x: auto; font-size: 10px; }
 .note { font-size: 11px; }
 .formula { font-size: 14px; }
+.rule-links { margin-top: 12px; }
+.rule-links a { color: #1a4a2e; }
+.approach-list { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; padding-left: 16px; }
+.panel[id], .panel [id] { scroll-margin-top: 110px; }
+.table-wrap { overflow-x: auto; }
 
 @media (max-width: 760px) {
     body { padding: 0 8px 16px; }
@@ -191,13 +197,17 @@ table { font-size: 12px; }
     .toolbar-links { justify-content: flex-start; }
     .screen { grid-template-columns: 1fr; gap: 8px; }
     .panel { padding: 13px; }
+    .panel[id], .panel [id] { scroll-margin-top: 72px; }
+    .approach-list { grid-template-columns: 1fr; }
 }
 
 @media print {
     body { padding: 0; font-size: 9px; background: #fff; }
     .skip-link, .web-toolbar { display: none !important; }
-    .screen { display: flex; gap: 0; width: 100%; max-width: 297mm; background: #fff; }
-    .panel { width: 25%; min-height: 210mm; padding: 8px 10px; border: 0; border-right: 2px solid #333; border-radius: 0; overflow: hidden; box-shadow: none; }
+    .screen { display: block; width: 100%; max-width: 297mm; background: #fff; }
+    .panel-pair { display: flex; align-items: stretch; break-after: page; }
+    .panel-pair:last-child { break-after: auto; }
+    .panel { width: 50%; min-height: 210mm; padding: 8px 10px; border: 0; border-right: 2px solid #333; border-radius: 0; overflow: visible; box-shadow: none; }
     .panel:last-child { border: 0; }
     h1 { font-size: 13px; padding: 4px 6px; }
     h2 { font-size: 10px; margin-top: 8px; }
@@ -208,31 +218,38 @@ table { font-size: 12px; }
     .resistance-table { display: table; overflow: visible; font-size: 7px; }
     .note { font-size: 8px; }
     .formula { font-size: 10px; }
+    .table-wrap { overflow: visible; }
+    .approach-list { grid-template-columns: 1fr 1fr; }
+    tr { break-inside: avoid; }
+    h1, h2, h3 { break-after: avoid; }
 }
 </style>
 <link rel="stylesheet" href="site-menu.css?v=20260719">
 </head>
 <body>
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
+<script src="js/site-menu.js?v=20261002-player-screen" defer></script>
 <a class="skip-link" href="#contenu">Aller directement aux règles</a>
 <header class="web-toolbar">
   <div class="toolbar-title">
     <strong>Écran du Joueur — BRP ORC</strong>
-    <span>Révision Dice‑Forge · juillet 2026</span>
+    <span>Révision Dice‑Forge · 2 octobre 2026</span>
   </div>
   <nav class="toolbar-links" aria-label="Navigation de l’écran joueur">
     <a href="index.html">Dice‑Forge</a>
     <a href="livret_joueur.html">Livret joueur</a>
-    <a href="livret_joueur.html#alchimie">Alchimie</a>
+    <a href="#alchimie">Alchimie</a>
     <a href="inventaire.html">Équipement</a>
     <a href="ecran_MJ_BRP_ORC.html?v=20260715-online">Écran MJ</a>
     <a href="#jets">Jets</a>
+    <a href="#combat">Combat</a>
     <a href="#magie">Magie</a>
+    <a href="#confrontation-verbale">Confrontation verbale</a>
     <button type="button" onclick="window.print()">Imprimer</button>
   </nav>
 </header>
 <main class="screen" id="contenu">
 
+<div class="panel-pair">
 <!-- ============ PANNEAU 1 : Résolution ============ -->
 <section class="panel" id="jets">
 <h1>Panneau 1 — Jets &amp; Déroulement</h1>
@@ -240,12 +257,31 @@ table { font-size: 12px; }
 <h2>Niveaux de réussite</h2>
 <table>
 <tr><th>Résultat</th><th>Condition</th><th>Effet</th></tr>
-<tr><td><b>Critique</b></td><td>≤ 1/20 du score</td><td>Meilleur résultat. Combat : dégâts max + mod. dégâts, ignore l'armure</td></tr>
-<tr><td><b>Spéciale</b></td><td>≤ 1/5 du score</td><td>Résultat supérieur. Combat : dégâts spéciaux selon l'arme</td></tr>
+<tr><td><b>Critique</b></td><td>≤ score ÷20, arrondi au supérieur</td><td>Meilleur résultat. Combat : dégâts max + mod. dégâts, ignore l'armure</td></tr>
+<tr><td><b>Spéciale</b></td><td>≤ score ÷5, arrondi au supérieur</td><td>Résultat supérieur. Combat : dégâts spéciaux selon l'arme</td></tr>
 <tr><td><b>Réussite</b></td><td>≤ score</td><td>Résultat normal</td></tr>
 <tr><td><b>Échec</b></td><td>&gt; score, &lt; maladresse</td><td>Échec simple. Échec auto sur 96+</td></tr>
-<tr><td><b>Maladresse</b></td><td>Voir table</td><td>Échec spectaculaire. 00 = toujours maladresse</td></tr>
+<tr><td><b>Maladresse</b></td><td>Voir table ci-dessous</td><td>Échec spectaculaire. 00 = 100, toujours maladresse</td></tr>
 </table>
+<p class="note">Appliquez les modificateurs avant de calculer les seuils ; retenez le meilleur degré obtenu. Sur un jet de compétence, 96–100 échouent toujours.</p>
+
+<h2>Seuils de maladresse</h2>
+<table class="compact">
+<tr><th>Score effectif</th><th>Maladresse sur le D100</th></tr>
+<tr><td>20 ou moins</td><td>96–100</td></tr>
+<tr><td>21–40</td><td>97–100</td></tr>
+<tr><td>41–60</td><td>98–100</td></tr>
+<tr><td>61–80</td><td>99–100</td></tr>
+<tr><td>81 et plus</td><td>100 (00)</td></tr>
+</table>
+<p class="note">À 71 % : critique 01–04, spéciale 05–15, ordinaire 16–71, maladresse 99–100.</p>
+
+<h2>Difficulté d’un jet</h2>
+<p><b>Facile :</b> score ×2. <b>Normal :</b> score inchangé. <b>Difficile :</b> score ÷2, arrondi au supérieur. <b>Automatique :</b> aucun jet. <b>Impossible :</b> échec automatique.</p>
+
+<h2>Résistance de caractéristiques</h2>
+<div class="formula">Chance = 50 + 5 × (valeur active − valeur passive)</div>
+<p>Un écart d’au moins 10 donne normalement une réussite ou un échec automatique. La limite d’échec sur 96–100 des compétences ne s’applique pas à la résistance.</p>
 
 <h2>Jets de caractéristique</h2>
 <table class="compact">
@@ -261,8 +297,8 @@ table { font-size: 12px; }
 <h2>Phases du round</h2>
 <ol>
 <li><b>Déclarations :</b> intentions en ordre de DEX croissant.</li>
-<li><b>Pouvoirs :</b> sorts et pouvoirs instantanés en ordre d'INT décroissant.</li>
-<li><b>Actions :</b> tours en ordre de DEX décroissant.</li>
+<li><b>Pouvoirs :</b> pouvoirs instantanés en ordre d'INT décroissant, si leur règle le prévoit.</li>
+<li><b>Actions :</b> tours en ordre de DEX décroissant. Les sorts à pourcentage se résolvent à DEX − niveau du sort.</li>
 <li><b>Résolution :</b> appliquer les résultats.</li>
 </ol>
 
@@ -272,8 +308,8 @@ table { font-size: 12px; }
 <li><b>À tout moment :</b> tenter une Défense, combattre défensivement ou parler.</li>
 <li><b>Attaque + déplacement :</b> jusqu'à 5 m.</li>
 <li><b>Attaques multiples :</b> −5 rangs de DEX par attaque successive.</li>
-<li><b>Défenses multiples :</b> score normal, puis −30 %, −60 %, −90 %, etc.</li>
-<li><b>Combat défensif :</b> renoncer à l'attaque donne une défense supplémentaire sans pénalité.</li>
+<li><b>Défenses multiples :</b> score normal, puis −30, −60, −90 points, etc., dans le même round.</li>
+<li><b>Combat défensif :</b> renoncer à l'attaque donne une défense supplémentaire sans augmenter la pénalité cumulative.</li>
 <li><b>DEX identiques :</b> les actions sont simultanées.</li>
 </ul>
 <p class="note"><b>Exemple — DEX 16 :</b> je déclare après DEX 12 et avant DEX 18. Pendant les actions, l'ordre s'inverse : j'agis après DEX 18 et avant DEX 12.</p>
@@ -333,7 +369,7 @@ table { font-size: 12px; }
 <tr><td>Échec</td><td>—</td><td>Aucune Défense nécessaire</td></tr>
 <tr><td>Maladresse</td><td>—</td><td>Le MJ consulte la table des maladresses</td></tr>
 </table>
-<p class="note">Coup amorti = arrondi supérieur de ((dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
+<p class="note">Coup amorti = arrondi supérieur de (max(0, dégâts de l'arme + mod. dégâts − PA) ÷ 2). Il ne déclenche aucun effet spécial.</p>
 
 <h2>Dégâts spéciaux (réussite spéciale)</h2>
 <table class="compact">
@@ -370,6 +406,8 @@ table { font-size: 12px; }
 
 </section>
 
+</div>
+<div class="panel-pair">
 <!-- ============ PANNEAU 3 : Personnage ============ -->
 <section class="panel" id="personnage">
 <h1>Panneau 3 — Personnage</h1>
@@ -410,6 +448,7 @@ table { font-size: 12px; }
 <li>Répartissez-la librement, sans plafond par compétence, entre les compétences admissibles.</li>
 <li>Perdez les points non attribués, puis effacez toutes les coches.</li>
 </ol>
+<p class="note">Pour la confrontation verbale, la validation du MJ permet de cocher Intimidation/Persuasion même sans cinq mots placés. Sauvegardez la fiche.</p>
 <p class="note">Aucune réussite d'apprentissage = aucun point distribué. La POU progresse séparément : coche après un jet de résistance réussi contre une POU au moins égale, puis gain de 1D3−1.</p>
 <p><b>Exemple :</b> INT 13 donne un bonus et une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, répartissez librement les 7 points entre ces deux compétences, par exemple Épée +5 et Défense +2.</p>
 
@@ -422,7 +461,7 @@ table { font-size: 12px; }
 <tr><td>13–16</td><td>4/h</td><td>1/30min</td></tr>
 <tr><td>17+</td><td>+1/h</td><td>temps ÷2</td></tr>
 </table>
-<p class="note">PP = 0 → évanouissement. Max temporaire = 2× POU.</p>
+<p class="note">PP = 0 → évanouissement. Max temporaire = 2× POU. Une activité pénible empêche la récupération des PP.</p>
 
 </section>
 
@@ -434,10 +473,10 @@ table { font-size: 12px; }
 <div class="formula">Jet de compétence D100 ≤ score du sort</div>
 <ul>
 <li><b>Coût :</b> PP par niveau (voir liste ci-dessous)</li>
-<li><b>Temps :</b> 1 sort/round. Rang de DEX −1/niveau</li>
+<li><b>Temps :</b> un seul sort par round, à la place d’une action d’attaque. Résolution au rang DEX − niveau du sort.</li>
 <li><b>Limite de niveaux :</b> ½ INT (arrondi sup.)</li>
 <li><b>Échec :</b> 1 PP perdu, aucun effet</li>
-<li><b>Maladresse :</b> Tous les PP perdus + jet de Chance (échec = cible involontaire touchée !)</li>
+<li><b>Maladresse :</b> tous les PP investis sont perdus ; le sort est indisponible au round suivant. Si le sort inflige des dégâts, faites un jet de Chance : un échec touche une cible involontaire.</li>
 <li><b>Spéciale :</b> Dégâts spéciaux ou 150 % d'effet</li>
 <li><b>Critique :</b> Dégâts max, ignore armure, ou double efficacité</li>
 </ul>
@@ -449,7 +488,7 @@ table { font-size: 12px; }
 <tr><td>Spéciale</td><td>Dégâts spéciaux. Ou 150 % d'effet / niveau ×1,5</td></tr>
 <tr><td>Réussite</td><td>Sort fonctionne normalement</td></tr>
 <tr><td>Échec</td><td>1 PP perdu, aucun effet</td></tr>
-<tr><td>Maladresse</td><td>Tous PP perdus. Chance : échec = cible involontaire !</td></tr>
+<tr><td>Maladresse</td><td>Coût complet perdu ; sort indisponible au round suivant. Sort offensif : Chance réussie = aucun effet ; Chance ratée = cible involontaire touchée.</td></tr>
 </table>
 
 <h2>Grimoire &amp; mémorisation</h2>
@@ -459,6 +498,7 @@ table { font-size: 12px; }
 <li>Changer un sort mémorisé : 10 min/sort</li>
 <li>Portée standard : 100 m (ligne de vue)</li>
 </ul>
+<p class="note">L’effet et le coût précis du sort, ainsi que les professions autorisées à l’apprendre, figurent dans le <a href="livret_joueur.html">livret complet</a>.</p>
 
 <h2>Liste des sorts</h2>
 <table class="compact">
@@ -471,7 +511,7 @@ table { font-size: 12px; }
 <tr><td><b>Soins</b></td><td>3</td><td>Soigne 1D6 PV</td></tr>
 <tr><td><b>Guérison Supérieure</b></td><td>3</td><td>Soigne 2D6 PV/niv. et guérit maladie ou poison</td></tr>
 <tr><td><b>Contrôle</b></td><td>3</td><td>Contrôle esprit. POU vs POU. 1 cible/niv</td></tr>
-<tr><td><b>Protection</b></td><td>1</td><td>+1 armure/niv</td></tr>
+<tr><td><b>Protection</b></td><td>1</td><td>+1 armure/niv, contre les attaques physiques</td></tr>
 <tr><td><b>Contre-magie</b></td><td>1</td><td>Renvoie les sorts vers le lanceur</td></tr>
 <tr><td><b>Dissipation</b></td><td>1</td><td>Annule les sorts, bannit êtres surnaturels</td></tr>
 <tr><td><b>Métamorphose</b></td><td>1</td><td>Transforme 3 TAI/niv. Durée 15 min</td></tr>
@@ -498,7 +538,7 @@ table { font-size: 12px; }
 <tr><td><b>Malédiction</b></td><td>1</td><td>−10 % à un jet de compétence/niv. pendant un combat</td></tr>
 <tr><td><b>Sanctifier</b></td><td>1</td><td>Zone bénie de 3 m/niv. Sorts hostiles −20 %</td></tr>
 <tr><td><b>Exorcisme</b></td><td>2</td><td>Bannit un esprit ou démon. POU vs POU</td></tr>
-<tr><td><b>Renaissance</b></td><td>5</td><td>Ressuscite un mort récent. Coûte 1 POU permanent</td></tr>
+<tr><td><b>Renaissance</b></td><td>5</td><td>Ressuscite un mort depuis au plus 1 heure/niv. Coûte 1 POU permanent</td></tr>
 <tr><td><b>Transe</b></td><td>1</td><td>Communique avec les esprits. 10 min/niv.</td></tr>
 <tr><td><b>Esprit Gardien</b></td><td>1</td><td>+1D4 PV temporaires/niv. pendant 1 heure</td></tr>
 </table>
@@ -520,6 +560,101 @@ table { font-size: 12px; }
 </ul>
 
 </section>
+
+</div>
+<div class="panel-pair">
+<!-- ============ PANNEAU 5 : Confrontation verbale ============ -->
+<section class="panel" id="confrontation-verbale">
+<h1>Panneau 5 — Confrontation verbale</h1>
+
+<h2>Une aide pour prendre la parole</h2>
+<p>Dans l’onglet <b>Confrontation verbale</b> du lanceur, choisissez votre approche. Chaque liste contient <b>50 mots</b> ; les mots sont tirés au hasard, <b>sans doublon</b>.</p>
+<ul class="approach-list">
+<li><b>Persuader :</b> la morale.</li>
+<li><b>Intimider :</b> la peur ou la menace.</li>
+<li><b>Séduire :</b> le charme.</li>
+<li><b>Négocier :</b> l’intérêt.</li>
+<li><b>Bluffer :</b> la ruse.</li>
+<li><b>Contraindre :</b> le chantage.</li>
+<li><b>Railler :</b> la moquerie.</li>
+<li><b>Apaiser :</b> la bienveillance.</li>
+</ul>
+
+<h2>Tirage et jokers</h2>
+<p>Utilisez le score <b>Intimidation/Persuasion</b> de votre fiche, quelle que soit l’approche.</p>
+<table>
+<tr><th>Score</th><th>Mots tirés</th><th>Jokers</th><th>Mots à conserver</th></tr>
+<tr><td>Moins de 40 %</td><td>5</td><td>0</td><td>5</td></tr>
+<tr><td>40–69 %</td><td>6</td><td>1</td><td>5</td></tr>
+<tr><td>70–89 %</td><td>7</td><td>2</td><td>5</td></tr>
+<tr><td>90 % et plus</td><td>8</td><td>3</td><td>5</td></tr>
+</table>
+<p><b>Un joker = un mot écarté.</b> Vous pouvez remettre un mot écarté et revoir votre sélection.</p>
+
+<h2>Votre dialogue</h2>
+<p>Placez les cinq mots naturellement, <b>dans l’ordre et où vous voulez</b> dans l’échange. Marquez-les comme « placés » pour suivre votre progression.</p>
+<div class="formula">Le compteur est un repère de jeu : aucun verdict automatique.</div>
+<p>Le MJ apprécie les arguments, l’interlocuteur et le contexte, puis décide de leurs effets. Ne pas placer les cinq mots n’impose aucun échec. <b>L’effort de roleplay mérite toujours d’être récompensé</b>, même maladroit.</p>
+
+<h2>Cocher l’expérience</h2>
+<p>Si le MJ valide votre participation, cliquez sur <b>« Le MJ valide : cocher Intimidation/Persuasion »</b>, même si les cinq mots ne sont pas marqués comme placés. <b>Sauvegardez ensuite la fiche.</b></p>
+<p class="rule-links"><a href="index.html">Ouvrir le lanceur</a> · <a href="livret_joueur.html#confrontation-verbale">Règles détaillées</a></p>
+</section>
+
+<!-- ============ PANNEAU 6 : Alchimie ============ -->
+<section class="panel" id="alchimie">
+<h1>Panneau 6 — Alchimie</h1>
+
+<h2>Préparer une recette connue</h2>
+<p>Lancez le <b>pourcentage de la compétence Alchimie</b> sur votre fiche. La mention « INT » indique la caractéristique associée ; elle ne remplace pas ce score par INT×5.</p>
+<ol>
+<li>Réunissez toutes les catégories de réactifs demandées par la recette.</li>
+<li>Disposez d’une trousse ou d’un atelier, des ingrédients, des fournitures et du temps indiqué pour une dose.</li>
+<li>Fabriquez <b>hors combat</b>, en appliquant le malus décidé selon vos ingrédients et vos conditions de travail.</li>
+</ol>
+
+<h2>Réactifs et difficulté</h2>
+<p><b>Solvant :</b> alcools et dissolvants. <b>Sel :</b> poudres et minéraux. <b>Organique :</b> substances végétales ou animales. <b>Catalyseur :</b> éléments rares provoquant ou stabilisant la réaction.</p>
+<p>Un ingrédient peut être remplacé par un autre <b>de la même catégorie</b>. Une catégorie manquante ou incorrecte rend la recette invalide : aucun jet possible.</p>
+<table class="compact">
+<tr><th>Combinaison</th><th>Jet d’Alchimie</th></tr>
+<tr><td>Classique</td><td>Normal</td></tr>
+<tr><td>Exotique mais compatible</td><td>−20 points</td></tr>
+<tr><td>Peu cohérente</td><td>−40 points</td></tr>
+</table>
+<p class="note">Le MJ peut aggraver la difficulté selon les conditions de travail. Un atelier n’accorde aucun bonus automatique.</p>
+
+<h2>Résultat de fabrication</h2>
+<table class="compact">
+<tr><th>Résultat</th><th>Conséquence</th></tr>
+<tr><td>Critique</td><td>Doses ×2 ; durée normale</td></tr>
+<tr><td>Spéciale ou ordinaire</td><td>Quantité et durée normales</td></tr>
+<tr><td>Échec</td><td>Ingrédients perdus ; aucun produit utilisable</td></tr>
+<tr><td>Maladresse</td><td>Accident immédiat : détonation, acide, empoisonnement…</td></tr>
+</table>
+<p>Un abandon de plus de <b>10 minutes</b> fait échouer la fabrication et perdre les ingrédients et fournitures utilisés.</p>
+
+<h2>Transport et application</h2>
+<div class="formula">4 doses transportées au total par personnage, sac compris.</div>
+<p>Une dose occupe un emplacement, quel que soit son contenant. Les réserves restent stockées et inaccessibles en combat. Cette limite vaut pour les PJ et les PNJ, même après un critique de fabrication.</p>
+<p><b>Fiole lancée :</b> Lancer. <b>Enduit :</b> Manipulation fine. <b>Poison versé discrètement :</b> Discrétion. Respectez le mode d’utilisation de la recette.</p>
+
+<h2>Matériel et apprentissage</h2>
+<p><b>Trousse :</b> 8 Po. <b>Fournitures :</b> 1 Pa par dose, en plus des ingrédients. <b>Atelier :</b> 1 Po/jour.</p>
+<table class="compact">
+<tr><th>Recette écrite</th><th>Copie</th><th>Étude</th><th>Jet d’Alphabétisation</th></tr>
+<tr><td>Degré I</td><td>2 Po</td><td>2 heures</td><td>Normal</td></tr>
+<tr><td>Degré II</td><td>5 Po</td><td>1 journée</td><td>−20 points</td></tr>
+</table>
+<p class="note">L’apprentissage ne remplace pas le jet d’Alchimie nécessaire à la fabrication.</p>
+
+<h2>Fortifiants et contrecoups</h2>
+<p><b>Sang de berserker, Œil de Lyncée, Cuirasse de titan et Souffle de djinn</b> provoquent toujours un contrecoup. Un jet de CON×5 réussi l’atténue sans l’annuler ; les dégâts de contrecoup ignorent l’armure.</p>
+<p>Un même fortifiant ne cumule pas ses bonus et une nouvelle dose ne prolonge pas son effet. Pendant son contrecoup, une nouvelle dose n’apporte aucun bonus ni report des pénalités. Les pénalités de produits différents s’additionnent.</p>
+<p><b>Repos long :</b> 8 heures, dont au moins 6 de sommeil, sans effort soutenu. Il ne rend pas automatiquement les PV perdus.</p>
+<p class="rule-links"><a href="livret_joueur.html#alchimie-4-livre-de-recettes">Livre de recettes</a> · <a href="livret_joueur.html#alchimie">Règles complètes</a></p>
+</section>
+</div>
 
 </main>
 </body>

@@ -17,7 +17,8 @@
   const currentPage = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   const currentHash = location.hash.toLowerCase();
   const localLinks = currentPage === 'ecran_joueur_brp_orc.html'
-    ? [['#jets', 'Jets'], ['#magie', 'Magie']]
+    ? [['#jets', 'Jets'], ['#combat', 'Combat'], ['#personnage', 'Personnage'],
+      ['#magie', 'Magie'], ['#confrontation-verbale', 'Confrontation verbale'], ['#alchimie', 'Alchimie']]
     : currentPage === 'ecran_mj_brp_orc.html'
       ? [['#resolution', 'Résolution'], ['#combat', 'Combat']]
       : [];
