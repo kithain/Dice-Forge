@@ -79,6 +79,19 @@ La fiche complète permet notamment de gérer les compétences, les sorts, l'éq
 
 Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/Dice-Forge/help.html).
 
+### Supprimer un personnage depuis le suivi MJ
+
+Le créateur du salon ouvre **Suivi MJ**, puis **Disponibilité et attribution des PJ**.
+Le bouton **Supprimer** demande confirmation et retire le personnage des listes
+et des fiches accessibles en ligne. **Corbeille MJ → Restaurer** récupère sa fiche,
+son inventaire et son état précédent ; un personnage mort reste mort. Le joueur
+doit le sélectionner à nouveau. Les notes du carnet sont conservées pour la restauration.
+Pour un personnage partagé entre plusieurs campagnes, la suppression et la
+restauration demandent d'être le MJ de toutes ces campagnes.
+
+**Retirer du carnet local**, dans une fiche du carnet, enlève seulement la note
+de ce navigateur et ne supprime pas le personnage en ligne.
+
 ## Pages et références
 
 Les [aides de jeu](aides-jeu.html) regroupent les livrets, écrans joueur/MJ,

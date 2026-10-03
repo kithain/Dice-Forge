@@ -29,12 +29,22 @@ async function tableRows(key) {
 async function functions() {
  return (await client.query("select n.nspname,p.proname,pg_get_function_identity_arguments(p.oid) as args,pg_get_functiondef(p.oid) as definition,p.proacl::text as acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','diceforge_v2') order by 1,2,3")).rows;
 }
+async function structure() {
+ return (await client.query(`select jsonb_build_object(
+ 'triggers',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'table',c.relname,'name',t.tgname,'definition',pg_get_triggerdef(t.oid),'enabled',t.tgenabled) order by n.nspname,c.relname,t.tgname) from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where not t.tgisinternal and n.nspname in ('public','diceforge_v2')),
+ 'policies',(select jsonb_agg(to_jsonb(p) order by schemaname,tablename,policyname) from pg_policies p where schemaname in ('public','diceforge_v2')),
+ 'tables',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'name',c.relname,'rls',c.relrowsecurity,'force',c.relforcerowsecurity,'acl',c.relacl::text) order by n.nspname,c.relname) from pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind in ('r','v') and n.nspname in ('public','diceforge_v2')),
+ 'views',(select jsonb_agg(to_jsonb(v) order by schemaname,viewname) from pg_views v where schemaname in ('public','diceforge_v2')),
+ 'constraints',(select jsonb_agg(jsonb_build_object('schema',n.nspname,'table',c.relname,'name',k.conname,'definition',pg_get_constraintdef(k.oid)) order by n.nspname,c.relname,k.conname) from pg_constraint k join pg_class c on c.oid=k.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','diceforge_v2'))
+ ) result`)).rows[0].result;
+}
 try {
  await engine.initialise(); await engine.start(); await engine.createDatabase('release_copy');
  client=engine.getPgClient('release_copy','127.0.0.1'); await client.connect();
  await client.query("set timezone='UTC';");
  await client.query(await sql('bootstrap-copy.sql'));
  const initialFunctions=await functions();
+ const initialStructure=await structure();
  const before={};
  for(const key of Object.keys(snapshot.data)) before[key]=await tableRows(key);
  await client.query(await sql('deploy-incremental.sql'));
@@ -75,6 +85,35 @@ try {
  check(true,'Authenticated reads and writes verified for the three real characters');
  for(const key of Object.keys(dataAfterMigration)) assert.equal(normalized(await tableRows(key)),normalized(dataAfterMigration[key]),'Smoke test did not roll back '+key);
  check(true,'Authenticated verification leaves campaign data unchanged');
+ const releaseManifest=JSON.parse(await fs.readFile(path.join(out,'sql/manifest.json'),'utf8'));
+ if(releaseManifest.migrations.includes('character-deletion.sql')) {
+  const campaign=snapshot.data['diceforge_v2.campaigns'].find(c=>snapshot.data['diceforge_v2.campaign_rooms'].some(r=>r.campaign_id===c.id&&r.room_code==='4SSU'));
+  assert(campaign,'Missing target campaign');
+  const deletionSql=`begin;
+select set_config('request.jwt.claim.sub','${campaign.owner_user_id}',true); set local role authenticated;
+do $$ declare generated jsonb; roster jsonb; state_id uuid; character_id uuid; begin
+ roster:=public.df_character_roster('4SSU','list');
+ if not coalesce((roster->>'is_mj')::boolean,false) then raise exception 'Contrôle MJ échoué'; end if;
+ perform public.df_character_roster('4SSU','new');
+ generated:=public.df_generate_character('4SSU','create',null,'{"nom":"Vérification temporaire suppression","espece":"Humain","profession":"Guerrier","richesse":"Moyen"}','{}',gen_random_uuid());
+ character_id:=(generated->>'character_id')::uuid;
+ state_id:=(generated->>'state_id')::uuid;
+ if state_id is null or character_id is null then raise exception 'Génération temporaire échouée'; end if;
+ roster:=public.df_character_roster('4SSU','delete',character_id);
+ if not exists(select 1 from jsonb_array_elements(roster->'deleted_characters') e where e->>'character_id'=character_id::text) then raise exception 'Corbeille MJ absente'; end if;
+ if exists(select 1 from jsonb_array_elements(roster->'characters') e where e->>'character_id'=character_id::text) then raise exception 'Personnage encore proposé'; end if;
+ if jsonb_array_length(public.df_character_query('pj_sheets','read',jsonb_build_object('id',state_id),null,'4SSU')->'rows')<>0 then raise exception 'Fiche supprimée encore lisible'; end if;
+ roster:=public.df_character_roster('4SSU','restore',character_id);
+ if not exists(select 1 from jsonb_array_elements(roster->'characters') e where e->>'character_id'=character_id::text and e->>'status'='active') then raise exception 'Restauration échouée'; end if;
+ if jsonb_array_length(public.df_character_query('pj_sheets','read',jsonb_build_object('id',state_id),null,'4SSU')->'rows')<>1 then raise exception 'Fiche restaurée illisible'; end if;
+end $$;
+reset role; rollback;
+select 'GM deletion and restore verified; temporary character and changes rolled back' as status;`;
+  await fs.writeFile(path.join(out,'sql/verify-deletion.sql'),deletionSql);
+  await client.query(deletionSql);
+  for(const key of Object.keys(dataAfterMigration)) assert.equal(normalized(await tableRows(key)),normalized(dataAfterMigration[key]),'Deletion check did not roll back '+key);
+  check(Number((await client.query('select count(*) n from diceforge_v2.character_deletions')).rows[0].n)===0,'Production deletion smoke test rolls back its synthetic character and trash');
+ }
  await assert.rejects(client.query(await sql('restore-before-release.sql')),e=>e.message.includes('non armée'));
  await client.query('rollback;');
  check(true,'Restoration refused without explicit arming');
@@ -82,6 +121,8 @@ try {
  await client.query(await sql('restore-before-release.sql'));
  for(const key of Object.keys(before)) check(normalized(await tableRows(key))===normalized(before[key]),'Restoration exact for '+key);
  check(JSON.stringify(await functions())===JSON.stringify(initialFunctions),'Functions and function permissions restored exactly');
+ assert.deepEqual(await structure(),initialStructure);
+ check(true,'Public/v2 triggers, policies, views, constraints and table permissions restored exactly');
  await fs.writeFile(path.join(out,'rehearsal-report.json'),JSON.stringify({passed:true,checks,project_ref:snapshot.project_ref,captured_at:snapshot.captured_at,production_modified:false},null,2));
  console.log(JSON.stringify({passed:true,checks,production_modified:false}));
 } finally {

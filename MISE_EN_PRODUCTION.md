@@ -70,3 +70,29 @@ annuler le commit du tag `diceforge-release-20261003` par `git revert`, puis
 publier sur `main` sans réécrire l'historique. Base et frontend doivent revenir
 ensemble à la version précédente. Le rollback du 2 octobre ne correspond pas
 à l'annulation de cette livraison incrémentale.
+
+## Ajout : suppression depuis le suivi MJ
+
+Le 3 octobre 2026, `character-deletion.sql` est ajouté après les douze lots
+précédents. Le suivi MJ propose **Supprimer**, avec confirmation, et une
+**Corbeille MJ** pour restaurer une erreur. Les joueurs n'accèdent pas à la
+corbeille ; un personnage partagé exige les droits MJ sur toutes ses campagnes.
+La restauration conserve son statut précédent, sa fiche, ses objets et ses XP.
+Les notes locales du carnet sont masquées puis retrouvées à la restauration.
+
+Sauvegarde préalable : **22 h 18 min 07 s (Paris)**, 36 tables applicatives,
+dans `D:/script/Dice-Forge-backups/2026-10-03/character-deletion-release/`.
+Copie privée serveur : `diceforge_deletion_20261003`. Les sauvegardes précédentes
+restent conservées. L'installation ne supprime ni ne modifie aucun PJ existant.
+
+Vérification : 368 contrôles SQL métier ; parcours navigateur du carnet et de la
+corbeille ; répétition exacte sur copie fraîche, avec **107 contrôles réussis**
+et restauration des données, fonctions, droits, triggers, politiques, vues et
+contraintes. Les essais de production, y compris un personnage temporaire
+supprimé puis restauré, sont terminés par `ROLLBACK`.
+
+Pour annuler cet ajout, utiliser `sql/restore-before-release.sql` de ce nouveau
+dossier privé, avec le même armement explicite décrit plus haut. Cette restauration
+revient à la livraison `diceforge-release-20261003` et abandonne les changements
+postérieurs à la sauvegarde. Le frontend correspondant est identifié par le tag
+`diceforge-character-deletion-20261003` ; annuler ce commit sans réécrire l'historique.

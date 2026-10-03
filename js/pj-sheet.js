@@ -2,7 +2,7 @@ import { characteristicErrors, normalizeCharacteristics, archiveInactiveSkills, 
 import { mountProgression } from './pj-progression.js?v=20261003-xp-frame';
 import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { characterDraftKey } from './character-store.js?v=20261003-roster';
-import { mountCharacterRoster } from './character-roster.js?v=20261003-recipe-ui';
+import { mountCharacterRoster } from './character-roster.js?v=20261003-deletion';
 import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-r1';
 import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown, spellScore } from './pj-magic.js?v=20261003-learning';
 import './tooltips.js?v=20261003-age-help';

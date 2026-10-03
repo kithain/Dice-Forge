@@ -33,14 +33,18 @@ export function sheetSummary(row) {
 }
 
 // Keep local overrides and GM-only notes; update fields still equal to the last source value.
-export function mergeRoomSheets(characters, rows, room) {
+export function mergeRoomSheets(characters, rows, room, { deletedCharacters = [] } = {}) {
   const result = characters.map(pj => ({ ...pj }));
+  for (const pj of result) {
+    if (pj.sourceRoom === room && deletedCharacters.some(c => String(c.state_id || '') === pj.sourceId || c.character_id === pj.sourceCharacter)) pj.sourceDeleted = 'yes';
+  }
   for (const row of rows) {
     if (row.room_code !== room || row.id == null) continue;
+    if (deletedCharacters.some(c => String(c.state_id || '') === String(row.id) || c.character_id === row.character_id)) continue;
     const sourceId = String(row.id);
     let pj = result.find(item => item.sourceRoom === room && item.sourceId === sourceId);
     if (!pj) {
-      if (result.length >= 100) throw new Error('Limite de 100 PJ atteinte. Retirez des fiches avant de réessayer.');
+      if (result.filter(item => item.sourceDeleted !== 'yes').length >= 100 || result.length >= 1000) throw new Error('Limite de 100 PJ atteinte. Retirez des fiches avant de réessayer.');
       pj = { sourceId, sourceRoom: room }; result.push(pj);
     }
     let previous = {};
@@ -52,6 +56,8 @@ export function mergeRoomSheets(characters, rows, room) {
     }
     pj.sourceSnapshot = JSON.stringify(next);
     pj.sourcePlayer = text(row.player_name);
+    pj.sourceCharacter = text(row.character_id);
+    pj.sourceDeleted = '';
   }
   return result;
 }

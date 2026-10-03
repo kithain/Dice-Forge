@@ -337,6 +337,10 @@ try {
   const {runUnplayedPresetChecks}=await import('./unplayed_presets_sql_checks.mjs');
   await runUnplayedPresetChecks({client,root,uid,outsider,read,write,check,reject});
  }
+ if(process.env.DF_TEST_DELETION==='1') {
+  const {runDeletionChecks}=await import('./character_deletion_sql_checks.mjs');
+  await runDeletionChecks({client,engine,root,uid,outsider,rpc,read,check,reject});
+ }
  console.log(`PASS creation/progression boundary: ${checks} checks, ${originals.length} real fixtures preserved; local PostgreSQL only.`);
 } catch(error) {
  console.error(error);

@@ -23,7 +23,7 @@
     ['Repères sociaux et suivi MJ', [['speakers','Meilleurs PJ en persuasion / intimidation / tromperie'],['relationships','Réputation / factions / contacts du groupe'],['reminders','Rappels de séance / passifs / objets à surveiller']]]
   ];
   const $ = id => document.getElementById(id);
-  const pjKeys = [...basics, ...sections.flatMap(([,fields]) => fields)].map(([key]) => key).concat(['sourceId','sourceRoom','sourceSnapshot','sourcePlayer']);
+  const pjKeys = [...basics, ...sections.flatMap(([,fields]) => fields)].map(([key]) => key).concat(['sourceId','sourceRoom','sourceSnapshot','sourcePlayer','sourceCharacter','sourceDeleted']);
   const groupKeys = groupSections.flatMap(([,fields]) => fields).map(([key]) => key);
   let state = { version: 1, campaign: '', characters: [], group: {} };
   function cleanFields(value, keys) {
@@ -36,7 +36,8 @@
     return result;
   }
   function validate(value) {
-    if (!value || value.version !== 1 || typeof value.campaign !== 'string' || value.campaign.length > 200 || !Array.isArray(value.characters) || value.characters.length > 100) throw new Error('Format invalide');
+    // Restoring saved notes may exceed the normal 100-PJ addition limit.
+    if (!value || value.version !== 1 || typeof value.campaign !== 'string' || value.campaign.length > 200 || !Array.isArray(value.characters) || value.characters.length > 1000) throw new Error('Format invalide');
     return { version: 1, campaign: value.campaign, characters: value.characters.map(pj => cleanFields(pj, pjKeys)), group: cleanFields(value.group, groupKeys) };
   }
   function save() {
@@ -54,10 +55,12 @@
     return label;
   }
   function overview() {
-    $('count').textContent = `${state.characters.length} PJ`;
-    $('empty').hidden = state.characters.length > 0;
+    const visible = state.characters.filter(pj => pj.sourceDeleted !== 'yes');
+    $('count').textContent = `${visible.length} PJ`;
+    $('empty').hidden = visible.length > 0;
     $('roster').replaceChildren();
     state.characters.forEach((pj, i) => {
+      if (pj.sourceDeleted === 'yes') return;
       const tr = document.createElement('tr');
       const identity = document.createElement('td');
       const link = document.createElement('a');
@@ -75,6 +78,7 @@
     $('campaign').value = state.campaign;
     $('cards').replaceChildren();
     state.characters.forEach((pj, index) => {
+      if (pj.sourceDeleted === 'yes') return;
       const card = document.createElement('details'); card.id = `pj-${index}`; card.open = index === openIndex;
       const summary = document.createElement('summary');
       const update = () => { summary.textContent = `${pj.name || `PJ ${index + 1}`} · ${pj.role || 'Rôle à préciser'}`; overview(); };
@@ -90,7 +94,7 @@
         fields.forEach(([key, label]) => grid.append(field(pj, key, label, sectionIndex > 0, update)));
         section.append(heading, grid); card.append(section);
       });
-      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'remove'; remove.textContent = 'Retirer ce PJ';
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'remove'; remove.textContent = 'Retirer du carnet local';
       remove.addEventListener('click', () => {
         if (!window.confirm(`Retirer ${pj.name || 'ce PJ'} et ses notes du carnet ?`)) return;
         state.characters.splice(index, 1); save(); render(); $('add-pj').focus();
@@ -108,7 +112,7 @@
   }
   $('campaign').addEventListener('input', event => { state.campaign = event.target.value; save(); });
   $('add-pj').addEventListener('click', () => {
-    if (state.characters.length >= 100) { $('save-state').textContent = 'Limite de 100 PJ atteinte.'; return; }
+    if (state.characters.filter(pj => pj.sourceDeleted !== 'yes').length >= 100 || state.characters.length >= 1000) { $('save-state').textContent = 'Limite du carnet atteinte. Exportez et retirez des fiches avant de réessayer.'; return; }
     state.characters.push({}); save(); render(state.characters.length - 1);
     $('cards').lastElementChild.querySelector('input').focus();
   });
@@ -137,12 +141,12 @@
   $('room-code').value = room;
   $('refresh-room').disabled = !room;
   $('room-login').href = `login.html?return=${encodeURIComponent(window.location.pathname + window.location.search)}`;
-  async function refreshRoom() {
+  async function refreshRoom(options = {}) {
     if (!room) return;
     $('refresh-room').disabled = true;
     $('room-status').textContent = `Chargement des fiches de ${room}…`;
     try {
-      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261003-roster'), import('./mj-room-data.js?v=20261003-roster')]);
+      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261003-roster'), import('./mj-room-data.js?v=20261003-deletion')]);
       const client = getSupabaseClient();
       const { data: auth, error: authError } = await client.auth.getUser();
       if (authError || !auth?.user) {
@@ -153,11 +157,14 @@
       const { data: owner, error: ownerError } = await client.from('rooms').select('owner_id').eq('room_code', room).maybeSingle();
       if (ownerError) throw ownerError;
       if (!owner || owner.owner_id !== auth.user.id) throw new Error('Cette room est introuvable ou vous n’en êtes pas le créateur.');
-      const { mountCharacterRoster } = await import('./character-roster.js?v=20261003-roster-availability');
-      await mountCharacterRoster($('mj-character-roster'), { room: { code: room, userId: auth.user.id }, manager: true });
-      const { data: rows, error } = await client.from('pj_sheets').select('id, room_code, player_name, character_name, sheet_data').eq('room_code', room).order('player_name');
+      const { mountCharacterRoster } = await import('./character-roster.js?v=20261003-deletion');
+      const rosterData = options.rosterData || await mountCharacterRoster($('mj-character-roster'), {
+        room: { code: room, userId: auth.user.id }, manager: true,
+        onChange: ({ data }) => refreshRoom({ rosterData: data })
+      });
+      const { data: rows, error } = await client.from('pj_sheets').select('id, character_id, room_code, player_name, character_name, sheet_data').eq('room_code', room).order('player_name');
       if (error) throw error;
-      state.characters = mergeRoomSheets(state.characters, rows || [], room);
+      state.characters = mergeRoomSheets(state.characters, rows || [], room, { deletedCharacters: rosterData?.deleted_characters || [] });
       save(); render();
       $('room-status').textContent = rows?.length
         ? `${rows.length} fiche(s) chargée(s) depuis la room ${room}. Notes MJ et corrections locales conservées.`

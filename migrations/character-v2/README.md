@@ -451,3 +451,29 @@ comme prétiré. Un jet de jeu, une tentative de progression, des points acquis
 ou dépensés et une session clôturée maintiennent l'interdiction. Proposer puis
 attribuer la fiche conserve ses scores et son pool ; aucun nouveau pool n'est
 accordé. La migration ne propose ni ne transfère automatiquement aucun PJ.
+
+### Suppression et corbeille MJ
+
+Appliquer `character-deletion.sql` **après `unplayed-presets.sql`**, puis publier
+le frontend correspondant. Sur une production déjà à jour, ce fichier est le seul
+nouvel incrément ; ne pas réinstaller `schema.sql`, `api.sql` ni les anciens lots.
+Il préserve toutes les fiches, inventaires, notes et registres XP existants.
+
+`df_character_roster` accepte désormais `delete` et `restore`, réservés au MJ
+de toutes les campagnes du personnage. Le statut `deleted` masque le PJ des
+listes ordinaires, retire ses sélections et bloque les lectures et écritures des
+fiches, inventaires, jets et génération. `deleted_characters` expose la corbeille
+au MJ ; les joueurs reçoivent une liste vide. La restauration reprend le statut
+et les disponibilités antérieurs sans modifier les XP ni sélectionner le PJ.
+Un décès antérieur reste acquis. Les opérations répétées sont idempotentes.
+
+Les anciennes RPC de roster et génération sont conservées derrière des fonctions
+privées sans droit d'exécution client. Ne pas rejouer un ancien fichier qui
+remplace ces RPC après ce lot : les protections de suppression seraient perdues.
+Le fichier de suppression peut être rejoué lui-même sans vider la corbeille.
+
+Tests : `node scripts/test_character_deletion_sql.mjs <runtime-postgres>`
+(368 contrôles avec les lots antérieurs) et `test_character_roster_browser.cjs`
+(confirmation, annulation, restauration et notes du carnet). La répétition sur
+copie fraîche de production vérifie aussi les triggers, politiques et permissions
+du retour à la version précédente.

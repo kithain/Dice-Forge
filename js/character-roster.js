@@ -6,11 +6,12 @@ function rosterNotExposed(error) {
 }
 
 // The server owns selection and attribution. Local storage only names the draft.
-export async function mountCharacterRoster(container, { room, beforeSelect, onSelect, manager = false } = {}) {
+export async function mountCharacterRoster(container, { room, beforeSelect, onSelect, onChange, manager = false } = {}) {
   if (!container || !window.SUPABASE_CONFIG?.characterV2 || !room?.code) return;
   const client = getSupabaseClient({ optional: true });
   if (!client) return;
   let busy = false;
+  let latestData = null;
   const title = document.createElement('h2'); title.textContent = manager ? 'Disponibilité et attribution des PJ' : 'Choisir un personnage';
   const status = document.createElement('p'); status.setAttribute('role', 'status');
   const controls = document.createElement('div');
@@ -18,11 +19,14 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
   const request = async (operation = 'list', character = null, reserved = null) => {
     const { data, error } = await client.rpc('df_character_roster', { p_room: room.code, p_operation: operation, p_character: character, p_reserved_user: reserved });
     if (error) throw error;
+    latestData = data;
     return data;
   };
   async function act(operation, character, reserved = null) {
     if (busy) return;
     if (operation === 'dead' && !await showConfirm(`Déclarer ${character.name} mort ? Sa fiche et son historique seront conservés. Les XP restants seront perdus.`, { title: 'Décès du personnage' })) return;
+    if (operation === 'delete' && !await showConfirm(`Supprimer « ${character.name} » ? Le personnage, sa fiche et son inventaire ne seront plus accessibles aux joueurs. Vous pourrez annuler cette suppression depuis la corbeille MJ.`, { confirmLabel: 'Supprimer le personnage' })) return;
+    if (operation === 'restore' && !await showConfirm(`Restaurer « ${character.name} » avec sa fiche, son inventaire et son état précédent ? Le joueur devra le sélectionner à nouveau.`, { confirmLabel: 'Restaurer le personnage' })) return;
     if (['select','new'].includes(operation) && beforeSelect && !await beforeSelect()) return;
     busy = true; controls.inert = true;
     try {
@@ -39,7 +43,11 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
         await onSelect?.(character);
       }
       render(data);
-      if (operation !== 'select') status.textContent = 'Modification enregistrée.';
+      if (operation !== 'select') status.textContent = operation === 'delete' ? 'Personnage supprimé. Restauration disponible dans la corbeille MJ.' : operation === 'restore' ? 'Personnage restauré.' : 'Modification enregistrée.';
+      if (['delete','restore'].includes(operation)) {
+        try { await onChange?.({ operation, character, data }); }
+        catch { status.textContent += ' Actualisez le carnet pour mettre à jour les fiches affichées.'; }
+      }
     } catch (error) {
       if (rosterNotExposed(error)) showUnavailable();
       else status.textContent = `Action impossible : ${error.message || 'connexion indisponible'}. Actualisez la liste avant de réessayer.`;
@@ -49,6 +57,13 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
   function button(label, callback) {
     const element = document.createElement('button'); element.type = 'button'; element.className = 'room-btn'; element.textContent = label;
     element.addEventListener('click', callback); return element;
+  }
+  function deleteButton(character) {
+    if (character.can_delete !== true) return null;
+    const element = button('Supprimer', () => act('delete', character));
+    element.classList.add('character-delete');
+    element.setAttribute('aria-label', `Supprimer ${character.name}`);
+    return element;
   }
   function render(data) {
     if (data?.legacy) { container.hidden = true; return; }
@@ -70,8 +85,28 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
             row.append(' ', reservation, ' ', button('Proposer comme prétiré', () => act('preset', character, reservation.value || null)));
           }
         }
+        const remove = deleteButton(character);
+        if (remove) row.append(' ', remove);
+        else if (character.can_delete === false) {
+          const note = document.createElement('small'); note.textContent = 'Suppression réservée au MJ de toutes les campagnes de ce personnage.';
+          row.append(' ', note);
+        }
         controls.append(row);
       }
+      const deleted = data.deleted_characters || [];
+      const trash = document.createElement('details'); trash.className = 'character-trash';
+      const summary = document.createElement('summary'); summary.textContent = `Corbeille MJ · ${deleted.length} personnage${deleted.length > 1 ? 's' : ''}`;
+      trash.append(summary);
+      for (const character of deleted) {
+        const row = document.createElement('p');
+        const name = document.createElement('strong'); name.textContent = `${character.name} · ${character.player_name || 'sans joueur'}`;
+        row.append(name);
+        if (character.can_restore) row.append(' ', button('Restaurer', () => act('restore', character)));
+        else row.append(' · Restauration réservée au MJ de toutes les campagnes.');
+        trash.append(row);
+      }
+      if (!deleted.length) { const empty = document.createElement('p'); empty.textContent = 'Aucun personnage supprimé.'; trash.append(empty); }
+      controls.append(trash);
     } else {
       const select = document.createElement('select'); select.setAttribute('aria-label', 'Personnage disponible');
       const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Sélectionnez un PJ disponible'; select.append(placeholder);
@@ -84,7 +119,9 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
       for (const character of characters.filter(c => c.needs_sheet && c.status === 'active' && c.owner_user_id === room.userId)) {
         controls.append(' ', button(`Créer la fiche de ${character.name}`, () => act('attach', character)));
       }
-      if (data.selected_character_id) localStorage.setItem(`diceforge_character:${room.userId}:${room.code}`, data.selected_character_id);
+      const selectionKey = `diceforge_character:${room.userId}:${room.code}`;
+      if (data.selected_character_id) localStorage.setItem(selectionKey, data.selected_character_id);
+      else if (localStorage.getItem(selectionKey) !== 'new') localStorage.removeItem(selectionKey);
     }
     controls.append(' ', button('Actualiser la liste', refresh));
   }
@@ -104,4 +141,5 @@ export async function mountCharacterRoster(container, { room, beforeSelect, onSe
     status.textContent = 'La sélection des PJ n’est pas encore disponible sur ce serveur. Aucun personnage n’a été changé.';
   }
   await refresh();
+  return latestData;
 }
