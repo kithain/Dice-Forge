@@ -41,4 +41,28 @@ assert.equal(fullRestored.length,101,'Restoring saved notes at capacity does not
 assert.equal(fullRestored[100].secret,'Secret MJ');
 assert.equal(context.merge([{name:'Homonyme',sourceId:'2',sourceRoom:'ABCD'}],[], 'ABCD',{deletedCharacters:[{character_id:'identity-1',state_id:1}]} )[0].sourceDeleted,undefined,'Name cannot identify a deleted character');
 assert.throws(() => context.merge(Array.from({ length: 100 }, () => ({})), [row], 'ABCD'), /100 PJ/);
+const canonical={...row,id:'state-new',character_id:'same-hero'};
+const sources=[{state_id:'state-new',character_id:'same-hero',legacy_sheet_ids:['85']}];
+const oldSummary=context.sheetSummary(canonical);
+const originalNotes=[
+ {name:'Nouveau nom',sourceRoom:'ABCD',sourceId:'85',sourceSnapshot:JSON.stringify(oldSummary),secret:'Ancien secret',hp:'0',motivation:''},
+ {name:'Nouveau nom',sourceRoom:'ABCD',sourceId:'state-new',sourceCharacter:'same-hero',sourceSnapshot:JSON.stringify(oldSummary),secret:'Secret plus récent',npc:'Contact conservé',hp:'5'}
+];
+const clean=context.merge(originalNotes,[canonical],'ABCD',{sheetSources:sources});
+assert.equal(clean.length,1,'Legacy integer and permanent campaign identity form one notebook card');
+assert.equal(clean[0].sourceId,'state-new');
+assert.equal(clean[0].sourceCharacter,'same-hero');
+assert.equal(clean[0].secret,'Ancien secret');
+assert.equal(clean[0].npc,'Contact conservé','Complementary notes are merged');
+assert.equal(clean[0].hp,'0','Zero HP survives merging');
+assert.equal(clean[0].motivation,'','Deliberately cleared values survive merging');
+assert(JSON.parse(clean[0].sourceMergeConflicts).some(n=>n.field==='secret'&&n.value==='Secret plus récent'),'Both conflicting secrets remain available');
+assert(JSON.parse(clean[0].sourceMergeConflicts).some(n=>n.field==='hp'&&n.value==='5'),'Conflicting HP remains available');
+assert.equal(originalNotes[0].sourceId,'85','Input/backup stays unchanged');
+assert.equal(context.merge(clean,[canonical],'ABCD',{sheetSources:sources}).length,1,'Second refresh cannot recreate the duplicate');
+assert.equal(context.merge(originalNotes,[],'ABCD',{sheetSources:sources,deletedCharacters:[{state_id:'state-new',character_id:'same-hero'}]})[0].sourceDeleted,'yes','Deletion also hides legacy notes');
+assert.equal(context.merge([{name:'Nouveau nom'}],[canonical],'ABCD',{sheetSources:sources}).length,2,'Manual same-name notes are never inferred as the same character');
+assert.equal(context.merge([{...originalNotes[0],sourceRoom:'WXYZ'}],[canonical],'ABCD',{sheetSources:sources}).length,2,'Other rooms remain isolated');
+assert.equal(context.merge(originalNotes,[],'ABCD',{sheetSources:[...sources,{state_id:'other',character_id:'other',legacy_sheet_ids:['85']}]}).length,2,'Ambiguous legacy identities are not merged');
+assert.equal(context.merge([{...originalNotes[0],sourceId:'state-new',sourceCharacter:'same-hero'}, {...originalNotes[1],sourceCharacter:'other-hero'}],[],'ABCD').length,2,'Conflicting permanent identities are never merged');
 console.log('Room mapping: BRP scores/HP, idempotent refresh, GM notes and cleared overrides, room isolation, missing sheets and capacity passed.');

@@ -477,3 +477,19 @@ Tests : `node scripts/test_character_deletion_sql.mjs <runtime-postgres>`
 (confirmation, annulation, restauration et notes du carnet). La répétition sur
 copie fraîche de production vérifie aussi les triggers, politiques et permissions
 du retour à la version précédente.
+
+### Identités du carnet MJ
+
+Appliquer `mj-notebook-sources.sql` après la suppression, puis publier le frontend
+du carnet. La RPC de lecture `df_mj_notebook_sources` est réservée au MJ de la
+campagne : elle expose les correspondances entre états permanents et fiches
+historiques archivées de la salle demandée, y compris pour les PJ supprimés.
+Elle ne modifie aucune donnée ni aucune RPC existante. L'identité historique
+est ancrée sur `source_sheet_id` et son archive ; les noms courants seuls ne
+servent jamais à fusionner des notes. Les correspondances ambiguës sont ignorées.
+
+Le carnet regroupe les cartes de même identité dans la même salle, sauvegarde
+le carnet original avant la modification et conserve les champs contradictoires
+dans « Autres notes conservées ». La sauvegarde initiale reste exportable dans
+l'interface. Le client conserve les cartes existantes si la sauvegarde préalable
+échoue. Les cartes manuelles et les homonymes d'identités différentes sont conservés.

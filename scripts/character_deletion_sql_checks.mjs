@@ -9,6 +9,7 @@ export async function runDeletionChecks({client,engine,root,uid,outsider,rpc,rea
  await client.query(migration);
  assert.deepEqual((await client.query('select id,diceforge_v2.sheet(id) sheet,diceforge_v2.inventory(id) inventory from diceforge_v2.states order by id')).rows,pristine);
  check(true,'Installing deletion preserves every existing sheet and inventory');
+ await client.query(await fs.readFile(path.join(root,'migrations/character-v2/mj-notebook-sources.sql'),'utf8'));
  const setUser=id=>client.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);
  const roster=(op='list',id=null,room='TEST')=>client.query('select public.df_character_roster($1,$2,$3) result',[room,op,id]).then(r=>r.rows[0].result);
  const saved=async id=>(await client.query(`select jsonb_build_object(
@@ -31,6 +32,18 @@ export async function runDeletionChecks({client,engine,root,uid,outsider,rpc,rea
  await setUser(outsider);
  const target=(await client.query("select s.id,c.id character_id from diceforge_v2.states s join diceforge_v2.characters c on c.id=s.character_id join diceforge_v2.creation_states cr on cr.state_id=s.id join diceforge_v2.campaign_rooms r on r.campaign_id=s.campaign_id where r.room_code='TEST' and c.owner_user_id=$1 and c.status='active' and cr.phase='play' limit 1",[outsider])).rows[0];
  assert(target,'Expected an existing played player fixture');
+ await reject(client.query("select public.df_mj_notebook_sources('TEST')"),'42501');
+ await setUser(uid);
+ const priorSource=(await client.query('select source_sheet_id from diceforge_v2.states where id=$1',[target.id])).rows[0].source_sheet_id;
+ await client.query('update diceforge_v2.states set source_sheet_id=987654 where id=$1',[target.id]);
+ await client.query("insert into diceforge_v2.archives(id,source_table,source_key,sha256,payload) values($1,'pj_sheets','987654','test',jsonb_build_object('room_code','TEST','user_id',$2::text,'character_name','Identité historique')),($3,'pj_sheets','987655','test',jsonb_build_object('room_code','DEST','user_id',$2::text,'character_name','Identité historique')),($4,'pj_sheets','987656','test',jsonb_build_object('room_code','TEST','user_id',$2::text,'character_name','Homonyme distinct'))",[randomUUID(),outsider,randomUUID(),randomUUID()]);
+ const sources=async room=>(await client.query('select public.df_mj_notebook_sources($1) result',[room])).rows[0].result;
+ const mapped=(await sources('TEST')).find(s=>s.state_id===target.id);
+ check(mapped.character_id===target.character_id&&JSON.stringify(mapped.legacy_sheet_ids)==='["987654"]','MJ receives the exact legacy-to-permanent mapping for this room');
+ await reject(sources('UNKNOWN'),'42501');
+ await client.query('update diceforge_v2.states set source_sheet_id=$1 where id=$2',[priorSource,target.id]);
+ check(!(await client.query("select has_function_privilege('anon','public.df_mj_notebook_sources(text)','EXECUTE') allowed")).rows[0].allowed,'Anonymous notebook mapping denied');
+ await setUser(outsider);
  await roster('select',target.character_id);
  let row=await read(target.id);
  const inv=(await rpc('pj_inventory','read',{id:target.id},null)).rows[0];
@@ -44,6 +57,7 @@ export async function runDeletionChecks({client,engine,root,uid,outsider,rpc,rea
  await roster('delete',target.character_id);
  const list=await roster();
  check(!list.characters.some(c=>c.character_id===target.character_id) && list.deleted_characters.some(c=>c.character_id===target.character_id && c.can_restore),'Deleted PJ disappears from regular GM list and enters trash');
+ check((await sources('TEST')).some(s=>s.state_id===target.id),'MJ can identify and hide legacy notes for a deleted character');
  assert.deepEqual(await saved(target.character_id),before);check(true,'Deletion preserves scores, checks, notes, items, money and all XP history');
  check(Number((await client.query('select count(*) n from diceforge_v2.character_selections where character_id=$1',[target.character_id])).rows[0].n)===0,'Deleted character cleared from every selection');
  check((await rpc('pj_sheets','read',{id:target.id},null)).rows.length===0,'Even GM cannot read a deleted sheet through its UUID');

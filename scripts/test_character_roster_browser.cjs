@@ -29,7 +29,9 @@ const server=http.createServer((req,res)=>{
     {character_id:'c',state_id:'state_c',name:'PJ mort',owner_user_id:'owner',status:'dead',available:false,can_select:false,can_delete:true},
     {character_id:'d',name:'Généré',owner_user_id:'owner',status:'active',needs_sheet:true,can_select:false,can_delete:true}
    ]};
-   window.__client={async rpc(name,args){window.__calls.push(args);const c=window.__data.characters.find(c=>c.character_id===args.p_character);
+   window.__client={async rpc(name,args){
+    if(name==='df_mj_notebook_sources')return {data:window.__data.characters.concat(window.__data.deleted_characters).map(c=>({state_id:c.state_id,character_id:c.character_id,legacy_sheet_ids:c.character_id==='a'?['85']:[]})),error:null};
+    window.__calls.push(args);const c=window.__data.characters.find(c=>c.character_id===args.p_character);
     if(args.p_operation==='select')window.__data.selected_character_id=c.character_id;
     if(args.p_operation==='new')window.__data.selected_character_id=null;
     if(args.p_operation==='attach'){c.needs_sheet=false;c.available=true;c.can_select=true;}
@@ -111,10 +113,17 @@ const server=http.createServer((req,res)=>{
   });
   assert.equal(await page.getByRole('combobox',{name:'Personnage disponible'}).count(),1,'Selection returns when the server exposes the function');
   const notebook=await context.newPage();notebook.on('pageerror',error=>errors.push(error.message));
-  await notebook.addInitScript(()=>localStorage.setItem('dice-forge.mj-notebook.v1.TEST',JSON.stringify({version:1,campaign:'Recette suppression',characters:[{name:'Ilya',sourceId:'state_a',sourceRoom:'TEST',secret:'Note MJ à conserver'}],group:{}})));
+  await notebook.addInitScript(()=>localStorage.setItem('dice-forge.mj-notebook.v1.TEST',JSON.stringify({version:1,campaign:'Recette suppression',characters:[
+   {name:'Ilya',sourceId:'85',sourceRoom:'TEST',secret:'Note MJ à conserver'},
+   {name:'Ilya',sourceId:'state_a',sourceRoom:'TEST',sourceCharacter:'a',secret:'Autre secret à conserver'}
+  ],group:{}})));
   await notebook.goto(base+'/suivi-mj.html?room=TEST',{waitUntil:'networkidle'});
   await notebook.evaluate(()=>window.__data.is_mj=true);
   await notebook.getByRole('button',{name:'Actualiser les fiches de la room',exact:true}).click();
+  assert.equal(await notebook.locator('#cards > details > summary').filter({hasText:'Ilya'}).count(),1,'Legacy/permanent duplicates are consolidated on refresh');
+  assert.equal(await notebook.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('dice-forge.mj-notebook.v1.TEST.before-identity-merge.')).map(k=>JSON.parse(localStorage.getItem(k)).characters.length).includes(2)),true,'Complete notebook backup precedes consolidation');
+  assert.equal(await notebook.getByRole('button',{name:'Exporter avant regroupement',exact:true}).isVisible(),true,'Original notebook remains exportable through the normal UI');
+  assert.equal(await notebook.locator('#cards').getByText('Autre secret à conserver',{exact:true}).count(),1,'Conflicting note remains readable in retained notes');
   await notebook.getByRole('button',{name:'Supprimer Ilya',exact:true}).click();
   await notebook.getByRole('button',{name:'Supprimer le personnage',exact:true}).click();
   await notebook.waitForFunction(()=>JSON.parse(localStorage.getItem('dice-forge.mj-notebook.v1.TEST')).characters.find(c=>c.sourceId==='state_a').sourceDeleted==='yes');
@@ -128,6 +137,20 @@ const server=http.createServer((req,res)=>{
   await notebook.locator('#cards summary').filter({hasText:'Ilya'}).waitFor({state:'visible'});
   assert.equal(await notebook.evaluate(()=>JSON.parse(localStorage.getItem('dice-forge.mj-notebook.v1.TEST')).characters.find(c=>c.sourceId==='state_a').secret),'Note MJ à conserver','Restoration recovers local GM notes');
   if(process.argv[3])await notebook.screenshot({path:process.argv[3],fullPage:true});
+  const quotaNotebook=await context.newPage();
+  await quotaNotebook.addInitScript(()=>{
+   const originalSet=Storage.prototype.setItem;
+   originalSet.call(localStorage,'dice-forge.mj-notebook.v1.TEST',JSON.stringify({version:1,campaign:'Quota',characters:[
+    {name:'Ilya',sourceId:'85',sourceRoom:'TEST',secret:'Première note'},
+    {name:'Ilya',sourceId:'state_a',sourceRoom:'TEST',sourceCharacter:'a',secret:'Deuxième note'}
+   ],group:{}}));
+   Storage.prototype.setItem=function(key,value){if(key.includes('.before-identity-merge.'))throw new DOMException('quota','QuotaExceededError');return originalSet.call(this,key,value);};
+  });
+  await quotaNotebook.goto(base+'/suivi-mj.html?room=TEST',{waitUntil:'networkidle'});
+  await quotaNotebook.getByText(/Sauvegarde préalable impossible/).waitFor({state:'visible'});
+  assert.equal(await quotaNotebook.locator('#cards > details > summary').filter({hasText:'Ilya'}).count(),2,'Failed backup leaves both notebook cards intact');
+  assert.equal(await quotaNotebook.evaluate(()=>JSON.parse(localStorage.getItem('dice-forge.mj-notebook.v1.TEST')).characters[0].sourceId),'85','Failed backup leaves stored notes unchanged');
+  await quotaNotebook.close();
   assert.deepEqual(errors,[]);
   console.log('PASS roster browser: selection, death, deletion confirmation/cancellation, GM trash, restoration and notebook notes preserved.');
  } finally {await browser.close();}

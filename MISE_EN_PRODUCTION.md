@@ -96,3 +96,26 @@ dossier privé, avec le même armement explicite décrit plus haut. Cette restau
 revient à la livraison `diceforge-release-20261003` et abandonne les changements
 postérieurs à la sauvegarde. Le frontend correspondant est identifié par le tag
 `diceforge-character-deletion-20261003` ; annuler ce commit sans réécrire l'historique.
+
+## Correction : doublons du carnet MJ
+
+Les notes issues des anciennes fiches numériques n'étaient pas reconnues lors
+du chargement de leur nouvel état de campagne (UUID). Le rafraîchissement ajoutait
+une carte au lieu de reprendre la note. Le carnet utilise désormais une
+correspondance historique réservée au MJ, fournie par `mj-notebook-sources.sql`.
+Cette migration ajoute une seule RPC de lecture, sans modifier les données ni
+les fonctions existantes ; elle s'applique après `character-deletion.sql`.
+
+Les copies déjà présentes sont regroupées, avec sauvegarde préalable exportable.
+Les valeurs contradictoires sont consultables dans « Autres notes conservées ».
+Les notes manuelles et les personnages homonymes distincts restent séparés.
+Tests du carnet, parcours navigateur et 373 contrôles SQL réussis. Sur la copie
+fraîche du serveur (22 h 43 min 35 s, Paris), 43 contrôles confirment les quatre
+correspondances historiques et la conservation intégrale des 37 tables.
+Les fichiers
+privés de vérification sont dans
+`D:/script/Dice-Forge-backups/2026-10-03/notebook-duplicates/`.
+
+Pour revenir au comportement précédent, annuler le commit frontend puis retirer
+uniquement `public.df_mj_notebook_sources(text)` ; aucun retour des données de
+campagne n'est nécessaire. Le carnet original reste disponible par export.
