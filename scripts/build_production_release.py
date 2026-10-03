@@ -16,6 +16,7 @@ MIGRATIONS = [
     'recipe-corrections.sql', 'character-generation.sql', 'creation-budget.sql',
     'checked-save.sql', 'complete-creation-budget.sql', 'unplayed-presets.sql',
     'character-deletion.sql',
+    'mj-notebook-sources.sql',
 ]
 
 
