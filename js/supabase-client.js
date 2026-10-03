@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { campaignClient } from './character-store.js?v=20261002-campaign-v2-r1';
+import { campaignClient } from './character-store.js?v=20261003-roster';
 
 let sharedClient = null;
 let sharedConfigKey = '';

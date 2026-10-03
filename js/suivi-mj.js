@@ -142,7 +142,7 @@
     $('refresh-room').disabled = true;
     $('room-status').textContent = `Chargement des fiches de ${room}…`;
     try {
-      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261002-campaign-v2-r1'), import('./mj-room-data.js')]);
+      const [{ getSupabaseClient }, { mergeRoomSheets }] = await Promise.all([import('./supabase-client.js?v=20261003-roster'), import('./mj-room-data.js?v=20261003-roster')]);
       const client = getSupabaseClient();
       const { data: auth, error: authError } = await client.auth.getUser();
       if (authError || !auth?.user) {
@@ -153,6 +153,8 @@
       const { data: owner, error: ownerError } = await client.from('rooms').select('owner_id').eq('room_code', room).maybeSingle();
       if (ownerError) throw ownerError;
       if (!owner || owner.owner_id !== auth.user.id) throw new Error('Cette room est introuvable ou vous n’en êtes pas le créateur.');
+      const { mountCharacterRoster } = await import('./character-roster.js?v=20261003-roster-availability');
+      await mountCharacterRoster($('mj-character-roster'), { room: { code: room, userId: auth.user.id }, manager: true });
       const { data: rows, error } = await client.from('pj_sheets').select('id, room_code, player_name, character_name, sheet_data').eq('room_code', room).order('player_name');
       if (error) throw error;
       state.characters = mergeRoomSheets(state.characters, rows || [], room);

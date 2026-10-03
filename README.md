@@ -25,7 +25,7 @@ Suite de jeu pour les parties **BRP-ORC**. Dice Forge réunit les dés 3D, les s
 
 ### Version en ligne
 
-Rendez-vous sur **[kithain.github.io/Dice-Forge](https://kithain.github.io/Dice-Forge/)** avec un navigateur récent. Aucun compte n'est nécessaire pour lancer des dés en solo.
+Rendez-vous sur **[kithain.github.io/Dice-Forge](https://kithain.github.io/Dice-Forge/)** avec un navigateur récent et connectez-vous à votre compte. Les lancers en solo ne demandent pas de rejoindre un salon.
 
 ### Cockpit MJ local sous Windows
 
@@ -54,7 +54,7 @@ Le bouton **Jet de Course** calcule automatiquement `(DEX + MOV) × 3`, avec un 
 ### Jouer en salon
 
 1. Saisissez votre nom.
-2. Cliquez sur **Créer**, ou entrez le code reçu puis cliquez sur **Rejoindre**.
+2. Le MJ crée le salon avec **Créer** ; les joueurs entrent le code reçu puis cliquent sur **Rejoindre**.
 3. Partagez le code du salon avec la table.
 
 Les jets sont synchronisés en temps réel et la session est restaurée après rechargement de la page. Le créateur du salon peut purger l'historique et consulter le résultat des jets cachés.
@@ -81,6 +81,22 @@ Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/D
 
 ## Pages et références
 
+Les [aides de jeu](aides-jeu.html) regroupent les livrets, écrans joueur/MJ,
+le catalogue et le guide de l’application. Chaque aide propose un sommaire,
+une recherche sans distinction d’accents et une impression A4 portrait ;
+les détails repliés sont ouverts pour l’impression puis restaurés.
+L’économie d’encre est activée par défaut. Le texte BRP complet conserve
+ses règles d’origine ; son annexe Dice Forge et les aides de campagne
+précisent les adaptations prioritaires.
+
+« Créer le PDF » prépare un instantané dans le stockage de l’onglet :
+compétences, tous les sorts connus, inventaire local du personnage choisi,
+monnaies, potions (transport/stock, effets et contrecoups), histoire et notes.
+Ouvrir l’onglet Inventaire et attendre son chargement avant l’export pour
+inclure ses données. Un inventaire absent est signalé dans l’aperçu.
+L’export ne sauvegarde rien en ligne. Dans la boîte d’impression, choisir
+A4 portrait, échelle 100 %, sans en-têtes ni pieds de page du navigateur.
+
 Le livret joueur présente les règles essentielles. Les listes et tables détaillées sont regroupées dans `livret_reference.html`. L’ancien lien `livret_joueurV2.html` redirige vers le livret principal.
 
 La fiche propose trois onglets : Fiche, Inventaire, Sorts et Pouvoirs. Dans Inventaire, l’onglet Potions démarre vide. Choisir l’une des 16 préparations du catalogue remplit son effet et son contrecoup. Chaque ligne distingue les doses transportées des doses en stock ; le total transporté est limité à 4. Les modifications sont sauvegardées avec l’inventaire ; les consommables existants sont conservés. Au chargement d’une sauvegarde incohérente, les doses transportées excédentaires sont conservées dans le stock.
@@ -88,6 +104,24 @@ La fiche propose trois onglets : Fiche, Inventaire, Sorts et Pouvoirs. Dans Inve
 « Sorts et Pouvoirs » affiche tous les sorts de la fiche Supabase, sans limite de six lignes, avec leur nom fixe et leurs points répartis. « Ajouter un sort » propose les sorts autorisés pour la profession enregistrée, en excluant ceux déjà présents ; il faut attribuer des points avant l’ajout. « Sauvegarder les sorts » actualise seulement les sorts, leurs coches et les notes de magie dans la fiche existante. Les autres champs sont conservés depuis la dernière version Supabase, avec contrôle du budget commun et protection contre une écriture concurrente. Les lignes de sorts et leurs totaux dérivés sont également actualisés dans le Markdown enregistré. Sans partie connectée, la sauvegarde reste locale.
 
 Les règles d’alchimie retenues sont celles du référentiel Obsidian : catégories de réactifs, recettes de degrés I/II, critique doublant les doses et limite de quatre doses transportées. Les références contiennent les 16 recettes et leurs contrecoups ; les écrans joueur/MJ et la fiche renvoient à ce même chapitre.
+
+L’inventaire conserve un historique local des modifications par compte et salon.
+Les changements en attente sont envoyés dans l’ordre, un par un ; une erreur
+réseau conserve la file pour une reprise lors du prochain chargement, du retour
+en ligne ou d’un clic sur « Sauvegarder en ligne ». Les modifications faites
+pendant un chargement sont conservées et rejouées sur les données reçues. Un
+conflit sur un même champ bloque la file : « Résoudre le conflit » permet de
+confirmer l’application de ses changements, sans modifier les autres champs.
+Les listes d’équipement sont comparées dans leur ensemble pour éviter une
+fusion ambiguë. « Exporter l’historique » fournit les changements en attente et
+les 100 derniers envois réussis. Cet historique reste dans le navigateur et
+n’est pas un journal partagé dans Supabase.
+
+Les compétences inutilisées sont retirées de la fiche active ; leurs anciennes
+valeurs sont conservées dans `retiredSkills` pour compatibilité. Une
+caractéristique laissée vide signifie N/A. Les corrections SQL pour une base
+de campagne v2 déjà installée sont dans
+[`migrations/character-v2/save-fixes.sql`](migrations/character-v2/save-fixes.sql).
 
 Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/alchimie.md`, puis l’importer avec `python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"`. Le script conserve sa copie dans `data/alchimie.md`, génère la section `#alchimie` de `livret_reference.html` et le catalogue `js/alchemy-potions.js`. Ne pas modifier ces sorties séparément : `python scripts/validate_project.py` vérifie leur synchronisation, également dans GitHub Actions. Sans `--source`, le script régénère ces sorties depuis la copie du dépôt. Les sauvegardes historiques ne sont pas des règles actives.
 

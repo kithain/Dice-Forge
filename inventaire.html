@@ -2,7 +2,7 @@
 <html lang="fr" class="auth-pending">
 <head>
 <style>.auth-pending body{visibility:hidden}</style>
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
 <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -347,10 +347,12 @@ footer {
   footer { display: none; }
 }
 </style>
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
-<main class="page">
+<script src="js/site-menu.js?v=20261003-aids" defer></script>
+<main class="page" data-aid-content>
   <nav class="topbar" aria-label="Navigation">
     <div class="nav-links">
       <a class="back-link" href="index.html">← Retour à Dice Forge</a>

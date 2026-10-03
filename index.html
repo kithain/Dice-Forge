@@ -6,10 +6,10 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261002-brp-display">
+<link rel="stylesheet" href="styles.css?v=20261003-age-help">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
 <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
 <script type="importmap">
 { "imports": {
@@ -20,7 +20,7 @@
 </script>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260815-hidden-roll-control" defer></script>
+<script src="js/site-menu.js?v=20261003-aids" defer></script>
 <div class="stars"></div>
 <div class="wrap">
 
@@ -54,6 +54,7 @@
       <a class="room-leave room-obs-link" id="obs-dice-link" href="obs-dice.html" target="_blank" rel="noopener">OBS : animation des dés</a>
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
+      <button class="room-btn" id="new-character-btn" type="button" onclick="resetCharacterSheet()">Nouveau personnage</button>
     </div>
     <div class="room-character-card" id="room-character-card" style="display:none">
       <div class="room-character-head">
@@ -67,6 +68,7 @@
 <div class="tabs" role="tablist" aria-label="Navigation principale">
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
   <button class="tab-btn" id="tab-character" type="button" role="tab" aria-selected="false" aria-controls="panel-character" onclick="switchTab('character')">Fiche personnage</button>
+  <button class="tab-btn" id="tab-creation" type="button" role="tab" aria-selected="false" aria-controls="panel-creation" onclick="switchTab('creation')">Création de personnage</button>
   <button class="tab-btn" id="tab-verbal" type="button" role="tab" aria-selected="false" aria-controls="panel-verbal" onclick="switchTab('verbal')">Confrontation verbale</button>
   <a class="tab-btn tab-link" href="ecran_joueur_BRP_ORC.html?v=20260715-online" aria-label="Ouvrir l’écran de référence des joueurs">Écran joueur</a>
 </div>
@@ -193,12 +195,8 @@
   </div>
 </section>
 
-<section class="tab-panel" id="panel-character" role="tabpanel" aria-labelledby="tab-character">
-  <div class="character-view-tabs" role="tablist" aria-label="Étapes de la fiche personnage">
-    <button class="character-view-tab active" id="character-view-generator-tab" type="button" role="tab" aria-selected="true" aria-controls="character-generator-view" onclick="showCharacterSheetView('generator')">1. Génération</button>
-    <button class="character-view-tab" id="character-view-complete-tab" type="button" role="tab" aria-selected="false" aria-controls="character-complete-view" onclick="showCharacterSheetView('complete')">2. Fiche complète</button>
-  </div>
-  <div class="character-panel" id="character-generator-view" role="tabpanel" aria-labelledby="character-view-generator-tab">
+<section class="tab-panel" id="panel-creation" role="tabpanel" aria-labelledby="tab-creation">
+  <div class="character-panel" id="character-generator-view" >
     <div class="slabel">Fiche personnage</div>
     <div class="character-form">
       <div class="room-field character-name-field">
@@ -220,7 +218,7 @@
           </select>
         </div>
         <div class="room-field">
-          <label>Âge</label>
+          <label>Âge <button id="character-age-help" class="tooltip-hint" type="button" aria-label="Aide sur les classes d’âge" data-tooltip="">?</button></label>
           <input class="room-input small" data-character-field="age" type="number" min="0" max="99999" step="1" oninput="characterNameChanged()">
           <span class="field-hint" id="character-age-band">Âge relatif selon l'espèce.</span>
         </div>
@@ -230,7 +228,7 @@
         </div>
         <div class="room-field">
           <label>Richesse</label>
-          <input class="room-input" data-character-field="richesse" maxlength="60" oninput="characterNameChanged()">
+          <select class="room-input" data-character-field="richesse" required onchange="characterNameChanged()"></select>
         </div>
       </div>
       <div class="char-actions">
@@ -268,15 +266,13 @@
       <textarea class="room-input text calc-output" id="character-calculations" readonly></textarea>
     </div>
     <div class="character-continue">
-      <button class="room-btn" type="button" onclick="showCharacterSheetView('complete')">Continuer vers la fiche complète →</button>
+      <button class="room-btn" type="button" onclick="continueCharacterCreation()">Continuer vers la fiche complète →</button>
       <span>Le nom, l’espèce, la profession et les caractéristiques seront reportés automatiquement.</span>
     </div>
   </div>
-  <div class="character-complete-view" id="character-complete-view" role="tabpanel" aria-labelledby="character-view-complete-tab" hidden>
-    <div class="character-complete-sync">
-      <button class="room-btn" type="button" onclick="forceCharacterSheetSync()">Synchroniser depuis le personnage généré</button>
-      <span>Actualise l’identité, les caractéristiques et le MOV sans effacer les compétences, l’équipement ou les notes.</span>
-    </div>
+</section>
+<section class="tab-panel" id="panel-character" role="tabpanel" aria-labelledby="tab-character">
+  <div class="character-complete-view" id="character-complete-view" >
     <iframe id="character-sheet-frame" title="Fiche personnage complète" data-src="pj.html?embedded=1&v=20261002-safe-confirm" loading="lazy"></iframe>
   </div>
 </section>
@@ -286,8 +282,8 @@
 
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
-<script type="module" src="js/app.js?v=20261002-safe-confirm"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
+<script type="module" src="js/app.js?v=20261003-xp-frame"></script>
 <script type="module" src="js/verbal.js?v=20261002-v5"></script>
 </body>
 </html>

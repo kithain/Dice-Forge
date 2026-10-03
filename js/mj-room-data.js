@@ -1,4 +1,5 @@
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js';
+import { spellScore } from './pj-magic.js?v=20261003-learning';
 
 const text = value => typeof value === 'string' || typeof value === 'number' ? String(value) : '';
 
@@ -23,9 +24,10 @@ export function sheetSummary(row) {
     persuasion: named('Intimidation/Persuasion'), intimidation: named('Intimidation/Persuasion'), deception: named('Baratin'),
     factions: text(f.factionLinks), npc: text(f.npcLinks), motivation: text(f.motivation),
     signature: text(f.powers),
-    spells: Array.isArray(data.spells) ? data.spells.filter(s => s?.name).map(s => `${text(s.name)}${s.points !== undefined ? ` (${text(s.points)} points)` : ''}`).join('\n') : '',
+    spells: Array.isArray(data.spells) ? data.spells.filter(s => s?.name).map(s => `${text(s.name)} : ${spellScore(data,s)} %`).join('\n') : '',
     armor: [text(f.armorType), f.armorPoints !== undefined && f.armorPoints !== '' ? `${text(f.armorPoints)} PA` : ''].filter(Boolean).join(' · '),
-    equipment: text(f.equipment)
+    equipment: text(f.equipment),
+    conditions: row.character_status === 'dead' ? 'Mort · fiche conservée' : ''
   };
   return Object.fromEntries(Object.entries(result).map(([key, value]) => [key, value.slice(0, 20000)]));
 }

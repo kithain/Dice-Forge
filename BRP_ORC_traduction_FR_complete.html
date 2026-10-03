@@ -2,7 +2,7 @@
 <html lang="fr" class="auth-pending">
 <head>
 <style>.auth-pending body{visibility:hidden}</style>
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
 <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -153,10 +153,12 @@ a { color: var(--accent); }
 }
 </style>
 <link rel="stylesheet" href="site-menu.css?v=20260719">
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
 </head>
 <body id="top">
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
-<div class="container">
+<script src="js/site-menu.js?v=20261003-aids" defer></script>
+<div class="container" data-aid-content>
 <div class="cover">
 <h1>Basic Roleplaying</h1>
 <p class="subtitle">Version Dice Forge — règles personnalisées consolidées</p>
@@ -202,9 +204,7 @@ Congrès sous le numéro TX000 [numéro à déterminer] et disponible en ligne
 les garanties sont exclues conformément aux termes y figurant.</p>
 <p>Ce produit est l&#39;œuvre originale de Chaosium.</p>
 <p>Si vous utilisez notre contenu ORC, merci de nous créditer comme suit :</p>
-<p><img src="ec9fd7885482cfd6293124d4f404b4a06891f1dc.png"
-style="width:1in;height:1in" alt="image" /></p>
-<p>Logo Powered by BRP</p>
+<p><strong>Powered by BRP</strong> · Basic Roleplaying, Chaosium.</p>
 <p>À de très rares exceptions près (termes déposés), le texte de BASIC
 ROLEPLAYING: UNIVERSAL GAME ENGINE est disponible pour un usage personnel et
 commercial sous la licence ORC.</p>
@@ -213,6 +213,7 @@ commercial sous la licence ORC.</p>
 <h1 class="chapter">Règles Dice Forge</h1>
 <p class="dice-forge-priority">Les règles de ce chapitre sont prioritaires sur les passages contradictoires du texte BRP ORC reproduit dans les chapitres suivants.</p>
 <p>Cette variante conserve le moteur percentile de Basic Roleplaying et remplace principalement la Défense, le déroulement du combat, la progression par l'expérience, certains soins, la course et l'équipement médiéval-fantastique.</p>
+<p>Création de campagne : 325 points professionnels et INT ×10 points personnels, partagés entre les compétences et sorts, avec un score maximal de 100 %. La validation explicite exige la répartition de tout le budget et verrouille les attributions initiales. Les plafonds et niveaux alternatifs du texte BRP d’origine ne remplacent pas ce réglage.</p>
 
 <div class="dice-forge-nav">
 <h2>Sommaire de la variante</h2>
@@ -359,17 +360,20 @@ commercial sous la licence ORC.</p>
 
 <section class="dice-forge-rule" id="df-experience">
 <h2>Amélioration par l'expérience</h2>
-<div class="formula">Bonus et réserve d'expérience = INT ÷ 2, arrondi au supérieur</div>
+<div class="formula">Pool d’XP par session = INT ÷ 2, arrondi au supérieur</div>
+<p>Une salle correspond à une session, créée par le MJ. Le pool est attribué une seule fois à la première entrée du personnage ; une reconnexion ne renouvelle ni les points ni les tentatives.</p>
 <ol>
-<li>Après toute réussite obtenue avec une compétence durant la partie, cochez cette compétence.</li>
-<li>À la fin de la séance ou de l'aventure, lancez <strong>D100 + bonus d'expérience</strong> pour chaque compétence cochée.</li>
-<li>Un résultat supérieur au score actuel rend la compétence admissible à une amélioration.</li>
-<li>Créez une réserve de points égale au bonus d'expérience du personnage.</li>
-<li>Répartissez librement toute la réserve, sans plafond par compétence, entre les compétences admissibles.</li>
-<li>Les points non attribués sont perdus, puis toutes les coches sont effacées.</li>
+<li>Après une réussite utile avec une compétence ou un sort, cochez cette cible. Un échec ne donne pas de coche.</li>
+<li>Pendant la session, lancez <strong>1D100 sans bonus ni malus</strong> pour chaque cible cochée : une seule tentative par cible et par salle.</li>
+<li>Un résultat <strong>strictement supérieur</strong> au score actuel déverrouille la cible. Une égalité échoue.</li>
+<li>Répartissez le pool entre les compétences et les sorts déverrouillés : <strong>1 XP = +1 point</strong>, score maximal 100 %.</li>
+<li>À la clôture ou au changement de session, les points non dépensés sont perdus. Revenir dans une ancienne salle ne restitue pas son reliquat.</li>
 </ol>
 <p class="rule-note">Si aucun jet d'apprentissage ne réussit, aucun point n'est distribué. La POU progresse séparément : cochez-la après un jet de résistance réussi contre une POU au moins égale, puis gagnez 1D3−1 point de POU.</p>
-<p><strong>Exemple :</strong> avec INT 13, le bonus et la réserve valent 7. Si Épée, Défense et Premiers Secours réussissent leur jet d'apprentissage, le joueur peut répartir les 7 points entre ces trois compétences, par exemple +4 en Épée, +2 en Défense et +1 en Premiers Secours.</p>
+<p><strong>Exemple :</strong> avec INT 13, le pool vaut 7. Si Épée, Défense et Premiers Secours sont déverrouillés, le joueur peut répartir ces 7 points, par exemple +4 en Épée, +2 en Défense et +1 en Premiers Secours, sans dépasser 100 %.</p>
+<p class="rule-note">À score effectif 100 %, 01–99 réussissent et 00/100 est une maladresse. En dessous, 96–100 échouent automatiquement. Appliquez les difficultés et malus avant de lire les seuils.</p>
+<h3>Apprentissage des sorts</h3>
+<p>Tous les sorts connus sont disponibles selon les PP et les conditions de lancement. Après une source connue, 1D6 jours d’étude et un test réussi d’Alphabétisation (texte) ou de (INT + POU) % (maître), enregistrez l’apprentissage avec l’accord oral du MJ : score initial exact de 20 + 3D6 %, sans ajout d’INT. Échec : nouvelle tentative après 1D3 jours supplémentaires ; maladresse : maître ou autre source nécessaire. Les points sont réservés au sort, hors budget de création et hors pool d’XP ; ils ne peuvent être récupérés par suppression ou diminution du sort. Les valeurs des sorts déjà connus sont conservées.</p>
 </section>
 
 <section class="dice-forge-rule" id="df-equipment">

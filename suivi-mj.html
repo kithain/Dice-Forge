@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="suivi-mj.css">
   <link rel="stylesheet" href="site-menu.css">
   <script src="js/site-menu.js" defer></script>
-  <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
-  <script src="js/suivi-mj.js?v=20261002-campaign-v2-r1" defer></script>
+  <script src="supabase-config.js?v=20261003-production"></script>
+  <script src="js/suivi-mj.js?v=20261003-roster-availability" defer></script>
 </head>
 <body>
   <main>
@@ -16,6 +16,7 @@
     <div class="toolbar"><button id="add-pj" type="button">+ Ajouter un PJ</button><button id="export" type="button">Exporter la sauvegarde</button><button id="import" type="button">Importer une sauvegarde</button><input id="file" type="file" accept=".json,application/json" hidden><span id="save-state" role="status" aria-live="polite"></span></div>
     <form class="toolbar" method="get"><label>Room<input id="room-code" name="room" maxlength="6" pattern="[A-Za-z0-9]{4,6}" placeholder="Code de la room" autocomplete="off"></label><button type="submit">Ouvrir le carnet</button><button id="refresh-room" type="button">Actualiser les fiches de la room</button><a id="room-login" href="login.html" hidden>Se connecter</a></form>
     <p id="room-status" role="status" aria-live="polite"></p>
+    <section id="mj-character-roster" aria-label="Disponibilité des personnages"></section>
     <p class="notice">Les fiches sauvegardées en ligne sont chargées à l’ouverture pour le créateur de la room. Actualisez pour récupérer leurs dernières modifications. Vos corrections et notes MJ restent locales et sont conservées. PV actuels et informations absentes des fiches sont à compléter. Chaque room a son carnet ; sans code, vous retrouvez le carnet manuel. Exportez vos notes pour les conserver ailleurs.</p>
     <label class="campaign-label">Campagne / groupe<input id="campaign" placeholder="Le nom de votre campagne" maxlength="200"></label>
     <nav class="anchors" aria-label="Rubriques"><a href="#overview">Vue d’ensemble</a><a href="#characters">Fiches PJ</a><a href="#group">Ressources et campagne</a></nav>

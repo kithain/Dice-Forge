@@ -39,15 +39,38 @@ jobs:
         run: python scripts/validate_project.py
 
       - name: Tester les potions et leur sauvegarde
-        run: node scripts/test_inventory_potions.cjs
+        run: |
+          node scripts/test_inventory_potions.cjs
+          node scripts/test_inventory_sync.cjs
+          node scripts/test_inventory_load.cjs
 
       - name: Tester le grimoire et sa sauvegarde
         run: node scripts/test_pj_magic.cjs
 
+      - name: Tester les sauvegardes sur PostgreSQL isolé
+        run: |
+          npm install --prefix "$RUNNER_TEMP/diceforge-postgres" embedded-postgres@17.10.0-beta.17 --no-audit --no-fund
+          node scripts/test_campaign_save_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_creation_lock_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_progression_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_spell_learning_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_character_roster_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_recipe_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_character_generation_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_creation_budget_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_checked_save_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_complete_creation_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_unplayed_presets_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+
       - name: Tester les campagnes et la reprise
         run: |
+          node scripts/test_pdf_data.mjs
           node scripts/test_character_store.cjs
           node scripts/test_experience_save.cjs
+          node scripts/test_creation_form.cjs
+          node scripts/test_creation_budget.mjs
+          node scripts/test_pj_save.cjs
+          node scripts/test_pj_progression.cjs
           node scripts/test_brp_malus.cjs
           node scripts/test_roll_display.cjs
           python -B -m unittest discover -s migrations/character-v2 -p test_prepare.py -v

@@ -1,5 +1,10 @@
 const text = value => String(value ?? '').trim();
 const points = value => Math.max(0, Number(value) || 0);
+export function spellScore(sheet,spell) {
+  if(spell.allocation?.score != null)return Number(spell.allocation.score)+points(spell.allocation.xp_points);
+  const base=sheet.creation?.phase==='draft' ? sheet.stats?.intelligence : (spell.base ?? sheet.stats?.intelligence);
+  return points(base)+points(spell.points);
+}
 
 export function normalizeSpells(rows) {
   return (Array.isArray(rows) ? rows : []).map(row => ({ ...row,
@@ -8,19 +13,22 @@ export function normalizeSpells(rows) {
 }
 
 export function magicBudget(sheet, spells, skillIndexes) {
-  const professional = points(sheet.fields?.skillProfessionalPool ?? 325);
+  const locked=['play','legacy_review'].includes(sheet.creation?.phase);
+  const professional = points((locked ? sheet.creation?.professional : null) ?? sheet.fields?.skillProfessionalPool ?? 325);
   const intelligence = points(sheet.stats?.intelligence);
-  const personal = intelligence * 10;
+  const personal = locked && sheet.creation?.personal != null ? points(sheet.creation.personal) : intelligence * 10;
   const skillsSpent = skillIndexes.reduce((sum, index) => sum + points(sheet.skills?.[index]?.points), 0);
   const spellsSpent = spells.filter(row => row.name).reduce((sum, row) => sum + points(row.points), 0);
   return { professional, personal, intelligence, total: professional + personal,
-    spent: skillsSpent + spellsSpent, spellsSpent, remaining: professional + personal - skillsSpent - spellsSpent };
+    spent: skillsSpent + spellsSpent, spellsSpent, remaining: professional + personal - skillsSpent - spellsSpent
+      + (['play','legacy_review'].includes(sheet.creation?.phase) ? points(sheet.progression?.xp_points)+points(sheet.progression?.learning_points) : 0) };
 }
 
 export function magicErrors(sheet, proposed, allowedNewSpells, skillIndexes) {
   const errors = [];
   const existing = normalizeSpells(sheet.spells).filter(row => row.name);
   const existingNames = new Set(existing.map(row => row.name));
+  const locked=['play','legacy_review'].includes(sheet.creation?.phase);
   const selected = new Set();
   for (const row of proposed.filter(row => row.name)) {
     if (selected.has(row.name)) errors.push(`« ${row.name} » est déjà présent.`);
@@ -29,12 +37,13 @@ export function magicErrors(sheet, proposed, allowedNewSpells, skillIndexes) {
       errors.push(`« ${row.name} » : indiquez des points répartis entiers entre 0 et 999.`);
     }
     if (!existingNames.has(row.name) && !allowedNewSpells.includes(row.name)) errors.push(`« ${row.name} » n’est pas disponible pour cette profession.`);
+    if(locked && (!existingNames.has(row.name) || Number(existing.find(s=>s.name===row.name)?.points)!==Number(row.points))) errors.push(`« ${row.name} » : points acquis verrouillés.`);
   }
   for (const name of existingNames) {
     if (!selected.has(name)) errors.push(`Le sort enregistré « ${name} » doit être conservé.`);
   }
   const next = magicBudget(sheet, proposed, skillIndexes);
-  if (next.remaining < 0) errors.push(`Budget dépassé de ${-next.remaining} point(s), compétences et sorts compris.`);
+  if (!locked && next.remaining < 0) errors.push(`Budget dépassé de ${-next.remaining} point(s), compétences et sorts compris.`);
   return errors;
 }
 
@@ -65,7 +74,7 @@ export function patchMagicMarkdown(markdown, before, after) {
   const cell = value => text(value).replace(/\|/g, '\\|');
   const intelligence = points(after.stats?.intelligence);
   const spellRows = after.spells.filter(row => row.name).map(row =>
-    `| ${cell(row.name)} | ${intelligence} | ${row.points} | ${intelligence + Number(row.points)} | [${row.checked ? 'x' : ' '}] |`).join('\n');
+    `| ${cell(row.name)} | ${row.allocation?.base ?? intelligence} | ${row.points} | ${spellScore(after,row)} | [${row.checked ? 'x' : ' '}] |`).join('\n');
   const skillIndexes = (after.skills || []).map((_, index) => index);
   const budget = magicBudget(after, after.spells, skillIndexes);
   return markdown.replace(/(## Compétences\s*\n)([\s\S]*?)(?=\n## |\n---|$)/, (_, heading, body) => {

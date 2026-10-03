@@ -1,0 +1,168 @@
+/* Shared reading and printing layer. Existing chapter IDs and rule tables stay usable. */
+body.game-aid { --aid-paper:#fffdf8; --aid-ground:#eeeae1; --aid-ink:#29333b; --aid-muted:#5e686e; --aid-accent:#805037; --aid-line:#d9d1c2; color:var(--aid-ink); background:var(--aid-ground); font:16px/1.65 system-ui,"Segoe UI",sans-serif; margin:0; padding:0; }
+.game-aid * { box-sizing:border-box; }
+.game-aid .site-menu-panel[aria-hidden="true"] { visibility:hidden; }
+.game-aid a { color:#315b70; text-underline-offset:3px; }
+.game-aid :focus-visible { outline:3px solid #ae794a; outline-offset:3px; }
+.game-aid [id] { scroll-margin-top:210px; }
+.aid-controls { position:sticky; top:0; z-index:100; background:#fffdf8f5; backdrop-filter:blur(12px); border-bottom:1px solid var(--aid-line); padding:12px max(22px,calc((100% - 1160px)/2)); color:var(--aid-ink); box-shadow:0 2px 12px #2828200b; font:14px/1.5 system-ui,"Segoe UI",sans-serif; }
+.aid-controls-row { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.aid-home { color:var(--aid-ink)!important; text-decoration:none; font-weight:750; font-size:17px; white-space:nowrap; }
+.aid-home span { color:var(--aid-muted); font-weight:400; }
+.aid-actions { display:flex; align-items:center; gap:18px; }
+.aid-actions label { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.aid-actions button { border:1px solid #805037; background:#805037; color:#fff; font:600 14px system-ui,sans-serif; padding:9px 14px; border-radius:4px; cursor:pointer; }
+.aid-reading-tools { margin-top:10px; align-items:flex-start; }
+.aid-outline { flex:0 0 230px; position:relative; margin:0!important; border:0!important; padding:0!important; background:transparent!important; }
+.aid-outline summary { cursor:pointer; padding:8px 0; font-weight:650; font-size:14px; color:var(--aid-ink); }
+.aid-outline nav { position:absolute; width:min(440px,85vw); max-height:60vh; overflow:auto; padding:12px 18px; background:var(--aid-paper); border:1px solid var(--aid-line); box-shadow:0 8px 20px #0002; border-radius:4px; }
+.aid-outline nav a { display:block; padding:6px 0; text-decoration:none; font-size:14px; }
+.aid-search { position:relative; flex:1; max-width:640px; }
+.aid-search>label { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.aid-search input { display:block; width:100%; height:38px; padding:8px 12px; border:1px solid var(--aid-line); border-radius:4px; background:white; color:var(--aid-ink); font:14px system-ui,sans-serif; }
+.aid-search-results { position:absolute; top:100%; right:0; width:100%; max-height:60vh; overflow:auto; background:white; border:1px solid var(--aid-line); box-shadow:0 8px 20px #0002; padding:14px 18px; }
+.aid-search-results p { margin:0 0 8px; color:var(--aid-muted); font-size:13px; }
+.aid-search-results ol { margin:0; padding-left:20px; }
+.aid-search-results a { display:block; padding:5px 0; }
+.aid-print-tip { font:12px/1.4 system-ui,sans-serif; color:var(--aid-muted); margin:7px 0 0; text-align:left!important; }
+/* Use one document surface; mobile print rules are scoped to screen. */
+.game-aid .page,.game-aid .container,.game-aid .frame,.game-aid .help-page { width:min(1160px,calc(100% - 48px)); max-width:1160px; margin:26px auto; padding:32px 40px; background:var(--aid-paper); border:1px solid var(--aid-line); border-radius:6px; box-shadow:0 4px 20px #332c2008; }
+.game-aid .toolbar,.game-aid .topbar,.game-aid .book-nav,.game-aid .web-toolbar,.game-aid .help-topbar { display:none; }
+.game-aid .hero,.game-aid .cover,.game-aid .help-hero { color:var(--aid-ink); background:transparent; text-align:left; padding:8px 0 26px; margin:0 0 22px; max-width:none; border:0; border-bottom:2px solid var(--aid-accent); border-radius:0; box-shadow:none; break-after:avoid; }
+.game-aid .hero::after,.game-aid .help-rune,.game-aid .stars,.game-aid::before { display:none; }
+.game-aid .hero h1,.game-aid .cover h1,.game-aid .help-hero h1 { color:var(--aid-ink); font:normal clamp(30px,4.5vw,48px)/1.15 Georgia,serif; text-shadow:none; margin:0 0 14px; letter-spacing:0; }
+.game-aid .hero p,.game-aid .cover p,.game-aid .help-hero p,.game-aid .cover h2 { color:var(--aid-muted); font-size:16px; line-height:1.65; margin:8px 0; max-width:760px; }
+.game-aid .eyebrow,.game-aid .help-kicker,.game-aid .cover .races { color:var(--aid-accent); font-size:12px; letter-spacing:.08em; }
+.game-aid .contents { top:200px; }
+.game-aid .help-layout { grid-template-columns:210px minmax(0,1fr); gap:28px; }
+.game-aid .help-sidebar { top:200px; }
+.game-aid .help-toc,.game-aid .help-section,.game-aid .help-steps li,.game-aid .help-action-list article,.game-aid .help-faq details,.game-aid .help-grid article { color:var(--aid-ink); background:transparent; border-color:var(--aid-line); box-shadow:none; }
+.game-aid .help-section { min-width:0; padding:0 0 24px; border:0; border-bottom:1px solid var(--aid-line); border-radius:0; }
+.game-aid .help-section p,.game-aid .help-section span,.game-aid .help-steps span,.game-aid .help-action-list span,.game-aid .help-toc a { color:var(--aid-muted); font-size:15px; }
+.game-aid .help-section h2,.game-aid .help-section h3,.game-aid .help-section strong,.game-aid .help-toc strong,.game-aid .help-faq summary { color:var(--aid-ink); font-family:system-ui,sans-serif; }
+.game-aid .help-note,.game-aid .help-mini-card { background:#f4eee2; color:var(--aid-ink); border-color:var(--aid-line); }
+.game-aid .help-note strong,.game-aid .help-mini-card strong { color:var(--aid-accent); }
+.game-aid .help-table-wrap th,.game-aid .help-table-wrap td { background:transparent; border-color:var(--aid-line); color:var(--aid-ink); }
+.game-aid .screen { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; width:min(1160px,calc(100% - 48px)); max-width:1160px; margin:26px auto; background:transparent; }
+.game-aid .panel { min-width:0; padding:24px; border:1px solid var(--aid-line); border-radius:6px; background:var(--aid-paper); box-shadow:none; }
+.game-aid .panel h1 { background:transparent; color:var(--aid-ink); border-bottom:2px solid var(--aid-accent); font:normal 25px/1.2 Georgia,serif; padding:0 0 12px; margin-bottom:16px; }
+.game-aid .panel h2 { color:var(--aid-accent); font-size:17px; margin:22px 0 10px; }
+.game-aid .panel h3 { font-size:15px; }
+.game-aid .panel table { font-size:12px; }
+.game-aid .panel .compact td,.game-aid .panel .compact th { font-size:12px; padding:6px; }
+.game-aid .panel .note { font-size:13px; }
+.game-aid .panel .formula { font-size:15px; }
+.game-aid .panel .resistance-table { font-size:10px; }
+.game-aid .page h1.chapter { font:normal 30px/1.25 Georgia,serif; border-color:var(--aid-accent); margin:36px 0 20px; }
+.game-aid .page h2 { font-size:21px; color:var(--aid-accent); }
+.game-aid .page h3 { font-size:17px; }
+.game-aid .page p { text-align:left; }
+.game-aid .page table { font-size:14px; }
+.game-aid .page td,.game-aid .page th { overflow-wrap:anywhere; }
+.game-aid .skill-entry dt { font-size:15px; }
+.game-aid .skill-entry dd { font-size:14px; }
+.game-aid .skill-base { font-size:11px; }
+.game-aid .section { border-color:var(--aid-line); background:transparent; box-shadow:none; }
+.game-aid .section-heading { background:#f3ede3; }
+.game-aid .section-heading h2,.game-aid td:first-child { color:var(--aid-ink); }
+.game-aid .currency { color:var(--aid-ink); border-color:var(--aid-line); background:#f3ede3; }
+.game-aid .equipment-table { background:transparent; }
+.game-aid .table-wrap,.game-aid .alchemy-table,.game-aid .aid-table-scroll { overflow-x:auto; max-width:100%; }
+.aid-hub { max-width:1160px; width:calc(100% - 48px); margin:30px auto 60px; }
+.aid-hub>header { padding:24px 0 30px; border-bottom:2px solid var(--aid-accent); }
+.aid-hub h1 { font:normal clamp(36px,5vw,56px)/1.1 Georgia,serif; margin:0 0 16px; color:var(--aid-ink); }
+.aid-hub h2 { font:normal 30px/1.2 Georgia,serif; margin:36px 0 18px; color:var(--aid-ink); }
+.aid-hub p { max-width:760px; }
+.aid-kicker { text-transform:uppercase; font-size:12px; letter-spacing:.13em; color:var(--aid-accent); }
+.aid-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.aid-card { display:flex; flex-direction:column; padding:24px; background:var(--aid-paper); border:1px solid var(--aid-line); border-radius:6px; }
+.aid-card small { color:var(--aid-accent); text-transform:uppercase; letter-spacing:.07em; font-size:11px; }
+.aid-card h3 { font:normal 24px/1.2 Georgia,serif; margin:10px 0; }
+.aid-card p { margin:0 0 20px; font-size:15px; color:var(--aid-muted); flex:1; }
+.aid-card>a { font-weight:650; }
+.aid-campaign { padding:26px 30px; background:var(--aid-paper); border:1px solid var(--aid-line); border-left:3px solid var(--aid-accent); }
+.aid-campaign h3 { margin:20px 0 6px; font-size:18px; }
+.aid-campaign h3:first-child { margin-top:0; }
+.aid-campaign p { margin:0; }
+@media screen and (max-width:850px) {
+  .game-aid .layout,.game-aid .help-layout { grid-template-columns:1fr; }
+  .game-aid .contents,.game-aid .help-sidebar { position:static; }
+  .game-aid .screen,.aid-cards { grid-template-columns:1fr; }
+  .game-aid .page,.game-aid .container,.game-aid .frame,.game-aid .help-page { padding:22px; width:calc(100% - 24px); }
+  .game-aid .screen { width:calc(100% - 24px); }
+  .aid-controls { padding:10px 16px; position:relative; }
+  .aid-controls-row { flex-wrap:wrap; gap:8px; }
+  .aid-reading-tools { display:block; }
+  .aid-search { margin-top:8px; max-width:none; }
+  .aid-outline nav { z-index:2; }
+  .aid-actions { gap:10px; font-size:12px; }
+  .aid-actions button { font-size:12px; }
+  .game-aid .skill-grid,.game-aid .two-col { display:block; columns:1; }
+  .game-aid .skill-entry { margin-bottom:8px; }
+  .game-aid [id] { scroll-margin-top:16px; }
+}
+@page {
+  size:A4 portrait; margin:12mm;
+  @bottom-left { content:"Dice Forge / Aides de jeu"; font:7pt system-ui,sans-serif; color:#666; }
+  @bottom-right { content:counter(page) " / " counter(pages); font:7pt system-ui,sans-serif; color:#666; }
+}
+@media print {
+  body.game-aid { background:white!important; font:10pt/1.45 system-ui,sans-serif; color:#222!important; padding:0!important; }
+  .aid-controls,.site-menu-root,.reading-zoom-controls,.game-aid .contents,.game-aid .help-sidebar,.game-aid .toolbar,.game-aid .topbar,.game-aid .book-nav,.game-aid .web-toolbar,.game-aid .help-topbar,.game-aid .skip,.game-aid .skip-link,.game-aid .help-skip,.game-aid .help-start,.game-aid .help-footer,.game-aid .stars,.site-environment-indicator { display:none!important; }
+  .game-aid .reading-zoom-content { zoom:1!important; }
+  .game-aid .page,.game-aid .container,.game-aid .frame,.game-aid .help-page,.game-aid .screen,.aid-hub { width:100%; max-width:none; margin:0; padding:0; border:0; box-shadow:none; background:white; }
+  .game-aid .layout,.game-aid .help-layout,.game-aid .help-content,.game-aid .catalogue,.game-aid .screen { display:block; padding:0; }
+  .game-aid .hero,.game-aid .cover,.game-aid .help-hero { padding:0 0 5mm; margin:0 0 6mm; break-after:avoid; }
+  .game-aid .hero h1,.game-aid .cover h1,.game-aid .help-hero h1 { font-size:24pt; }
+  .game-aid .hero p,.game-aid .cover p,.game-aid .help-hero p { font-size:10pt; }
+  .game-aid h1,.game-aid h2,.game-aid h3,.game-aid .section-heading { break-after:avoid; }
+  .game-aid p,.game-aid li { orphans:3; widows:3; }
+  .game-aid .panel,.game-aid .section,.game-aid .help-section { width:100%; min-height:0; overflow:visible; padding:0; margin:0 0 6mm; border:0; border-radius:0; box-shadow:none; break-inside:auto; }
+  .game-aid .panel-pair { display:block; break-after:auto; }
+  .game-aid .panel { break-before:page; }
+  .game-aid .panel { font-size:8.8pt; line-height:1.35; }
+  .game-aid .panel:first-child { break-before:auto; }
+  .game-aid .panel-pair+.panel-pair .panel:first-child { break-before:page; }
+  .game-aid .panel h1 { font-size:20pt; margin:0 0 5mm; padding-bottom:3mm; }
+  .game-aid .panel h2,.game-aid .page h2,.game-aid .help-section h2 { font-size:13pt; margin:5mm 0 2mm; }
+  .game-aid .panel h3,.game-aid .page h3,.game-aid .help-section h3 { font-size:11pt; }
+  .game-aid .page h1.chapter { font-size:20pt; margin-top:0; }
+  .game-aid .panel .note,.game-aid .panel .formula,.game-aid .help-section p,.game-aid .help-section span,.game-aid .help-steps span { font-size:9pt; }
+  .game-aid table,.game-aid .page table,.game-aid .panel table { min-width:0!important; width:100%; font-size:8.5pt; }
+  .game-aid .panel .compact td,.game-aid .panel .compact th,.game-aid th,.game-aid td { font-size:8.5pt; padding:1.4mm; }
+  .game-aid .panel h1 { font-size:18pt; margin-bottom:4mm; }
+  .game-aid .panel h2 { font-size:11pt; margin:4mm 0 1.5mm; }
+  .game-aid .panel .note { font-size:7.8pt; }
+  .game-aid .panel table { font-size:7.5pt; line-height:1.25; }
+  .game-aid .panel td,.game-aid .panel th,.game-aid .panel .compact td,.game-aid .panel .compact th { font-size:7.5pt; padding:.9mm; }
+  .game-aid th { color:#222; background:#eee; }
+  .game-aid thead { display:table-header-group; }
+  .game-aid tr { break-inside:avoid; }
+  .game-aid .table-wrap,.game-aid .alchemy-table,.game-aid .aid-table-scroll { overflow:visible; }
+  .game-aid .resistance-table { display:table; overflow:visible; table-layout:fixed; }
+  .game-aid .resistance-table td,.game-aid .resistance-table th { font-size:6.5pt; padding:.5mm; }
+  .game-aid .skill-entry { break-inside:avoid; }
+  .game-aid .skill-entry dt { font-size:10pt; }
+  .game-aid .skill-entry dd { font-size:9pt; }
+  .game-aid .help-steps,.game-aid .help-faq,.game-aid .help-action-list { display:block; }
+  .game-aid .help-steps li,.game-aid .help-faq details { margin-bottom:3mm; }
+  .game-aid details { break-inside:auto; }
+  .game-aid summary { break-after:avoid; }
+  .game-aid .help-table-wrap table { min-width:0; }
+  .game-aid .equipment-illustration,.game-aid .hero::after { display:none; }
+  .game-aid .equipment-table th:nth-child(2),.game-aid .equipment-table td:nth-child(2) { min-width:0; }
+  .game-aid .aid-cards { grid-template-columns:repeat(3,minmax(0,1fr)); gap:3mm; }
+  .game-aid .aid-card { break-inside:avoid; padding:4mm; }
+  .game-aid .aid-card h3 { font-size:14pt; }
+  .game-aid .aid-card p,.game-aid .aid-card a { font-size:9pt; }
+  .game-aid .aid-campaign { padding:5mm; }
+  .game-aid .aid-campaign h3 { font-size:12pt; }
+  .game-aid .aid-hub h2 { font-size:18pt; margin:6mm 0 4mm; }
+  .game-aid .aid-hub p,.game-aid .aid-hub li { font-size:9pt; line-height:1.45; }
+  .game-aid .aid-hub #campagne { break-before:page; }
+  .game-aid .cover+h1.chapter { break-before:auto; page-break-before:auto; }
+  .game-aid .cover .races { margin-top:3mm; }
+  .game-aid a { color:inherit; }
+  .game-aid.aid-ink-saving [data-aid-content],.game-aid.aid-ink-saving [data-aid-content] * { color:#222!important; background:transparent!important; box-shadow:none!important; text-shadow:none!important; border-color:#aaa!important; }
+  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}

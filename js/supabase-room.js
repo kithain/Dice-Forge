@@ -1,5 +1,5 @@
 // ——— Supabase multiplayer room logic ———
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { showToast, showConfirm } from './toast.js';
 import { compactRoll } from './roll-display.js?v=20261002-brp-display';
 
@@ -150,23 +150,34 @@ export async function createRoom() {
   const userId = await authenticatedUserId();
   if (!userId) { showToast('Session expirée. Reconnecte-toi.', 'error'); return; }
 
-  const { error: roomError } = await sb.from('rooms').insert({
-    room_code: code,
-    owner_id: userId,
-    owner_name: name
-  });
-  if (roomError) { showToast('Erreur création de la partie: ' + roomError.message, 'error'); return; }
-
-  const { error: membershipError } = await sb.from('room_members').insert({
-    room_code: code,
-    user_id: userId,
-    player_name: name
-  });
-  if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
-
+  let sessionCreated = false;
   if (window.SUPABASE_CONFIG?.characterV2) {
-    const { error: campaignError } = await sb.rpc('df_link_campaign_room', { p_source: sourceRoom, p_target: code });
-    if (campaignError) { showToast('Rattachement à la campagne impossible : ' + campaignError.message, 'error'); return; }
+    const { data, error } = await sb.rpc('df_create_session_room', {
+      p_source: sourceRoom, p_code: code, p_name: name
+    });
+    if (error) { showToast('Création du salon impossible : ' + error.message, 'error'); return; }
+    sessionCreated = !data?.legacy;
+  }
+
+  if (!sessionCreated) {
+    const { error: roomError } = await sb.from('rooms').insert({
+      room_code: code,
+      owner_id: userId,
+      owner_name: name
+    });
+    if (roomError) { showToast('Erreur création de la partie: ' + roomError.message, 'error'); return; }
+
+    const { error: membershipError } = await sb.from('room_members').insert({
+      room_code: code,
+      user_id: userId,
+      player_name: name
+    });
+    if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
+
+    if (window.SUPABASE_CONFIG?.characterV2) {
+      const { error: campaignError } = await sb.rpc('df_link_campaign_room', { p_source: sourceRoom, p_target: code });
+      if (campaignError) { showToast('Rattachement à la campagne impossible : ' + campaignError.message, 'error'); return; }
+    }
   }
 
   const { error } = await sb.from('rolls').insert({

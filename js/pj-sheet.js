@@ -1,10 +1,17 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
-import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
+import { characteristicErrors, normalizeCharacteristics, archiveInactiveSkills, transferSheetData, isCreationLocked, skillSaveValues } from './sheet-validation.js?v=20261003-roster';
+import { mountProgression } from './pj-progression.js?v=20261003-xp-frame';
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
+import { characterDraftKey } from './character-store.js?v=20261003-roster';
+import { mountCharacterRoster } from './character-roster.js?v=20261003-recipe-ui';
 import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-r1';
-import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown } from './pj-magic.js?v=20261002-campaign-v2-r1';
-import './tooltips.js?v=20260715-character-help';
+import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown, spellScore } from './pj-magic.js?v=20261003-learning';
+import './tooltips.js?v=20261003-age-help';
 import { showConfirm } from './toast.js?v=20261002-safe-confirm';
+import { professionSkill, ageHelpText } from './creation-help.js?v=20261003-age-help';
+import { creationBudget, creationBudgetErrors, creationValidationErrors } from './creation-budget.js?v=20261003-complete-budget';
+import { professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
+import { readPrintInventory, storePrintSnapshot } from './pj-pdf-data.js?v=20261003-pdf';
 
 const IS_EMBEDDED = new URLSearchParams(window.location.search).get('embedded') === '1';
 const SYNC_FROM_GENERATOR = new URLSearchParams(window.location.search).get('syncGenerated') === '1';
@@ -22,7 +29,6 @@ if (IS_EMBEDDED) {
 }
 
 const STORAGE_KEY = characterDraftKey();
-const PRINT_STORAGE_KEY = 'dice-forge.pj-print.v1';
 const ROOM_STORAGE_KEY = 'diceforge_room';
 const supabase = getSupabaseClient({ optional: true });
 
@@ -173,17 +179,17 @@ function escapeHtml(value) {
 function renderBaseFields() {
   statsBody.innerHTML = STATS.map(([code, key, help]) => `<tr>
     <td class="pj-stats-code"><span class="pj-help-target has-tooltip" tabindex="0" data-tooltip="${escapeHtml(help)}">${code}<span class="tooltip-hint" aria-hidden="true">?</span></span></td>
-    <td><input type="number" min="0" max="999" data-stat="${key}" aria-label="Score ${code}"></td>
+    <td><input type="number" min="0" max="999" data-stat="${key}" placeholder="N/A" aria-label="Score ${code}, vide pour N/A"></td>
     <td class="pj-stat-roll" data-stat-roll="${key}">—</td>
   </tr>`).join('');
 
   skillsBody.innerHTML = SKILL_GROUPS.map(group => {
     const rows = ACTIVE_SKILLS.map(({ skill: [name, base, skillGroup], index }) => skillGroup === group ? `<tr>
-      <td><span class="pj-help-target has-tooltip" tabindex="0" data-tooltip="${escapeHtml(SKILL_HELP[name] || `Utiliser ${name} dans une situation appropriée.`)}">${escapeHtml(name)}<span class="tooltip-hint" aria-hidden="true">?</span></span></td>
+      <td><span data-profession-star="${index}" title="Compétence proposée par la profession"></span><span class="pj-help-target has-tooltip" tabindex="0" data-tooltip="${escapeHtml(SKILL_HELP[name] || `Utiliser ${name} dans une situation appropriée.`)}">${escapeHtml(name)}<span class="tooltip-hint" aria-hidden="true">?</span></span></td>
       <td><div class="pj-base-wrap"><input type="number" min="0" max="999" data-skill-base="${index}" aria-label="Base ${escapeHtml(name)}" readonly tabindex="-1"><span class="pj-base-hint">${escapeHtml(base)}</span></div></td>
       <td><input type="number" min="0" max="999" value="0" data-skill-points="${index}" aria-label="Points répartis ${escapeHtml(name)}"></td>
       <td class="pj-skill-final" data-skill-final="${index}">0</td>
-      <td><input type="checkbox" data-skill-check="${index}" aria-label="Coche ${escapeHtml(name)}"></td>
+      <td><input type="checkbox" data-skill-check="${index}" aria-label="Coche ${escapeHtml(name)}" disabled title="Coche automatique après un jet réussi"></td>
     </tr>` : '').join('');
     return `<tr class="pj-skill-group"><td colspan="5">${group}</td></tr>${rows}`;
   }).join('');
@@ -197,20 +203,21 @@ function renderSpellRows() {
     if (!slot.name) return;
     const row = document.createElement('tr');
     row.dataset.spellRow = String(index);
-    row.innerHTML = `<td><strong>${escapeHtml(slot.name)}</strong></td>
+    row.innerHTML = `<td><strong>${escapeHtml(slot.name)}</strong>${slot.allocation?.origin==='learning' ? `<small class="pj-spell-attribution">Appris : ${slot.allocation.learning_points} points réservés · XP : ${slot.allocation.xp_points || 0}</small>` : ''}</td>
       <td class="pj-spell-base" data-spell-base="${index}">0</td>
       <td><input type="number" min="0" max="999" step="1" value="${escapeHtml(slot.points)}" data-spell-points="${index}" aria-label="Points répartis ${escapeHtml(slot.name)}"></td>
       <td class="pj-skill-final" data-spell-final="${index}">0</td>
-      <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche ${escapeHtml(slot.name)}"${slot.checked ? ' checked' : ''}></td>`;
+      <td><input type="checkbox" data-spell-check="${index}" aria-label="Coche ${escapeHtml(slot.name)}" disabled title="Coche automatique après un jet réussi"${slot.checked ? ' checked' : ''}></td>`;
     spellsBody.appendChild(row);
   });
   document.getElementById('pj-spells-table-wrap').hidden = !spellSlots.some(slot => slot.name);
   document.getElementById('pj-spells-empty').hidden = spellSlots.some(slot => slot.name);
   document.getElementById('pj-spells-help').textContent = spellSheetContext
-    ? 'Sorts de la fiche Supabase : les noms sont fixes, les points répartis sont modifiables.'
+    ? (isCreationLocked(spellSheetContext) ? 'Points acquis verrouillés ; les coches sont automatiques après une réussite.' : 'Sorts de la fiche Supabase : les noms sont fixes, les points répartis sont modifiables.')
     : 'Sorts de votre brouillon. La fiche Supabase est chargée automatiquement lorsque vous êtes dans une partie.';
   refreshNewSpellOptions();
   updateMagicCalculations();
+  updateCreationControls();
 }
 
 function syncSpellSlotsFromForm() {
@@ -231,6 +238,7 @@ function magicContext() {
 }
 
 function availableNewSpells() {
+  if(magicContext().creation?.phase==='play')return SPELLS.map(([name])=>name);
   const profession = String(magicContext().fields?.profession || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const casterClass = Array.from(SPELLCASTER_ALIASES).find(([alias]) => profession.split(/[^a-z]+/).includes(alias))?.[1];
   return casterClass ? SPELLS.filter(([, classes]) => classes.includes(casterClass)).map(([name]) => name) : [];
@@ -243,21 +251,39 @@ function refreshNewSpellOptions() {
   const options = availableNewSpells().filter(name => !existing.has(name));
   select.innerHTML = '<option value="" disabled selected>Choisir un sort…</option>' + options.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
   if (options.includes(previous)) select.value = previous;
-  document.getElementById('pj-add-spell').disabled = !options.length;
-  document.getElementById('pj-add-spell').title = options.length ? '' : 'Renseignez une profession pratiquant la magie ou tous ses sorts sont déjà présents.';
+  const locked=isCreationLocked(spellSheetContext || loadedSheetData);
+  const session=magicContext().progression?.session;
+  const canLearn=magicContext().creation?.phase==='play' && session?.room_code===currentRoom()?.code && !session?.closed_at;
+  const pending=learningPending();
+  document.getElementById('pj-add-spell').disabled = (locked && !canLearn) || !!pending || !options.length;
+  document.getElementById('pj-add-spell').textContent=locked ? '+ Apprendre un sort' : '+ Ajouter un sort';
+  document.getElementById('pj-learning-fields').hidden=!locked;
+  document.getElementById('pj-new-spell-allocation').hidden=locked;
+  document.getElementById('pj-new-spell-score').hidden=locked;
+  document.getElementById('pj-confirm-spell').textContent=locked ? 'Tirer et enregistrer 20 + 3D6' : 'Ajouter ce sort';
+  document.getElementById('pj-learning-retry').hidden=!pending;
+  document.getElementById('pj-magic-rules').textContent=locked
+    ? 'Tous les sorts connus sont disponibles selon les PP et les conditions du sort. Un apprentissage vaut 20 + 3D6 %, puis les XP permettent de progresser.'
+    : 'En création : score = INT + points répartis. Après validation, les nouveaux sorts utilisent un tirage d’apprentissage séparé.';
 }
 
 function updateMagicCalculations() {
   syncSpellSlotsFromForm();
-  const budget = magicBudget(magicContext(), spellSlots, ACTIVE_SKILLS.map(({ index }) => index));
+  const budget = { ...currentCreationBudget(), intelligence: numberValue('intelligence') || 0 };
+  renderCreationBudget(budget);
   for (const key of ['professional', 'personal', 'total', 'spent', 'remaining']) document.getElementById(`pj-magic-${key}`).textContent = budget[key];
   document.getElementById('pj-magic-remaining-card').classList.toggle('over-budget', budget.remaining < 0);
   form.querySelectorAll('[data-spell-row]').forEach(row => {
     const index = Number(row.dataset.spellRow);
-    form.querySelector(`[data-spell-base="${index}"]`).textContent = budget.intelligence;
-    form.querySelector(`[data-spell-final="${index}"]`).textContent = budget.intelligence + (Number(spellSlots[index].points) || 0);
+    form.querySelector(`[data-spell-base="${index}"]`).textContent = spellSlots[index].allocation?.base ?? budget.intelligence;
+    form.querySelector(`[data-spell-final="${index}"]`).textContent = spellScore(magicContext(),spellSlots[index]);
+    const input = form.querySelector(`[data-spell-points="${index}"]`);
+    input.dataset.previousPoints = input.value;
+    input.max = String(Math.max(Number(input.value) || 0, 0,Math.min(100-budget.intelligence, Number(input.value)+ (professionByName(fieldValue('profession'))?.tag==='Magie' ? budget.remaining : budget.personalRemaining))));
   });
-  const value = document.getElementById('pj-new-spell-points').value;
+  const newInput = document.getElementById('pj-new-spell-points');
+  newInput.max = String(Math.max(0, Math.min(100-budget.intelligence, professionByName(fieldValue('profession'))?.tag === 'Magie' ? budget.remaining : budget.personalRemaining)));
+  const value = newInput.value;
   document.getElementById('pj-new-spell-score').textContent = `Score final : ${value === '' ? '—' : budget.intelligence + (Number(value) || 0)}`;
 }
 
@@ -268,17 +294,19 @@ function setSpellStatus(message, error = false) {
 }
 
 function addSpell() {
+  if (isCreationLocked(spellSheetContext || loadedSheetData)) return learnSpell();
   syncSpellSlotsFromForm();
   const name = document.getElementById('pj-new-spell').value;
   const input = document.getElementById('pj-new-spell-points');
   if (!name || input.value === '' || !input.checkValidity()) {
-    setSpellStatus('Choisissez un sort et attribuez-lui des points répartis entiers entre 0 et 999.', true);
+    setSpellStatus(`Choisissez un sort et attribuez-lui de 0 à ${input.max} points entiers disponibles.`, true);
     return;
   }
   if (spellSlots.some(slot => slot.name === name)) { setSpellStatus('Ce sort est déjà présent.', true); return; }
   const next = { name, points: input.value, checked: false };
   const proposed = [...spellSlots, next];
   const errors = magicErrors(magicContext(), proposed, availableNewSpells(), ACTIVE_SKILLS.map(({ index }) => index));
+  errors.push(...creationBudgetErrors(budgetSheet(), budgetSkills(), proposed));
   if (errors.length) { setSpellStatus(errors.join(' '), true); return; }
   const empty = spellSlots.findIndex(slot => !slot.name);
   if (empty < 0) spellSlots.push(next); else spellSlots[empty] = next;
@@ -288,6 +316,50 @@ function addSpell() {
   magicEditRevision += 1;
   changed();
   setSpellStatus(`« ${name} » ajouté. Cliquez sur « Sauvegarder les sorts » pour l’enregistrer.`);
+}
+
+function learningKey() {const r=currentRoom();return `diceforge:learn:${r?.userId}:${loadedSheetData?.state_id}:${r?.code}`;}
+function learningPending() {try{return JSON.parse(localStorage.getItem(learningKey()));}catch{return null;}}
+let learningBusy=false;
+async function learnSpell(resume=false) {
+  if(learningBusy)return;
+  const room=currentRoom();
+  if(!supabase || !room){setSpellStatus('Rejoignez une partie pour apprendre un sort.',true);return;}
+  let args=learningPending();
+  if(args && !resume){setSpellStatus('Récupérez d’abord l’apprentissage en attente.',true);return;}
+  if(!args) {
+    const name=document.getElementById('pj-new-spell').value;
+    const source=document.getElementById('pj-learning-source').value.trim();
+    const days=document.getElementById('pj-learning-days');
+    if(!name || !source || !days.value || !days.checkValidity() || !document.getElementById('pj-learning-confirmed').checked) {
+      setSpellStatus('Choisissez un sort, indiquez sa source et confirmez l’étude réussie après accord oral du MJ.',true);return;
+    }
+    args={p_spell:SPELL_IDS[name],p_source:source,p_method:document.getElementById('pj-learning-method').value,p_study_days:Number(days.value),p_confirmed:true};
+  }
+  learningBusy=true;form.inert=true;document.querySelector('.pj-toolbar').inert=true;
+  const key=learningKey();
+  try {
+    if(!args.p_request) {
+      const saved=await saveSheetToSupabase();
+      if(!saved?.sheet_data)throw Error('Sauvegarde préalable impossible : aucun tirage effectué.');
+      args={...args,p_state:saved.sheet_data.state_id,p_room:room.code,p_request:crypto.randomUUID(),p_expected_revision:saved.sheet_data.revision};
+      localStorage.setItem(key,JSON.stringify(args));
+    }
+    const {data,error}=await supabase.rpc('df_learn_spell',args);
+    if(error)throw error;
+    if(!data?.sheet_data || !data.receipt)throw Error('Résultat incertain : récupérez le même apprentissage.');
+    localStorage.removeItem(key);
+    spellSheetContext=structuredClone(data.sheet_data);applyData(data.sheet_data);
+    clearTimeout(saveTimer);localStorage.setItem(STORAGE_KEY,JSON.stringify(data.sheet_data));
+    document.getElementById('pj-spell-add-panel').hidden=true;
+    document.getElementById('pj-learning-confirmed').checked=false;
+    let message=`${data.receipt.name} appris : 20 + ${data.receipt.dice.join(' + ')} = ${data.receipt.score} %. Attribution réservée, aucun XP dépensé.`;
+    try {if(!await saveSheetToSupabase())message+=' Sort enregistré ; export à actualiser.';}catch {message+=' Sort enregistré ; export à actualiser après reconnexion.';}
+    setSpellStatus(message);
+  } catch(error) {
+    if(error.code && /^([0-9]{2}|P0)/.test(error.code))localStorage.removeItem(key);
+    setSpellStatus(error.message || 'Connexion interrompue : récupérez l’apprentissage.',true);
+  } finally {learningBusy=false;form.inert=false;document.querySelector('.pj-toolbar').inert=false;refreshNewSpellOptions();}
 }
 
 function addWeaponRow(weapon = {}) {
@@ -334,8 +406,18 @@ function syncWeaponScores() {
     if (classLabel) classLabel.textContent = type === 'mixed' ? 'Contact + jet' : type === 'distance' ? 'Jet' : type === 'contact' ? 'Contact' : '—';
     const contactScore = row.querySelector('[data-weapon="contactScore"]');
     const distanceScore = row.querySelector('[data-weapon="distanceScore"]');
-    if (contactScore) contactScore.value = type === 'contact' || type === 'mixed' ? scores.contact || '0' : '';
-    if (distanceScore) distanceScore.value = type === 'distance' || type === 'mixed' ? scores.distance || '0' : '';
+    if (contactScore) {
+      const applicable = type === 'contact' || type === 'mixed';
+      contactScore.value = applicable ? scores.contact || '0' : '';
+      contactScore.placeholder = applicable ? '' : '—';
+      contactScore.title = applicable ? 'Score de la compétence Arme de mêlée.' : 'Cette arme ne possède pas de mode de contact dans le catalogue.';
+    }
+    if (distanceScore) {
+      const applicable = type === 'distance' || type === 'mixed';
+      distanceScore.value = applicable ? scores.distance || '0' : '';
+      distanceScore.placeholder = applicable ? '' : '—';
+      distanceScore.title = applicable ? 'Score de la compétence Arme de jet.' : 'Cette arme ne possède pas de mode de jet dans le catalogue.';
+    }
   });
 }
 
@@ -369,6 +451,8 @@ function damageBonus(total) {
 }
 
 function updateDerived() {
+  const ageHelp = document.getElementById('pj-age-help');
+  if (ageHelp) ageHelp.dataset.tooltip = ageHelpText(fieldValue('race'));
   STATS.forEach(([, key]) => {
     const score = numberValue(key);
     form.querySelector(`[data-stat-roll="${key}"]`).textContent = score ? score * 5 : '—';
@@ -404,40 +488,100 @@ function automaticSkillBase(name, label) {
 }
 
 function updateSkillCalculations() {
-  let spent = 0;
   ACTIVE_SKILLS.forEach(({ skill: [name, label], index }) => {
+    const star = form.querySelector(`[data-profession-star="${index}"]`);
+    if (star) star.textContent = professionSkill(name, fieldValue('profession')) ? '★ ' : '';
     const baseInput = form.querySelector(`[data-skill-base="${index}"]`);
     const pointsInput = form.querySelector(`[data-skill-points="${index}"]`);
-    baseInput.value = automaticSkillBase(name, label);
+    baseInput.value = isCreationLocked(loadedSheetData)
+      ? loadedSheetData.skills?.[index]?.base ?? '' : Math.min(100, automaticSkillBase(name, label));
     const base = Math.max(0, parseInt(baseInput.value, 10) || 0);
     const points = Math.max(0, parseInt(pointsInput.value, 10) || 0);
-    spent += points;
-    form.querySelector(`[data-skill-final="${index}"]`).textContent = base + points;
+    pointsInput.dataset.previousPoints = pointsInput.value;
+    pointsInput.max = String(Math.max(0, 100 - base));
+    form.querySelector(`[data-skill-final="${index}"]`).textContent = isCreationLocked(loadedSheetData)
+      ? loadedSheetData.skills?.[index]?.score ?? '—' : base + points;
   });
   syncSpellSlotsFromForm();
-  spent += spellSlots.filter(slot => slot.name).reduce((sum, slot) => sum + (Number(slot.points) || 0), 0);
-  const professional = Math.max(0, parseInt(fieldValue('skillProfessionalPool'), 10) || 0);
-  const personal = (numberValue('intelligence') || 0) * 10;
-  const total = professional + personal;
-  const remaining = total - spent;
+  const shared = currentCreationBudget();
+  const {professional, personal, total, outside} = shared;
+  document.getElementById('pj-profession-help').textContent = isCreationLocked(loadedSheetData) ? ''
+    : `★ Compétences proposées par votre profession (choix et spécialités selon le livret). ${professional} points professionnels pour ces compétences ; ${personal} points personnels pour les compétences de votre choix. Hors profession : ${outside}/${personal} points personnels. Ctrl + clic sur les flèches : ±10 points.`;
+  for (const {skill:[name],index} of ACTIVE_SKILLS) {
+    const input = form.querySelector(`[data-skill-points="${index}"]`);
+    const current = Number(input.value) || 0;
+    const available = professionSkill(name, fieldValue('profession')) ? shared.remaining : shared.personalRemaining;
+    input.max = String(Math.max(current, 0, Math.min(Number(input.max), current + available)));
+  }
   syncWeaponScores();
   document.getElementById('pj-skill-personal').textContent = personal;
   document.getElementById('pj-skill-total').textContent = total;
-  document.getElementById('pj-skill-spent').textContent = spent;
-  document.getElementById('pj-skill-remaining').textContent = remaining;
-  document.getElementById('pj-skill-remaining-card').classList.toggle('over-budget', remaining < 0);
+  document.getElementById('pj-skill-spent').textContent = shared.spent;
+  document.getElementById('pj-skill-remaining').textContent = shared.remaining;
+  document.getElementById('pj-skill-remaining-card').classList.toggle('over-budget', shared.remaining < 0);
   updateMagicCalculations();
+}
+
+function budgetSheet() {
+  return { ...loadedSheetData, fields: { ...loadedSheetData.fields, profession: fieldValue('profession'), skillProfessionalPool: fieldValue('skillProfessionalPool') }, stats: { ...loadedSheetData.stats, intelligence: numberValue('intelligence') } };
+}
+function budgetSkills() {
+  if (isCreationLocked(loadedSheetData)) return loadedSheetData.skills || [];
+  const skills = SKILLS.map(() => ({}));
+  ACTIVE_SKILLS.forEach(({ index }) => { skills[index] = { points: form.querySelector(`[data-skill-points="${index}"]`).value }; });
+  return skills;
+}
+function currentCreationBudget() { return creationBudget(budgetSheet(), budgetSkills(), spellSlots); }
+function renderCreationBudget(budget) {
+  for (const prefix of ['skill', 'magic']) {
+    for (const [key,value] of [['professional',budget.professional],['personal',budget.personal],['professional-remaining',budget.professionalRemaining],['personal-remaining',budget.personalRemaining]]) {
+      const node = document.getElementById(`pj-${prefix}-${key}`); if (node) node.textContent = value;
+    }
+    document.getElementById(`pj-${prefix}-personal-card`)?.classList.toggle('over-budget', budget.personalRemaining < 0);
+  }
+  const errors = creationBudgetErrors(budgetSheet(), budgetSkills(), spellSlots);
+  for (const id of ['pj-budget-status', 'pj-magic-budget-status']) {
+    const status = document.getElementById(id);
+    status.textContent = errors.join(' '); status.hidden = !errors.length;
+  }
+  const button = document.getElementById('pj-validate-creation');
+  if (!isCreationLocked(loadedSheetData)) {
+    const validationErrors = creationValidationErrors(budgetSheet(), budgetSkills(), spellSlots);
+    button.disabled = loadedSheetData?.lifecycle?.status === 'dead' || !!validationErrors.length;
+    button.title = validationErrors.join(' ');
+    const status = document.getElementById('pj-creation-status');
+    if (loadedSheetData.creation?.phase === 'draft') status.textContent = validationErrors.length
+      ? 'Création en brouillon. ' + validationErrors.join(' ')
+      : 'Tous les points initiaux sont répartis. Vous pouvez valider la création.';
+  }
+}
+function constrainPointInput(input) {
+  if (isCreationLocked(loadedSheetData) || input.value === '') return;
+  syncSpellSlotsFromForm();
+  const skills = budgetSkills(), spells = structuredClone(spellSlots);
+  const isSkill = input.hasAttribute('data-skill-points');
+  const index = Number(isSkill ? input.dataset.skillPoints : input.dataset.spellPoints);
+  const name = isSkill ? SKILLS[index][0] : '';
+  if (isSkill) skills[index].points = 0; else spells[index].points = 0;
+  const budget = creationBudget(budgetSheet(), skills, spells);
+  const eligible = isSkill ? professionSkill(name, fieldValue('profession')) : professionByName(fieldValue('profession'))?.tag === 'Magie';
+  const base = isSkill ? Number(form.querySelector(`[data-skill-base="${index}"]`).value) : numberValue('intelligence');
+  const maximum = Math.max(0, Math.min(100-base, eligible ? budget.remaining : budget.personalRemaining));
+  const previous = Math.max(0, Number(input.dataset.previousPoints) || 0);
+  const requested = Math.floor(Number(input.value) || 0);
+  const value = Math.max(0, Math.min(100-base, requested <= previous ? requested : Math.min(requested,Math.max(previous,maximum))));
+  if (value !== Number(input.value)) {
+    input.value = String(value);
+    return `Attribution limitée à ${value} points : budget ${eligible ? 'disponible' : 'personnel'} et score maximal de 100 %.`;
+  }
 }
 
 function setDerived(key, value) { form.querySelector(`[data-derived="${key}"]`).value = value; }
 
 function fieldValue(key) { return form.querySelector(`[data-field="${key}"]`)?.value.trim() || ''; }
 
-// Conserver les valeurs des compétences masquées lors des sauvegardes.
-let hiddenSkillData = {};
+// Les anciennes compétences inactives sont archivées hors de la fiche active.
 let loadedSheetData = {};
-const hiddenSkillIndexes = SKILLS.flatMap(([name], index) =>
-  ['Artillerie', 'Conduite', 'Pilotage'].includes(name) ? [index] : []);
 
 function collectData() {
   syncSpellSlotsFromForm();
@@ -445,22 +589,24 @@ function collectData() {
   form.querySelectorAll('[data-field]').forEach(input => { fields[input.dataset.field] = input.value; });
   const stats = {};
   STATS.forEach(([, key]) => { stats[key] = form.querySelector(`[data-stat="${key}"]`).value; });
-  const skills = SKILLS.map(() => ({}));
-  hiddenSkillIndexes.forEach(index => { skills[index] = { ...hiddenSkillData[index] }; });
+  const skills = isCreationLocked(loadedSheetData)
+    ? SKILLS.map((_, index) => structuredClone(loadedSheetData.skills?.[index] || {}))
+    : SKILLS.map(() => ({}));
   ACTIVE_SKILLS.forEach(({ index }) => {
-    skills[index] = {
+    skills[index] = skillSaveValues(loadedSheetData, index, {
       ...loadedSheetData.skills?.[index],
       id: SKILL_IDS[index],
       base: form.querySelector(`[data-skill-base="${index}"]`).value,
       points: form.querySelector(`[data-skill-points="${index}"]`).value,
       score: form.querySelector(`[data-skill-final="${index}"]`).textContent,
       checked: form.querySelector(`[data-skill-check="${index}"]`).checked
-    };
+    });
   });
   const weapons = Array.from(weaponsBody.rows).map(row => Object.fromEntries(
     Array.from(row.querySelectorAll('[data-weapon]')).map(input => [input.dataset.weapon, input.value])
   ));
-  return { ...loadedSheetData, fields: { ...loadedSheetData.fields, ...fields }, stats, skills,
+  const retiredSkills = archiveInactiveSkills(loadedSheetData, ACTIVE_SKILLS.map(({ index }) => index), SKILL_IDS);
+  return { ...loadedSheetData, retiredSkills, fields: { ...loadedSheetData.fields, ...fields }, stats, skills,
     spells: spellSlots.map(slot => slot.name ? { ...slot, id: slot.id || SPELL_IDS[slot.name] } : slot), weapons };
 }
 
@@ -479,7 +625,9 @@ function applyData(data) {
     if (check) check.checked = false;
   });
   Object.entries(data.fields || {}).forEach(([key, value]) => {
-    const input = form.querySelector(`[data-field="${key}"]`); if (input) input.value = value ?? '';
+    const input = form.querySelector(`[data-field="${key}"]`);
+    if (input?.tagName === 'SELECT' && value && !Array.from(input.options).some(option => option.value === String(value))) input.add(new Option(value, value));
+    if (input) input.value = value ?? '';
   });
   // Les brouillons du générateur et les anciennes fiches peuvent omettre ce champ.
   const professionalPool = form.querySelector('[data-field="skillProfessionalPool"]');
@@ -491,7 +639,6 @@ function applyData(data) {
   renderSpellRows();
   updateDerived();
   const savedSkills = Array.isArray(data.skills) ? data.skills : [];
-  hiddenSkillData = Object.fromEntries(hiddenSkillIndexes.map(index => [index, { ...savedSkills[index] }]));
   const legacyShield = savedSkills[LEGACY_SHIELD_SKILL_INDEX] || {};
   const shieldHasPointAllocation = legacyShield.points !== undefined;
   const shieldPoints = shieldHasPointAllocation ? Math.max(0, parseInt(legacyShield.points, 10) || 0) : 0;
@@ -502,7 +649,7 @@ function applyData(data) {
     const check = form.querySelector(`[data-skill-check="${index}"]`);
     if (points) {
       let migratedPoints = skill.points === undefined ? Math.max(0, (parseInt(skill.score, 10) || 0) - (parseInt(base?.value, 10) || 0)) : Math.max(0, parseInt(skill.points, 10) || 0);
-      if (index === DEFENSE_SKILL_INDEX) {
+      if (index === DEFENSE_SKILL_INDEX && !isCreationLocked(data)) {
         if (shieldHasPointAllocation) migratedPoints += shieldPoints;
         else if (shieldFinalScore) migratedPoints = Math.max(migratedPoints, shieldFinalScore - (parseInt(base?.value, 10) || 0));
       }
@@ -512,7 +659,7 @@ function applyData(data) {
   });
   weaponsBody.innerHTML = '';
   (data.weapons?.length ? data.weapons : [{}]).forEach(addWeaponRow);
-  updateDerived(); updateFilename();
+  updateDerived(); updateFilename(); updateCreationControls();
 }
 
 function changed() {
@@ -522,7 +669,7 @@ function changed() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
-    state.textContent = 'Brouillon enregistré localement';
+    if (state.textContent === 'Modifications en cours…') state.textContent = 'Brouillon enregistré localement';
   }, 250);
 }
 
@@ -575,6 +722,8 @@ function supabaseErrorMessage(error) {
 async function saveSpells() {
   if (magicSaveInProgress) return;
   syncSpellSlotsFromForm();
+  const budgetErrors = creationBudgetErrors(budgetSheet(), budgetSkills(), spellSlots);
+  if (budgetErrors.length) { setSpellStatus('Sauvegarde refusée : ' + budgetErrors.join(' '), true); return; }
   if (!document.getElementById('pj-spell-add-panel').hidden) {
     setSpellStatus('Terminez l’ajout du nouveau sort ou annulez-le avant la sauvegarde.', true);
     return;
@@ -642,12 +791,20 @@ async function saveSheetToSupabase() {
   if (!supabase) { setStatus('Supabase n’est pas configuré.'); return; }
   if (!room) { setStatus('Rejoins d’abord une partie dans Dice Forge.'); return; }
   if (!fieldValue('name')) { setStatus('Donne un nom au personnage avant la sauvegarde.'); return; }
+  const budgetErrors = creationBudgetErrors(collectData());
+  if (budgetErrors.length) { setStatus('Sauvegarde refusée : ' + budgetErrors.join(' ')); return; }
 
+  const validationErrors = characteristicErrors(collectData().stats);
+  const invalidInput = form.querySelector('[data-stat]:invalid');
+  if (invalidInput) { invalidInput.reportValidity(); setStatus('Caractéristique invalide : indiquez un entier entre 0 et 999, ou laissez vide pour N/A.'); return; }
+  if (validationErrors.length) { setStatus(validationErrors.join(' ')); return; }
   const button = document.getElementById('pj-cloud-save');
   button.disabled = true;
   setStatus('Sauvegarde Supabase en cours…');
   const data = collectData();
-  const { data: saved, error } = await supabase.from('pj_sheets').upsert({
+  data.stats = normalizeCharacteristics(data.stats);
+  let result;
+  try { result = await supabase.from('pj_sheets').upsert({
     user_id: room.userId,
     room_code: room.code,
     player_name: room.player,
@@ -655,17 +812,91 @@ async function saveSheetToSupabase() {
     sheet_data: data,
     markdown_content: toMarkdown(),
     updated_at: new Date().toISOString()
-  }, { onConflict: 'room_code,player_name' });
-  button.disabled = false;
+  }, { onConflict: 'room_code,player_name' }).select('*');
+  } finally {button.disabled = false;}
+  const { data: saved, error } = result;
 
   if (error) { setStatus('Sauvegarde impossible : ' + supabaseErrorMessage(error)); return; }
-  if (saved?.[0]?.sheet_data) loadedSheetData = structuredClone(saved[0].sheet_data);
-  spellSheetContext = structuredClone(data);
+  const savedRow = Array.isArray(saved) ? saved[0] : saved;
+  if (!savedRow?.sheet_data) { setStatus('Sauvegarde non confirmée : le serveur n’a pas renvoyé la fiche enregistrée. Actualisez la fiche avant de recommencer.'); return; }
+  loadedSheetData = structuredClone(savedRow.sheet_data);
+  const savedData = savedRow.sheet_data;
+  spellSheetContext = structuredClone(savedData);
   renderSpellRows();
+  updateCreationControls();
+  updateDerived();
   clearTimeout(saveTimer);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, revision: saved?.[0]?.revision || data.revision }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...savedData, revision: savedRow.revision || savedData.revision }));
   localStorage.removeItem(`${STORAGE_KEY}.experience`);
   setStatus(`Fiche de ${fieldValue('name')} sauvegardée dans la partie ${room.code}.`);
+  return savedRow;
+}
+
+
+function updateCreationControls() {
+  const source = spellSheetContext?.state_id === loadedSheetData?.state_id && isCreationLocked(spellSheetContext) ? spellSheetContext : loadedSheetData;
+  const locked = isCreationLocked(source);
+  const dead = source?.lifecycle?.status === 'dead';
+  form.inert = dead;
+  for (const id of ['pj-cloud-save', 'pj-save-spells', 'pj-validate-creation']) {
+    const action = document.getElementById(id); if (action) action.disabled = dead;
+  }
+  form.classList.toggle('pj-creation-locked', locked);
+  form.querySelectorAll('[data-stat], [data-skill-points], [data-spell-points], [data-field="skillProfessionalPool"], [data-field="profession"], [data-field="race"]').forEach(input => {
+    input.readOnly = locked || (window.SUPABASE_CONFIG?.characterV2 && input.matches('[data-stat], [data-field="race"], [data-field="skillProfessionalPool"]'));
+    if (input.matches('[data-stat]')) input.title = 'Valeur issue du générateur. Les ajustements se font dans la création.';
+  });
+  const button = document.getElementById('pj-validate-creation');
+  button.hidden = source?.creation?.phase !== 'draft';
+  const validationErrors = creationValidationErrors(budgetSheet(), budgetSkills(), spellSlots);
+  button.disabled = dead || validationErrors.length > 0;
+  button.title = validationErrors.join(' ');
+  const status = document.getElementById('pj-creation-status');
+  status.hidden = !source?.creation;
+  const skillHelp = document.getElementById('pj-skills-help');
+  skillHelp.textContent = locked ? 'Scores acquis et coches d’expérience.' : 'Répartissez les points disponibles. Le score final est calculé automatiquement : base + points répartis.';
+  form.querySelectorAll('.pj-skill-group td').forEach(cell => { cell.colSpan = locked ? 3 : 5; });
+  status.textContent = source?.creation?.phase === 'legacy_review'
+    ? 'Fiche historique conservée. Une incohérence doit être tranchée par le MJ ; les points restent verrouillés.'
+    : locked ? 'Fiche en jeu : points acquis verrouillés. Les coches sont automatiques après une réussite.'
+      : 'Création en brouillon : caractéristiques issues du générateur. Répartissez vos points puis validez.';
+  const session = source?.progression?.session;
+  if (locked && session) {
+    status.textContent += session.closed_at
+      ? ` Session ${session.room_code} clôturée : ${session.lost} XP non dépensés perdus.`
+      : ` Session ${session.room_code} : ${session.remaining}/${session.pool} XP disponibles.`;
+  }
+  if (dead) { button.hidden = true; status.hidden = false; status.textContent = 'PJ mort : fiche et historique conservés en lecture seule. Choisissez un autre PJ disponible.'; }
+  else if (source?.creation?.phase === 'draft') status.textContent += validationErrors.length
+    ? ' ' + validationErrors.join(' ')
+    : ' Tous les points initiaux sont répartis : vous pouvez valider.';
+}
+
+async function validateCreation() {
+  const room = currentRoom();
+  if (!supabase || !room) { setStatus('Rejoignez une partie pour valider la création.'); return; }
+  const errors = creationValidationErrors(collectData());
+  if (errors.length) { setStatus('Validation refusée : ' + errors.join(' ')); return; }
+  if (!await showConfirm('Valider cette création et verrouiller les caractéristiques et points initiaux ?', { confirmLabel: 'Valider la création' })) return;
+  const button = document.getElementById('pj-validate-creation');
+  button.disabled = true;
+  form.inert = true;
+  try {
+    const saved = await saveSheetToSupabase();
+    if (!saved?.sheet_data?.state_id || saved.sheet_data.creation?.phase !== 'draft') return;
+    const { data, error } = await supabase.rpc('df_validate_creation', {
+      p_state: saved.sheet_data.state_id, p_room: room.code,
+      p_expected_revision: saved.sheet_data.revision
+    });
+    if (error) throw error;
+    if (!data?.sheet_data) throw new Error('Validation de création sans fiche retournée.');
+    spellSheetContext = structuredClone(data.sheet_data);
+    applyData(data.sheet_data);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+    setStatus('Création validée. Les points initiaux sont verrouillés.');
+  } catch (error) {
+    setStatus('Validation impossible : ' + supabaseErrorMessage(error));
+  } finally { form.inert = false; updateDerived(); }
 }
 
 async function loadSheetFromSupabase({ automatic = false } = {}) {
@@ -824,7 +1055,8 @@ async function transferSheetToRoom() {
   }
 
   const { data: existing, error: existingError } = await supabase.from('pj_sheets')
-    .select('character_name')
+    .select('*')
+    .eq('user_id', room.userId)
     .eq('room_code', targetCode)
     .eq('player_name', room.player)
     .maybeSingle();
@@ -840,7 +1072,12 @@ async function transferSheetToRoom() {
   }
 
   setTransferStatus(`Copie de la fiche vers ${targetCode}…`);
-  const data = collectData();
+  const data = transferSheetData(collectData(), existing);
+  const validationErrors = characteristicErrors(data.stats);
+  const invalidInput = form.querySelector('[data-stat]:invalid');
+  if (invalidInput) { invalidInput.reportValidity(); button.disabled = false; setTransferStatus('Caractéristique invalide : indiquez un entier entre 0 et 999, ou laissez vide pour N/A.', 'error'); return; }
+  if (validationErrors.length) { button.disabled = false; setTransferStatus(validationErrors.join(' '), 'error'); return; }
+  data.stats = normalizeCharacteristics(data.stats);
   const { error } = await supabase.from('pj_sheets').upsert({
     user_id: room.userId,
     room_code: targetCode,
@@ -872,9 +1109,9 @@ function toMarkdownWithLegacyHeader() {
   const data = collectData(), f = data.fields, s = data.stats;
   const statRows = STATS.map(([code, key]) => `| ${code} | ${cell(s[key])} | ${s[key] ? Number(s[key]) * 5 : ''} |`).join('\n');
   const spellRows = data.spells.filter(spell => spell.name).map(spell => {
-    const base = Number(s.intelligence) || 0;
+    const base = spell.allocation?.base ?? (Number(s.intelligence) || 0);
     const points = Math.max(0, parseInt(spell.points, 10) || 0);
-    return `| ${cell(spell.name)} | ${base} | ${points} | ${base + points} | [${spell.checked ? 'x' : ' '}] |`;
+    return `| ${cell(spell.name)} | ${base} | ${points} | ${spellScore(data,spell)} | [${spell.checked ? 'x' : ' '}] |`;
   }).join('\n');
   const skillRows = SKILL_GROUPS.map(group => {
     const rows = ACTIVE_SKILLS.map(({ skill: [name, , skillGroup], index }) => skillGroup === group
@@ -891,18 +1128,28 @@ function toMarkdownWithLegacyHeader() {
   }).join('\n') || '|  |  |  |';
   const d = key => form.querySelector(`[data-derived="${key}"]`).value;
   const professional = Math.max(0, parseInt(f.skillProfessionalPool, 10) || 0);
-  const personal = (Number(s.intelligence) || 0) * 10;
+  const personal = isCreationLocked(data) && data.creation?.personal != null ? data.creation.personal : (Number(s.intelligence) || 0) * 10;
   const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0)
     + data.spells.filter(spell => spell.name).reduce((sum, spell) => sum + (parseInt(spell.points, 10) || 0), 0);
-  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
+  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}  \n**Âge :** ${f.age || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
 }
 
 function toMarkdown() {
   const course = form.querySelector('[data-derived="course"]')?.value || '';
-  return toMarkdownWithLegacyHeader()
+  const data=collectData();
+  const gained=isCreationLocked(data) ? Number(data.progression?.xp_points || 0)+Number(data.progression?.learning_points || 0) : 0;
+  const markdown = toMarkdownWithLegacyHeader()
+    .replace(/(\*\*Points restants :\*\* )(-?\d+)/,(_,prefix,remaining)=>prefix+(Number(remaining)+gained))
+    .replace('\n\n## Armes',isCreationLocked(data) ? `\n\n## Progression\n\n- **XP acquis :** ${data.progression?.xp_points || 0}\n- **XP disponibles dans la session :** ${data.progression?.session?.remaining || 0}\n\n## Armes` : '\n\n## Armes')
     .replace('\n\n## Compétences', `\n- **Jet de Course :** (DEX + MOV) × 3 = ${course}\n\n## Compétences`)
     .replace('| Arme | % | Dégâts | Portée | PA |', '| Arme | % | Dégâts |')
-    .replace('|------|---|--------|--------|----|', '|------|---|--------|');
+    .replace('|------|---|--------|--------|----|', '|------|---|--------|')
+    .replace("Bonus d'expérience", 'Pool d’XP par session (arrondi supérieur)');
+  if (!isCreationLocked(data)) return markdown;
+  return markdown
+    .replace(/- \*\*Total disponible :\*\*[^\n]*\n- \*\*Points répartis :\*\*[^\n]*\n- \*\*Points restants :\*\*[^\n]*/, '- **Attributions acquises :** verrouillées ; les points initiaux ne sont plus redistribuables.')
+    .replace('| Compétence | Base | Points répartis | Score final | Coche |', '| Compétence | Base | Points acquis | Score final | Coche |')
+    .replace('- **XP acquis :**', `- **Points réservés aux sorts appris :** ${data.progression?.learning_points || 0}\n- **XP acquis :**`);
 }
 
 function downloadMarkdown() {
@@ -921,11 +1168,6 @@ function openPdfPreview() {
     skills: ACTIVE_SKILLS
       .filter(({ skill: [, , skillGroup] }) => skillGroup === group)
       .map(({ skill: [name], index }) => ({ name, ...(data.skills[index] || {}) }))
-      .concat(group === 'Magie & pouvoirs' ? data.spells.filter(spell => spell.name).map(spell => {
-        const base = numberValue('intelligence') || 0;
-        const points = Math.max(0, parseInt(spell.points, 10) || 0);
-        return { name: spell.name, base, points, score: base + points, checked: spell.checked };
-      }) : [])
   }));
   data.derived = Object.fromEntries(['hp', 'pp', 'damage', 'experience', 'course'].map(key => [
     key,
@@ -939,7 +1181,21 @@ function openPdfPreview() {
     remaining: document.getElementById('pj-skill-remaining').textContent
   };
   data.generatedAt = new Date().toISOString();
-  localStorage.setItem(PRINT_STORAGE_KEY, JSON.stringify(data));
+  const room = currentRoom();
+  const selectedCharacterId = window.SUPABASE_CONFIG?.characterV2 && room
+    ? localStorage.getItem(`diceforge_character:${room.userId}:${room.code}`) : null;
+  const characterId = data.character_id || selectedCharacterId;
+  data.printInventory = data.character_id && selectedCharacterId && data.character_id !== selectedCharacterId
+    ? null : readPrintInventory(localStorage, room, characterId);
+  try {
+    // Preserve edits made immediately before clicking Export; the debounce may still be pending.
+    clearTimeout(saveTimer);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
+    storePrintSnapshot(sessionStorage, data);
+  } catch {
+    document.getElementById('pj-save-state').textContent = 'Impossible de préparer le PDF : le stockage de cet onglet est indisponible ou plein. Exportez la fiche en Markdown pour conserver vos données.';
+    return;
+  }
   if (IS_EMBEDDED && window.top !== window) window.top.location.href = 'pj-print.html';
   else window.location.href = 'pj-print.html';
 }
@@ -956,7 +1212,7 @@ function listText(text) { return text.split(/\r?\n/).map(line => line.replace(/^
 function parseMarkdown(text) {
   const data = { fields: {}, stats: {}, skills: [], spells: [], weapons: [] };
   data.fields.name = (text.match(/^# (.+)$/m) || [])[1] || '';
-  data.fields.player = valueAfter('Joueur', text); data.fields.profession = valueAfter('Profession', text); data.fields.race = valueAfter('Race', text);
+  data.fields.player = valueAfter('Joueur', text); data.fields.profession = valueAfter('Profession', text); data.fields.race = valueAfter('Race', text); data.fields.age = valueAfter('Âge', text);
   const statSection = section(text, 'Caractéristiques');
   STATS.forEach(([code, key]) => { const m = statSection.match(new RegExp(`\\|\\s*${code}\\s*\\|\\s*([^|]*)`)); data.stats[key] = m ? m[1].trim() : ''; });
   const derived = section(text, 'Attributs dérivés');
@@ -991,7 +1247,7 @@ function parseMarkdown(text) {
     return spellNames.has(name);
   }).map(line => {
     const cells = line.split('|');
-    return { name: cells[1]?.trim() || '', points: cells[3]?.trim() || '0', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') };
+    return { name: cells[1]?.trim() || '', base:Number(cells[2]?.trim() || 0), points: cells[3]?.trim() || '0', checked: /^\[x\]$/i.test(cells[5]?.trim() || '') };
   });
   const weaponSection = section(text, 'Armes');
   data.weapons = weaponSection.split(/\r?\n/).filter(line => /^\|/.test(line) && !/Arme|---/.test(line)).map(line => {
@@ -1012,6 +1268,13 @@ async function openMarkdown(file) {
 }
 
 const sheetTabs = Array.from(document.querySelectorAll('.pj-tabs [role="tab"]'));
+const progression = mountProgression({
+ panel:document.getElementById('pj-progression-panel'),client:supabase,
+ getSheet:collectData,getRoom:currentRoom,save:saveSheetToSupabase,confirm:showConfirm,
+ getSaveError:()=>document.getElementById('pj-save-state').textContent,
+ lock:value=>{form.inert=value;document.querySelector('.pj-toolbar').inert=value;},
+ apply:data=>{clearTimeout(saveTimer);spellSheetContext=structuredClone(data);applyData(data);localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+});
 function selectSheetTab(tab) {
   sheetTabs.forEach(button => {
     const selected = button === tab;
@@ -1020,7 +1283,8 @@ function selectSheetTab(tab) {
     document.getElementById(button.getAttribute('aria-controls')).hidden = !selected;
   });
   document.querySelector('.pj-section-nav').hidden = tab.id !== 'pj-main-tab';
-  document.querySelector('.pj-toolbar').hidden = tab.id === 'pj-magic-tab';
+  document.querySelector('.pj-toolbar').hidden = ['pj-magic-tab','pj-progression-tab'].includes(tab.id);
+  if(tab.id==='pj-progression-tab')progression.render();
   if (tab.id === 'pj-inventory-tab') {
     const frame = document.getElementById('pj-inventory-frame');
     if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
@@ -1044,6 +1308,7 @@ try { const draft = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (draft) ap
 updateDerived(); updateFilename();
 localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
 function formChanged(event) {
+  const allocationWarning = event.target.matches('[data-skill-points], [data-spell-points]') ? constrainPointInput(event.target) : null;
   if (event.target.matches('[data-skill-check], [data-spell-check]') && !event.target.checked) {
     const kind = event.target.hasAttribute('data-spell-check') ? 'spell' : 'skill';
     const index = Number(event.target.getAttribute(`data-${kind}-check`));
@@ -1063,12 +1328,41 @@ function formChanged(event) {
   }
   if (event.target.closest('#pj-magic-panel')) magicEditRevision += 1;
   changed();
+  if (allocationWarning) setStatus(allocationWarning);
 }
 form.addEventListener('input', formChanged);
 form.addEventListener('change', formChanged);
+form.addEventListener('pointerdown', event => {
+  if (event.target.matches('[data-skill-points], [data-spell-points]')) event.target.step = event.ctrlKey ? '10' : '1';
+});
+form.addEventListener('keydown', event => {
+  if (event.target.matches('[data-skill-points], [data-spell-points]') && ['ArrowUp','ArrowDown'].includes(event.key)) event.target.step = event.ctrlKey ? '10' : '1';
+});
+document.addEventListener('pointerup', () => form.querySelectorAll('[data-skill-points], [data-spell-points]').forEach(input => { input.step = '1'; }));
+
+async function loadArmorOptions() {
+  const select = form.querySelector('[data-field="armorType"]');
+  const response = await fetch('inventaire.html');
+  if (!response.ok) return;
+  const catalog = new DOMParser().parseFromString(await response.text(), 'text/html');
+  const table = catalog.querySelector('#armures');
+  const section = table?.tagName === 'TABLE' ? table : table?.closest('section') || table?.parentElement;
+  for (const row of section?.querySelectorAll('tbody tr') || []) {
+    const cells = Array.from(row.querySelectorAll('td')).map(cell => cell.textContent.trim());
+    if (!cells[0] || Array.from(select.options).some(option => option.value === cells[0])) continue;
+    const option = new Option(cells[0], cells[0]); option.dataset.protection = cells[3] || ''; select.add(option);
+  }
+}
+loadArmorOptions().catch(error => console.warn('Catalogue des armures indisponible', error));
+form.querySelector('[data-field="armorType"]').addEventListener('change', event => {
+  if (!event.target.value) { form.querySelector('[data-field="armorPoints"]').value = ''; changed(); return; }
+  const protection = event.target.selectedOptions[0]?.dataset.protection;
+  if (protection !== undefined) { form.querySelector('[data-field="armorPoints"]').value = protection; changed(); }
+});
 document.getElementById('pj-add-weapon').addEventListener('click', () => { addWeaponRow(); changed(); });
 document.getElementById('pj-clear-skill-checks').addEventListener('click', clearAllSkillChecks);
 document.getElementById('pj-save-spells').addEventListener('click', saveSpells);
+document.getElementById('pj-validate-creation').addEventListener('click', validateCreation);
 document.getElementById('pj-add-spell').addEventListener('click', () => {
   refreshNewSpellOptions();
   document.getElementById('pj-spell-add-panel').hidden = false;
@@ -1080,6 +1374,7 @@ document.getElementById('pj-cancel-spell').addEventListener('click', () => {
   setSpellStatus('');
 });
 document.getElementById('pj-confirm-spell').addEventListener('click', addSpell);
+document.getElementById('pj-learning-retry').addEventListener('click',()=>learnSpell(true));
 document.getElementById('pj-download').addEventListener('click', downloadMarkdown);
 document.getElementById('pj-pdf').addEventListener('click', openPdfPreview);
 document.getElementById('pj-cloud-save').addEventListener('click', saveSheetToSupabase);
@@ -1093,7 +1388,7 @@ document.getElementById('pj-file').addEventListener('change', event => { const f
 document.getElementById('pj-reset').addEventListener('click', async () => {
   const confirmed = await showConfirm('Attention : créer une nouvelle fiche effacera le brouillon actuel et ses modifications non sauvegardées. Une sauvegarde en ligne de la nouvelle fiche remplacera la fiche actuelle dans cette partie. Exportez votre personnage en Markdown ou PDF avant de continuer.', { confirmLabel: 'Créer une nouvelle fiche' });
   if (!confirmed) return;
-  localStorage.removeItem(STORAGE_KEY); form.reset(); spellSlots = []; spellSheetContext = null; document.getElementById('pj-spell-add-panel').hidden = true; setSpellStatus(''); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
+  localStorage.removeItem(STORAGE_KEY); form.reset(); loadedSheetData = {}; spellSlots = []; spellSheetContext = null; document.getElementById('pj-spell-add-panel').hidden = true; setSpellStatus(''); renderSpellRows(); weaponsBody.innerHTML = ''; addWeaponRow(); updateDerived(); updateFilename(); changed();
 });
 
 window.diceForgeSheet = { setSkillChecked, getData: collectData, adoptCloudRevision(data) {
@@ -1116,6 +1411,14 @@ window.addEventListener('storage', event => {
   }
   localEditRevision += 1;
   setStatus('Coches d’expérience synchronisées. Pense à sauvegarder en ligne.');
+});
+mountCharacterRoster(document.getElementById('pj-character-roster'), {
+ room: currentRoom(),
+ beforeSelect: async () => {
+  if (!await showConfirm('Changer de PJ ? Les modifications locales de cette fiche restent dans son brouillon. Sauvegardez-les en ligne avant de changer si nécessaire.')) return false;
+  clearTimeout(saveTimer); localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData())); return true;
+ },
+ onSelect: character => { window.top.location.href = `index.html?room=${encodeURIComponent(currentRoom().code)}${character.character_id ? '#fiche-personnage' : '#creation-personnage'}`; }
 });
 if (SYNC_FROM_GENERATOR) {
   setStatus('Caractéristiques et mouvement synchronisés depuis le personnage généré.');

@@ -35,4 +35,9 @@ for (let value = 2; value <= 100; value++) assert.equal(context.evaluatePercenti
 assert.equal(context.evaluatePercentile(0, 96).level, 'fumble');
 assert.equal(context.createPercentileTest({ threshold: 0, difficulty: { mode: 'impossible' } }).automatic, false);
 assert.equal(context.evaluatePercentile(0, 1).specialLimit, 0);
+for (let value=1; value<=99; value++) assert.equal(context.evaluatePercentile(100,value).success,true);
+assert.equal(context.evaluatePercentile(100,100).level,'fumble');
+assert.equal(context.evaluatePercentile(99,96).success,false);
+assert.equal(context.evaluatePercentile(context.brpThresholdFor(100,{divisor:2}),96).success,false);
+assert.equal(context.evaluatePercentile(context.brpThresholdFor(100,normal,1),99).success,false);
 console.log('BRP malus and Impossible: D100 remains active, 01 critical, 02–100 fail, skill identity and messages passed.');

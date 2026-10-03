@@ -2,7 +2,7 @@
 <html lang="fr" class="auth-pending">
 <head>
 <style>.auth-pending body{visibility:hidden}</style>
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
 <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -232,14 +232,16 @@ table { font-size: 12px; }
 }
 </style>
 <link rel="stylesheet" href="site-menu.css?v=20260719">
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
 </head>
 <body>
-<script src="js/site-menu.js?v=20260719-merged-character" defer></script>
+<script src="js/site-menu.js?v=20261003-aids" defer></script>
 <a class="skip-link" href="#contenu">Aller directement aux règles</a>
 <header class="web-toolbar">
   <div class="toolbar-title">
     <strong>Écran du MJ — BRP ORC</strong>
-    <span>Révision Dice‑Forge · juillet 2026</span>
+    <span>Révision Dice Forge · 3 octobre 2026</span>
   </div>
   <nav class="toolbar-links" aria-label="Navigation de l’écran MJ">
     <a href="index.html">Dice‑Forge</a>
@@ -252,7 +254,7 @@ table { font-size: 12px; }
     <button type="button" onclick="window.print()">Imprimer</button>
   </nav>
 </header>
-<main class="screen" id="contenu">
+<main class="screen" id="contenu" data-aid-content>
 
 <!-- ============ PANNEAU 1 : Niveaux de succès + Résistance ============ -->
 <section class="panel" id="resolution">
@@ -405,18 +407,22 @@ table { font-size: 12px; }
 </ul>
 
 <h2>Expérience</h2>
-<div class="formula">Bonus et réserve d'expérience = INT ÷ 2 (arrondi au supérieur)</div>
+<p class="note">Compétences et sorts : score maximal 100 %. À score effectif 100 %, 01–99 réussissent et 00/100 est une maladresse. Appliquer les difficultés et malus avant ce seuil. Aucun gain d’XP au-delà de 100 %.</p>
+
+<p class="note">Une room = une session = un nouveau pool de INT ÷ 2, arrondi au supérieur, attribué une seule fois à la première entrée du personnage. Seul le MJ crée les rooms. Une tentative de déverrouillage par compétence ou sort coché et par room ; une reconnexion conserve le solde et les tentatives. Les points non dépensés sont perdus à la fin de session et ne peuvent pas être récupérés en revenant dans une ancienne room.</p>
+
+<div class="formula">Réserve d'expérience = INT ÷ 2 (arrondi au supérieur)</div>
 <table class="compact">
 <tr><th>Étape</th><th>Règle</th></tr>
-<tr><td>1. Coche</td><td>Après toute réussite obtenue avec une compétence en jeu, cochez cette compétence.</td></tr>
-<tr><td>2. Jet</td><td>À la fin de la séance, lancez D100 + bonus d'expérience pour chaque compétence cochée.</td></tr>
+<tr><td>1. Coche</td><td>Après une réussite utile avec une compétence ou un sort, cochez la cible. Un échec ne donne pas de coche.</td></tr>
+<tr><td>2. Jet</td><td>Pendant la session, lancez 1D100 sans bonus ni malus pour chaque compétence ou sort coché.</td></tr>
 <tr><td>3. Apprentissage</td><td>Un résultat supérieur au score actuel rend la compétence <b>admissible</b>.</td></tr>
-<tr><td>4. Réserve</td><td>Le personnage reçoit une réserve de points égale à son bonus d'expérience.</td></tr>
-<tr><td>5. Répartition</td><td>Répartissez librement la réserve, sans plafond, entre les compétences admissibles.</td></tr>
-<tr><td>6. Fin</td><td>Les points non attribués sont perdus, puis toutes les coches sont effacées.</td></tr>
+<tr><td>4. Réserve</td><td>Le pool vaut INT ÷2, arrondi au supérieur ; attribué une seule fois à l’entrée dans la salle.</td></tr>
+<tr><td>5. Répartition</td><td>Dépensez sur les compétences et les sorts déverrouillés : 1 XP = +1 point, score maximal 100 %.</td></tr>
+<tr><td>6. Fin</td><td>À la clôture ou au changement de session, le reliquat est perdu. La session suivante remet les coches à zéro ; décocher ne renouvelle pas une tentative.</td></tr>
 </table>
 <p class="note">Si aucun jet d'apprentissage ne réussit, aucun point n'est attribué. La progression de la POU reste séparée.</p>
-<p><b>Exemple :</b> INT 13 donne un bonus et une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, le joueur peut attribuer Épée +5 et Défense +2.</p>
+<p><b>Exemple :</b> INT 13 donne une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, le joueur peut attribuer Épée +5 et Défense +2.</p>
 
 </section>
 

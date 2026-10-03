@@ -54,6 +54,9 @@ function groupsFromRoll(roll) {
     .map(match => ({ count: Math.max(1, Number.parseInt(match[1], 10)), type: Number.parseInt(match[2], 10) }));
 
   if (!definitions.length) {
+    // Progression publishes its authoritative D100 as the total, without brackets.
+    if (!values.length && expression.startsWith('Progression ·') && /D100\b/i.test(expression)
+        && Number.isInteger(roll.total) && roll.total >= 1 && roll.total <= 100) values.push(roll.total);
     if (!values.length) return [];
     const percentile = values[0] === 0 ? 100 : Math.max(1, Math.min(100, values[0]));
     return [{ type: 100, rolls: [{ val: percentile, finalVal: percentile }] }];

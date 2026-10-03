@@ -1,5 +1,5 @@
 (() => {
-  const content = document.querySelector('.page, .container');
+  const content = document.querySelector('[data-aid-content], .page, .container');
   if (!content) return;
 
   const storageKey = 'dice-forge-reading-zoom';

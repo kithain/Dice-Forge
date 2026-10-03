@@ -1,4 +1,7 @@
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
+import { inventoryJournal } from './inventory-sync.js?v=20261003-save-fixes';
+import { fillWealthOptions } from './creation-help.js?v=20261003-recipe-ui';
+import { showConfirm } from './toast.js?v=20261002-safe-confirm';
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { ALCHEMY_POTIONS } from './alchemy-potions.js?v=20261002-potion-doses';
 import { potionRowsFromInventory, regularConsumables, consumablesWithPotions, normalizePotionRows, doseCount, availablePotionCapacity, MAX_CARRIED_DOSES } from './inventory-potions.js?v=20261002-campaign-v2-r1';
 
@@ -34,6 +37,31 @@ let cloudLoadInProgress = false;
 let roomIdentity = identityFromStorage();
 let equipmentCatalog = { weapons: [], armors: [], potions: ALCHEMY_POTIONS };
 let weaponSkillScores = { contact: '', distance: '' };
+const journals = new Map();
+let lastRecorded = null;
+
+function inventorySnapshot(value) {
+  const { entries, type, ...potionContainer } = value.potionContainer || {};
+  return { characterName: value.characterName || '', wallet: { ...value.wallet },
+    ...Object.fromEntries(['weapons','armors','equipment','consumables','miscellaneous','potions']
+      .map(section => [section, structuredClone(value[section] || [])])),
+    potionContainer: structuredClone(potionContainer) };
+}
+
+function currentJournal() {
+  const key = `${storageKey()}:history`;
+  if (!journals.has(key)) journals.set(key, inventoryJournal(localStorage, key));
+  return journals.get(key);
+}
+
+function recordInventoryEdit() {
+  collectFromDom();
+  const next = inventorySnapshot(inventory);
+  currentJournal().record(lastRecorded || next, next);
+  lastRecorded = next;
+  saveLocal({ collect: false });
+}
+
 
 function emptyInventory() {
   return {
@@ -52,7 +80,7 @@ function identityFromStorage() {
   try {
     const room = JSON.parse(localStorage.getItem(ROOM_STORAGE_KEY));
     return room?.code && room?.player && room?.userId
-      ? { code: String(room.code).toUpperCase(), player: String(room.player), userId: String(room.userId) }
+      ? { code: String(room.code).toUpperCase(), player: String(room.player), userId: String(room.userId), characterId: window.SUPABASE_CONFIG?.characterV2 ? localStorage.getItem(`diceforge_character:${room.userId}:${room.code}`) : null }
       : null;
   } catch (error) {
     return null;
@@ -61,7 +89,7 @@ function identityFromStorage() {
 
 function storageKey() {
   return roomIdentity
-    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}:${roomIdentity.code}`
+    ? `${INVENTORY_STORAGE_PREFIX}:${roomIdentity.userId}:${roomIdentity.code}${roomIdentity.characterId ? ':' + roomIdentity.characterId : ''}`
     : `${INVENTORY_STORAGE_PREFIX}:local`;
 }
 
@@ -124,7 +152,9 @@ function rowMarkup(section, row, index) {
   const list = section === 'weapons' ? ' list="weapon-catalog-list"' : section === 'armors' ? ' list="armor-catalog-list"' : section === 'potions' ? ' list="potion-catalog-list"' : '';
   const input = (field, label, multiline = false) => multiline
     ? `<textarea data-row-field="${field}" aria-label="${label}">${escapeHtml(row[field])}</textarea>`
-    : `<input data-row-field="${field}" value="${escapeHtml(row[field])}" aria-label="${label}"${field === 'name' ? list : ''}>`;
+    : section === 'armors' && field === 'name'
+      ? `<select data-row-field="name" aria-label="${label}"><option value="">Choisir une armure…</option>${[...new Set([row.name, ...equipmentCatalog.armors.map(item => item.name)].filter(Boolean))].map(name => `<option value="${escapeHtml(name)}"${name === row.name ? ' selected' : ''}>${escapeHtml(name)}</option>`).join('')}</select>`
+      : `<input data-row-field="${field}" value="${escapeHtml(row[field])}" aria-label="${label}"${field === 'name' ? list : ''}>`;
   const doses = (field, label) => `<input type="number" min="0" step="1"${field === 'carried' ? ` max="${MAX_CARRIED_DOSES}"` : ''} data-row-field="${field}" value="${doseCount(row[field])}" aria-label="${label}">`;
   const cells = section === 'weapons'
     ? `${input('name', 'Nom de l’arme')}${input('description', 'Description de l’arme', true)}${input('category', 'Catégorie de l’arme')}${input('brp', 'Pourcentage BRP')}${input('damage', 'Dégâts')}${input('hands', 'Nombre de mains')}${input('specials', 'Spécial de l’arme', true)}`
@@ -275,7 +305,7 @@ async function loadWeaponSkillScores() {
 
 function renderSection(section) {
   const body = document.getElementById(`inventory-${section}`);
-  body.innerHTML = inventory[section].map((row, index) => rowMarkup(section, row, index)).join('');
+  body.innerHTML = inventory[section].map((row, index) => section === 'miscellaneous' && row.name === 'Classe sociale' ? '' : rowMarkup(section, row, index)).join('');
   if (section === 'potions') {
     resizePotionFields();
     updatePotionCapacity();
@@ -323,6 +353,7 @@ function renderWallet() {
 }
 
 function render() {
+  fillWealthOptions(document.getElementById('inventory-social-class'), inventory.miscellaneous.find(row => row.name === 'Classe sociale')?.description || 'Moyen');
   const character = inventory.characterName || roomIdentity?.player || 'Personnage';
   document.getElementById('inventory-character').textContent = roomIdentity
     ? `${character} · ${roomIdentity.player} · salon ${roomIdentity.code}`
@@ -343,6 +374,7 @@ function collectFromDom() {
     inventory[section] = collectRowsFromDom(section);
   });
   inventory.potions = normalizePotionRows(inventory.potions);
+  inventory.miscellaneous.push({ name: 'Classe sociale', description: document.getElementById('inventory-social-class').value });
   return inventory;
 }
 
@@ -352,7 +384,8 @@ function saveLocal({ collect = true } = {}) {
 }
 
 function scheduleSave() {
-  saveLocal();
+  try { recordInventoryEdit(); }
+  catch (error) { setStatus(`Historique non enregistré : ${error.message}`, 'error'); return; }
   setStatus(roomIdentity ? 'Modifications en attente de sauvegarde…' : 'Inventaire enregistré localement.');
   clearTimeout(saveTimer);
   if (roomIdentity && supabase) {
@@ -362,7 +395,7 @@ function scheduleSave() {
 
 function addRow(section, value = {}) {
   collectFromDom();
-  inventory[section].push(Object.fromEntries(SECTION_FIELDS[section].map(field => [field, cleanText(value[field])])));
+  inventory[section].push({ id: crypto.randomUUID(), ...Object.fromEntries(SECTION_FIELDS[section].map(field => [field, cleanText(value[field])])) });
   renderSection(section);
   saveLocal();
   document.querySelector(`#inventory-${section} tr:last-child [data-row-field]`)?.focus();
@@ -399,49 +432,70 @@ function inventoryError(error) {
   return error?.message || 'Erreur Supabase inconnue';
 }
 
-function cloudPayload() {
-  collectFromDom();
+function cloudPayload(value = inventory, identity = roomIdentity) {
   return {
-    user_id: roomIdentity.userId,
-    ...(inventory.revision ? { expected_revision: inventory.revision } : {}),
-    room_code: roomIdentity.code,
-    player_name: roomIdentity.player,
-    character_name: inventory.characterName,
-    po: inventory.wallet.po,
-    pa: inventory.wallet.pa,
-    pc: inventory.wallet.pc,
-    weapons: inventory.weapons,
-    armors: inventory.armors,
-    equipment: inventory.equipment,
-    consumables: consumablesWithPotions(inventory.consumables, inventory.potions, inventory.potionContainer),
-    miscellaneous: inventory.miscellaneous,
-    updated_at: new Date().toISOString()
+    user_id: identity.userId,
+    ...(identity.characterId ? { __character_id: identity.characterId } : {}),
+    ...(value.revision ? { expected_revision: value.revision } : {}),
+    room_code: identity.code,
+    player_name: identity.player,
+    character_name: value.characterName,
+    po: value.wallet.po, pa: value.wallet.pa, pc: value.wallet.pc,
+    weapons: value.weapons, armors: value.armors, equipment: value.equipment,
+    consumables: consumablesWithPotions(value.consumables, value.potions, value.potionContainer),
+    miscellaneous: value.miscellaneous, updated_at: new Date().toISOString()
   };
+}
+
+async function readCloudInventory(identity) {
+  const { data, error } = await supabase.from('pj_inventory').select('*')
+    .eq('user_id', identity.userId).eq('room_code', identity.code)
+    .order('updated_at', { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
 async function saveCloud({ automatic = false } = {}) {
   clearTimeout(saveTimer);
-  if (!supabase) {
-    if (!automatic) setStatus('Supabase n’est pas configuré.', 'error');
+  if (!supabase || !roomIdentity) {
+    if (!automatic) setStatus(!supabase ? 'Supabase n’est pas configuré.' : 'Rejoignez d’abord une partie.', 'error');
     return false;
   }
-  if (!roomIdentity) {
-    if (!automatic) setStatus('Rejoignez d’abord une partie.', 'error');
-    return false;
-  }
+  // The loader replays edits and resumes the FIFO once its baseline is known.
+  if (cloudLoadInProgress) return false;
+  const identity = { ...roomIdentity };
+  const key = storageKey();
   const button = document.getElementById('inventory-save');
-  button.disabled = true;
-  if (!automatic) setStatus('Sauvegarde de l’inventaire…');
-  const { data: saved, error } = await supabase.from('pj_inventory').upsert(cloudPayload(), { onConflict: 'room_code,player_name' });
-  button.disabled = false;
-  if (error) {
-    setStatus(`Sauvegarde impossible : ${inventoryError(error)}`, 'error');
+  try {
+    recordInventoryEdit();
+    const journal = currentJournal();
+    button.disabled = true;
+    await journal.flush(async () => {
+      const row = await readCloudInventory(identity);
+      const value = row ? inventoryFromCloud(row) : await importFromCompleteSheet(identity);
+      return { data: inventorySnapshot(value), revision: row?.revision };
+    }, async (data, latest) => {
+      const { data: saved, error } = await supabase.from('pj_inventory')
+        .upsert(cloudPayload({ ...data, revision: latest.revision }, identity), { onConflict: 'room_code,player_name' }).select('*');
+      if (error) throw error;
+      return saved?.[0];
+    }, saved => {
+      if (storageKey() === key && saved?.revision) inventory.revision = saved.revision;
+    });
+    if (storageKey() !== key) return true;
+    saveLocal();
+    document.getElementById('inventory-resolve').hidden = true;
+    setStatus(`Inventaire sauvegardé dans le salon ${identity.code}. Historique local conservé.`, 'success');
+    return true;
+  } catch (error) {
+    if (storageKey() === key) {
+      document.getElementById('inventory-resolve').hidden = error.code !== 'DF_INVENTORY_CONFLICT';
+      setStatus(`Envoi en attente : ${inventoryError(error)}. Les modifications restent locales.`, 'error');
+    }
     return false;
+  } finally {
+    if (storageKey() === key) button.disabled = false;
   }
-  if (saved?.[0]?.revision) inventory.revision = saved[0].revision;
-  saveLocal();
-  setStatus(`Inventaire sauvegardé dans le salon ${roomIdentity.code}.`, 'success');
-  return true;
 }
 
 function inventoryFromCloud(row) {
@@ -471,19 +525,21 @@ function importLegacyWallet() {
   }
 }
 
-async function importFromCompleteSheet() {
+async function importFromCompleteSheet(identity = roomIdentity) {
   const migrated = emptyInventory();
   migrated.wallet = normalizeInventory({ wallet: importLegacyWallet() }).wallet;
-  if (!supabase || !roomIdentity) return migrated;
+  if (!supabase || !identity) return migrated;
   const { data, error } = await supabase.from('pj_sheets')
     .select('character_name,sheet_data')
-    .eq('user_id', roomIdentity.userId)
+    .eq('user_id', identity.userId).eq('room_code', identity.code)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
   if (error || !data?.sheet_data) return migrated;
 
   const sheet = data.sheet_data;
+  const wealth = cleanText(sheet.fields?.wealth || sheet.fields?.richesse);
+  if (wealth) migrated.miscellaneous.push({ name: 'Classe sociale', description: wealth });
   migrated.characterName = cleanText(data.character_name || sheet.fields?.name);
   migrated.weapons = safeRows((sheet.weapons || []).map(weapon => {
     const catalog = findCatalogEntry('weapons', weapon.name);
@@ -520,51 +576,64 @@ async function loadCloud({ manual = false } = {}) {
     if (manual) setStatus(!supabase ? 'Supabase n’est pas configuré.' : 'Rejoignez d’abord une partie.', 'error');
     return;
   }
+  const identity = { ...roomIdentity };
+  const key = storageKey();
   cloudLoadInProgress = true;
   document.getElementById('inventory-refresh').disabled = true;
   setStatus('Chargement de l’inventaire Supabase…');
-  const { data, error } = await supabase.from('pj_inventory')
-    .select('*')
-    .eq('user_id', roomIdentity.userId)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  cloudLoadInProgress = false;
-  document.getElementById('inventory-refresh').disabled = false;
-  if (error) {
-    setStatus(`Chargement impossible : ${inventoryError(error)}`, 'error');
-    return;
-  }
-  if (data) {
-    inventory = inventoryFromCloud(data);
+  try {
+    const journal = currentJournal();
+    if (window.SUPABASE_CONFIG?.characterV2) {
+      const sheet = await supabase.from('pj_sheets').select('sheet_data').eq('user_id',identity.userId).eq('room_code',identity.code).maybeSingle();
+      if (sheet.error) throw sheet.error;
+      if (sheet.data?.sheet_data?.state_id) {
+        const migrated = await supabase.rpc('df_import_legacy_inventory',{p_state:sheet.data.sheet_data.state_id,p_room:identity.code});
+        if (migrated.error) throw migrated.error;
+      }
+    }
+    const row = await readCloudInventory(identity);
+    const baseline = row ? inventoryFromCloud(row) : await importFromCompleteSheet(identity);
+    if (storageKey() !== key) return;
+    // Capture any edits made during the fetch, then replay them over the server.
+    recordInventoryEdit();
+    inventory = normalizeInventory({ ...baseline, ...journal.replay(inventorySnapshot(baseline)) });
     enrichInventoryFromCatalog();
+    lastRecorded = inventorySnapshot(inventory);
     render();
     saveLocal({ collect: false });
-    const date = data.updated_at ? new Date(data.updated_at).toLocaleString('fr-FR') : '';
-    setStatus(`Inventaire chargé depuis Supabase${date ? ` · ${date}` : ''}.`, 'success');
-    return;
+    if (!row && !journal.pending().length) {
+      // Queue initial import as well, with an explicit empty baseline.
+      journal.record(inventorySnapshot(emptyInventory()), inventorySnapshot(inventory));
+    }
+    setStatus(journal.pending().length ? 'Inventaire chargé ; modifications locales conservées, envoi dans l’ordre…'
+      : 'Inventaire chargé depuis Supabase.', 'success');
+  } catch (error) {
+    if (storageKey() === key) setStatus(`Chargement impossible : ${inventoryError(error)}`, 'error');
+  } finally {
+    cloudLoadInProgress = false;
+    document.getElementById('inventory-refresh').disabled = false;
+    if (storageKey() !== key) loadCloud();
   }
-
-  inventory = await importFromCompleteSheet();
-  render();
-  saveLocal({ collect: false });
-  setStatus('Nouvel inventaire créé à partir de la fiche complète et de l’ancienne bourse.');
-  await saveCloud({ automatic: true });
+  if (storageKey() === key && currentJournal().pending().length) await saveCloud({ automatic: true });
 }
 
 async function reloadIdentity() {
   const nextIdentity = identityFromStorage();
   const changed = nextIdentity?.code !== roomIdentity?.code
     || nextIdentity?.player !== roomIdentity?.player
-    || nextIdentity?.userId !== roomIdentity?.userId;
+    || nextIdentity?.userId !== roomIdentity?.userId
+    || nextIdentity?.characterId !== roomIdentity?.characterId;
   if (!changed) return;
+  clearTimeout(saveTimer);
   roomIdentity = nextIdentity;
+  document.getElementById('inventory-resolve').hidden = true;
   inventory = emptyInventory();
   try {
     inventory = normalizeInventory(JSON.parse(localStorage.getItem(storageKey())));
   } catch (error) {
     inventory = emptyInventory();
   }
+  lastRecorded = inventorySnapshot(inventory);
   render();
   await loadCloud();
 }
@@ -579,6 +648,7 @@ document.addEventListener('input', event => {
     scheduleSave();
   }
 });
+document.getElementById('inventory-social-class').addEventListener('change', scheduleSave);
 document.addEventListener('click', event => {
   const add = event.target.closest('[data-add-row]');
   if (add) addRow(add.dataset.addRow);
@@ -588,12 +658,36 @@ document.addEventListener('click', event => {
   if (money) changeMoney(money.dataset.moneyUnit, Number(money.dataset.moneyDelta));
 });
 document.getElementById('inventory-save').addEventListener('click', () => saveCloud());
+document.getElementById('inventory-resolve').addEventListener('click', async () => {
+  const key = storageKey();
+  const identity = roomIdentity && { ...roomIdentity };
+  if (!identity || !supabase) return;
+  const confirmed = await showConfirm('Appliquer vos modifications locales malgré le conflit ? Les champs concernés remplaceront leurs valeurs actuelles sur le serveur. Les autres champs seront conservés. Vous pouvez exporter l’historique avant de continuer.', { confirmLabel: 'Appliquer mes modifications' });
+  if (!confirmed || storageKey() !== key) return;
+  try {
+    const row = await readCloudInventory(identity);
+    if (storageKey() !== key) return;
+    recordInventoryEdit();
+    currentJournal().rebase(inventorySnapshot(row ? inventoryFromCloud(row) : await importFromCompleteSheet(identity)));
+    await saveCloud();
+  } catch (error) { if (storageKey() === key) setStatus(`Résolution impossible : ${inventoryError(error)}`, 'error'); }
+});
+document.getElementById('inventory-history').addEventListener('click', () => {
+  try {
+    const blob = new Blob([JSON.stringify({ room: roomIdentity?.code || 'local', entries: currentJournal().history() }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = `inventaire-historique-${roomIdentity?.code || 'local'}.json`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) { setStatus(`Historique indisponible : ${error.message}`, 'error'); }
+});
+window.addEventListener('online', () => saveCloud({ automatic: true }));
 document.getElementById('inventory-refresh').addEventListener('click', () => loadCloud({ manual: true }));
 window.addEventListener('message', event => {
   if (event.origin === location.origin && event.data?.type === 'diceforge:inventory-refresh') reloadIdentity();
 });
 window.addEventListener('storage', event => {
-  if (event.key === ROOM_STORAGE_KEY) reloadIdentity();
+  if (event.key === ROOM_STORAGE_KEY || event.key?.startsWith('diceforge_character:')) reloadIdentity();
 });
 
 try {
@@ -601,6 +695,7 @@ try {
 } catch (error) {
   inventory = emptyInventory();
 }
+lastRecorded = inventorySnapshot(inventory);
 render();
 document.getElementById('potion-catalog-list').innerHTML = ALCHEMY_POTIONS
   .map(item => `<option value="${escapeHtml(item.name)}"></option>`).join('');
@@ -626,6 +721,7 @@ inventoryTabs.forEach((tab, index) => {
   });
 });
 Promise.all([loadEquipmentCatalog(), loadWeaponSkillScores()]).then(() => {
+  collectFromDom();
   enrichInventoryFromCatalog();
   render();
   saveLocal({ collect: false });

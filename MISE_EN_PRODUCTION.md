@@ -1,0 +1,72 @@
+# Livraison 2026.10.03
+
+Recette acceptée et production autorisée par l'utilisateur le 3 octobre 2026.
+Version : tag Git `diceforge-release-20261003`. Publication depuis `main` par
+GitHub Pages : https://kithain.github.io/Dice-Forge/.
+Cette livraison remplace les mentions historiques « local, non déployé » des
+documents de préparation. Le cockpit local utilise aussi la production par
+défaut ; l'accès explicite à la recette reste décrit dans [BASE_TEST.md](BASE_TEST.md).
+
+Le lot comprend création protégée, budgets, progression par session,
+apprentissage des sorts, sélection et disponibilité des personnages, décès,
+prétirés inutilisés, reprise d'équipement historique, PDF A4 et aides de jeu.
+Aucun compte ni PJ synthétique de la base de recette n'est importé.
+
+## Base de données
+
+Production : Supabase `bwrylcvkplonkfhnegvm`. Le socle v2 était déjà actif :
+ni `schema.sql` ni `api.sql` n'ont été réinstallés. Douze migrations ont été
+appliquées dans une transaction unique, dans cet ordre :
+
+`save-fixes.sql` → `creation-lock.sql` → `progression.sql` →
+`progression-publication.sql` → `spell-learning.sql` → `character-roster.sql` →
+`recipe-corrections.sql` → `character-generation.sql` → `creation-budget.sql` →
+`checked-save.sql` → `complete-creation-budget.sql` → `unplayed-presets.sql`.
+
+La transaction compare les sources à la sauvegarde avant installation et les
+valeurs historiques avant validation. Résultat serveur : **4 états de campagne,
+184 compétences, 11 sorts, 42 objets**. Les 21 objets initiaux sont conservés ;
+21 éléments supplémentaires proviennent de la reprise unique des saisies
+historiques. Caractéristiques, scores, points, coches, sorts, notes, identités
+permanentes et monnaies existantes sont conservés.
+
+## Sauvegarde et vérifications
+
+Sauvegarde fraîche capturée le 3 octobre à **19 h 54 min 39 s (Paris)** :
+22 tables applicatives, séquences, fonctions, droits, politiques, triggers,
+vues, index et contraintes. Les comptes Auth restent inchangés ; leurs secrets
+ne sont pas exportés.
+
+Fichiers privés hors Git :
+`D:/script/Dice-Forge-backups/2026-10-03/production-release/` :
+`before/server-snapshot.json`, SQL dans `sql/`, empreintes `sql/manifest.json`,
+`rehearsal-report.json`, captures et journaux de publication.
+La copie serveur `diceforge_release_20261003` est privée et protégée par RLS.
+La sauvegarde initiale `diceforge_backup_20261002` est conservée.
+
+- Répétition du SQL exact sur copie fraîche : **77 contrôles réussis**, dont
+  restauration exacte des données, fonctions et permissions des fonctions.
+- Tests SQL métier avec les trois fiches réelles, tests JavaScript, **40 tests
+  du cockpit**, validation du site et parcours navigateur PDF/aides réussis.
+- En production, lectures et sauvegardes authentifiées d'Ilya, Gram et Thokk
+  vérifiées dans une transaction terminée par `ROLLBACK`. Aucune modification
+  de fiche ni nouvelle session XP n'est laissée par ces vérifications.
+
+## Retour à la version précédant cette livraison
+
+Le SQL privé `sql/restore-before-release.sql` restaure le schéma v2 et les
+fonctions publics tels qu'ils étaient juste avant cette livraison. Ce retour
+abandonne les changements v2 postérieurs à la sauvegarde. Il a été répété sur
+copie locale ; il n'a pas été exécuté en production.
+
+Pour l'armer, exécuter dans la même session SQL :
+
+```sql
+SET diceforge.allow_release_restore = 'yes';
+```
+
+Puis exécuter le SQL privé de restauration. Pour remettre le frontend précédent,
+annuler le commit du tag `diceforge-release-20261003` par `git revert`, puis
+publier sur `main` sans réécrire l'historique. Base et frontend doivent revenir
+ensemble à la version précédente. Le rollback du 2 octobre ne correspond pas
+à l'annulation de cette livraison incrémentale.

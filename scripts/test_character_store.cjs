@@ -25,6 +25,14 @@ const vm = require('node:vm');
   assert.equal(result.error.code,'42501');
   assert.equal(calls.filter(x=>x==='legacy-select').length,count,'An access denial must never fall back to legacy');
   assert.equal(client.from('rolls'),legacy,'Dice feed remains on its dedicated table');
+  global.localStorage={getItem:()=> 'selected-character'};
+  answer={data:{rows:[]},error:null};
+  const selectedClient=campaignClient(original,()=>({code:'4SSU',userId:'owner'}));
+  await selectedClient.from('pj_sheets').select('*').eq('user_id','owner');
+  assert.equal(calls.at(-1).args.p_filters.character_id,'selected-character','Own reads bind the displayed permanent identity');
+  await selectedClient.from('pj_inventory').upsert({user_id:'owner',__character_id:'previous-character'});
+  assert.equal(calls.at(-1).args.p_filters.character_id,'previous-character','An in-flight inventory save retains its original PJ');
+  delete global.localStorage;
   const app=fs.readFileSync('js/app.js','utf8');
   const hydrate=app.slice(app.indexOf('function hydrateSavedCharacter('),app.indexOf('async function refreshCharacterFromSupabase('));
   const frame={dataset:{src:'pj.html?embedded=1'},src:'https://example.test/pj.html?syncGenerated=1',

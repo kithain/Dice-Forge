@@ -2,24 +2,27 @@
 <html lang="fr" class="auth-pending">
 <head>
 <style>.auth-pending body{visibility:hidden}</style>
-<script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+<script src="supabase-config.js?v=20261003-production"></script>
 <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fiche de personnage - PDF</title>
-  <link rel="stylesheet" href="pj-print.css">
+  <link rel="stylesheet" href="pj-print.css?v=20261003-pdf">
 </head>
 <body>
   <nav class="print-toolbar" aria-label="Actions PDF">
     <a href="index.html#fiche-personnage">← Retour à la fiche</a>
-    <span>Aperçu A4 créé depuis la fiche complète</span>
-    <button id="print-pdf" type="button">Imprimer / Enregistrer en PDF</button>
+    <span id="print-context" class="print-context">Aperçu de la fiche</span>
+    <label><input id="print-ink" type="checkbox" checked> Économie d’encre</label>
+    <button id="print-pdf" type="button" disabled>Imprimer / Enregistrer en PDF</button>
   </nav>
 
+  <p class="print-guide">Format A4 portrait, échelle 100 %. Dans la boîte d’impression, choisissez « Enregistrer au format PDF » et désactivez les en-têtes et pieds de page du navigateur. L’export reprend la fiche à cet instant ; il ne la sauvegarde pas en ligne.</p>
   <main id="print-sheet" class="print-sheet" aria-live="polite">
-    <p class="print-empty">Aucune fiche à imprimer. Revenez à la fiche, ouvrez un fichier .md puis cliquez sur « Créer le PDF ».</p>
+    <p class="print-empty">Aucune fiche à imprimer. Revenez à la fiche, chargez votre personnage puis cliquez sur « Créer le PDF ».</p>
   </main>
 
-  <script src="js/pj-print.js?v=20260727-course"></script>
+  <script type="module" src="js/pj-print.js?v=20261003-pdf"></script>
+  <script>document.body.classList.add('ink-saving');</script>
 </body>
 </html>

@@ -4,7 +4,8 @@ export function characterDraftKey() {
   if (!globalThis.window?.SUPABASE_CONFIG?.characterV2) return 'dice-forge.pj-markdown.v1';
   try {
     const room = JSON.parse(localStorage.getItem('diceforge_room'));
-    return `dice-forge.pj-markdown.v2:${room?.userId || 'local'}:${room?.code || 'local'}`;
+    const character = localStorage.getItem(`diceforge_character:${room?.userId}:${room?.code}`);
+    return `dice-forge.pj-markdown.v2:${room?.userId || 'local'}:${room?.code || 'local'}${character ? ':' + character : ''}`;
   } catch { return 'dice-forge.pj-markdown.v2:local'; }
 }
 
@@ -33,6 +34,13 @@ export function campaignClient(client, roomProvider) {
           then(resolve, reject) { return this.execute().then(resolve, reject); },
           async execute() {
             const context = roomProvider() || {};
+            // Bind requests to the displayed permanent identity, even if another
+            // device changes the campaign's selection while this form is open.
+            if (context.userId && (filters.user_id === context.userId || payload?.user_id === context.userId) && !filters.id && !filters.character_id) {
+              let identity = payload?.sheet_data?.character_id || payload?.__character_id;
+              if (!identity) { try { identity = localStorage.getItem(`diceforge_character:${context.userId}:${filters.room_code || payload?.room_code || context.code}`); } catch {} }
+              if (identity && identity !== 'new') filters = { ...filters, character_id: identity };
+            }
             if (payload?.sheet_data?.revision && !payload.expected_revision) {
               payload = { ...payload, expected_revision: payload.sheet_data.revision };
             }
@@ -47,7 +55,7 @@ export function campaignClient(client, roomProvider) {
                 const legacyArgs = [...args];
                 if (['insert', 'update', 'upsert'].includes(method)) {
                   const clean = value => {
-                    const { expected_revision, ...legacyPayload } = value;
+                    const { expected_revision, __character_id, ...legacyPayload } = value;
                     return legacyPayload;
                   };
                   legacyArgs[0] = Array.isArray(args[0]) ? args[0].map(clean) : clean(args[0]);

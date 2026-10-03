@@ -4,7 +4,10 @@
   const pages = [
     ['index.html', '⚒', 'Dice Forge'],
     ['index.html#fiche-personnage', '♙', 'Fiche personnage'],
+    ['index.html#creation-personnage', '✧', 'Création de personnage'],
+    ['aides-jeu.html', '▤', 'Aides de jeu'],
     ['livret_joueur.html', '▤', 'Livret joueur'],
+    ['livret_reference.html', '☷', 'Références du joueur'],
     ['inventaire.html', '⌘', 'Équipement'],
     ['ecran_joueur_BRP_ORC.html', '◈', 'Écran joueur'],
     ['ecran_MJ_BRP_ORC.html', '♜', 'Écran MJ'],
@@ -20,7 +23,7 @@
     ? [['#jets', 'Jets'], ['#combat', 'Combat'], ['#personnage', 'Personnage'],
       ['#magie', 'Magie'], ['#confrontation-verbale', 'Confrontation verbale'], ['#alchimie', 'Alchimie']]
     : currentPage === 'ecran_mj_brp_orc.html'
-      ? [['#resolution', 'Résolution'], ['#combat', 'Combat']]
+      ? [['#resolution', 'Résolution'], ['#personnage', 'Personnage'], ['#combat', 'Combat'], ['#blessures', 'Blessures']]
       : [];
 
   const root = document.createElement('div');
@@ -42,6 +45,15 @@
     </aside>`;
 
   const links = root.querySelector('.site-menu-links');
+  if (window.SUPABASE_CONFIG?.environmentName === 'base test') {
+    root.querySelector('.site-menu-brand').textContent = 'Dice Forge · base test';
+    const indicator = document.createElement('p');
+    indicator.className = 'site-environment-indicator';
+    indicator.textContent = 'Base test Supabase · salon TEST';
+    indicator.setAttribute('role', 'status');
+    indicator.style.cssText = 'margin:0;padding:8px 48px;text-align:center;background:#34240c;color:#ffdb83;font:14px sans-serif;';
+    document.body.prepend(indicator);
+  }
   pages.forEach(([href, glyph, label]) => {
     const link = document.createElement('a');
     link.href = href;
@@ -68,7 +80,7 @@
     print.className = 'site-menu-action';
     print.type = 'button';
     print.innerHTML = '<span class="site-menu-glyph" aria-hidden="true">⎙</span><span>Imprimer</span>';
-    print.addEventListener('click', () => window.print());
+    print.addEventListener('click', () => window.diceForgePrint ? window.diceForgePrint() : window.print());
     localList.appendChild(print);
   }
 

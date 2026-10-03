@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const source = readFileSync(new URL('../js/pj-pdf-data.js', import.meta.url), 'utf8');
+const { inventoryPrintKey, readPrintInventory, storePrintSnapshot, loadPrintSnapshot, PRINT_STORAGE_KEY } =
+  await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const memory = () => {
+  const values = new Map();
+  return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+};
+const local = memory(), tabA = memory(), tabB = memory();
+const room = { code: 'test', userId: 'owner', player: 'Joueur' };
+assert.equal(inventoryPrintKey(room, 'pj-a'), 'dice-forge.inventory.v1:owner:TEST:pj-a');
+assert.equal(inventoryPrintKey(null), 'dice-forge.inventory.v1:local');
+local.setItem(inventoryPrintKey(room, 'pj-a'), JSON.stringify({ characterName: 'A', wallet: { po: 0 } }));
+local.setItem(inventoryPrintKey(room, 'pj-b'), JSON.stringify({ characterName: 'B' }));
+assert.equal(readPrintInventory(local, room, 'pj-a').characterName, 'A');
+assert.equal(readPrintInventory(local, room, 'pj-b').characterName, 'B');
+assert.equal(readPrintInventory(local, room, 'unknown'), null, 'No fallback to another character');
+assert.equal(readPrintInventory(local, { ...room, userId: 'other' }, 'pj-a'), null, 'No fallback to another account');
+storePrintSnapshot(tabA, { fields: { name: 'A' } });
+storePrintSnapshot(tabB, { fields: { name: 'B' } });
+local.setItem(PRINT_STORAGE_KEY, JSON.stringify({ fields: { name: 'Old' } }));
+assert.equal(loadPrintSnapshot(tabA, local).fields.name, 'A');
+assert.equal(loadPrintSnapshot(tabB, local).fields.name, 'B', 'Each tab retains its snapshot');
+assert.equal(loadPrintSnapshot(memory(), local).fields.name, 'Old', 'Legacy preview remains readable');
+tabA.setItem(PRINT_STORAGE_KEY, 'broken');
+assert.throws(() => loadPrintSnapshot(tabA, local), 'Broken new data must not show the old character');
+tabA.setItem(PRINT_STORAGE_KEY, '[]');
+assert.throws(() => loadPrintSnapshot(tabA, local));
+local.setItem(inventoryPrintKey(room, 'pj-a'), 'broken');
+assert.equal(readPrintInventory(local, room, 'pj-a'), null);
+assert.equal(loadPrintSnapshot(memory(), memory()), null);
+console.log('PDF: 13 contrôles de stockage, identité et compatibilité réussis.');

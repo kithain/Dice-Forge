@@ -11,11 +11,13 @@
   <link rel="stylesheet" href="help.css">
   <link rel="stylesheet" href="site-menu.css?v=20260719">
   <style>.auth-pending body{visibility:hidden}</style>
-  <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+  <script src="supabase-config.js?v=20261003-production"></script>
   <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
 </head>
 <body>
-  <script src="js/site-menu.js?v=20260719-merged-character" defer></script>
+  <script src="js/site-menu.js?v=20261003-aids" defer></script>
   <div class="stars" aria-hidden="true"></div>
 
   <a class="help-skip" href="#contenu">Aller au contenu</a>
@@ -49,7 +51,7 @@
         </nav>
       </aside>
 
-      <main id="contenu" class="help-content">
+      <main id="contenu" class="help-content" data-aid-content>
         <section class="help-section" id="demarrage">
           <div class="help-section-title">
             <span>01</span>
@@ -168,7 +170,7 @@
             <article><strong>PV</strong><span>Points de vie</span></article>
             <article><strong>BM</strong><span>Blessure majeure</span></article>
             <article><strong>PP</strong><span>Points de pouvoir</span></article>
-            <article><strong>XP</strong><span>Bonus d'expérience</span></article>
+            <article><strong>XP</strong><span>Pool par session : INT / 2, arrondi supérieur</span></article>
             <article><strong>MOV</strong><span>Mouvement</span></article>
           </div>
 
@@ -188,16 +190,27 @@
             <article><strong>Synchroniser depuis le personnage généré</strong><span>Remplace l’identité, les caractéristiques et le MOV par les valeurs du personnage actuel, sans effacer les compétences, l’équipement ou les notes.</span></article>
             <article><strong>Enregistrer en .md</strong><span>Télécharge la fiche sous le nom du personnage.</span></article>
             <article><strong>Ouvrir un .md</strong><span>Recharge une fiche Markdown déjà enregistrée.</span></article>
-            <article><strong>Créer le PDF</strong><span>Ouvre un aperçu A4 à imprimer ou enregistrer en PDF.</span></article>
+            <article><strong>Créer le PDF</strong><span>Ouvre une copie A4 de la fiche : compétences, sorts connus, inventaire local du PJ choisi, potions et notes.</span></article>
             <article><strong>Sauvegarder en ligne</strong><span>Enregistre les modifications de la fiche de votre personnage dans la campagne actuelle. Les autres modifications de la fiche, hors coches automatiques, nécessitent cette action.</span></article>
             <article><strong>Actualiser depuis Supabase</strong><span>Après confirmation, remplace toute la fiche locale par la dernière sauvegarde en ligne de la campagne associée à votre salle.</span></article>
             <article><strong>Nouvelle fiche</strong><span>Efface le brouillon courant après confirmation.</span></article>
           </div>
           <div class="help-note"><strong>Changement d'appareil</strong> Le brouillon local ne suit pas automatiquement. Téléchargez le fichier .md ou utilisez la sauvegarde en ligne.</div>
           <h3>Sorts et Pouvoirs</h3>
-          <p>Ouvrez l’onglet <strong>Sorts et Pouvoirs</strong> pour consulter le grimoire, les points attribués et les scores des sorts. Choisissez un sort disponible pour votre personnage, répartissez ses points puis cliquez sur <strong>Sauvegarder les sorts</strong>. Les points et les choix sont vérifiés avant l’enregistrement. Les sorts enregistrés peuvent être sélectionnés dans le lanceur BRP.</p>
-          <h3>Inventaire</h3>
+          <p>En création, les compétences et les sorts partagent le même budget initial. Après validation, les attributions sont verrouillées : la fiche et le PDF montrent les scores et les coches. Le Markdown conserve aussi la provenance des valeurs pour les imports.</p>
+          <p>En jeu, cliquez sur <strong>Apprendre un sort</strong> après l’étude et son test réussi, avec l’accord oral du MJ. Renseignez la source et la durée puis confirmez : le tirage unique <strong>20 + 3D6 %</strong> est entièrement attribué au sort, sans consommer les XP. Son attribution ne peut être réduite, supprimée ou relancée. Tous les sorts connus sont disponibles, sous réserve des PP et des conditions de lancement.</p>
+          <h3>Progression par session</h3>
+          <p>Seul le MJ crée les salles. Une nouvelle salle ouvre un nouveau pool ; une reconnexion ne le renouvelle pas. Une réussite utile permet de cocher la compétence ou le sort, un échec ne donne rien. Dans l’onglet de progression, chaque cible cochée dispose d’une tentative par session : le D100 doit dépasser strictement son score, sans malus ni bonus d’INT, pour autoriser les dépenses.</p>
+          <p>Répartissez le pool entre les cibles déverrouillées : 1 XP ajoute 1 point, avec un plafond de 100 %. À 100 % effectifs, seul 00 est un échec critique. Clôturer la session ou rejoindre une nouvelle salle perd le reliquat ; revenir dans une ancienne salle ne le restitue pas.</p>
+          <h3>Choisir un PJ et conserver son historique</h3>
+          <p>Le menu de la fiche propose vos PJ disponibles et les prétirés proposés par le MJ. Chaque personnage conserve sa propre fiche, son inventaire et ses XP. Sauvegardez vos modifications avant de changer de PJ. Un personnage généré sans fiche de campagne dispose d’un bouton pour créer explicitement son brouillon de fiche.</p>
+          <p>Dans le suivi MJ, le meneur peut rendre un PJ vivant disponible, retirer sa disponibilité, proposer un prétiré à un joueur ou à toute la campagne, et confirmer un décès. Un prétiré appartient au joueur qui le choisit ; sa fiche reste ensuite gérée par ce joueur. Un PJ mort disparaît des choix : sa fiche et son historique sont conservés, son reliquat d’XP est perdu. Rendre disponible ne ressuscite jamais un personnage.</p>
+          <h3>Inventaire du personnage choisi</h3>
           <p>L’onglet <strong>Inventaire</strong> regroupe l’équipement, les objets, les potions et les monnaies du personnage dans la campagne. Les modifications sont sauvegardées automatiquement lorsque vous êtes connecté à une salle. Attendez le message de confirmation ; en cas d’erreur, utilisez le bouton de sauvegarde de l’inventaire pour réessayer.</p>
+          <h3>Créer et vérifier le PDF</h3>
+          <p>Chargez le bon PJ, ouvrez son onglet <strong>Inventaire</strong> et attendez la fin du chargement, puis revenez à <strong>Fiche</strong> et cliquez sur <strong>Créer le PDF</strong>. L’aperçu reprend les données locales à cet instant. Si l’inventaire n’est pas disponible, l’aperçu le signale : retournez le charger puis recréez le PDF.</p>
+          <p>Dans la boîte d’impression, choisissez <strong>Enregistrer au format PDF</strong>, A4 portrait, échelle 100 %, sans en-têtes ni pieds de page du navigateur. Le mode <strong>Économie d’encre</strong> est activé par défaut. Le PDF conserve une copie lisible ; le Markdown et la sauvegarde en ligne permettent de reprendre les modifications.</p>
+          <p>Pour les livrets, les écrans et le catalogue, ouvrez <a href="aides-jeu.html">les aides de jeu</a> : chaque aide dispose d’un sommaire, d’une recherche et du bouton <strong>Imprimer / PDF</strong>. Les détails repliés sont inclus à l’impression.</p>
           <h3>Décocher les cases d’expérience</h3>
           <p>Le bouton <strong>Décocher toutes les cases</strong> demande confirmation et retire les coches de la fiche locale. Cliquez ensuite sur <strong>Sauvegarder en ligne</strong> pour enregistrer cette remise à zéro dans la campagne.</p>
         </section>

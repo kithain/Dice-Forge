@@ -5,6 +5,12 @@ const message = document.getElementById('login-message');
 const submit = document.getElementById('login-submit');
 const client = authClient();
 
+if (window.SUPABASE_CONFIG?.environmentName === 'base test') {
+  document.title = 'Connexion — base test — Dice Forge';
+  const intro = document.querySelector('.login-intro');
+  if (intro) intro.textContent = 'Base test Supabase · Connecte-toi avec ton compte de recette. Salon TEST.';
+}
+
 function setMessage(text, type = '') {
   message.textContent = text;
   message.className = `login-message ${type}`;

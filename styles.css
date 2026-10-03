@@ -322,6 +322,8 @@ select.room-input{appearance:none}
 .character-name-field{flex:1;min-width:220px}
 .character-identity{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;flex:2;min-width:280px}
 .character-identity .room-input{width:100%}
+#character-age-help,#pj-age-help{background:transparent;cursor:help}
+.app-tooltip{white-space:pre-line}
 .char-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .char-secondary{height:34px}
 .char-markdown-link{display:inline-flex;align-items:center;text-decoration:none;box-sizing:border-box}

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Livret joueur — Dice Forge</title>
-  <script src="supabase-config.js?v=20261002-campaign-v2-r1"></script>
+  <script src="supabase-config.js?v=20261003-production"></script>
   <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
   <script>
     if (location.hash === '#competences' || location.hash.startsWith('#alchimie-')) {
@@ -112,6 +112,8 @@
       footer { font-size:8pt; }
     }
   </style>
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
 </head>
 <body>
   <a class="skip" href="#contenu">Aller au livret</a>
@@ -142,7 +144,7 @@
         </div>
         <small>Les encadrés donnent les repères à retenir. Dépliez les précisions lorsque vous en avez besoin.</small>
       </nav>
-      <main id="contenu">
+      <main id="contenu" data-aid-content>
         <div class="start">
           <p><strong>Votre personnage est déjà prêt ?</strong> Passez directement aux règles de la scène.</p>
           <div class="quick">
@@ -163,7 +165,7 @@
             <li><strong>Vérifiez et sauvegardez la fiche.</strong> Relisez vos scores et votre équipement avec le MJ avant la première partie.</li>
           </ol>
           <div class="rule">
-            <p><strong>Création héroïque recommandée :</strong> 325 points professionnels, INT × 10 points personnels, limite de 90 % par compétence à la création. Les magiciens commencent avec 6 sorts.</p>
+            <p><strong>Création de campagne :</strong> 325 points professionnels et INT × 10 points personnels, partagés entre les compétences et les sorts. Score maximal 100 %. Les professions magiques commencent avec 6 sorts. Répartissez tout le budget avant de valider ; la validation verrouille les attributions initiales.</p>
           </div>
           <details>
             <summary>Les calculs utiles sur la fiche</summary>
@@ -171,7 +173,7 @@
               <li><strong>PV :</strong> (CON + TAI) ÷ 2, arrondi au supérieur.</li>
               <li><strong>Blessure majeure :</strong> moitié des PV totaux, arrondie au supérieur.</li>
               <li><strong>PP :</strong> POU ; maximum temporaire de 2 × POU.</li>
-              <li><strong>Bonus d’expérience :</strong> INT ÷ 2, arrondi au supérieur.</li>
+              <li><strong>Réserve d’expérience par session :</strong> INT ÷ 2, arrondi au supérieur.</li>
               <li><strong>Dégâts :</strong> le modificateur dépend de FOR + TAI.</li>
             </ul>
             <p>La génération détaillée, les modificateurs d’espèce, l’âge et les options de personnalité figurent dans le <a href="livret_reference.html">livret complet</a>.</p>
@@ -192,7 +194,7 @@
                 <tr><td><strong>Critique</strong></td><td>Jusqu’à score ÷ 20, arrondi au supérieur.</td></tr>
                 <tr><td><strong>Spéciale</strong></td><td>Au-delà du critique, jusqu’à score ÷ 5, arrondi au supérieur.</td></tr>
                 <tr><td><strong>Ordinaire</strong></td><td>Au-delà de la spéciale, jusqu’au score effectif.</td></tr>
-                <tr><td><strong>Échec / maladresse</strong></td><td>Au-dessus du score. 96 à 100 échouent toujours ; 100 (00) est toujours une maladresse. Le seuil des autres maladresses dépend du score.</td></tr>
+                <tr><td><strong>Échec / maladresse</strong></td><td>Au-dessus du score. En dessous de 100 % effectifs, 96 à 100 échouent automatiquement. À 100 % effectifs, 01–99 réussissent ; 00/100 reste une maladresse. Le seuil des autres maladresses dépend du score.</td></tr>
               </tbody>
             </table>
           </div>
@@ -281,10 +283,19 @@
           <ul>
             <li><strong>Incantation :</strong> le sort part au rang DEX − niveau du sort. Le niveau maximal vaut la moitié de votre INT, arrondie au supérieur.</li>
             <li><strong>Échec :</strong> aucun effet, 1 PP perdu. En cas de maladresse, tous les PP investis sont perdus ; appliquez aussi ses conséquences.</li>
-            <li><strong>Mémorisation :</strong> jusqu’à INT sorts mémorisés ; changer un sort prend 10 minutes. Le grimoire conserve tous vos sorts connus.</li>
+            <li><strong>Disponibilité :</strong> tous vos sorts connus sont utilisables sans préparation ni mémorisation, dans la limite des PP disponibles et des règles de lancement.</li>
             <li><strong>À 0 PP :</strong> évanouissement. La récupération dépend du repos ; une activité pénible l’empêche.</li>
           </ul>
           <p class="reference"><a href="ecran_joueur_BRP_ORC.html#magie">Sorts et règles de magie</a> · <a href="ecran_joueur_BRP_ORC.html#personnage">Récupération des PP</a></p>
+          <h3>Apprendre un sort — règle de campagne</h3>
+<ul>
+<li><b>Validation :</b> le joueur enregistre le sort sur sa fiche après confirmation orale du MJ.</li>
+<li><b>Source :</b> un maître connaissant le sort, un grimoire ou un parchemin dans une langue comprise.</li>
+<li><b>Étude :</b> 1D6 jours, puis Alphabétisation pour un texte, ou (INT + POU) % auprès d'un maître.</li>
+<li><b>Réussite :</b> le sort est appris à <b>20 + 3D6 %</b>. Tirer une seule fois ; les points sont affectés intégralement à ce sort, hors du budget de création et du pool d'expérience.</li>
+<li><b>Échec :</b> nouvelle tentative après 1D3 jours d'étude supplémentaires. Maladresse : aide d'un maître ou nouvelle source nécessaire.</li>
+<li><b>Attribution verrouillée :</b> retirer le sort ou réduire son score ne restitue aucun point. Sa progression ultérieure utilise le pool d'expérience après déverrouillage.</li>
+</ul>
           <h3 id="alchimie">Préparer un produit alchimique</h3>
           <ol>
             <li><strong>Choisissez une recette connue.</strong> Réunissez toutes ses catégories de réactifs : Solvant, Sel, Organique et/ou Catalyseur, selon la recette.</li>
@@ -307,13 +318,17 @@
 
         <section id="experience" aria-labelledby="titre-experience">
           <h2 id="titre-experience"><span class="number">06</span> Progresser</h2>
-          <p>Pendant la partie, cochez une compétence après une réussite obtenue avec elle. Pour la confrontation verbale, la coche dépend de la validation du MJ.</p>
+<p class="note">Compétences et sorts : score maximal 100 %. À score effectif 100 %, 01–99 réussissent et 00/100 est une maladresse. Appliquer les difficultés et malus avant ce seuil. Aucun gain d’XP au-delà de 100 %.</p>
+
+<p class="note">Une room = une session = un nouveau pool de INT ÷ 2, arrondi au supérieur, attribué une seule fois à la première entrée du personnage. Seul le MJ crée les rooms. Une tentative de déverrouillage par compétence ou sort coché et par room ; une reconnexion conserve le solde et les tentatives. Les points non dépensés sont perdus à la fin de session et ne peuvent pas être récupérés en revenant dans une ancienne room.</p>
+
+          <p>Pendant la partie, cochez une compétence ou un sort après une réussite utile obtenue avec lui. Un échec ne donne pas de coche. Pour la confrontation verbale, la coche dépend de la validation du MJ.</p>
           <ol>
-            <li><strong>En fin de séance ou d’aventure,</strong> lancez D100 + bonus d’expérience pour chaque compétence cochée. Un total strictement supérieur au score actuel rend la compétence admissible.</li>
-            <li><strong>Répartissez votre réserve</strong> entre les compétences admissibles, sans maximum par compétence. Bonus et réserve valent INT ÷ 2, arrondi au supérieur.</li>
-            <li><strong>Effacez les coches et sauvegardez.</strong> Les points non attribués sont perdus. Si aucun jet d’apprentissage ne réussit, aucun point n’est distribué.</li>
+            <li><strong>Pendant la session,</strong> lancez 1D100 sans bonus ni malus pour chaque compétence ou sort coché. Un total strictement supérieur au score actuel rend la compétence admissible.</li>
+            <li><strong>Répartissez votre réserve</strong> entre les compétences et les sorts déverrouillés : 1 XP donne +1 point de score, dans la limite de 100 %. La réserve vaut INT ÷ 2, arrondi au supérieur ; ce montant ne s’ajoute pas au jet.</li>
+            <li><strong>Clôturez la session</strong> lorsque la table a terminé. Les points non attribués sont perdus et la session suivante remet les coches à zéro. Décocher manuellement une cible ne lui rend pas sa tentative.</li>
           </ol>
-          <div class="rule"><p><strong>Exemple :</strong> avec INT 13, votre bonus et votre réserve valent 7. Si Épée et Défense sont admissibles, vous pouvez répartir ces 7 points en +5 et +2.</p></div>
+          <div class="rule"><p><strong>Exemple :</strong> avec INT 13, votre réserve vaut 7. Si Épée et Défense sont admissibles, vous pouvez répartir ces 7 points en +5 et +2.</p></div>
           <details>
             <summary>La progression de la POU</summary>
             <p>La POU progresse séparément : cochez-la après un jet de résistance de POU réussi contre une POU au moins égale. À la vérification d’expérience, le gain est de 1D3 − 1 points. Une seule coche par aventure.</p>

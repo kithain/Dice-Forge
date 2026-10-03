@@ -7,6 +7,7 @@ const vm = require('node:vm');
   const root = path.join(__dirname, '..');
   const source = fs.readFileSync(path.join(root, 'js/pj-magic.js'), 'utf8');
   const helpers = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+  const { creationBudgetErrors } = await import('../js/creation-budget.js');
   const { normalizeSpells, magicErrors, mergeMagicSheet, patchMagicMarkdown } = helpers;
   const saved = {
     fields: { name: 'Test', profession: 'Sorcier', skillProfessionalPool: '325', notes: 'Notes serveur', powers: 'Ancien pouvoir', extra: 'À conserver' },
@@ -16,6 +17,15 @@ const vm = require('node:vm');
       ...['Feu', 'Givre', 'Protection', 'Illusion', 'Lévitation', 'Lumière'].map(name => ({ name, points: '10', checked: false }))]
   };
   const desired = normalizeSpells(saved.spells);
+  const learned={name:'Feu',points:32,allocation:{base:0,score:32,origin:'learning',learning_points:32,xp_points:0}};
+  assert.equal(helpers.spellScore({stats:{intelligence:18}},learned),32);
+  assert.equal(helpers.spellScore({stats:{intelligence:22}},learned),32,'INT does not alter learned score');
+  assert.equal(helpers.spellScore({stats:{intelligence:22}},{...learned,points:34,allocation:{...learned.allocation,xp_points:2}}),34);
+  assert.equal(helpers.spellScore({stats:{intelligence:18}},{name:'Feu',base:0,points:32}),32,'Markdown import keeps exact learned score');
+  assert.equal(helpers.magicBudget({creation:{phase:'play',professional:0,personal:180},stats:{intelligence:22},skills:[{points:180}],progression:{learning_points:32}},[learned],[0]).remaining,0,'INT changes and learning never recreate initial credit');
+  const acquired={...structuredClone(saved),creation:{phase:'play'},progression:{xp_points:10},fields:{...saved.fields,skillProfessionalPool:'0'},skills:[{points:150}],spells:[{name:'Feu',points:10,checked:true}]};
+  assert.deepEqual(magicErrors(acquired,normalizeSpells(acquired.spells),[],[0]),[],'XP never consumes the frozen creation budget again');
+  assert(magicErrors(acquired,[{name:'Feu',points:9}],[],[0]).some(e=>e.includes('verrouillés')),'Acquired spell allocation cannot be lowered');
   desired[0].points = '25';
   desired.push({ name: 'Foudre', points: '20', checked: false });
   assert.equal(normalizeSpells(saved.spells).filter(row => row.name).length, 7, 'Tous les sorts sont conservés, au-delà de six');
@@ -63,7 +73,8 @@ const vm = require('node:vm');
       select() { return this; }, async maybeSingle() { return answer; }
     });
     const context = {
-      ...helpers, magicSaveInProgress: false, magicEditRevision: 1,
+      ...helpers, creationBudgetErrors, budgetSheet: () => saved, budgetSkills: () => saved.skills,
+      magicSaveInProgress: false, magicEditRevision: 1,
       spellSlots: structuredClone(proposed), spellSheetContext: null, saveTimer: null,
       structuredClone, Date, ACTIVE_SKILLS: [{ index: 0 }], STORAGE_KEY: 'test',
       syncSpellSlotsFromForm() {}, currentRoom: () => ({ userId: 'owner', code: 'TEST', player: 'Joueur' }),

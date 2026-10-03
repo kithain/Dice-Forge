@@ -39,9 +39,12 @@
 .pj-help-target{display:inline-flex;align-items:center;gap:.12rem;color:inherit;cursor:help;border-radius:3px;outline:none}.pj-help-target:hover,.pj-help-target:focus-visible{color:var(--gold2);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.pj-help-target .tooltip-hint{flex:0 0 auto;transform:scale(.84)}
 .pj-derived-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem}.pj-derived{font-size:.72rem;color:var(--txd)}.pj-derived input{display:block;margin-top:.3rem;font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold2)}
 .pj-help{font-size:.78rem;color:var(--txm);margin:-.3rem 0 .75rem}
-.pj-skill-budget{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:.55rem;margin-bottom:.8rem}
+.pj-skill-budget{display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:.55rem;margin-bottom:.8rem;position:sticky;top:0;z-index:8;background:var(--s1);padding:.5rem 0}
+.pj-skill-budget>details{padding:.6rem;border:1px solid var(--brd2);border-radius:6px;color:var(--txd);font-size:.7rem}
+.pj-skill-budget>details summary{cursor:pointer;margin-bottom:.4rem}
 .pj-skill-budget>div,.pj-budget-edit{display:flex;flex-direction:column;gap:.2rem;background:rgba(7,7,26,.3);border:1px solid var(--brd2);border-radius:6px;padding:.6rem;color:var(--txd);font-size:.7rem}
-.pj-skill-budget strong{font-family:'Cinzel',serif;color:var(--gold2);font-size:1.15rem}.pj-skill-budget small{color:var(--txm)}
+.pj-skill-budget strong{font-family:'Cinzel',serif;color:var(--gold2);font-size:1.15rem}.pj-skill-budget small{color:var(--txd)}
+.pj-budget-status{padding:.75rem;border:1px solid #f87171;border-radius:6px;background:#451515;color:#fecaca}
 .pj-budget-edit input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--brd2);background:transparent;color:var(--gold2);font-family:'Cinzel',serif;font-size:1.1rem;outline:none}
 .pj-skill-budget .over-budget{border-color:rgba(220,38,38,.7);background:rgba(220,38,38,.08)}.pj-skill-budget .over-budget strong{color:#fca5a5}
 .pj-skills-wrap{max-height:none}.pj-skills-table thead th{background:#0f0f25}.pj-skills-table td:nth-child(2),.pj-skills-table td:nth-child(3),.pj-skills-table td:nth-child(4){width:115px}.pj-skills-table td:last-child{text-align:center;width:60px}
@@ -81,3 +84,20 @@
 .pj-spell-add input,.pj-spell-add select{padding:.6rem;border:1px solid var(--brd2);border-radius:5px;background:var(--s2);color:var(--txt);max-width:100%}
 .pj-magic-save{margin-top:.5rem}
 .pj-error{color:#fca5a5}
+
+/* Initial allocation remains in storage; a validated sheet shows scores and checks. */
+.pj-creation-locked .pj-skills-table th:nth-child(2),
+.pj-creation-locked .pj-skills-table th:nth-child(3),
+.pj-creation-locked .pj-skills-table td:nth-child(2),
+.pj-creation-locked .pj-skills-table td:nth-child(3) {
+  display: none;
+}
+.pj-xp-pool { padding: 1rem; border: 1px solid var(--gold, #b89b43); }
+.pj-spell-add [hidden] { display:none; }
+.pj-spell-attribution { display:block; margin-top:.3rem; }
+#pj-progression-panel td small { display: block; opacity: .7; }
+#pj-progression-panel input { width: 5rem; margin-right: .5rem; }
+#pj-progression-panel button { margin: .4rem; }
+
+.pj-field select { width:100%; padding:.6rem; color:inherit; background:#18152b; border:1px solid #615278; border-radius:4px; }
+[data-profession-star] { color:#d6b35e; }

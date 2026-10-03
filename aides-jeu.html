@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" class="auth-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Les aides de jeu Dice Forge : règles de campagne, livrets, écrans joueur et MJ, équipement et impression PDF.">
+  <title>Aides de jeu — Dice Forge</title>
+  <style>.auth-pending body{visibility:hidden}</style>
+  <script src="supabase-config.js?v=20261003-production"></script>
+  <script type="module" src="js/auth-guard.js?v=20261002-campaign-v2-r1"></script>
+  <link rel="stylesheet" href="site-menu.css?v=20260719">
+  <link rel="stylesheet" href="game-aids.css?v=20261003-aids">
+  <script src="js/site-menu.js?v=20261003-aids" defer></script>
+  <script src="js/game-aids.js?v=20261003-aids" defer></script>
+</head>
+<body>
+  <main class="aid-hub" data-aid-content>
+    <header>
+      <p class="aid-kicker">BRP ORC / Dice Forge</p>
+      <h1>Les repères de votre table</h1>
+      <p>Une règle à retrouver, un personnage à préparer ou un écran à imprimer : choisissez l’aide adaptée. Les livrets et les écrans appliquent les règles de campagne rappelées ci-dessous.</p>
+    </header>
+    <section id="en-partie">
+      <h2>Pendant la partie</h2>
+      <div class="aid-cards">
+        <article class="aid-card"><small>Joueurs / règles essentielles</small><h3>Livret du joueur</h3><p>Créer votre héros, faire un jet, jouer votre tour, lancer un sort et progresser. Les exemples expliquent les décisions les plus courantes.</p><a href="livret_joueur.html">Lire le livret →</a></article>
+        <article class="aid-card"><small>Joueurs / consultation rapide</small><h3>Écran joueur</h3><p>Seuils du D100, matrice de combat, soins, magie, confrontation verbale et potions. Une rubrique par situation.</p><a href="ecran_joueur_BRP_ORC.html">Ouvrir l’écran joueur →</a></article>
+        <article class="aid-card"><small>Meneur / résolution</small><h3>Écran MJ</h3><p>Résistance, difficultés, déroulement du round, maladresses et blessures. Des tables lisibles pour arbitrer une scène.</p><a href="ecran_MJ_BRP_ORC.html">Ouvrir l’écran MJ →</a></article>
+      </div>
+    </section>
+    <section id="preparer">
+      <h2>Préparer et approfondir</h2>
+      <div class="aid-cards">
+        <article class="aid-card"><small>Choix et listes détaillés</small><h3>Références du joueur</h3><p>Espèces, professions, compétences, sorts et les 16 recettes d’alchimie avec leurs contrecoups.</p><a href="livret_reference.html">Consulter les références →</a></article>
+        <article class="aid-card"><small>Armes, armures et richesse</small><h3>Catalogue d’équipement</h3><p>Prix, dégâts, protections, monnaies et budgets de départ. Pour gérer les objets réellement possédés, utilisez l’onglet Inventaire de votre fiche.</p><a href="inventaire.html">Consulter le catalogue →</a></article>
+        <article class="aid-card"><small>Application et sauvegardes</small><h3>Guide Dice Forge</h3><p>Rejoindre une salle, choisir votre PJ, conserver ses données, utiliser la progression et préparer le PDF de la fiche.</p><a href="help.html">Ouvrir le guide →</a></article>
+      </div>
+      <p><a href="BRP_ORC_traduction_FR_complete.html">Consulter les règles BRP ORC complètes</a>. Le texte de référence décrit aussi des options du système d’origine ; les adaptations Dice Forge et les décisions de votre MJ déterminent les règles de votre campagne.</p>
+    </section>
+    <section id="campagne">
+      <h2>Règles de campagne à retenir</h2>
+      <div class="aid-campaign">
+        <h3>Résoudre un test</h3>
+        <p>Appliquez la difficulté et les malus avant les seuils : critique = score ÷20 et spéciale = score ÷5, arrondis au supérieur. Les scores sont plafonnés à 100 %. À score effectif 100 %, 01–99 réussissent et 00/100 est une maladresse ; en dessous, 96–100 échouent automatiquement.</p>
+        <h3>Défendre et subir des dégâts</h3>
+        <p>Défense = DEX ×2 + points investis + bonus de bouclier applicable. Première défense au score normal, puis −30, −60, −90 points dans le round. Attaque ordinaire contre défense ordinaire : retirez les PA, puis divisez les dégâts restants par deux, arrondi au supérieur. Les autres degrés se lisent dans la matrice de combat.</p>
+        <h3>Progresser pendant la session</h3>
+        <p>Une salle correspond à une session. Le pool vaut INT ÷2, arrondi au supérieur, et n’est attribué qu’une fois. Cochez après une réussite utile ; chaque compétence ou sort coché a une tentative de D100 strictement supérieur à son score, sans bonus ni malus. Dépensez sur les cibles déverrouillées : 1 XP = +1 point, maximum 100 %. Le reliquat est perdu à la clôture ou au changement de session.</p>
+        <h3>Apprendre et utiliser un sort</h3>
+        <p>Tous les sorts connus sont disponibles, selon leurs conditions et les PP restants. Avec une source et l’accord oral du MJ : 1D6 jours d’étude, puis Alphabétisation pour un texte ou (INT + POU) % avec un maître. Échec : 1D3 jours de plus ; maladresse : maître ou autre source nécessaire. Un apprentissage réussi attribue une seule fois 20 + 3D6 % au sort, sans ajouter INT ni consommer le pool d’XP.</p>
+        <h3>Transporter des potions</h3>
+        <p>Quatre doses au total par personnage, sac compris. Les doses en stock ne sont pas transportées. Chaque préparation a un effet et un contrecoup ; retrouvez-les dans <a href="livret_reference.html#alchimie">la référence d’alchimie</a>.</p>
+      </div>
+    </section>
+    <section id="impression">
+      <h2>Préparer vos PDF</h2>
+      <ol>
+        <li><strong>Fiche personnage :</strong> chargez le bon PJ, ouvrez son Inventaire et attendez la fin du chargement. Revenez à l’onglet Fiche, puis cliquez sur « Créer le PDF ». Vérifiez compétences, sorts, équipement et notes dans l’aperçu.</li>
+        <li><strong>Aides de jeu :</strong> ouvrez l’aide choisie et utilisez « Imprimer / PDF ». Les détails repliés sont inclus. Les écrans s’impriment par rubrique en A4 portrait pour garder les tables lisibles.</li>
+        <li><strong>Dans la boîte d’impression :</strong> choisissez « Enregistrer au format PDF », le papier A4 et l’échelle 100 %. Désactivez les en-têtes et pieds de page du navigateur. Décochez « Économie d’encre » pour conserver les accents de couleur.</li>
+      </ol>
+      <p>Le PDF est une copie à un instant donné. Pour poursuivre la partie ou changer d’appareil, utilisez la sauvegarde en ligne ou l’export Markdown de la fiche.</p>
+      <p><a href="index.html#fiche-personnage">Ouvrir ma fiche →</a></p>
+    </section>
+  </main>
+</body>
+</html>

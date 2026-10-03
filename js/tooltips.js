@@ -61,6 +61,12 @@ document.addEventListener('focusin', event => {
   if (target) showTooltip(target);
 });
 
+document.addEventListener('click', event => {
+  const target = event.target.closest?.('[data-tooltip]');
+  if (target) showTooltip(target);
+  else hideTooltip();
+});
+
 document.addEventListener('focusout', event => {
   const target = event.target.closest?.('[data-tooltip]');
   if (target && !target.contains(event.relatedTarget)) hideTooltip(target);

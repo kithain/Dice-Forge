@@ -1,14 +1,17 @@
 // ——— Main application: dice state, rolling logic, rendering ———
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261002-brp-display';
+import { totalResultHtml } from './dice-stage.js?v=20261003-xp-frame';
+import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261003-roster';
 import { showToast, showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
-import { characterDraftKey } from './character-store.js?v=20261002-campaign-v2-r1';
-import { getSupabaseClient } from './supabase-client.js?v=20261002-campaign-v2-r1';
+import { characterDraftKey } from './character-store.js?v=20261003-roster';
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { saveExperienceCheck } from './experience-save.js?v=20261002-autocheck';
-import './tooltips.js?v=20260715-character-help';
+import { spellScore } from './pj-magic.js?v=20261003-learning';
+import './tooltips.js?v=20261003-age-help';
+import { ageHelpText, fillWealthOptions } from './creation-help.js?v=20261003-age-help';
 
 // ——— config ———
 const DTYPES = [4, 6, 8, 10, 12, 20, 100];
@@ -201,6 +204,10 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === 'panel-' + tab);
   });
+  if (tab === 'character') {
+    const frame = document.getElementById('character-sheet-frame');
+    if (frame && !frame.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
+  }
 }
 
 function initCharacterOptions() {
@@ -216,6 +223,8 @@ function initCharacterOptions() {
     ).join('');
   }
   syncProfessionRichesse();
+  const wealthSelect = document.querySelector('[data-character-field="richesse"]');
+  if (wealthSelect) fillWealthOptions(wealthSelect);
 }
 
 function currentSpecies() {
@@ -248,6 +257,8 @@ function formatSpeciesAge(age = currentCharacterAge(), species = currentSpecies(
 function renderCharacterAgeHint() {
   const hint = document.getElementById('character-age-band');
   if (hint) hint.textContent = formatSpeciesAge();
+  const help = document.getElementById('character-age-help');
+  if (help) help.dataset.tooltip = ageHelpText(currentSpecies().name);
 }
 
 function currentProfession() {
@@ -257,7 +268,7 @@ function currentProfession() {
 function syncProfessionRichesse() {
   const profession = currentProfession();
   const richesseInput = document.querySelector('[data-character-field="richesse"]');
-  if (profession && richesseInput) richesseInput.value = profession.richesse;
+  if (richesseInput && (!richesseInput.value || !richesseInput.dataset.userChoice)) fillWealthOptions(richesseInput, profession?.richesse || 'Moyen');
 }
 
 function characterProfileChanged(kind) {
@@ -442,6 +453,8 @@ async function generateCharacterStats() {
     return;
   }
 
+  if (window.SUPABASE_CONFIG?.characterV2) { await saveServerGeneration('create'); return; }
+
   const nextState = {
     generated: true,
     rerollsUsed: 0,
@@ -496,6 +509,8 @@ async function rerollCharacterStats() {
   renderCharacterSheet();
   if (!confirmed) return;
 
+  if (window.SUPABASE_CONFIG?.characterV2) { await saveServerGeneration('reroll'); return; }
+
   const nextState = {
     generated: true,
     rerollsUsed: nextReroll,
@@ -529,18 +544,71 @@ async function rerollCharacterStats() {
 }
 
 async function resetCharacterSheet() {
-  const confirmed = await showConfirm('Attention : créer une nouvelle fiche effacera le personnage généré en cours. Enregistrer le nouveau personnage remplacera le personnage associé à votre compte. Exportez votre fiche actuelle en Markdown ou PDF avant de continuer.', { confirmLabel: 'Créer une nouvelle fiche' });
+  const confirmed = await showConfirm('Créer un nouveau personnage ? Le personnage précédent et sa fiche restent conservés.', { confirmLabel: 'Créer un nouveau personnage' });
   if (!confirmed) return;
+  const frame = document.getElementById('character-sheet-frame');
+  const currentDraft = frame?.contentWindow?.diceForgeSheet?.getData?.();
+  if (currentDraft) localStorage.setItem(characterDraftKey(), JSON.stringify(currentDraft));
+  if (window.SUPABASE_CONFIG?.characterV2) {
+    const room = JSON.parse(localStorage.getItem('diceforge_room') || 'null');
+    if (room?.code) {
+      const {error} = await getSupabaseClient().rpc('df_character_roster',{p_room:room.code,p_operation:'new',p_character:null,p_reserved_user:null});
+      if (error) { showToast(error.message, 'error'); return; }
+      localStorage.setItem(`diceforge_character:${room.userId}:${room.code}`, 'new');
+      const draftKey = characterDraftKey();
+      const previous = localStorage.getItem(draftKey);
+      if (previous) localStorage.setItem(`${draftKey}:archive:${Date.now()}`, previous);
+      localStorage.removeItem(draftKey);
+      for (const operation of ['create','reroll','save']) localStorage.removeItem(`diceforge_generation_pending:${room.userId}:${room.code}:${operation}`);
+      await loadPlayerCharacter();
+    }
+  }
   characterState = { generated: false, rerollsUsed: 0, stats: {}, saved: false };
   characterSheetNeedsSync = true;
   const nameInput = document.getElementById('character-name');
   if (nameInput) nameInput.value = '';
   document.querySelectorAll('[data-character-field]').forEach(field => {
+    delete field.dataset.userChoice;
     if (field.tagName === 'SELECT') field.selectedIndex = 0;
     else field.value = '';
   });
+  fillWealthOptions(document.querySelector('[data-character-field="richesse"]'), 'Moyen');
+  if (frame) { frame.removeAttribute('src'); frame.dataset.src = 'pj.html?embedded=1&v=20261003-generation'; }
   syncProfessionRichesse();
   renderCharacterSheet();
+  switchTab('creation');
+  window.location.hash = 'creation-personnage';
+  document.getElementById('character-name')?.focus();
+}
+
+async function saveServerGeneration(operation) {
+  const room = JSON.parse(localStorage.getItem('diceforge_room') || 'null');
+  if (!room?.code) { showToast('Rejoins une partie avant de générer.', 'error'); return false; }
+  const selected = localStorage.getItem(`diceforge_character:${room.userId}:${room.code}`);
+  const details = { ...getCharacterDetails(), nom: getCharacterNameValue() };
+  const adjustments = Object.fromEntries(CHARACTER_STATS.map(def => [def.key, characterState.stats[def.key]?.adjust || 0]));
+  const args = { p_room: room.code, p_operation: operation, p_character: selected && selected !== 'new' ? selected : null,
+    p_details: details, p_adjustments: operation === 'save' ? adjustments : {} };
+  const pendingKey = `diceforge_generation_pending:${room.userId}:${room.code}:${operation}`;
+  const pending = JSON.parse(localStorage.getItem(pendingKey) || 'null');
+  if (pending && JSON.stringify(pending.args) !== JSON.stringify(args)) {
+    showToast('Réessaie la demande de génération en attente avec les mêmes informations.', 'error'); return false;
+  }
+  const request = pending || { args, id: crypto.randomUUID() };
+  localStorage.setItem(pendingKey, JSON.stringify(request));
+  characterRerollSaving = true; renderCharacterSheet();
+  try {
+    const { data, error } = await getSupabaseClient().rpc('df_generate_character', { ...args, p_request: request.id });
+    if (error) { localStorage.removeItem(pendingKey); throw error; }
+    localStorage.removeItem(pendingKey);
+    localStorage.setItem(`diceforge_character:${room.userId}:${room.code}`, data.character_id);
+    await loadPlayerCharacter();
+    const frame = document.getElementById('character-sheet-frame');
+    if (frame?.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
+    showToast(operation === 'reroll' ? 'Relance enregistrée par Supabase.' : 'Caractéristiques enregistrées par Supabase.', 'success');
+    return true;
+  } catch (error) { showToast(error.message || 'Génération indisponible.', 'error'); return false; }
+  finally { characterRerollSaving = false; renderCharacterSheet(); }
 }
 
 function characterNameChanged() {
@@ -548,6 +616,7 @@ function characterNameChanged() {
   characterSheetNeedsSync = true;
   renderCharacterSheet();
 }
+document.querySelector('[data-character-field="richesse"]')?.addEventListener('change', event => { event.target.dataset.userChoice = '1'; });
 
 function characterMovedOut() {
   return CHARACTER_STATS.reduce((sum, def) => {
@@ -750,8 +819,10 @@ function openMarkdownCharacterSheet() {
     player: playerName,
     profession: details.profession || previousFields.profession || '',
     race: details.espece || previousFields.race || '',
+    age: details.age ?? previousFields.age ?? '',
+    wealth: details.richesse || previousFields.wealth || 'Moyen',
     movement: speciesByName(details.espece).mov,
-    equipment: previousFields.equipment || (details.richesse ? `Richesse : ${details.richesse}` : ''),
+    equipment: previousFields.equipment || '',
     notes: previousFields.notes || extraNotes
   };
   draft.stats = {
@@ -798,18 +869,7 @@ function forceCharacterSheetSync() {
 
 function showCharacterSheetView(view, { sync = true } = {}) {
   const complete = view === 'complete';
-  const generatorView = document.getElementById('character-generator-view');
-  const completeView = document.getElementById('character-complete-view');
-  const generatorTab = document.getElementById('character-view-generator-tab');
-  const completeTab = document.getElementById('character-view-complete-tab');
-  if (!generatorView || !completeView || !generatorTab || !completeTab) return;
-
-  generatorView.hidden = complete;
-  completeView.hidden = !complete;
-  generatorTab.classList.toggle('active', !complete);
-  completeTab.classList.toggle('active', complete);
-  generatorTab.setAttribute('aria-selected', String(!complete));
-  completeTab.setAttribute('aria-selected', String(complete));
+  switchTab(complete ? 'character' : 'creation');
 
   if (!complete) return;
   const frame = document.getElementById('character-sheet-frame');
@@ -820,7 +880,19 @@ function showCharacterSheetView(view, { sync = true } = {}) {
   if (!frame.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
 }
 
+async function continueCharacterCreation() {
+  if (window.SUPABASE_CONFIG?.characterV2) {
+    if (!characterState.generated) { showToast('Génère d’abord ton personnage.', 'error'); return; }
+    if (characterReserve() !== 0) { showToast('Réattribue les points retirés avant de continuer.', 'error'); return; }
+    if (!characterState.saved && !await saveServerGeneration('save')) return;
+    showCharacterSheetView('complete', { sync: false });
+    return;
+  }
+  showCharacterSheetView('complete');
+}
+
 function openCharacterSheetFromLocation() {
+  if (window.location.hash === '#creation-personnage') { switchTab('creation'); return; }
   if (window.location.hash !== '#fiche-personnage') return;
   switchTab('character');
   showCharacterSheetView('complete');
@@ -876,6 +948,7 @@ function setCharacterFieldValue(key, value) {
   const field = document.querySelector(`[data-character-field="${key}"]`);
   if (!field) return;
   const text = value === undefined || value === null ? '' : String(value);
+  if (key === 'richesse') { fillWealthOptions(field, text || 'Moyen'); if (text) field.dataset.userChoice = '1'; return; }
   if (field.tagName === 'SELECT') ensureSelectOption(field, text);
   field.value = text;
 }
@@ -936,7 +1009,7 @@ function applyCharacterToSheet(payload, { saved = false, openTab = false } = {})
   const nameInput = document.getElementById('character-name');
   if (nameInput) nameInput.value = payload.nom;
   CHARACTER_DETAIL_KEYS.forEach(key => setCharacterFieldValue(key, payload.details[key]));
-  if (!payload.details.richesse) syncProfessionRichesse();
+  fillWealthOptions(document.querySelector('[data-character-field="richesse"]'), payload.details.richesse || 'Moyen');
 
   characterState = {
     generated: true,
@@ -1103,15 +1176,18 @@ function renderCharacterSheet() {
   const canSave = characterState.generated && hasName && reserve === 0 && !characterState.saved;
 
   renderCharacterAgeHint();
+  const serverCreation = !!window.SUPABASE_CONFIG?.characterV2;
+  const authoritative = !!getPlayerCharacter()?.generation?.serverGenerated;
+  document.getElementById('character-species').disabled = serverCreation && characterState.generated;
   const generateButton = document.getElementById('char-generate-btn');
   generateButton.disabled = characterState.generated || characterRerollSaving;
   generateButton.textContent = characterRerollSaving && !characterState.generated ? 'Enregistrement…' : 'Générer';
   const rerollButton = document.getElementById('char-reroll-btn');
-  rerollButton.disabled = !characterState.generated || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving || characterRerollConfirming;
+  rerollButton.disabled = !characterState.generated || (serverCreation && !authoritative) || characterState.rerollsUsed >= MAX_CHARACTER_REROLLS || characterRerollSaving || characterRerollConfirming;
   rerollButton.textContent = characterRerollSaving && characterState.generated
     ? 'Enregistrement…'
     : characterRerollConfirming ? 'Confirmation…' : 'Relancer';
-  document.getElementById('char-save-btn').disabled = !canSave || characterRerollSaving;
+  document.getElementById('char-save-btn').disabled = !canSave || (serverCreation && !authoritative) || characterRerollSaving;
   document.getElementById('char-new-btn').disabled = !characterState.saved || characterRerollSaving;
   const characterNameInput = document.getElementById('character-name');
   if (characterNameInput) characterNameInput.disabled = characterRerollSaving;
@@ -1149,8 +1225,8 @@ function renderCharacterSheet() {
       ? `Importé · valeur ${finalVal}`
       : `Base ${stat.rolledBase ?? stat.base} · ${formatFormula(formula)} (${detail})${racialDetail}${clampDetail}`;
     const adjustClass = stat.adjust > 0 ? 'pos' : stat.adjust < 0 ? 'neg' : '';
-    const addDisabled = (reserve <= 0 || finalVal >= 21) ? 'disabled' : '';
-    const removeDisabled = ((movedOut >= MAX_CHARACTER_MOVES && stat.adjust <= 0) || finalVal <= 3) ? 'disabled' : '';
+    const addDisabled = ((serverCreation && !authoritative) || reserve <= 0 || finalVal >= 21) ? 'disabled' : '';
+    const removeDisabled = ((serverCreation && !authoritative) || (movedOut >= MAX_CHARACTER_MOVES && stat.adjust <= 0) || finalVal <= 3) ? 'disabled' : '';
     const testLine = def.test
       ? `<div class="stat-test-line">${def.test}: ${finalVal * 5}%</div>`
       : '<div class="stat-test-line muted">Pas de jet de caractéristique</div>';
@@ -1198,7 +1274,7 @@ function renderCharacterCalculations(calculationsEl) {
       `Modificateurs : ${species.modifierText}`,
       `MOV : ${species.mov}`,
       age !== null ? `Âge : ${ageText}` : 'Âge : non défini',
-      profession ? `Profession : ${profession.name} · Richesse : ${profession.richesse}` : 'Profession : non sélectionnée',
+      profession ? `Profession : ${profession.name}` : 'Profession : non sélectionnée',
       '',
       'Générez une série pour afficher le détail des jets et des caractéristiques dérivées.'
     ].join('\n');
@@ -1212,7 +1288,7 @@ function renderCharacterCalculations(calculationsEl) {
   const lines = [
     `Espèce : ${species.name} (${species.modifierText})`,
     `Profession : ${profession ? profession.name : 'non sélectionnée'}`,
-    `Richesse : ${profession ? profession.richesse : (document.querySelector('[data-character-field="richesse"]')?.value || 'non définie')}`,
+    `Richesse : ${(document.querySelector('[data-character-field="richesse"]')?.value || 'non définie')}`,
     age !== null ? `Âge : ${ageText}` : 'Âge : non défini',
     '',
     'Caractéristiques'
@@ -1283,7 +1359,7 @@ function renderCharacterReference(referenceEl) {
       </div>
       <div class="reference-card">
         <div class="reference-title">${profession ? profession.name : 'Profession'}</div>
-        ${profession ? `<div class="reference-line"><b>Richesse</b> ${profession.richesse}</div>
+        ${profession ? `<div class="reference-line"><b>Richesse suggérée</b> ${profession.richesse}</div>
           <div class="reference-line"><b>Compétences</b> ${profession.skills}</div>
           ${profession.special ? `<div class="reference-note">${profession.special}</div>` : ''}` : '<div class="reference-line muted">Aucune profession sélectionnée.</div>'}
         <div class="reference-line"><b>Points prof.</b> 325 · <b>Perso</b> ${personalPoints ?? 'INT × 10'}</div>
@@ -1296,6 +1372,7 @@ async function submitCharacterSheet() {
   const name = document.getElementById('character-name').value.trim();
   if (!name) { showToast('Entre le nom du personnage', 'error'); return; }
   if (characterReserve() !== 0) { showToast('Replace les points retirés avant d’enregistrer', 'error'); return; }
+  if (window.SUPABASE_CONFIG?.characterV2) { await saveServerGeneration('save'); return; }
 
   const stats = {};
   CHARACTER_STATS.forEach(def => {
@@ -1349,7 +1426,7 @@ function readBrpSheetSkills() {
   }).filter(Boolean);
   const spells = (Array.isArray(sheet?.spells) ? sheet.spells : []).flatMap((spell, index) => {
     if (!spell?.name) return [];
-    const score = (parseInt(sheet.stats?.intelligence, 10) || 0) + (parseInt(spell.points, 10) || 0);
+    const score = spellScore(sheet,spell);
     return score > 0 ? [{ index, id: spell.id, kind: 'spell', name: spell.name, score: clampPercentScore(score), checked: !!spell.checked }] : [];
   });
   return [...skills, ...spells];
@@ -1505,6 +1582,7 @@ function markBrpSkillExperience(index, kind = 'skill') {
 }
 
 function markSuccessfulTestExperience(test) {
+  if (test.serverChecked === false) return;
   if (test?.kind === 'brp' && test.success && test.skill) {
     markBrpSkillExperience(test.skill.index, test.skill.kind || 'skill');
   }
@@ -1537,7 +1615,7 @@ function evaluatePercentile(threshold, rollValue) {
   if (rollValue === 1) {
     return { success: true, level: 'critical', label: 'Réussite critique', criticalLimit, specialLimit, fumbleMin, rollLabel };
   }
-  if (rollValue >= 96 || rollValue > threshold) {
+  if ((rollValue >= 96 && threshold < 100) || rollValue > threshold) {
     return { success: false, level: 'failure', label: 'Échec', criticalLimit, specialLimit, fumbleMin, rollLabel };
   }
   if (rollValue <= criticalLimit) {
@@ -1644,11 +1722,11 @@ function renderResult() {
       ? `<div class="test-msg ${characterTest.level}">${characterTest.label}</div>`
       : hasCrit ? '<div class="crit-msg crit">⭐ Coup Critique !</div>' : hasFail ? '<div class="crit-msg fail">💀 Échec Critique !</div>' : '';
 
-    html += `<div class="total-box">
-      <div class="total-lbl">${characterTest ? escapeAttribute(characterTest.skill?.name || characterTest.name || 'Test BRP') : 'Résultat Total'}</div>
-      <div class="total-num${hasCrit ? ' crit-style' : ''}">${characterTest ? characterTest.rollLabel : total}</div>
-      ${critMsg}${brkd}
-    </div>`;
+    html += totalResultHtml({
+      label: characterTest ? characterTest.skill?.name || characterTest.name || 'Test BRP' : 'Résultat Total',
+      value: characterTest ? characterTest.rollLabel : total,
+      critical: hasCrit, messageHtml: critMsg, detailsHtml: brkd
+    });
   }
 
   el.innerHTML = html;
@@ -1762,7 +1840,30 @@ function rollBrpPercentileTest() {
   startPercentileRoll(test);
 }
 
-function startPercentileRoll(test) {
+async function startPercentileRoll(test) {
+  let serverRoll = null;
+  if (test.kind === 'brp' && test.skill && window.SUPABASE_CONFIG?.characterV2) {
+    setRollingUi(true);
+    try {
+      const key = characterDraftKey();
+      const sheet = JSON.parse(localStorage.getItem(key) || 'null');
+      const room = JSON.parse(localStorage.getItem('diceforge_room') || 'null');
+      const resource = test.skill.kind === 'spell' ? 'spell' : 'skill';
+      const target = resource === 'skill' ? sheet?.skills?.[test.skill.index] : sheet?.spells?.[test.skill.index];
+      if (!sheet?.state_id || !target?.id || !room?.code) throw new Error('Sauvegardez la fiche avant de lancer ce jet.');
+      const pendingKey = `${key}:roll:${resource}:${target.id}:${test.difficulty.value}:${test.malus}`;
+      const request = localStorage.getItem(pendingKey) || crypto.randomUUID();
+      localStorage.setItem(pendingKey, request);
+      const {data,error} = await getSupabaseClient().rpc('df_roll_skill_test', {
+        p_state:sheet.state_id,p_room:room.code,p_resource:resource,p_id:target.id,
+        p_difficulty:test.difficulty.value,p_malus:test.malus,p_request:request
+      });
+      if (error) throw error;
+      localStorage.removeItem(pendingKey);
+      test.score=data.score; test.threshold=data.threshold; test.serverChecked=data.checked;
+      serverRoll=data.roll;
+    } catch (error) { finishRollingUi(); showToast(`Jet impossible : ${error.message || 'connexion indisponible'}`, 'error'); return; }
+  }
   const groups = [{
     type: 100,
     rolls: [{ val: null, state: 'rolling' }]
@@ -1775,7 +1876,7 @@ function startPercentileRoll(test) {
 
   const anim = cfg.anim && !blind;
   const dur = anim ? 1800 : 0;
-  const finalValue = rnd(1, 100);
+  const finalValue = serverRoll ?? rnd(1, 100);
   groups[0].rolls[0].finalVal = finalValue;
   sendPercentileTest({ ...test, ...evaluatePercentile(test.threshold, finalValue) }, finalValue);
   if (anim) {
@@ -1825,6 +1926,7 @@ window.refreshCharacterFromSupabase = refreshCharacterFromSupabase;
 window.openMarkdownCharacterSheet = openMarkdownCharacterSheet;
 window.forceCharacterSheetSync = forceCharacterSheetSync;
 window.showCharacterSheetView = showCharacterSheetView;
+window.continueCharacterCreation = continueCharacterCreation;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;
@@ -1835,7 +1937,7 @@ window.randomFantasyName = randomFantasyName;
 // ——— init ———
 window.addEventListener('diceforge:character-loaded', event => {
   hydrateSavedCharacter(event.detail?.character);
-  if (!document.getElementById('character-complete-view')?.hidden) showCharacterSheetView('complete');
+  if (document.getElementById('panel-character')?.classList.contains('active')) showCharacterSheetView('complete', { sync: false });
 });
 initCharacterOptions();
 initBrpSkillPicker();
