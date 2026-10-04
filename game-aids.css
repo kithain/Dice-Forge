@@ -1,4 +1,5 @@
 /* Shared reading and printing layer. Existing chapter IDs and rule tables stay usable. */
+.verbal-approaches th:last-child,.verbal-approaches td:last-child { text-align:left; }
 body.game-aid { --aid-paper:#fffdf8; --aid-ground:#eeeae1; --aid-ink:#29333b; --aid-muted:#5e686e; --aid-accent:#805037; --aid-line:#d9d1c2; color:var(--aid-ink); background:var(--aid-ground); font:16px/1.65 system-ui,"Segoe UI",sans-serif; margin:0; padding:0; }
 .game-aid * { box-sizing:border-box; }
 .game-aid .site-menu-panel[aria-hidden="true"] { visibility:hidden; }
