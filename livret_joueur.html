@@ -137,7 +137,7 @@
           <a href="#creation">01 · Créer son personnage</a>
           <a href="#agir">02 · Agir et lancer les dés</a>
           <a href="#combat">03 · Combattre et se soigner</a>
-          <a href="#confrontation-verbale">04 · Prendre la parole</a>
+          <a href="#confrontation-verbale">04 · Joute verbale</a>
           <a href="#magie-alchimie">05 · Magie et alchimie</a>
           <a href="#experience">06 · Progresser</a>
           <a href="#references">Références détaillées</a>
@@ -150,7 +150,7 @@
           <div class="quick">
             <a href="#agir">Faire un jet</a>
             <a href="#combat">Mon tour de combat</a>
-            <a href="#confrontation-verbale">Un échange social</a>
+            <a href="#confrontation-verbale">Joute verbale</a>
           </div>
         </div>
 
@@ -239,9 +239,9 @@
         </section>
 
         <section id="confrontation-verbale" aria-labelledby="titre-parole">
-          <h2 id="titre-parole"><span class="number">04</span> Prendre la parole</h2>
+          <h2 id="titre-parole"><span class="number">04</span> Joute verbale</h2>
           <p class="lead">Convaincre un garde, négocier un prix, apaiser une dispute… Les mots-clés vous aident à construire votre argumentation.</p>
-          <p>Dans l’onglet <strong>Confrontation verbale</strong> du lanceur, choisissez une approche. Chacune propose une liste de <strong>50 mots</strong> ; le tirage ne contient aucun doublon.</p>
+          <p>Dans l’onglet <strong>Joute verbale</strong> du lanceur, choisissez une approche. Chacune propose une liste de <strong>50 mots</strong> ; le tirage ne contient aucun doublon.</p>
           <details>
             <summary>Les huit approches</summary>
             <ul class="approaches">
@@ -257,7 +257,23 @@
           </details>
           <div class="table-wrap">
             <table>
-              <caption>Votre score Intimidation/Persuasion, quelle que soit l’approche</caption>
+              <caption>Compétence principale selon l’approche</caption>
+              <thead><tr><th scope="col">Approche</th><th scope="col">Compétence principale</th></tr></thead>
+              <tbody>
+                <tr><td>Persuader</td><td>Intimidation/Persuasion</td></tr>
+                <tr><td>Intimider</td><td>Intimidation/Persuasion</td></tr>
+                <tr><td>Séduire</td><td>Représentation</td></tr>
+                <tr><td>Négocier</td><td>Marchandage</td></tr>
+                <tr><td>Bluffer</td><td>Baratin</td></tr>
+                <tr><td>Contraindre</td><td>Intimidation/Persuasion</td></tr>
+                <tr><td>Railler</td><td>Représentation</td></tr>
+                <tr><td>Apaiser</td><td>Intimidation/Persuasion</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <caption>Le score de la compétence principale détermine le tirage</caption>
               <thead><tr><th scope="col">Score</th><th scope="col">Mots tirés</th><th scope="col">Jokers</th></tr></thead>
               <tbody>
                 <tr><td>Moins de 40 %</td><td>5</td><td>0</td></tr>
@@ -271,8 +287,8 @@
           <div class="rule">
             <p><strong>Le MJ apprécie l’ensemble.</strong> Le compteur n’impose ni réussite ni échec : les arguments, l’interlocuteur et la scène déterminent les effets. L’effort de roleplay mérite toujours d’être récompensé, même hésitant ou maladroit.</p>
           </div>
-          <p>Si le MJ valide votre participation, utilisez <strong>« Le MJ valide : cocher Intimidation/Persuasion »</strong>, même si les cinq mots ne sont pas marqués comme placés. Sauvegardez ensuite votre fiche.</p>
-          <p class="reference"><a href="index.html">Ouvrir le lanceur</a>, puis choisir l’onglet Confrontation verbale.</p>
+          <p>Si le MJ valide votre participation, cliquez sur <strong>« Réussite »</strong> pour cocher la compétence principale de l’approche choisie, même si les cinq mots ne sont pas marqués comme placés. Sauvegardez ensuite votre fiche.</p>
+          <p class="reference"><a href="index.html">Ouvrir le lanceur</a>, puis choisir l’onglet Joute verbale.</p>
         </section>
 
         <section id="magie-alchimie" aria-labelledby="titre-specialites">
@@ -322,7 +338,7 @@
 
 <p class="note">Une room = une session = un nouveau pool de INT ÷ 2, arrondi au supérieur, attribué une seule fois à la première entrée du personnage. Seul le MJ crée les rooms. Une tentative de déverrouillage par compétence ou sort coché et par room ; une reconnexion conserve le solde et les tentatives. Les points non dépensés sont perdus à la fin de session et ne peuvent pas être récupérés en revenant dans une ancienne room.</p>
 
-          <p>Pendant la partie, cochez une compétence ou un sort après une réussite utile obtenue avec lui. Un échec ne donne pas de coche. Pour la confrontation verbale, la coche dépend de la validation du MJ.</p>
+          <p>Pendant la partie, cochez une compétence ou un sort après une réussite utile obtenue avec lui. Un échec ne donne pas de coche. Pour la joute verbale, la coche dépend de la validation du MJ.</p>
           <ol>
             <li><strong>Pendant la session,</strong> lancez 1D100 sans bonus ni malus pour chaque compétence ou sort coché. Un total strictement supérieur au score actuel rend la compétence admissible.</li>
             <li><strong>Répartissez votre réserve</strong> entre les compétences et les sorts déverrouillés : 1 XP donne +1 point de score, dans la limite de 100 %. La réserve vaut INT ÷ 2, arrondi au supérieur ; ce montant ne s’ajoute pas au jet.</li>

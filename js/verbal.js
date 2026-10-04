@@ -1,6 +1,17 @@
 import { BRP_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { createVerbalObs } from './verbal-obs-control.js?v=20261004-player-verbal';
 
+export const APPROACH_SKILLS = {
+  Persuader: 'Intimidation/Persuasion',
+  Intimider: 'Intimidation/Persuasion',
+  'Séduire': 'Représentation',
+  'Négocier': 'Marchandage',
+  Bluffer: 'Baratin',
+  Contraindre: 'Intimidation/Persuasion',
+  Railler: 'Représentation',
+  Apaiser: 'Intimidation/Persuasion'
+};
+
 export const WORD_TABLES = {
   "Persuader": ["Raison", "Honneur", "Avenir", "Casuistique", "Verite", "Alliance", "Justice", "Confiance", "Logique", "Devoir", "Espoir", "Syllogisme", "Preuve", "Fait", "Stabilite", "Coherence", "Respect", "Bon sens", "Evidence", "Exegese", "Cause", "Legitimite", "Destin", "Serment", "Foi juree", "Parole donnee", "Peroraison", "Loyaute", "Droiture", "Equite", "Plaidoyer", "Temoignage", "Exorde", "Argument", "Precepte", "Doctrine", "Coutume", "Droit", "Sceau", "Sophisme", "Charte", "Traite", "Hommage", "Investiture", "Vassalite", "Jurisprudence", "Heritage", "Lignee", "Preseance", "Anatheme"],
   "Intimider": ["Ombre", "Ruine", "Sang", "Consequence", "Estrapade", "Silence", "Cendres", "Force", "Menace", "Ordalie", "Limite", "Supplice", "Violence", "Fatalite", "Soumission", "Calvaire", "Chevalet", "Isolement", "Terreur", "Perte", "Chatiment", "Geole", "Brodequin", "Cachot", "Entraves", "Gibet", "Pilori", "Potence", "Echafaud", "Bourreau", "Lame", "Carcan", "Feu", "Fleau", "Roue", "Guerre", "Siege", "Pillage", "Devastation", "Desolation", "Autodafe", "Abime", "Tenebres", "Ostracisme", "Courroux", "Vengeance", "Sentence", "Ecorchement", "Proscription", "Bannissement"],
@@ -43,7 +54,7 @@ if (panel) {
   const progress = document.getElementById('verbal-progress');
   const experienceButton = document.getElementById('verbal-experience');
   const experienceStatus = document.getElementById('verbal-experience-status');
-  const skillIndex = BRP_SKILLS.findIndex(([name]) => name === 'Intimidation/Persuasion');
+  let skillIndex = -1;
   const syncObs = createVerbalObs();
   let character = 'Personnage';
   let score = null;
@@ -64,17 +75,22 @@ if (panel) {
       sheet = document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.getData()
         || JSON.parse(localStorage.getItem('dice-forge.pj-markdown.v1'));
     } catch { sheet = null; }
-    const raw = sheet?.skills?.[skillIndex]?.score;
+    const skillName = APPROACH_SKILLS[approach.value];
+    const nextSkillIndex = BRP_SKILLS.findIndex(([name]) => name === skillName);
+    const raw = sheet?.skills?.[nextSkillIndex]?.score;
     const next = raw !== '' && raw != null && Number.isFinite(Number(raw)) && Number(raw) >= 0 ? Number(raw) : null;
     const nextCharacter = sheet?.fields?.name || 'Personnage';
-    if (next !== score || nextCharacter !== character) reset();
+    if (next !== score || nextCharacter !== character || nextSkillIndex !== skillIndex) reset();
+    skillIndex = nextSkillIndex;
     character = nextCharacter;
     score = next;
     rollButton.disabled = score === null;
     experienceButton.disabled = score === null;
     experienceStatus.textContent = sheet?.skills?.[skillIndex]?.checked ? 'Expérience cochée.' : '';
-    document.getElementById('verbal-level').textContent = score === null ? ''
-      : `Rang : ${levelFor(score).name} · ${levelFor(score).count}/5 mots à conserver · ${levelFor(score).count - 5} joker(s).`;
+    const level = levelFor(score);
+    document.getElementById('verbal-level').textContent = score === null
+      ? `${skillName} : score indisponible. Actualise depuis ta fiche.`
+      : `${skillName} : Rang : ${level.name} · ${level.count}/5 mots à conserver · ${level.count - 5} joker(s).`;
   }
 
   function render(newDraw = false) {
@@ -126,7 +142,7 @@ if (panel) {
     drawn = drawWords(WORD_TABLES[approach.value], level.count);
     render(true);
   });
-  approach.addEventListener('change', reset);
+  approach.addEventListener('change', () => { reset(); refresh(); });
   document.getElementById('verbal-refresh').addEventListener('click', refresh);
   experienceButton.addEventListener('click', () => {
     refresh();

@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Écran du Joueur — BRP ORC</title>
-<meta name="description" content="Écran de référence pour les joueurs BRP ORC : jets, combat, expérience, magie, confrontation verbale et alchimie.">
+<meta name="description" content="Écran de référence pour les joueurs BRP ORC : jets, combat, expérience, magie, joute verbale et alchimie.">
 <style>
 @page { size: A4 landscape; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -245,7 +245,7 @@ table { font-size: 12px; }
     <a href="#jets">Jets</a>
     <a href="#combat">Combat</a>
     <a href="#magie">Magie</a>
-    <a href="#confrontation-verbale">Confrontation verbale</a>
+    <a href="#confrontation-verbale">Joute verbale</a>
     <button type="button" onclick="window.print()">Imprimer</button>
   </nav>
 </header>
@@ -454,7 +454,7 @@ table { font-size: 12px; }
 <li>Dépensez-le sur les compétences et les sorts déverrouillés : <b>1 XP = +1 point</b>, maximum 100 %.</li>
 <li>À la clôture ou au changement de session, perdez le reliquat. La session suivante remet les coches à zéro ; décocher ne réarme pas une tentative.</li>
 </ol>
-<p class="note">Pour la confrontation verbale, la validation du MJ permet de cocher Intimidation/Persuasion même sans cinq mots placés. Sauvegardez la fiche.</p>
+<p class="note">Pour la joute verbale, la validation du MJ permet de cocher la compétence principale de l’approche choisie même sans cinq mots placés. Sauvegardez la fiche.</p>
 <p class="note">Aucune réussite d'apprentissage = aucun point distribué. La POU progresse séparément : coche après un jet de résistance réussi contre une POU au moins égale, puis gain de 1D3−1.</p>
 <p><b>Exemple :</b> INT 13 donne une réserve de 7 points. Si Épée et Défense réussissent leur jet d'apprentissage, répartissez librement les 7 points entre ces deux compétences, par exemple Épée +5 et Défense +2.</p>
 
@@ -578,12 +578,12 @@ table { font-size: 12px; }
 
 </div>
 <div class="panel-pair">
-<!-- ============ PANNEAU 5 : Confrontation verbale ============ -->
+<!-- ============ PANNEAU 5 : Joute verbale ============ -->
 <section class="panel" id="confrontation-verbale">
-<h1>Panneau 5 — Confrontation verbale</h1>
+<h1>Panneau 5 — Joute verbale</h1>
 
 <h2>Une aide pour prendre la parole</h2>
-<p>Dans l’onglet <b>Confrontation verbale</b> du lanceur, choisissez votre approche. Chaque liste contient <b>50 mots</b> ; les mots sont tirés au hasard, <b>sans doublon</b>.</p>
+<p>Dans l’onglet <b>Joute verbale</b> du lanceur, choisissez votre approche. Chaque liste contient <b>50 mots</b> ; les mots sont tirés au hasard, <b>sans doublon</b>.</p>
 <ul class="approach-list">
 <li><b>Persuader :</b> la morale.</li>
 <li><b>Intimider :</b> la peur ou la menace.</li>
@@ -596,7 +596,20 @@ table { font-size: 12px; }
 </ul>
 
 <h2>Tirage et jokers</h2>
-<p>Utilisez le score <b>Intimidation/Persuasion</b> de votre fiche, quelle que soit l’approche.</p>
+<table>
+<thead><tr><th scope="col">Approche</th><th scope="col">Compétence principale</th></tr></thead>
+<tbody>
+<tr><td>Persuader</td><td>Intimidation/Persuasion</td></tr>
+<tr><td>Intimider</td><td>Intimidation/Persuasion</td></tr>
+<tr><td>Séduire</td><td>Représentation</td></tr>
+<tr><td>Négocier</td><td>Marchandage</td></tr>
+<tr><td>Bluffer</td><td>Baratin</td></tr>
+<tr><td>Contraindre</td><td>Intimidation/Persuasion</td></tr>
+<tr><td>Railler</td><td>Représentation</td></tr>
+<tr><td>Apaiser</td><td>Intimidation/Persuasion</td></tr>
+</tbody>
+</table>
+<p>Utilisez le score de la <b>compétence principale de votre approche</b> pour calculer le rang, les mots tirés et les jokers.</p>
 <table>
 <tr><th>Score</th><th>Mots tirés</th><th>Jokers</th><th>Mots à conserver</th></tr>
 <tr><td>Moins de 40 %</td><td>5</td><td>0</td><td>5</td></tr>
@@ -612,7 +625,7 @@ table { font-size: 12px; }
 <p>Le MJ apprécie les arguments, l’interlocuteur et le contexte, puis décide de leurs effets. Ne pas placer les cinq mots n’impose aucun échec. <b>L’effort de roleplay mérite toujours d’être récompensé</b>, même maladroit.</p>
 
 <h2>Cocher l’expérience</h2>
-<p>Si le MJ valide votre participation, cliquez sur <b>« Le MJ valide : cocher Intimidation/Persuasion »</b>, même si les cinq mots ne sont pas marqués comme placés. <b>Sauvegardez ensuite la fiche.</b></p>
+<p>Si le MJ valide votre participation, cliquez sur <b>« Réussite »</b> pour cocher la compétence principale de l’approche choisie, même si les cinq mots ne sont pas marqués comme placés. <b>Sauvegardez ensuite la fiche.</b></p>
 <p class="rule-links"><a href="index.html">Ouvrir le lanceur</a> · <a href="livret_joueur.html#confrontation-verbale">Règles détaillées</a></p>
 </section>
 
