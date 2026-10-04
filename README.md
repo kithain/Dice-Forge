@@ -154,7 +154,7 @@ Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/a
 
 ### Aide à la confrontation verbale
 
-Dans l’onglet **Confrontation verbale**, tire les mots puis clique sur **Afficher dans OBS**. L’overlay affiche le personnage, l’approche, les mots, les jokers et les repères « placé », sans verdict automatique. Les changements sont synchronisés ; **Masquer dans OBS** efface l’affichage. Un changement d’approche ou de personnage masque également l’aide. Une seule aide est affichée à la fois par salon : le dernier affichage demandé remplace le précédent.
+Dans l’onglet **Confrontation verbale**, tire les mots : l’affichage dans OBS est automatique. L’overlay affiche le personnage, l’approche, les mots, les jokers et les repères « placé », sans verdict automatique. Le dernier tirage reste affiché jusqu’au suivant, même si le joueur change d’approche ou de personnage, ou ferme sa page. Les mots placés et les jokers de ce tirage sont synchronisés. Une seule aide est affichée à la fois par salon : un nouveau tirage remplace le précédent ; modifier un ancien tirage ne peut pas reprendre la place.
 
 Depuis le cockpit local, utilise la carte **Confrontation verbale**, ou ajoute cette source Navigateur à OBS (dimensions conseillées : **700 × 550**) :
 
@@ -162,9 +162,9 @@ Depuis le cockpit local, utilise la carte **Confrontation verbale**, ou ajoute c
 http://127.0.0.1:5000/overlays/verbal?room=ABCD
 ```
 
-Pour la prévisualisation locale autonome, lance `python scripts/serve_local.py` à la racine du dépôt puis ouvre `http://127.0.0.1:8765/`. L’URL OBS est `http://127.0.0.1:8765/obs-verbal.html?room=ABCD`, ou `?room=LOCAL` sans salon. **Copier l’URL OBS** dans l’onglet fournit le lien adapté. Ajoute `&bg=1` pour tester avec un fond visible.
+Pour la prévisualisation locale autonome, lance `python scripts/serve_local.py` à la racine du dépôt puis ouvre `http://127.0.0.1:8765/`. L’URL OBS est `http://127.0.0.1:8765/obs-verbal.html?room=ABCD`, ou `?room=LOCAL` sans salon. La carte **Confrontation verbale** du cockpit fournit le lien OBS ; aucun contrôle de diffusion n’est affiché sur l’écran joueur. Ajoute `&bg=1` pour tester avec un fond visible.
 
-Cette V1 transmet l’état au serveur local, ce qui permet à OBS de le recevoir dans son propre navigateur, sans compte ni stockage navigateur partagé. Le lanceur et la source OBS doivent utiliser le même serveur local et le même code de salon. Les joueurs utilisant uniquement le site en ligne ne transmettent pas encore leurs mots au serveur du MJ. L’état est conservé en mémoire jusqu’au masquage ou au redémarrage du serveur ; aucun schéma Supabase n’est modifié.
+Cette V1 transmet l’état au serveur local, ce qui permet à OBS de le recevoir dans son propre navigateur, sans compte ni stockage navigateur partagé. Le lanceur et la source OBS doivent utiliser le même serveur local et le même code de salon. Les joueurs utilisant uniquement le site en ligne ne transmettent pas encore leurs mots au serveur du MJ. L’état est conservé en mémoire jusqu’au prochain tirage ou au redémarrage du serveur ; aucun schéma Supabase n’est modifié.
 
 Saisissez le code de la partie dans le cockpit puis utilisez **Copier l'URL** sur l'overlay souhaité. Les adresses ont désormais des noms explicites :
 

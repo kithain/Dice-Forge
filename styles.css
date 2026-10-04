@@ -485,6 +485,3 @@ select.room-input{appearance:none}
 .verbal-word.discarded { opacity: .45; text-decoration: line-through; border-color: transparent; }
 .verbal-word.used { border-color: #65cfa1; background: rgba(101,207,161,.12); }
 .verbal-guidance { opacity: .8; }
-.verbal-obs-controls { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(168,85,247,.3); }
-.verbal-obs-controls .room-btn { margin: 4px 8px 4px 0; }
-#verbal-obs-url { overflow-wrap: anywhere; }

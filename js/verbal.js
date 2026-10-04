@@ -1,5 +1,5 @@
 import { BRP_SKILLS } from './brp-skills.js?v=20260925-medfan';
-import { createVerbalObs } from './verbal-obs-control.js?v=20261002-v1';
+import { createVerbalObs } from './verbal-obs-control.js?v=20261004-player-verbal';
 
 export const WORD_TABLES = {
   "Persuader": ["Raison", "Honneur", "Avenir", "Casuistique", "Verite", "Alliance", "Justice", "Confiance", "Logique", "Devoir", "Espoir", "Syllogisme", "Preuve", "Fait", "Stabilite", "Coherence", "Respect", "Bon sens", "Evidence", "Exegese", "Cause", "Legitimite", "Destin", "Serment", "Foi juree", "Parole donnee", "Peroraison", "Loyaute", "Droiture", "Equite", "Plaidoyer", "Temoignage", "Exorde", "Argument", "Precepte", "Doctrine", "Coutume", "Droit", "Sceau", "Sophisme", "Charte", "Traite", "Hommage", "Investiture", "Vassalite", "Jurisprudence", "Heritage", "Lignee", "Preseance", "Anatheme"],
@@ -70,20 +70,17 @@ if (panel) {
     if (next !== score || nextCharacter !== character) reset();
     character = nextCharacter;
     score = next;
-    document.getElementById('verbal-score').textContent = score === null
-      ? 'Aucun score disponible. Ouvre la fiche complète et renseigne Intimidation/Persuasion.'
-      : `${sheet?.fields?.name || 'Personnage'} · Intimidation/Persuasion : ${score} %`;
     rollButton.disabled = score === null;
     experienceButton.disabled = score === null;
-    experienceStatus.textContent = sheet?.skills?.[skillIndex]?.checked ? 'La case d’expérience Intimidation/Persuasion est cochée.' : '';
+    experienceStatus.textContent = sheet?.skills?.[skillIndex]?.checked ? 'Expérience cochée.' : '';
     document.getElementById('verbal-level').textContent = score === null ? ''
-      : `${levelFor(score).name} · ${levelFor(score).count} tirages sur 50 · 5 mots à conserver · ${levelFor(score).count - 5} joker(s). Les doublons sont relancés.`;
+      : `Rang : ${levelFor(score).name} · ${levelFor(score).count}/5 mots à conserver · ${levelFor(score).count - 5} joker(s).`;
   }
 
-  function render() {
+  function render(newDraw = false) {
     words.replaceChildren();
     const discarded = drawn.filter(entry => entry.discarded).length;
-    progress.textContent = `${drawn.filter(entry => entry.used).length}/5 mots placés · ${discarded}/${jokers} joker(s) utilisé(s) · Repère de jeu, sans verdict automatique.`;
+    progress.textContent = `${drawn.filter(entry => entry.used).length}/5 mots placés · ${discarded}/${jokers} joker(s) utilisé(s).`;
     drawn.forEach(entry => {
       const card = document.createElement('div');
       card.className = `verbal-word${entry.discarded ? ' discarded' : ''}${entry.used ? ' used' : ''}`;
@@ -118,7 +115,7 @@ if (panel) {
       }
       words.append(card);
     });
-    syncObs({ character, approach: approach.value, words: drawn.map(({ word, discarded, used }) => ({ word, discarded, used })) });
+    syncObs({ character, approach: approach.value, words: drawn.map(({ word, discarded, used }) => ({ word, discarded, used })) }, newDraw);
   }
 
   rollButton.addEventListener('click', () => {
@@ -127,7 +124,7 @@ if (panel) {
     const level = levelFor(score);
     jokers = level.count - 5;
     drawn = drawWords(WORD_TABLES[approach.value], level.count);
-    render();
+    render(true);
   });
   approach.addEventListener('change', reset);
   document.getElementById('verbal-refresh').addEventListener('click', refresh);
@@ -136,7 +133,7 @@ if (panel) {
     if (score === null) return;
     window.markBrpSkillExperience(skillIndex);
     document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.setSkillChecked(skillIndex, true);
-    experienceStatus.textContent = 'Case d’expérience Intimidation/Persuasion cochée après validation du MJ. Pense à sauvegarder ta fiche en ligne.';
+    experienceStatus.textContent = 'Expérience cochée. Pense à sauvegarder ta fiche.';
   });
   new MutationObserver(() => { if (panel.classList.contains('active')) refresh(); }).observe(panel, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('storage', event => { if (event.key === 'dice-forge.pj-markdown.v1') refresh(); });

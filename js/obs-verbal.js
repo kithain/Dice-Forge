@@ -31,7 +31,7 @@ async function poll() {
     const state = await response.json();
     if (revision !== state.revision) { renderOverlay(state); revision = state.revision; }
     status.hidden = !preview || state.visible;
-    status.textContent = 'En attente : clique sur « Afficher dans OBS » dans l’onglet Confrontation verbale.';
+    status.textContent = 'En attente du premier tirage dans l’onglet Confrontation verbale.';
   } catch {
     panel.hidden = true;
     revision = -1;

@@ -47,6 +47,9 @@ jobs:
       - name: Tester le grimoire et sa sauvegarde
         run: node scripts/test_pj_magic.cjs
 
+      - name: Tester la diffusion automatique de la confrontation verbale
+        run: node scripts/test_verbal_obs.cjs
+
       - name: Tester les sauvegardes sur PostgreSQL isolé
         run: |
           npm install --prefix "$RUNNER_TEMP/diceforge-postgres" embedded-postgres@17.10.0-beta.17 --no-audit --no-fund

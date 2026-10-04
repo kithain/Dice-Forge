@@ -99,7 +99,8 @@ class CockpitRouteTests(unittest.TestCase):
     def test_verbal_overlay_is_shared_and_isolated_by_room(self):
         redirect = self.client.get('/overlays/verbal?room=OBS_TEST')
         self.assertEqual(redirect.location, '/dice/obs-verbal.html?room=OBS_TEST')
-        payload = {'visible': True, 'character': 'Ilya', 'approach': 'Persuader',
+        payload = {'visible': True, 'draw_id': 'a' * 32, 'new_draw': True,
+                   'character': 'Ilya', 'approach': 'Persuader',
                    'words': [{'word': f'Mot {i}', 'discarded': False, 'used': False} for i in range(5)]}
         endpoint = '/api/verbal-overlay?room=OBS_TEST'
         self.assertEqual(self.client.post(endpoint, json=payload).status_code, 403)
@@ -108,8 +109,21 @@ class CockpitRouteTests(unittest.TestCase):
         self.assertEqual(self.client.get(endpoint).json['character'], 'Ilya')
         self.assertEqual(self.client.get(endpoint).headers['Cache-Control'], 'no-store')
         self.assertFalse(self.client.get('/api/verbal-overlay?room=OBS_OTHER').json['visible'])
-        hidden = self.client.post(endpoint, json={'visible': False}, headers={'X-DiceForge-Overlay': '1'})
-        self.assertFalse(hidden.json['visible'])
+        headers = {'X-DiceForge-Overlay': '1'}
+        second = {**payload, 'character': 'Autre joueur', 'draw_id': 'b' * 32}
+        replaced = self.client.post(endpoint, json=second, headers=headers)
+        self.assertEqual(replaced.json['character'], 'Autre joueur')
+        payload['new_draw'] = False
+        obsolete = self.client.post(endpoint, json=payload, headers=headers)
+        self.assertEqual(obsolete.json, replaced.json)
+        second['new_draw'] = False
+        second['words'][0]['used'] = True
+        updated = self.client.post(endpoint, json=second, headers=headers)
+        self.assertTrue(updated.json['words'][0]['used'])
+        self.assertGreater(updated.json['revision'], replaced.json['revision'])
+        hidden = self.client.post(endpoint, json={'visible': False}, headers=headers)
+        self.assertEqual(hidden.status_code, 400)
+        self.assertTrue(self.client.get(endpoint).json['visible'])
 
 
 if __name__ == "__main__":
