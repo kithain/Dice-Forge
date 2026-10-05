@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
   await context.addInitScript(({xp,learn})=>{
    localStorage.setItem('diceforge_room',JSON.stringify({code:'TEST',userId:'owner',player:'Player'}));
    let sheet={state_id:'synthetic-state',character_id:'synthetic-character',campaign_id:'synthetic-campaign',revision:1,
-    creation:{phase:'draft',origin:'creation'},fields:{name:'Test création',player:'Player',profession:'Sorcier',race:'Humain',skillProfessionalPool:'325',sex:'F',genre:'Féminin'},
+    creation:{phase:'draft',origin:'creation'},fields:{name:'Test création',player:'Player',profession:'Sorcier',race:'Humain',skillProfessionalPool:'325',sex:'F',genre:'Féminin',age:'99'},
     stats:{force:12,constitution:12,taille:12,intelligence:16,pouvoir:13,dexterite:12,apparence:12},
     skills:Array.from({length:57},()=>({})),spells:[],weapons:[]};
    if((xp || learn) && localStorage.getItem('__xpMockState'))sheet=JSON.parse(localStorage.getItem('__xpMockState'));
@@ -42,7 +42,7 @@ const server=http.createServer((req,res)=>{
    const row=()=>({id:sheet.state_id,revision:sheet.revision,sheet_data:structuredClone(sheet),character_name:sheet.fields.name,markdown_content:'',updated_at:'2026-10-03T08:00:00Z'});
    window.__testClient={auth:{getUser:async()=>({data:{user:{id:'owner',email:'player@diceforge.app'}},error:null})},
     from:resource=>{let saving=null;const query={select(){return this;},eq(){return this;},order(){return this;},limit(){return this;},
-     upsert(value){saving=value;return this;},maybeSingle:async()=>({data:resource==='personnages'?{genre:'Masculin'}:row(),error:null}),
+     upsert(value){saving=value;return this;},maybeSingle:async()=>({data:resource==='personnages'?{genre:'Masculin',age:'57'}:row(),error:null}),
      then(resolve,reject){if(saving){sheet={...saving.sheet_data,revision:sheet.revision+1,creation:sheet.creation};window.__markdown=saving.markdown_content;persist();}return Promise.resolve({data:[row()],error:null}).then(resolve,reject);}};return query;},
     rpc:async(name,args)=>{
      window.__calls.push({name,args});
@@ -92,6 +92,9 @@ const server=http.createServer((req,res)=>{
   const genre=page.getByLabel('Genre',{exact:true});
   assert.equal(await genre.inputValue(),'Masculin','Creation identity overrides old or edited sheet values');
   assert.equal(await genre.evaluate(input=>input.readOnly),true,'Genre cannot be edited on the complete sheet');
+  const age=page.locator('[data-field="age"]');
+  assert.equal(await age.inputValue(),'57','Age is taken from creation rather than the old sheet');
+  assert.equal(await age.evaluate(input=>input.readOnly),true,'Age cannot be edited on the complete sheet');
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('#pj-validate-creation').isDisabled(),true,'Unspent creation budget cannot be validated');
   await page.locator('[data-skill-points="0"]').fill('25');
@@ -117,6 +120,9 @@ const server=http.createServer((req,res)=>{
   assert.match(await page.evaluate(()=>window.__markdown),/\*\*Genre :\*\* Masculin/,'The saved Markdown includes the creation genre');
   assert.equal(await genre.inputValue(),'Masculin','A canonical save retains the creation identity');
   assert.equal(await genre.evaluate(input=>input.readOnly),true,'Genre remains readonly after validation');
+  assert.equal(await age.inputValue(),'57');
+  assert.equal(await age.evaluate(input=>input.readOnly),true,'Age remains readonly after validation');
+  assert.match(await page.evaluate(()=>window.__markdown),/\*\*Âge :\*\* 57/);
   assert.equal(await page.locator('#pj-validate-creation').isVisible(),false);
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('[data-skill-points="0"]').evaluate(e=>e.readOnly),true);
@@ -229,6 +235,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('#pj-pdf').click();
   await page.waitForURL('**/pj-print.html');
   assert.equal(await page.locator('.identity .field').filter({hasText:'Genre'}).locator('.value').textContent(),'Masculin','The PDF snapshot includes the creation genre');
+  assert.equal(await page.locator('.identity .field').filter({hasText:'Âge'}).locator('.value').textContent(),'57','The PDF snapshot includes the creation age');
   console.log('PASS browser: save then explicit validation, fresh revision, locked fields, checks/notes editable and simplified columns.');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>server.close());

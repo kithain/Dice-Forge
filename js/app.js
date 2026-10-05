@@ -820,7 +820,7 @@ function openMarkdownCharacterSheet() {
     player: playerName,
     profession: details.profession || previousFields.profession || '',
     race: details.espece || previousFields.race || '',
-    age: details.age ?? previousFields.age ?? '',
+    age: details.age ?? '',
     genre: normalizeGenre(details.genre),
     wealth: details.richesse || previousFields.wealth || 'Moyen',
     movement: speciesByName(details.espece).mov,

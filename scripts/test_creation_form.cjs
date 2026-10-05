@@ -8,13 +8,13 @@ const vm = require('node:vm');
   const source=fs.readFileSync('js/pj-sheet.js','utf8');
   const skill={id:'skill.estimation',base:15,points:25,score:40,checked:false};
   const hidden={id:'skill.artillerie',base:1,points:5,score:6,checked:true,notes:'Preserved hidden skill'};
-  const sheet={state_id:'state',revision:2,creation:{phase:'play'},fields:{profession:'Sorcier',genre:'Masculin',sex:'M'},stats:{intelligence:16},skills:[skill,{},hidden]};
+  const sheet={state_id:'state',revision:2,creation:{phase:'play'},fields:{profession:'Sorcier',genre:'Masculin',sex:'M',age:'57'},stats:{intelligence:16},skills:[skill,{},hidden]};
   assert(helpers.isCreationLocked(sheet));assert(helpers.isCreationLocked({creation:{phase:'legacy_review'}}));assert(!helpers.isCreationLocked({creation:{phase:'draft'}}));
   const proposed={...skill,base:30,points:0,score:30,checked:true};
   assert.deepEqual(helpers.skillSaveValues(sheet,0,proposed),{...skill,checked:true});
   assert.equal(helpers.skillSaveValues({creation:{phase:'draft'}},0,proposed),proposed);
   assert.deepEqual(helpers.skillSaveValues(sheet,1,proposed),{},'Newly visible skills are not silently added to inherited allocations');
-  const fields=[{dataset:{field:'profession'},value:'Sorcier'},{dataset:{field:'genre'},value:'Féminin'}];
+  const fields=[{dataset:{field:'profession'},value:'Sorcier'},{dataset:{field:'genre'},value:'Féminin'},{dataset:{field:'age'},value:'99'}];
   const inputs={ '[data-stat="intelligence"]':{value:'16'}, '[data-skill-base="0"]':{value:'999'},
     '[data-skill-points="0"]':{value:'0'}, '[data-skill-final="0"]':{textContent:'999'}, '[data-skill-check="0"]':{checked:true} };
   const context={...helpers,normalizeGenre,loadedSheetData:sheet,syncSpellSlotsFromForm(){},structuredClone,
@@ -28,6 +28,7 @@ const vm = require('node:vm');
   assert.deepEqual(result.skills[2],hidden,'A full locked save must retain numeric rows absent from the UI');
   assert.equal(result.state_id,'state');assert.equal(result.revision,2);
   assert.equal(result.fields.genre,'Masculin','Saving ignores an altered readonly input and keeps the creation value');
+  assert.equal(result.fields.age,'57','Saving ignores an altered age input and keeps the creation value');
   assert.equal(Object.hasOwn(result.fields,'sex'),false,'Legacy sex is replaced by the canonical genre');
   const names=['Dague','Arc court','Rapière'];
   const types=['mixed','distance','contact'];

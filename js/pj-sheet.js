@@ -589,6 +589,7 @@ function collectData() {
   const fields = {};
   form.querySelectorAll('[data-field]').forEach(input => { fields[input.dataset.field] = input.value; });
   fields.genre = normalizeGenre(loadedSheetData.fields?.genre ?? loadedSheetData.fields?.sex);
+  fields.age = loadedSheetData.fields?.age ?? '';
   const { sex: legacySex, ...previousFields } = loadedSheetData.fields || {};
   const stats = {};
   STATS.forEach(([, key]) => { stats[key] = form.querySelector(`[data-stat="${key}"]`).value; });
@@ -905,10 +906,10 @@ async function validateCreation() {
   } finally { form.inert = false; updateDerived(); }
 }
 
-async function restoreGeneratedGenre(data, room) {
+async function restoreGeneratedIdentity(data, room) {
   if (!data?.fields) return;
   try {
-    let query = supabase.from('personnages').select('genre')
+    let query = supabase.from('personnages').select('genre, age')
       .eq('user_id', room.userId).eq('room_code', room.code);
     if (window.SUPABASE_CONFIG?.characterV2 && data.character_id) {
       query = query.eq('character_id', data.character_id);
@@ -917,6 +918,7 @@ async function restoreGeneratedGenre(data, room) {
     } else return;
     const { data: character, error } = await query.maybeSingle();
     if (!error && character?.genre != null) data.fields.genre = normalizeGenre(character.genre);
+    if (!error && character && Object.hasOwn(character, 'age')) data.fields.age = character.age ?? '';
   } catch { /* La fiche reste accessible si l'identité du générateur est indisponible. */ }
 }
 
@@ -950,7 +952,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
       .maybeSingle();
     data = result.data;
     error = result.error;
-    if (!error && data?.sheet_data) await restoreGeneratedGenre(data.sheet_data, room);
+    if (!error && data?.sheet_data) await restoreGeneratedIdentity(data.sheet_data, room);
   } catch (caughtError) {
     error = caughtError;
   } finally {
