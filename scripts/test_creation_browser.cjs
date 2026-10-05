@@ -41,8 +41,8 @@ const server=http.createServer((req,res)=>{
    const receipts=new Map();
    const row=()=>({id:sheet.state_id,revision:sheet.revision,sheet_data:structuredClone(sheet),character_name:sheet.fields.name,markdown_content:'',updated_at:'2026-10-03T08:00:00Z'});
    window.__testClient={auth:{getUser:async()=>({data:{user:{id:'owner',email:'player@diceforge.app'}},error:null})},
-    from:()=>{let saving=null;const query={select(){return this;},eq(){return this;},order(){return this;},limit(){return this;},
-     upsert(value){saving=value;return this;},maybeSingle:async()=>({data:row(),error:null}),
+    from:resource=>{let saving=null;const query={select(){return this;},eq(){return this;},order(){return this;},limit(){return this;},
+     upsert(value){saving=value;return this;},maybeSingle:async()=>({data:resource==='personnages'?{genre:'Masculin'}:row(),error:null}),
      then(resolve,reject){if(saving){sheet={...saving.sheet_data,revision:sheet.revision+1,creation:sheet.creation};window.__markdown=saving.markdown_content;persist();}return Promise.resolve({data:[row()],error:null}).then(resolve,reject);}};return query;},
     rpc:async(name,args)=>{
      window.__calls.push({name,args});
@@ -89,6 +89,10 @@ const server=http.createServer((req,res)=>{
   },{xp:process.env.DF_TEST_PROGRESSION_UI==='1',learn:process.env.DF_TEST_LEARNING_UI==='1'});
   await page.goto(base+'/pj.html',{waitUntil:'networkidle'});
   await page.locator('#pj-validate-creation').waitFor({state:'visible'});
+  const sex=page.getByLabel('Sexe',{exact:true});
+  assert.equal(await sex.inputValue(),'Masculin','Older sheets recover the generator identity');
+  await sex.fill('Féminin');
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('dice-forge.pj-markdown.v2:owner:TEST')).fields.sex==='Féminin');
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('#pj-validate-creation').isDisabled(),true,'Unspent creation budget cannot be validated');
   await page.locator('[data-skill-points="0"]').fill('25');
@@ -111,6 +115,8 @@ const server=http.createServer((req,res)=>{
   await page.locator('#pj-validate-creation').click();
   await page.getByRole('button',{name:'Valider la création',exact:true}).last().click();
   await page.waitForFunction(()=>document.querySelector('#pj-form').classList.contains('pj-creation-locked'));
+  assert.match(await page.evaluate(()=>window.__markdown),/\*\*Sexe :\*\* Féminin/,'The saved Markdown includes sex');
+  assert.equal(await sex.inputValue(),'Féminin','A canonical save retains the edited identity');
   assert.equal(await page.locator('#pj-validate-creation').isVisible(),false);
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('[data-skill-points="0"]').evaluate(e=>e.readOnly),true);
@@ -220,6 +226,9 @@ const server=http.createServer((req,res)=>{
   }
   assert.deepEqual(errors,[]);
   if(destination){fs.mkdirSync(path.dirname(destination),{recursive:true});await page.screenshot({path:destination,fullPage:true});}
+  await page.locator('#pj-pdf').click();
+  await page.waitForURL('**/pj-print.html');
+  assert.equal(await page.locator('.identity .field').filter({hasText:'Sexe'}).locator('.value').textContent(),'Féminin','The PDF snapshot includes sex');
   console.log('PASS browser: save then explicit validation, fresh revision, locked fields, checks/notes editable and simplified columns.');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>server.close());

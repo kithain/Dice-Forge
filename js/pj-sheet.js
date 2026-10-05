@@ -899,6 +899,21 @@ async function validateCreation() {
   } finally { form.inert = false; updateDerived(); }
 }
 
+async function restoreGeneratedSex(data, room) {
+  if (!data?.fields || data.fields.sex != null) return;
+  try {
+    let query = supabase.from('personnages').select('genre')
+      .eq('user_id', room.userId).eq('room_code', room.code);
+    if (window.SUPABASE_CONFIG?.characterV2 && data.character_id) {
+      query = query.eq('character_id', data.character_id);
+    } else if (data.fields.name) {
+      query = query.eq('nom', data.fields.name);
+    } else return;
+    const { data: character, error } = await query.maybeSingle();
+    if (!error && character?.genre != null) data.fields.sex = character.genre;
+  } catch { /* La fiche reste accessible si l'identité du générateur est indisponible. */ }
+}
+
 async function loadSheetFromSupabase({ automatic = false } = {}) {
   const room = currentRoom();
   if (sheetLoadInProgress) return false;
@@ -929,6 +944,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
       .maybeSingle();
     data = result.data;
     error = result.error;
+    if (!error && data?.sheet_data) await restoreGeneratedSex(data.sheet_data, room);
   } catch (caughtError) {
     error = caughtError;
   } finally {
@@ -1131,7 +1147,7 @@ function toMarkdownWithLegacyHeader() {
   const personal = isCreationLocked(data) && data.creation?.personal != null ? data.creation.personal : (Number(s.intelligence) || 0) * 10;
   const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0)
     + data.spells.filter(spell => spell.name).reduce((sum, spell) => sum + (parseInt(spell.points, 10) || 0), 0);
-  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}  \n**Âge :** ${f.age || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
+  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\nsexe: ${yaml(f.sex)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}  \n**Âge :** ${f.age || ''}  \n**Sexe :** ${f.sex || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
 }
 
 function toMarkdown() {
@@ -1201,7 +1217,7 @@ function openPdfPreview() {
 }
 
 function valueAfter(label, text) {
-  const match = text.match(new RegExp(`\\*\\*${label}\\s*:\\*\\*\\s*(.*)`));
+  const match = text.match(new RegExp(`\\*\\*${label}[ \\t]*:\\*\\*[ \\t]*([^\\r\\n]*)`));
   return match ? match[1].trim().replace(/  $/, '').replace(/<br\s*\/?>/gi, '\n') : '';
 }
 function section(text, title) {
@@ -1213,6 +1229,7 @@ function parseMarkdown(text) {
   const data = { fields: {}, stats: {}, skills: [], spells: [], weapons: [] };
   data.fields.name = (text.match(/^# (.+)$/m) || [])[1] || '';
   data.fields.player = valueAfter('Joueur', text); data.fields.profession = valueAfter('Profession', text); data.fields.race = valueAfter('Race', text); data.fields.age = valueAfter('Âge', text);
+  data.fields.sex = valueAfter('Sexe', text) || valueAfter('Genre', text);
   const statSection = section(text, 'Caractéristiques');
   STATS.forEach(([code, key]) => { const m = statSection.match(new RegExp(`\\|\\s*${code}\\s*\\|\\s*([^|]*)`)); data.stats[key] = m ? m[1].trim() : ''; });
   const derived = section(text, 'Attributs dérivés');

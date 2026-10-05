@@ -820,6 +820,7 @@ function openMarkdownCharacterSheet() {
     profession: details.profession || previousFields.profession || '',
     race: details.espece || previousFields.race || '',
     age: details.age ?? previousFields.age ?? '',
+    sex: previousFields.sex ?? details.genre ?? '',
     wealth: details.richesse || previousFields.wealth || 'Moyen',
     movement: speciesByName(details.espece).mov,
     equipment: previousFields.equipment || '',

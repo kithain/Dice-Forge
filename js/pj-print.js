@@ -86,7 +86,7 @@ function renderPrintSheet(data) {
   document.getElementById('print-sheet').innerHTML = `
     <article class="print-page">
       <header class="sheet-title"><div><p>Dice Forge / BRP · Fiche de jeu</p><h1>${text(f.name, 'Nom du personnage')}</h1></div><div class="sheet-meta"><strong>${escapeHtml(status)}</strong><br>${text(generatedDate, '')}</div></header>
-      <section class="identity">${box('Joueur', f.player)}${box('Profession', f.profession)}${box('Espèce', f.race)}${box('Âge', f.age)}</section>
+      <section class="identity">${box('Joueur', f.player)}${box('Profession', f.profession)}${box('Espèce', f.race)}${box('Âge', f.age)}${box('Sexe', f.sex)}</section>
       <h2 class="section-title">Caractéristiques</h2><div class="stat-grid">${stats}</div>
       <div class="metric-grid">${metric('PV maximum', d.hp)}${metric('PP maximum', d.pp)}${metric('Mod. dégâts', d.damage)}${metric('Mouvement', f.movement)}${metric('Course %', d.course)}${metric('Pool XP / session', d.experience)}</div>
       <h2 class="section-title">Compétences</h2>${budgetSummary}

@@ -15,7 +15,7 @@ body { margin:0; color:var(--ink); font:10pt/1.4 system-ui,"Segoe UI",sans-serif
 .sheet-title h1 { margin:0; color:var(--accent); font:700 25pt/1.15 Georgia,serif; overflow-wrap:anywhere; }
 .sheet-title p { margin:0 0 2mm; font-size:7.5pt; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
 .sheet-meta { flex:0 0 48mm; text-align:right; font-size:7pt; color:var(--muted); }
-.identity { display:grid; grid-template-columns:1fr 1.3fr 1fr .55fr; gap:2mm; }
+.identity { display:grid; grid-template-columns:1fr 1.3fr 1fr .55fr .8fr; gap:2mm; }
 .field { border:1px solid var(--line); padding:2mm; min-width:0; }
 .label { display:block; font-size:6.8pt; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:1mm; }
 .value { font-size:9pt; white-space:pre-wrap; overflow-wrap:anywhere; }
