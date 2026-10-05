@@ -41,8 +41,13 @@ const server=http.createServer((req,res)=>{
    const receipts=new Map();
    const row=()=>({id:sheet.state_id,revision:sheet.revision,sheet_data:structuredClone(sheet),character_name:sheet.fields.name,markdown_content:'',updated_at:'2026-10-03T08:00:00Z'});
    window.__testClient={auth:{getUser:async()=>({data:{user:{id:'owner',email:'player@diceforge.app'}},error:null})},
-    from:resource=>{let saving=null;const query={select(){return this;},eq(){return this;},order(){return this;},limit(){return this;},
-     upsert(value){saving=value;return this;},maybeSingle:async()=>({data:resource==='personnages'?{genre:'Masculin',age:'57'}:row(),error:null}),
+    from:resource=>{let saving=null;const filters={};const query={select(){return this;},eq(key,value){filters[key]=value;return this;},order(){return this;},limit(){return this;},
+     upsert(value){saving=value;return this;},maybeSingle:async()=>{
+      if(resource!=='personnages')return {data:row(),error:null};
+      // The generator projection has no room_code: campaign scope is provided separately.
+      const character={user_id:'owner',character_id:'synthetic-character',nom:sheet.fields.name,genre:'Masculin',age:'57'};
+      return {data:Object.entries(filters).every(([key,value])=>character[key]===value)?character:null,error:null};
+     },
      then(resolve,reject){if(saving){sheet={...saving.sheet_data,revision:sheet.revision+1,creation:sheet.creation};window.__markdown=saving.markdown_content;persist();}return Promise.resolve({data:[row()],error:null}).then(resolve,reject);}};return query;},
     rpc:async(name,args)=>{
      window.__calls.push({name,args});

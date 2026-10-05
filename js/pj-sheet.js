@@ -910,7 +910,7 @@ async function restoreGeneratedIdentity(data, room) {
   if (!data?.fields) return;
   try {
     let query = supabase.from('personnages').select('genre, age')
-      .eq('user_id', room.userId).eq('room_code', room.code);
+      .eq('user_id', room.userId);
     if (window.SUPABASE_CONFIG?.characterV2 && data.character_id) {
       query = query.eq('character_id', data.character_id);
     } else if (data.fields.name) {
