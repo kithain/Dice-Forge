@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
   await context.addInitScript(({xp,learn})=>{
    localStorage.setItem('diceforge_room',JSON.stringify({code:'TEST',userId:'owner',player:'Player'}));
    let sheet={state_id:'synthetic-state',character_id:'synthetic-character',campaign_id:'synthetic-campaign',revision:1,
-    creation:{phase:'draft',origin:'creation'},fields:{name:'Test création',player:'Player',profession:'Sorcier',race:'Humain',skillProfessionalPool:'325'},
+    creation:{phase:'draft',origin:'creation'},fields:{name:'Test création',player:'Player',profession:'Sorcier',race:'Humain',skillProfessionalPool:'325',sex:'F',genre:'Féminin'},
     stats:{force:12,constitution:12,taille:12,intelligence:16,pouvoir:13,dexterite:12,apparence:12},
     skills:Array.from({length:57},()=>({})),spells:[],weapons:[]};
    if((xp || learn) && localStorage.getItem('__xpMockState'))sheet=JSON.parse(localStorage.getItem('__xpMockState'));
@@ -89,10 +89,9 @@ const server=http.createServer((req,res)=>{
   },{xp:process.env.DF_TEST_PROGRESSION_UI==='1',learn:process.env.DF_TEST_LEARNING_UI==='1'});
   await page.goto(base+'/pj.html',{waitUntil:'networkidle'});
   await page.locator('#pj-validate-creation').waitFor({state:'visible'});
-  const sex=page.getByLabel('Sexe',{exact:true});
-  assert.equal(await sex.inputValue(),'Masculin','Older sheets recover the generator identity');
-  await sex.fill('Féminin');
-  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('dice-forge.pj-markdown.v2:owner:TEST')).fields.sex==='Féminin');
+  const genre=page.getByLabel('Genre',{exact:true});
+  assert.equal(await genre.inputValue(),'Masculin','Creation identity overrides old or edited sheet values');
+  assert.equal(await genre.evaluate(input=>input.readOnly),true,'Genre cannot be edited on the complete sheet');
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('#pj-validate-creation').isDisabled(),true,'Unspent creation budget cannot be validated');
   await page.locator('[data-skill-points="0"]').fill('25');
@@ -115,8 +114,9 @@ const server=http.createServer((req,res)=>{
   await page.locator('#pj-validate-creation').click();
   await page.getByRole('button',{name:'Valider la création',exact:true}).last().click();
   await page.waitForFunction(()=>document.querySelector('#pj-form').classList.contains('pj-creation-locked'));
-  assert.match(await page.evaluate(()=>window.__markdown),/\*\*Sexe :\*\* Féminin/,'The saved Markdown includes sex');
-  assert.equal(await sex.inputValue(),'Féminin','A canonical save retains the edited identity');
+  assert.match(await page.evaluate(()=>window.__markdown),/\*\*Genre :\*\* Masculin/,'The saved Markdown includes the creation genre');
+  assert.equal(await genre.inputValue(),'Masculin','A canonical save retains the creation identity');
+  assert.equal(await genre.evaluate(input=>input.readOnly),true,'Genre remains readonly after validation');
   assert.equal(await page.locator('#pj-validate-creation').isVisible(),false);
   assert.equal(await page.locator('[data-stat="intelligence"]').evaluate(e=>e.readOnly),true);
   assert.equal(await page.locator('[data-skill-points="0"]').evaluate(e=>e.readOnly),true);
@@ -228,7 +228,7 @@ const server=http.createServer((req,res)=>{
   if(destination){fs.mkdirSync(path.dirname(destination),{recursive:true});await page.screenshot({path:destination,fullPage:true});}
   await page.locator('#pj-pdf').click();
   await page.waitForURL('**/pj-print.html');
-  assert.equal(await page.locator('.identity .field').filter({hasText:'Sexe'}).locator('.value').textContent(),'Féminin','The PDF snapshot includes sex');
+  assert.equal(await page.locator('.identity .field').filter({hasText:'Genre'}).locator('.value').textContent(),'Masculin','The PDF snapshot includes the creation genre');
   console.log('PASS browser: save then explicit validation, fresh revision, locked fields, checks/notes editable and simplified columns.');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>server.close());

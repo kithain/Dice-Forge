@@ -7,6 +7,7 @@ import { showToast, showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20260715-combat-cleanup';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { characterDraftKey } from './character-store.js?v=20261003-roster';
+import { normalizeGenre } from './character-identity.js?v=20261005-genre';
 import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { saveExperienceCheck } from './experience-save.js?v=20261002-autocheck';
 import { spellScore } from './pj-magic.js?v=20261003-learning';
@@ -820,12 +821,13 @@ function openMarkdownCharacterSheet() {
     profession: details.profession || previousFields.profession || '',
     race: details.espece || previousFields.race || '',
     age: details.age ?? previousFields.age ?? '',
-    sex: previousFields.sex ?? details.genre ?? '',
+    genre: normalizeGenre(details.genre),
     wealth: details.richesse || previousFields.wealth || 'Moyen',
     movement: speciesByName(details.espece).mov,
     equipment: previousFields.equipment || '',
     notes: previousFields.notes || extraNotes
   };
+  delete draft.fields.sex;
   draft.stats = {
     ...(draft.stats || {}),
     force: character.stats.force,

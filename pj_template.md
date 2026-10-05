@@ -3,7 +3,7 @@ type: "pj"
 joueur: 
 profession: 
 race: 
-sexe:
+genre:
 aliases: ["Template PJ"]
 ---
 
@@ -12,7 +12,7 @@ aliases: ["Template PJ"]
 **Joueur :** 
 **Profession :** 
 **Race :** 
-**Sexe :**
+**Genre :**
 
 ## Caractéristiques
 

@@ -2,6 +2,7 @@ import { characteristicErrors, normalizeCharacteristics, archiveInactiveSkills, 
 import { mountProgression } from './pj-progression.js?v=20261003-xp-frame';
 import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { characterDraftKey } from './character-store.js?v=20261003-roster';
+import { normalizeGenre } from './character-identity.js?v=20261005-genre';
 import { mountCharacterRoster } from './character-roster.js?v=20261003-deletion';
 import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-r1';
 import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown, spellScore } from './pj-magic.js?v=20261003-learning';
@@ -587,6 +588,8 @@ function collectData() {
   syncSpellSlotsFromForm();
   const fields = {};
   form.querySelectorAll('[data-field]').forEach(input => { fields[input.dataset.field] = input.value; });
+  fields.genre = normalizeGenre(loadedSheetData.fields?.genre ?? loadedSheetData.fields?.sex);
+  const { sex: legacySex, ...previousFields } = loadedSheetData.fields || {};
   const stats = {};
   STATS.forEach(([, key]) => { stats[key] = form.querySelector(`[data-stat="${key}"]`).value; });
   const skills = isCreationLocked(loadedSheetData)
@@ -606,13 +609,15 @@ function collectData() {
     Array.from(row.querySelectorAll('[data-weapon]')).map(input => [input.dataset.weapon, input.value])
   ));
   const retiredSkills = archiveInactiveSkills(loadedSheetData, ACTIVE_SKILLS.map(({ index }) => index), SKILL_IDS);
-  return { ...loadedSheetData, retiredSkills, fields: { ...loadedSheetData.fields, ...fields }, stats, skills,
+  return { ...loadedSheetData, retiredSkills, fields: { ...previousFields, ...fields }, stats, skills,
     spells: spellSlots.map(slot => slot.name ? { ...slot, id: slot.id || SPELL_IDS[slot.name] } : slot), weapons };
 }
 
 function applyData(data) {
   if (!data || typeof data !== 'object') return;
   loadedSheetData = structuredClone(data);
+  loadedSheetData.fields ||= {};
+  loadedSheetData.fields.genre = normalizeGenre(data.fields?.genre ?? data.fields?.sex);
   form.querySelectorAll('[data-field]').forEach(input => { input.value = ''; });
   STATS.forEach(([, key]) => {
     const input = form.querySelector(`[data-stat="${key}"]`);
@@ -629,6 +634,7 @@ function applyData(data) {
     if (input?.tagName === 'SELECT' && value && !Array.from(input.options).some(option => option.value === String(value))) input.add(new Option(value, value));
     if (input) input.value = value ?? '';
   });
+  form.querySelector('[data-field="genre"]').value = loadedSheetData.fields.genre;
   // Les brouillons du générateur et les anciennes fiches peuvent omettre ce champ.
   const professionalPool = form.querySelector('[data-field="skillProfessionalPool"]');
   if (!professionalPool.value.trim()) professionalPool.value = professionalPool.defaultValue;
@@ -899,8 +905,8 @@ async function validateCreation() {
   } finally { form.inert = false; updateDerived(); }
 }
 
-async function restoreGeneratedSex(data, room) {
-  if (!data?.fields || data.fields.sex != null) return;
+async function restoreGeneratedGenre(data, room) {
+  if (!data?.fields) return;
   try {
     let query = supabase.from('personnages').select('genre')
       .eq('user_id', room.userId).eq('room_code', room.code);
@@ -910,7 +916,7 @@ async function restoreGeneratedSex(data, room) {
       query = query.eq('nom', data.fields.name);
     } else return;
     const { data: character, error } = await query.maybeSingle();
-    if (!error && character?.genre != null) data.fields.sex = character.genre;
+    if (!error && character?.genre != null) data.fields.genre = normalizeGenre(character.genre);
   } catch { /* La fiche reste accessible si l'identité du générateur est indisponible. */ }
 }
 
@@ -944,7 +950,7 @@ async function loadSheetFromSupabase({ automatic = false } = {}) {
       .maybeSingle();
     data = result.data;
     error = result.error;
-    if (!error && data?.sheet_data) await restoreGeneratedSex(data.sheet_data, room);
+    if (!error && data?.sheet_data) await restoreGeneratedGenre(data.sheet_data, room);
   } catch (caughtError) {
     error = caughtError;
   } finally {
@@ -1147,7 +1153,7 @@ function toMarkdownWithLegacyHeader() {
   const personal = isCreationLocked(data) && data.creation?.personal != null ? data.creation.personal : (Number(s.intelligence) || 0) * 10;
   const spent = data.skills.reduce((sum, skill) => sum + (parseInt(skill.points, 10) || 0), 0)
     + data.spells.filter(spell => spell.name).reduce((sum, spell) => sum + (parseInt(spell.points, 10) || 0), 0);
-  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\nsexe: ${yaml(f.sex)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}  \n**Âge :** ${f.age || ''}  \n**Sexe :** ${f.sex || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
+  return `---\ntype: "pj"\njoueur: ${yaml(f.player)}\nprofession: ${yaml(f.profession)}\nrace: ${yaml(f.race)}\ngenre: ${yaml(f.genre)}\naliases: [${yaml(f.name || 'Personnage')}]\n---\n\n# ${f.name || 'Nom du personnage'}\n\n**Joueur :** ${f.player || ''}  \n**Profession :** ${f.profession || ''}  \n**Race :** ${f.race || ''}  \n**Âge :** ${f.age || ''}  \n**Genre :** ${f.genre || ''}\n\n## Caractéristiques\n\n| Carac | Score | Jet (x5) |\n|-------|-------|----------|\n${statRows}\n\n## Attributs dérivés\n\n- **Points de vie :** (CON + TAI) / 2 = ${d('hp')}\n- **Points de pouvoir :** POU = ${d('pp')}\n- **Bonus aux dégâts :** ${d('damage')}\n- **Bonus d'expérience :** INT / 2 = ${d('experience')}\n- **Mouvement :** ${f.movement || '10'}\n\n## Compétences\n\n- **Points professionnels :** ${professional}\n- **Points personnels :** ${personal}\n- **Total disponible :** ${professional + personal}\n- **Points répartis :** ${spent}\n- **Points restants :** ${professional + personal - spent}\n\n| Compétence | Base | Points répartis | Score final | Coche |\n|------------|------|------------------|-------------|-------|\n${skillRows}\n\n## Armes\n\n| Arme | % | Dégâts | Portée | PA |\n|------|---|--------|--------|----|\n${weaponRows}\n\n## Armure\n\n- **Type :** ${inline(f.armorType)}\n- **Points d'armure :** ${inline(f.armorPoints)}\n\n## Sorts / pouvoirs\n\n${bullets(f.powers)}\n\n## Équipement et richesse\n\n${bullets(f.equipment)}\n\n## Histoire et liens\n\n- **Origine :** ${inline(f.origin)}\n- **Liens avec les PNJ :** ${inline(f.npcLinks)}\n- **Liens avec les factions :** ${inline(f.factionLinks)}\n- **Motivation personnelle :** ${inline(f.motivation)}\n\n## Notes de jeu\n\n${bullets(f.notes)}\n\n---\n\nRetour: [[PJ/index_pj|Index PJ]]\n`;
 }
 
 function toMarkdown() {
@@ -1229,7 +1235,7 @@ function parseMarkdown(text) {
   const data = { fields: {}, stats: {}, skills: [], spells: [], weapons: [] };
   data.fields.name = (text.match(/^# (.+)$/m) || [])[1] || '';
   data.fields.player = valueAfter('Joueur', text); data.fields.profession = valueAfter('Profession', text); data.fields.race = valueAfter('Race', text); data.fields.age = valueAfter('Âge', text);
-  data.fields.sex = valueAfter('Sexe', text) || valueAfter('Genre', text);
+  data.fields.genre = normalizeGenre(valueAfter('Genre', text) || valueAfter('Sexe', text));
   const statSection = section(text, 'Caractéristiques');
   STATS.forEach(([code, key]) => { const m = statSection.match(new RegExp(`\\|\\s*${code}\\s*\\|\\s*([^|]*)`)); data.stats[key] = m ? m[1].trim() : ''; });
   const derived = section(text, 'Attributs dérivés');
