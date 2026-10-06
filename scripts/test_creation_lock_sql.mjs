@@ -341,6 +341,10 @@ try {
   const {runDeletionChecks}=await import('./character_deletion_sql_checks.mjs');
   await runDeletionChecks({client,engine,root,uid,outsider,rpc,read,check,reject});
  }
+ if(process.env.DF_TEST_CAMPAIGN_COPY==='1') {
+  const {runCampaignCopyChecks}=await import('./campaign_copy_sql_checks.mjs');
+  await runCampaignCopyChecks({client,root,uid,outsider,check});
+ }
  console.log(`PASS creation/progression boundary: ${checks} checks, ${originals.length} real fixtures preserved; local PostgreSQL only.`);
 } catch(error) {
  console.error(error);
