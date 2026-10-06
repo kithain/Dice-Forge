@@ -21,18 +21,23 @@ elements['panel-verbal'].classList = { contains: () => true };
 const marked = [];
 const frameMarked = [];
 let sheet;
-elements['character-sheet-frame'] = { contentWindow: { diceForgeSheet: {
+let draftKey = 'dice-forge.pj-markdown.v1';
+const stored = new Map();
+const obsUpdates = [];
+const storageListeners = {};
+elements['character-sheet-frame'] = { addEventListener() {}, contentWindow: { diceForgeSheet: {
   getData: () => sheet,
   setSkillChecked: (index, checked) => { frameMarked.push(index); sheet.skills[index].checked = checked; }
 } } };
 const context = {
   document: { getElementById: id => elements[id], createElement: () => new Element() },
-  localStorage: { getItem: () => JSON.stringify(sheet) },
-  window: { addEventListener() {}, markBrpSkillExperience: index => marked.push(index) },
+  localStorage: { getItem: key => stored.has(key) ? JSON.stringify(stored.get(key)) : key === draftKey ? JSON.stringify(sheet) : null },
+  window: { addEventListener(type, listener) { storageListeners[type] = listener; }, markBrpSkillExperience: index => marked.push(index) },
   MutationObserver: class { observe() {} },
   Option: class { constructor(name, value) { this.textContent = name; this.value = value; } },
   crypto: webcrypto, Uint32Array,
-  createVerbalObs: () => () => {}
+  URL, characterDraftKey: () => draftKey,
+  createVerbalObs: () => (payload, newDraw) => obsUpdates.push({payload, newDraw})
 };
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(path.join(root, 'js/brp-skills.js'), 'utf8')
@@ -103,4 +108,23 @@ select('Négocier');
 assert.match(elements['verbal-level'].textContent, /^Marchandage : Rang : Maître/,
   'The local draft also uses the selected skill');
 assert.equal(elements['verbal-roll'].disabled, false);
-console.log('OK : huit approches, compétences distinctes, rangs, jokers, expérience, scores manquants et fiche locale.');
+// Le brouillon historique ne doit jamais fournir le nom d'un autre PJ en V2.
+stored.set('dice-forge.pj-markdown.v1', { ...sheet, fields: { name: 'test3' } });
+draftKey = 'dice-forge.pj-markdown.v2:owner:4SSU:ilya';
+stored.set(draftKey, { ...sheet, fields: { name: 'Ilya' } });
+storageListeners.storage({key:draftKey});
+elements['verbal-roll'].fire('click');
+assert.equal(obsUpdates.at(-1).payload.character, 'Ilya');
+assert.equal(obsUpdates.at(-1).newDraw, true);
+elements['character-sheet-frame'] = { contentWindow: {
+  location: {href:'http://127.0.0.1:5000/dice/pj.html?context=ancien-pj'},
+  diceForgeSheet: {getData:()=>stored.get('dice-forge.pj-markdown.v1')}
+}};
+elements['verbal-roll'].fire('click');
+assert.equal(obsUpdates.at(-1).payload.character, 'Ilya', 'Une iframe d’un ancien PJ ne remplace pas le brouillon sélectionné');
+draftKey = 'dice-forge.pj-markdown.v2:owner:4SSU:autre';
+stored.set(draftKey, { ...sheet, fields: {name:'Autre PJ'} });
+storageListeners.storage({key:'diceforge_character:owner:4SSU'});
+elements['verbal-roll'].fire('click');
+assert.equal(obsUpdates.at(-1).payload.character, 'Autre PJ');
+console.log('OK : huit approches, compétences, jokers, expérience et identité OBS du PJ sélectionné, sans réutiliser un ancien brouillon.');

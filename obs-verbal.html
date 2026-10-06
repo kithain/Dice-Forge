@@ -4,17 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dice Forge — OBS Joute verbale</title>
-<link rel="stylesheet" href="obs-verbal.css?v=20261002-v1">
+<link rel="stylesheet" href="obs-verbal.css?v=20261005-single-line">
 </head>
 <body>
 <main id="verbal-overlay" hidden aria-live="polite">
-  <div class="overlay-label">Joute verbale</div>
-  <h1 id="overlay-character"></h1>
-  <h2 id="overlay-approach"></h2>
-  <div id="overlay-words"></div>
-  <p id="overlay-progress"></p>
+  <div id="overlay-line">
+    <strong id="overlay-character"></strong>
+    <div id="overlay-words"></div>
+  </div>
 </main>
 <p id="overlay-status" hidden></p>
-<script type="module" src="js/obs-verbal.js?v=20261004-auto-obs"></script>
+<script type="module" src="js/obs-verbal.js?v=20261005-single-line"></script>
 </body>
 </html>

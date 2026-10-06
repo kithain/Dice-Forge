@@ -8,9 +8,9 @@ import { SKILL_IDS, SPELL_IDS } from './character-ids.js?v=20261002-campaign-v2-
 import { normalizeSpells, magicBudget, magicErrors, mergeMagicSheet, patchMagicMarkdown, spellScore } from './pj-magic.js?v=20261003-learning';
 import './tooltips.js?v=20261003-age-help';
 import { showConfirm } from './toast.js?v=20261002-safe-confirm';
-import { professionSkill, ageHelpText } from './creation-help.js?v=20261003-age-help';
-import { creationBudget, creationBudgetErrors, creationValidationErrors } from './creation-budget.js?v=20261003-complete-budget';
-import { professionByName } from './brp-data.js?v=20260715-combat-cleanup';
+import { professionSkill, ageHelpText } from './creation-help.js?v=20261004-professions-r2';
+import { creationBudget, creationBudgetErrors, creationValidationErrors } from './creation-budget.js?v=20261004-professions-r2';
+import { professionByName } from './brp-data.js?v=20261004-professions-r2';
 import { BRP_SKILL_GROUPS as SKILL_GROUPS, BRP_SKILLS as SKILLS, BRP_ACTIVE_SKILLS as ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { readPrintInventory, storePrintSnapshot } from './pj-pdf-data.js?v=20261003-pdf';
 

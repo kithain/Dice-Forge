@@ -3,14 +3,12 @@ html, body { margin: 0; background: transparent; color: #fff3d4; font-family: Ge
 body { padding: 12px; }
 body.preview { min-height: 100vh; background: #252438; }
 [hidden] { display: none !important; }
-main { width: min(680px, 100%); padding: 24px; border: 1px solid #c9a22788; border-radius: 16px; background: rgba(9,9,28,.88); }
-.overlay-label { font: 12px system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #c9a227; }
-h1 { font-size: 27px; margin: 12px 0 4px; }
-h2 { font-size: 19px; color: #f0d77a; margin: 0 0 20px; }
-#overlay-words { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.word { padding: 12px 14px; border: 1px solid #a855f766; border-radius: 8px; background: #a855f710; font-size: 20px; overflow-wrap: anywhere; }
-.word.used { color: #a9f5cf; border-color: #65cfa1; background: #65cfa11a; }
-.word.discarded { opacity: .45; text-decoration: line-through; }
-#overlay-progress { margin: 18px 0 0; color: #c7bdd0; font: 14px system-ui, sans-serif; }
+main { width: 100%; overflow: hidden; }
+#overlay-line, #overlay-words { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; width: max-content; }
+#overlay-line { transform-origin: top left; }
+#overlay-character, .word { flex: none; white-space: nowrap; padding: 10px 14px; border-radius: 8px; background: rgba(9,9,28,.88); font-size: 24px; }
+#overlay-character { color: #f0d77a; }
+.word { border: 1px solid #a855f788; }
+.word.used { color: #a9f5cf; border-color: #65cfa1; }
+.word.discarded { color: #aaa2b3; border-color: #716779; text-decoration: line-through; }
 #overlay-status { font: 14px system-ui, sans-serif; }
-@media (max-width: 420px) { main { padding: 16px; } .word { font-size: 16px; padding: 10px; } }

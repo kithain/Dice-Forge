@@ -1,5 +1,67 @@
 # Évolutions de Dice Forge
 
+## Évolution future — Adapter les caractéristiques au personnage souhaité
+
+Date : 5 octobre 2026. **Statut : proposition mise de côté, non implémentée.**
+
+### Besoin
+
+Un bon total de caractéristiques peut masquer un tirage mal adapté à la
+profession. Exemple : un assassin humain avec FOR 9, CON 12, TAI 15, INT 12,
+POU 12, DEX 8 et CHA 14 totalise 82 points, mais reste peu agile, même après
+avoir déplacé les 3 points autorisés vers la DEX (DEX 11).
+
+### Proposition de règle de campagne
+
+- Autoriser **une permutation entre deux caractéristiques**, avant la
+  redistribution des 3 points et la validation des caractéristiques.
+- Conserver les tirages actuels : 3D6 pour FOR, CON, POU, DEX et CHA ;
+  2D6+6 pour TAI et INT.
+- Refuser une permutation qui ferait descendre INT ou TAI sous 8.
+- Exemple : échanger DEX 8 et CHA 14 donne DEX 14 et CHA 8 ; les 3 points
+  déplacés peuvent ensuite porter la DEX à 17, en diminuant d'autres valeurs.
+- Présenter explicitement cette possibilité comme une **règle de campagne**.
+  L'option officielle BRP d'attribution libre utilise sept tirages à 3D6,
+  avec INT et TAI au minimum à 8 ; elle diffère de cette proposition.
+
+### Interface envisagée
+
+- Dans l'étape **Caractéristiques**, avant le choix des compétences, ajouter
+  un bouton **« ⇄ Échanger »** à chaque carte, près des boutons − et +.
+- Au premier clic, sélectionner la carte source et afficher
+  **« Choisis la caractéristique à échanger avec DEX »** (nom adapté à la source).
+- Rendre les cartes cibles sélectionnables ; griser les échanges interdits
+  avec une explication, par exemple **« INT doit rester à 8 minimum »**.
+- Au choix de la cible, permuter les valeurs et recalculer les scores dérivés.
+- Afficher deux compteurs distincts : **« Échange disponible : 1 / 1 »** et
+  **« Points à déplacer : 3 / 3 »**.
+- Après permutation, afficher un récapitulatif tel que
+  **« DEX 8 → 14 · CHA 14 → 8 »**, avec **« Annuler l'échange »**.
+- Conserver le détail et la provenance des tirages d'origine.
+- Permettre l'annulation jusqu'à la validation des caractéristiques, puis
+  verrouiller la permutation et les ajustements.
+- Ajouter éventuellement un conseil discret lié à la profession :
+  **« Assassin : privilégie la DEX »**.
+- Mention visible : **« Règle de campagne : une permutation autorisée »**.
+
+### Complément discuté, à décider
+
+Un seuil contre les tirages globalement très faibles reste une piste séparée :
+si la somme des sept valeurs tirées, avant modificateurs d'espèce et
+redistribution, est **strictement inférieure à 65**, permettre une nouvelle
+série sans consommer l'une des deux relances. Cela correspond à une moyenne
+inférieure à 9,3 par caractéristique et concerne environ 3 % des tirages
+actuels, dont le total moyen est 78,5. Ce seuil ne mesure pas à lui seul la
+jouabilité ; une alerte au MJ pour des caractéristiques très basses reste à
+étudier, sans rejet automatique d'une faiblesse isolée.
+
+Avant réalisation, préciser le traitement des modificateurs d'espèce lors
+de la permutation et son interaction avec les points déjà déplacés. Prévoir
+l'enregistrement et le contrôle côté serveur, cohérents avec le générateur
+actuel, et préserver les personnages déjà créés.
+
+Référence : [BRP Universal Game Engine / ORC, chapitre 2, pages 6 et 10](https://www.chaosium.com/content/orclicense/BasicRoleplaying-ORC-Content-Document.pdf#page=6).
+
 Prétirés du 3 octobre 2026 : un pool initial automatiquement ouvert ne vaut
 plus une session jouée. `unplayed-presets.sql` installée sur base test permet
 de proposer un PJ validé mais inutilisé. Vérification : 345 contrôles SQL et

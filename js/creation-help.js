@@ -1,4 +1,4 @@
-import { professionByName, speciesByName } from './brp-data.js?v=20260715-combat-cleanup';
+import { professionByName, speciesByName } from './brp-data.js?v=20261004-professions-r2';
 
 export const WEALTH_CLASSES = ['Indigent', 'Pauvre', 'Moyen', 'Aisé', 'Riche'];
 const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

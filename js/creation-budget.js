@@ -1,5 +1,5 @@
-import { professionSkill } from './creation-help.js?v=20261003-age-help';
-import { professionByName } from './brp-data.js?v=20260715-combat-cleanup';
+import { professionSkill } from './creation-help.js?v=20261004-professions-r2';
+import { professionByName } from './brp-data.js?v=20261004-professions-r2';
 import { BRP_SKILLS } from './brp-skills.js?v=20260925-medfan';
 
 const number = value => Math.max(0, Number(value) || 0);

@@ -67,6 +67,7 @@ jobs:
           node scripts/test_complete_creation_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
           node scripts/test_unplayed_presets_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
           node scripts/test_character_deletion_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_campaign_copy_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
 
       - name: Tester les campagnes et la reprise
         run: |

@@ -1,5 +1,40 @@
 import assert from 'node:assert/strict';
 import { creationBudget, creationBudgetErrors, creationValidationErrors } from '../js/creation-budget.js';
+import { professionSkill } from '../js/creation-help.js';
+import { readFileSync } from 'node:fs';
+const eruditAdditions = ['Alchimie', 'Médecine', 'Alphabétisation (option)', 'Stratégie', 'Observation', 'Intuition', 'Estimation', 'Sens', 'Manipulation fine', 'Réparation (divers)'];
+const eruditIds = ['skill.alchimie', 'skill.medecine', 'skill.alphabetisation_option', 'skill.strategie', 'skill.observation', 'skill.intuition', 'skill.estimation', 'skill.sens', 'skill.manipulation_fine', 'skill.reparation'];
+for (const name of eruditAdditions) assert.equal(professionSkill(name, 'Érudit'), true, name);
+assert.equal(professionSkill('Arme de jet', 'Érudit'), false);
+for (const file of ['recipe-corrections.sql', 'erudit-profession.sql']) {
+  const sql = readFileSync(new URL(`../migrations/character-v2/${file}`, import.meta.url), 'utf8');
+  const row = sql.split('\n').find(line => line.includes("'Érudit'"));
+  for (const id of eruditIds) assert.ok(row.includes(`"${id}"`), `${file}: ${id}`);
+}
+const scholarBudget = creationBudget({fields:{profession:'Érudit',skillProfessionalPool:343},stats:{intelligence:17}},
+  [{name:'Recherche',points:55},{name:'Alchimie',points:70},{name:'Observation',points:50},{name:'Intuition',points:50},{name:'Arme de jet',points:70}],[]);
+assert.equal(scholarBudget.professionalUsed,225);
+assert.equal(scholarBudget.personalUsed,70);
+assert.equal(professionSkill('Premiers secours', 'Prêtre'), true);
+assert.equal(professionSkill('Médecine', 'Prêtre'), true);
+const priestBudget = creationBudget({fields:{profession:'Prêtre',skillProfessionalPool:325},stats:{intelligence:16}},[{name:'Premiers secours',points:70}],[]);
+assert.equal(priestBudget.professionalUsed,70);
+assert.equal(priestBudget.personalUsed,0);
+const priestMedicalBudget = creationBudget({fields:{profession:'Prêtre',skillProfessionalPool:325},stats:{intelligence:16}},[{name:'Premiers secours',points:70},{name:'Médecine',points:50}],[]);
+assert.equal(priestMedicalBudget.professionalUsed,120);
+assert.equal(priestMedicalBudget.personalUsed,0);
+const priestSQL = readFileSync(new URL('../migrations/character-v2/recipe-corrections.sql', import.meta.url),'utf8').split('\n').find(line=>line.includes("'Prêtre'"));
+assert.ok(priestSQL.includes('"skill.premiers_secours"'));
+assert.ok(priestSQL.includes('"skill.medecine"'));
+const ilyaSkills = [['Défense',24],['Arme de mêlée (divers)',10],['Arme de jet (divers)',70],['Se cacher',15],['Intuition',50],['Écouter',30],['Sens',55],['Observation',50],['Recherche',55],['Alchimie',70],['Manipulation fine',45],['Premiers secours',10],['Réparation (divers)',29]].map(([name,points])=>({name,points}));
+const ilyaBudget = creationBudget({fields:{profession:'Érudit',skillProfessionalPool:343},stats:{intelligence:17}},ilyaSkills,[]);
+assert.equal(ilyaBudget.spent,513);
+assert.equal(ilyaBudget.professionalUsed,343);
+assert.equal(ilyaBudget.personalUsed,170);
+assert.equal(ilyaBudget.professionalRemaining,0);
+assert.equal(ilyaBudget.personalRemaining,0);
+assert.equal(ilyaBudget.remaining,0);
+console.log('PASS Ilya: 513 points inchangés, 343 professionnels et 170 personnels, aucun dépassement.');
 const draft={creation:{phase:'draft'},fields:{profession:'Guerrier',skillProfessionalPool:'325'},stats:{intelligence:12}};
 const skill=(name,points)=>({name,points});
 const invalid=[skill('Arme de mêlée (Épée)',109),skill('Estimation',387)];

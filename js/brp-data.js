@@ -131,7 +131,7 @@ export const BRP_PROFESSIONS = [
     name: 'Prêtre',
     tag: 'Magie',
     richesse: 'Moyen',
-    skills: 'Baratin, Intuition, Connaissance (Histoire), Connaissance (Philosophie), Connaissance (Religion), Langue (Natale), Représentation (Rituels), Intimidation/Persuasion + 2 parmi : Connaissance (Occulte), Langue (Autre), Écouter, Alphabétisation, Représentation (Éloquence), Recherche, Statut, Enseignement',
+    skills: 'Premiers secours, Médecine, Baratin, Intuition, Connaissance (Histoire), Connaissance (Philosophie), Connaissance (Religion), Langue (Natale), Représentation (Rituels), Intimidation/Persuasion + 2 parmi : Connaissance (Occulte), Langue (Autre), Écouter, Alphabétisation, Représentation (Éloquence), Recherche, Statut, Enseignement',
     special: 'Magie divine. 6 sorts au niveau Héroïque. Utilise l’allégeance divine.'
   },
   {
@@ -173,7 +173,7 @@ export const BRP_PROFESSIONS = [
     name: 'Érudit',
     tag: '',
     richesse: 'Moyen',
-    skills: 'Langue (Autre), Langue (Natale), Intimidation/Persuasion, Recherche, Enseignement + 5 compétences de Connaissance ou Science appropriées',
+    skills: 'Langue (Autre), Langue (Natale), Intimidation/Persuasion, Recherche, Enseignement, Alchimie, Médecine, Alphabétisation (option), Stratégie, Observation, Intuition, Estimation, Sens, Manipulation fine, Réparation (divers) + 5 compétences de Connaissance ou Science appropriées',
     special: ''
   },
   {

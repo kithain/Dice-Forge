@@ -1,5 +1,6 @@
 import { BRP_SKILLS } from './brp-skills.js?v=20260925-medfan';
 import { createVerbalObs } from './verbal-obs-control.js?v=20261004-player-verbal';
+import { characterDraftKey } from './character-store.js?v=20261003-roster';
 
 export const APPROACH_SKILLS = {
   Persuader: 'Intimidation/Persuasion',
@@ -13,14 +14,93 @@ export const APPROACH_SKILLS = {
 };
 
 export const WORD_TABLES = {
-  "Persuader": ["Raison", "Honneur", "Avenir", "Casuistique", "Verite", "Alliance", "Justice", "Confiance", "Logique", "Devoir", "Espoir", "Syllogisme", "Preuve", "Fait", "Stabilite", "Coherence", "Respect", "Bon sens", "Evidence", "Exegese", "Cause", "Legitimite", "Destin", "Serment", "Foi juree", "Parole donnee", "Peroraison", "Loyaute", "Droiture", "Equite", "Plaidoyer", "Temoignage", "Exorde", "Argument", "Precepte", "Doctrine", "Coutume", "Droit", "Sceau", "Sophisme", "Charte", "Traite", "Hommage", "Investiture", "Vassalite", "Jurisprudence", "Heritage", "Lignee", "Preseance", "Anatheme"],
-  "Intimider": ["Ombre", "Ruine", "Sang", "Consequence", "Estrapade", "Silence", "Cendres", "Force", "Menace", "Ordalie", "Limite", "Supplice", "Violence", "Fatalite", "Soumission", "Calvaire", "Chevalet", "Isolement", "Terreur", "Perte", "Chatiment", "Geole", "Brodequin", "Cachot", "Entraves", "Gibet", "Pilori", "Potence", "Echafaud", "Bourreau", "Lame", "Carcan", "Feu", "Fleau", "Roue", "Guerre", "Siege", "Pillage", "Devastation", "Desolation", "Autodafe", "Abime", "Tenebres", "Ostracisme", "Courroux", "Vengeance", "Sentence", "Ecorchement", "Proscription", "Bannissement"],
-  "Séduire": ["Regard", "Mystere", "Frisson", "Fin'amor", "Promesse", "Flatterie", "Desir", "Chuchotement", "Charme", "Grace", "Tenson", "Intimite", "Complicite", "Parfum", "Trouble", "Caresse", "Aubade", "Vertige", "Emoi", "Etreinte", "Pastourelle", "Tentation", "Mirage", "Emprise", "Oeillade", "Sourire", "Soupir", "Virelai", "Murmure", "Confidence", "Courtoisie", "Galanterie", "Reverdie", "Louange", "Eloge", "Compliment", "Baiser", "Madrigal", "Tendresse", "Langueur", "Nonchalance", "Canso", "Elegance", "Parure", "Voile", "Faveur", "Deference", "Serenade", "Idylle", "Parangon"],
-  "Négocier": ["Compromis", "Valeur", "Echange", "Interet", "Usure", "Marge", "Accord", "Garantie", "Profit", "Contrat", "Equilibre", "Concession", "Arrhes", "Echeance", "Partage", "Termes", "Nantissement", "Avantage", "Clause", "Evaluation", "Transaction", "Recul", "Pacte", "Tonlieu", "Marche", "Denier", "Ecu", "Bourse", "Hanse", "Prix", "Tarif", "Taxe", "Peage", "Aune", "Dime", "Tribut", "Setier", "Rancon", "Marchandise", "Denree", "Etal", "Lettre de change", "Halle", "Foire", "Caravane", "Guilde", "Amodiation", "Registre", "Affermage", "Quittance"],
-  "Bluffer": ["Masque", "Malentendu", "Simulacre", "Illusion", "Alibi", "Omission", "Palimpseste", "Faux-semblant", "Rumeur", "Inattention", "Leurre", "Apocryphe", "Fabulation", "Sosie", "Coincidence", "Quiproquo", "Fourberie", "Diversion", "Distraction", "Truquage", "Perfidie", "Imposture", "Inversion", "Subterfuge", "Apparence", "Supercherie", "Miroir", "Reflet", "Voile", "Deguisement", "Mystification", "Costume", "Travestissement", "Comedie", "Charlatanisme", "Pantomime", "Comedien", "Saltimbanque", "Bateleur", "Jongleur", "Feinte", "Prestidigitation", "Tour", "Passe-passe", "Escamotage", "Aplomb", "Stratageme", "Audace", "Bagou", "Verve"],
-  "Contraindre": ["Secret", "Dossier", "Dette", "Lese-majeste", "Scandale", "Faute", "Proche", "Decheance", "Sacrilege", "Aveu", "Passe", "Risque", "Vulnerabilite", "Simonie", "Levier", "Compromission", "Represailles", "Decouverte", "Temoin", "Delation", "Ombrage", "Ultimatum", "Revelation", "Capture", "Forfaiture", "Otage", "Lettre", "Missive", "Sceau brise", "Archive", "Prevarication", "Parchemin", "Confession", "Adultere", "Batard", "Concussion", "Illegitimite", "Usurpation", "Peculat", "Complot", "Conjuration", "Cabale", "Parricide", "Delit", "Crime", "Meurtre", "Regicide", "Empoisonnement", "Duel", "Parjure"],
-  "Railler": ["Orgueil", "Faiblesse", "Pitie", "Amphigouri", "Lachete", "Ridicule", "Insulte", "Galimatias", "Suffisance", "Incompetence", "Ignorance", "Mepris", "Defi", "Logorrhee", "Temerite", "Echec", "Humiliation", "Arrogance", "Lapalissade", "Honte", "Heresie", "Trahison", "Faillite", "Truisme", "Insolence", "Sarcasme", "Ironie", "Beotisme", "Raillerie", "Moquerie", "Quolibet", "Insinuation", "Rictus", "Cuistrerie", "Derision", "Brimade", "Couardise", "Pedantisme", "Poltronnerie", "Vantardise", "Fanfaronnade", "Niaiserie", "Fatuite", "Pretention", "Outrecuidance", "Ineptie", "Presomption", "Betise", "Sottise", "Balourdise"],
-  "Apaiser": ["Paix", "Calme", "Protection", "Refuge", "Onction", "Securite", "Ecoute", "Temperance", "Patience", "Viatique", "Ancrage", "Bienveillance", "Pardon", "Clemence", "Litanies", "Serenite", "Soutien", "Tolerance", "Douceur", "Vepres", "Harmonie", "Respiration", "Comprehension", "Repos", "Matines", "Foyer", "Atre", "Berceau", "Epaule", "Complies", "Main tendue", "Embrassade", "Veillee", "Chant", "Angelus", "Berceuse", "Conte du soir", "Onguent", "Oremus", "Baume", "Remede", "Infusion", "Tisane", "Kyrie", "Feu de camp", "Couverture", "Abri", "Sanctuaire", "Hospice", "Te Deum"]
+  "Persuader": [
+    // Courants & MedFan (37)
+    "Avenir", "Alliance", "Argument", "Bon sens", "Cause", "Charte", "Coherence", "Coutume", "Devoir", "Doctrine",
+    "Droit", "Droiture", "Equite", "Espoir", "Evidence", "Fait", "Foi juree", "Heritage", "Hommage", "Honneur",
+    "Justice", "Legitimite", "Lignee", "Logique", "Loyaute", "Parole donnee", "Plaidoyer", "Precepte", "Preuve", "Raison",
+    "Respect", "Sceau", "Serment", "Stabilite", "Temoignage", "Traite", "Verite",
+    // 25% Rares & MedFan (13)
+    "Anatheme", "Casuistique", "Exegese", "Exorde", "Irenisme", "Investiture", "Jurisprudence", "Oratorie", "Peroraison", "Preseance",
+    "Syllogisme", "Vassalite", "Veneris"
+  ],
+
+  "Intimider": [
+    // Courants & MedFan (37)
+    "Abime", "Bourreau", "Cachot", "Carnage", "Cendres", "Chatiment", "Desolation", "Devastation", "Echafaud", "Entraves",
+    "Fatalite", "Feu", "Fleau", "Force", "Geole", "Gibet", "Guerre", "Lame", "Lethalite", "Limite",
+    "Menace", "Ombre", "Perte", "Pilori", "Pillage", "Potence", "Ruine", "Sang", "Sentence", "Siege",
+    "Silence", "Soumission", "Tenebres", "Terreur", "Tombeau", "Vengeance", "Violence",
+    // 25% Rares & MedFan (13)
+    "Autodafe", "Brodequin", "Calvaire", "Carcan", "Chevalet", "Courroux", "Ecorchement", "Estrapade", "Ostracisme", "Ordalie",
+    "Proscription", "Supplice", "Thanatos"
+  ],
+
+  "Séduire": [
+    // Courants & MedFan (37)
+    "Baiser", "Caresse", "Charme", "Chuchotement", "Compliment", "Complicite", "Confidence", "Courtoisie", "Desir", "Elegance",
+    "Eloge", "Emoi", "Emprise", "Etreinte", "Faveur", "Flatterie", "Galanterie", "Grace", "Idylle", "Intimite",
+    "Langueur", "Louange", "Mirage", "Murmure", "Mystere", "Nonchalance", "Oeillade", "Parfum", "Parure", "Promesse",
+    "Regard", "Serenade", "Sourire", "Soupir", "Tendresse", "Tentation", "Trouble",
+    // 25% Rares & MedFan (13)
+    "Aubade", "Ribaudie", "Polissonnerie", "Deference", "Gaudriole", "Madrigal", "Parangon", "Pastourelle", "Bacchanale", "Sortilege",
+    "Concupiscence", "Vertige", "Badinage"
+  ],
+
+  "Négocier": [
+    // Courants & MedFan (37)
+    "Accord", "Avantage", "Bourse", "Caravane", "Clause", "Compromis", "Concession", "Contrat", "Denier", "Denree",
+    "Echange", "Echeance", "Ecu", "Equilibre", "Etal", "Evaluation", "Foire", "Garantie", "Guilde", "Halle",
+    "Interet", "Lettre de change", "Marchandise", "Marche", "Marge", "Pacte", "Partage", "Peage", "Prix", "Profit",
+    "Quittance", "Rancon", "Tarif", "Taxe", "Termes", "Transaction", "Tribut",
+    // 25% Rares & MedFan (13)
+    "Affermage", "Amodiation", "Aune", "Composition", "Dime", "Hanse", "Nantissement", "Octroi", "Setier", "Tonlieu",
+    "Tretel", "Usure", "Venteage"
+  ],
+
+  "Bluffer": [
+    // Courants & MedFan (37)
+    "Alibi", "Aplomb", "Apparence", "Artifice", "Audace", "Bagou", "Comedie", "Costume", "Deguisement", "Diversion",
+    "Duperie", "Esbroufe", "Escamotage", "Fabulation", "Faux-semblant", "Feinte", "Fourberie", "Illusion", "Imposture", "Leurre",
+    "Malentendu", "Masque", "Miroir", "Mystification", "Dissimulation", "Passe-passe", "Quiproquo", "Reflet", "Ruse", "Rumeur",
+    "Simulacre", "Sosie", "Stratageme", "Subterfuge", "Supercherie", "Tour", "Verve",
+    // 25% Rares & MedFan (13)
+    "Apocha", "Apocryphe", "Bateleur", "Charlatanisme", "Grimoire", "Jongleur", "Palimpseste", "Pantomime", "Prestidigitation", "Saltimbanque",
+    "Tergiversation", "Travestissement", "Thaumaturgie"
+  ],
+
+  "Contraindre": [
+    // Courants & MedFan (Chantage, Secrets & Religion/Politique) (37)
+    "Adultere", "Archive", "Aveu", "Batard", "Cabale", "Capture", "Complot", "Compromission", "Confession", "Conjuration",
+    "Crime", "Decheance", "Delation", "Delit", "Dette", "Dossier", "Duel", "Faute", "Lettre", "Levier",
+    "Meurtre", "Missive", "Omission", "Otage", "Parjure", "Passe", "Pression", "Proche", "Represailles", "Revelation",
+    "Risque", "Sacrilege", "Scandale", "Secret", "Sous-entendu", "Temoin", "Vulnerabilite",
+    // 25% Rares & MedFan (13)
+    "Concussion", "Forfaiture", "Illegitimite", "Lese-majeste", "Ombrage", "Parricide", "Peculat", "Prevarication", "Regicide", "Simonie",
+    "Sorcellerie", "Ultimatum", "Usurpation"
+  ],
+
+  "Railler": [
+    // Courants & MedFan (37)
+    "Arrogance", "Balourdise", "Betise", "Brimade", "Couardise", "Defi", "Derision", "Echec", "Faiblesse", "Fanfaronnade",
+    "Fatuite", "Honte", "Humiliation", "Ignorance", "Incompetence", "Ineptie", "Insinuation", "Insolence", "Insulte", "Ironie",
+    "Lachete", "Mepris", "Moquerie", "Niaiserie", "Orgueil", "Outrecuidance", "Pitie", "Poltronnerie", "Presomption", "Pretention",
+    "Quolibet", "Raillerie", "Rictus", "Ridicule", "Sarcasme", "Sottise", "Suffisance",
+    // 25% Rares & MedFan (13)
+    "Amphigouri", "Beotisme", "Cuistrerie", "Galimatias", "Heresie", "Invective", "Lapalissade", "Logorrhee", "Pedantisme", "Satyre",
+    "Temerite", "Truisme", "Vantardise"
+  ],
+
+  "Apaiser": [
+    // Courants & MedFan (37)
+    "Abri", "Ancrage", "Atre", "Baume", "Berceuse", "Berceau", "Bienveillance", "Calme", "Chant", "Clemence",
+    "Comprehension", "Conte du soir", "Couverture", "Douceur", "Ecoute", "Embrassade", "Epaule", "Feu de camp", "Foyer", "Harmonie",
+    "Hospice", "Infusion", "Main tendue", "Onguent", "Paix", "Pardon", "Patience", "Protection", "Refuge", "Remede",
+    "Repos", "Respiration", "Sanctuaire", "Securite", "Serenite", "Soutien", "Tolerance",
+    // 25% Rares & MedFan (13)
+    "Angelus", "Complies", "Kyrie", "Litanies", "Matines", "Onction", "Oremus", "Relique", "Te Deum", "Temperance",
+    "Tisane", "Veillee", "Viatique"
+  ]
 };
 
 export function levelFor(score) {
@@ -70,11 +150,17 @@ if (panel) {
   }
 
   function refresh() {
-    let sheet;
+    const draftKey = characterDraftKey();
+    let sheet = null;
     try {
-      sheet = document.getElementById('character-sheet-frame')?.contentWindow?.diceForgeSheet?.getData()
-        || JSON.parse(localStorage.getItem('dice-forge.pj-markdown.v1'));
-    } catch { sheet = null; }
+      sheet = JSON.parse(localStorage.getItem(draftKey));
+    } catch { /* Aucun brouillon pour ce PJ. */ }
+    try {
+      const frame = document.getElementById('character-sheet-frame')?.contentWindow;
+      const frameKey = frame?.location?.href ? new URL(frame.location.href).searchParams.get('context') : null;
+      // Une ancienne fiche peut rester visible pendant le changement de PJ.
+      if (!frameKey || frameKey === draftKey) sheet = frame?.diceForgeSheet?.getData() || sheet;
+    } catch { /* La fiche peut être en cours de chargement. */ }
     const skillName = APPROACH_SKILLS[approach.value];
     const nextSkillIndex = BRP_SKILLS.findIndex(([name]) => name === skillName);
     const raw = sheet?.skills?.[nextSkillIndex]?.score;
@@ -152,6 +238,10 @@ if (panel) {
     experienceStatus.textContent = 'Expérience cochée. Pense à sauvegarder ta fiche.';
   });
   new MutationObserver(() => { if (panel.classList.contains('active')) refresh(); }).observe(panel, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('storage', event => { if (event.key === 'dice-forge.pj-markdown.v1') refresh(); });
+  document.getElementById('character-sheet-frame')?.addEventListener('load', refresh);
+  window.addEventListener('diceforge:character-loaded', refresh);
+  window.addEventListener('storage', event => {
+    if (event.key === characterDraftKey() || event.key === 'diceforge_room' || event.key?.startsWith('diceforge_character:')) refresh();
+  });
   refresh();
 }

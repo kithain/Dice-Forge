@@ -1,5 +1,5 @@
 import { inventoryJournal } from './inventory-sync.js?v=20261003-save-fixes';
-import { fillWealthOptions } from './creation-help.js?v=20261003-recipe-ui';
+import { fillWealthOptions } from './creation-help.js?v=20261004-professions-r2';
 import { showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
 import { ALCHEMY_POTIONS } from './alchemy-potions.js?v=20261002-potion-doses';
