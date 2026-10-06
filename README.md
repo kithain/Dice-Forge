@@ -2,342 +2,304 @@
 
 [![Qualité](https://github.com/kithain/Dice-Forge/actions/workflows/quality.yml/badge.svg)](https://github.com/kithain/Dice-Forge/actions/workflows/quality.yml)
 
-Suite de jeu pour les parties **BRP-ORC**. Dice Forge réunit les dés 3D, les salons multijoueurs, les fiches, le tracker d'initiative, la Battle Map, l'import Obsidian et les overlays OBS. En local, tout est accessible depuis un cockpit MJ unique.
+**Les outils de la table BRP-ORC, du premier jet de dés au suivi de campagne.**
 
-**[Ouvrir Dice Forge](https://kithain.github.io/Dice-Forge/)** · [Aide joueurs](https://kithain.github.io/Dice-Forge/help.html) · [Livret du joueur](https://kithain.github.io/Dice-Forge/livret_joueur.html)
+Dice Forge réunit un lanceur de dés 3D, des personnages et inventaires en ligne, des aides de jeu en français et un suivi MJ. Son compagnon local ajoute un cockpit, un tracker de combat, une Battle Map, l’import de fiches Obsidian et des vues pour OBS.
 
-## Fonctionnalités
+**[Ouvrir Dice Forge](https://kithain.github.io/Dice-Forge/)** · [Guide des joueurs](https://kithain.github.io/Dice-Forge/help.html) · [Aides de jeu](https://kithain.github.io/Dice-Forge/aides-jeu.html)
 
-- Lancers de `D4`, `D6`, `D8`, `D10`, `D12`, `D20` et `D100`, seuls ou combinés avec un modificateur.
-- Génération aléatoire avec la Web Crypto API et animation des dés en 3D avec Three.js.
-- Boutons de lancer rapide, tests BRP au `D100` et calcul automatique du niveau de réussite.
-- Détection des réussites et échecs critiques sur le `D20`, avec effets visuels et sonores.
-- Salons Supabase pour partager les jets en temps réel, restaurer une session et conserver l'historique récent.
-- Jets cachés : le résultat complet reste réservé au créateur du salon.
-- Générateur de personnage BRP-ORC avec espèces, professions, caractéristiques, valeurs dérivées et deux relances maximum.
-- Fiche complète éditable, sauvegardée localement ou dans Supabase, exportable en Markdown et imprimable en PDF.
-- Import et export JSON des personnages, ainsi que transfert d'une fiche complète vers un autre salon.
-- Overlay temps réel pour OBS.
-- Timer dramatique de 5, 2 ou 1 minute, piloté depuis le cockpit et synchronisé avec OBS.
-- Livret du joueur, inventaire, écrans joueur/MJ et règles BRP-ORC consultables depuis le menu.
+[Premiers pas](#premiers-pas) · [Jouer et gérer ses personnages](#jouer-et-gérer-ses-personnages) · [Outils du MJ](#outils-du-mj) · [OBS](#diffuser-dans-obs) · [Développement](#développement-et-maintenance) · [Dépannage](#dépannage)
 
-## Démarrage rapide
+## Ce que propose Dice Forge
 
-### Version en ligne
+| Outil | Usage |
+| --- | --- |
+| **Dés et tests BRP** | D4, D6, D8, D10, D12, D20 et D100, expressions combinées, bonus et malus, tests de caractéristiques, de compétences et de sorts. Animations 3D, sons et niveaux de réussite. |
+| **Salons et campagnes** | Comptes joueurs, codes de partie, jets partagés avec le MJ, jets cachés et reprise de session. Plusieurs salons peuvent suivre la même campagne. |
+| **Création de personnage** | Identité, espèce, profession, caractéristiques, deux relances au maximum et répartition contrôlée des points de création. |
+| **Fiche de personnage** | Compétences, grimoire, notes, coches d’expérience et progression par session. Brouillon local, sauvegarde en ligne, fichiers Markdown et export PDF A4. |
+| **Inventaire** | Équipement, armes, armures, monnaies et potions, avec doses transportées et en stock. Reprise des sauvegardes en attente après une coupure réseau. |
+| **Joute verbale** | Tirage de mots selon l’approche et le score du personnage, mots placés ou écartés et jokers pour accompagner le jeu de rôle. |
+| **Suivi MJ** | Vue du groupe, carnet local, disponibilité des PJ, attribution des prétirés, décès et corbeille avec restauration. |
+| **Aides de jeu** | Livret joueur, références détaillées, catalogue d’équipement, écrans joueur et MJ, règles BRP en français, recherche et impression. |
+| **Compagnon MJ local** | Cockpit Windows, tracker de combat, Battle Map avec génération procédurale, import Obsidian, portraits, timer dramatique et overlays OBS. |
 
-Rendez-vous sur **[kithain.github.io/Dice-Forge](https://kithain.github.io/Dice-Forge/)** avec un navigateur récent et connectez-vous à votre compte. Les lancers en solo ne demandent pas de rejoindre un salon.
+L’application web est servie par **GitHub Pages**. **Supabase** assure l’authentification et les données en ligne. Le **serveur local Python/Flask** regroupe les outils du MJ sur son ordinateur.
 
-### Cockpit MJ local sous Windows
+## Premiers pas
 
-Prérequis : [Python 3](https://www.python.org/downloads/) accessible avec la commande `python` ou `py`.
+### Jouer depuis le navigateur
 
-1. Clonez ou téléchargez le dépôt.
-2. Lancez `DiceForge.bat`.
-3. Le cockpit s'ouvre sur `http://127.0.0.1:5000/`.
-4. Saisissez la room active puis ouvrez les outils depuis cette page.
-5. Utilisez `DiceForge_Stop.bat` pour tout arrêter.
+1. Ouvrez [Dice Forge](https://kithain.github.io/Dice-Forge/) dans un navigateur récent.
+2. Connectez-vous avec le nom et le mot de passe du compte fourni par l’administrateur.
+3. Lancez des dés immédiatement, ou entrez le code donné par le MJ et cliquez sur **Rejoindre**.
+4. Pour utiliser votre personnage, ouvrez **Fiche personnage** et choisissez le PJ de la campagne.
 
-Le premier lancement installe automatiquement les dépendances Python manquantes.
+**Un compte est nécessaire pour accéder à l’application, y compris pour lancer des dés sans salon.** Les inscriptions sont gérées par l’administrateur. Le mot de passe peut ensuite être changé depuis **Menu → Mon compte**.
 
-> Une connexion Internet reste nécessaire pour charger Three.js, Supabase et les polices distribuées par CDN.
+Une connexion Internet est nécessaire pour l’authentification, les services en ligne et les dépendances chargées depuis les CDN. Les animations nécessitent WebGL ; elles peuvent être désactivées dans le menu.
 
-## Utilisation
+### Lancer le cockpit MJ sous Windows
 
-### Lancer des dés
+Prérequis : **Python 3**, accessible avec `python` ou `py`, et une connexion Internet au premier lancement pour installer les dépendances manquantes.
 
-Utilisez un bouton rapide ou composez une expression en choisissant jusqu'à dix dés de chaque type. Ajoutez éventuellement un modificateur, puis cliquez sur **Lancer les dés**. Par exemple : `2D6 + 1D8 + 5`.
+Téléchargez le dépôt depuis GitHub, ou clonez-le :
 
-Pour un test BRP, renseignez un score et choisissez la difficulté : automatique, facile, moyenne, difficile ou impossible. Dice Forge lance le `D100` et indique le niveau de réussite.
+```powershell
+git clone https://github.com/kithain/Dice-Forge.git
+cd Dice-Forge
+.\DiceForge.bat
+```
 
-Le bouton **Jet de Course** calcule automatiquement `(DEX + MOV) × 3`, avec un maximum de 95 %. Une réussite donne une progression de `MOV × 2` mètres par tour de six secondes ; une réussite spéciale ou critique ajoute respectivement un avantage ou un avantage majeur. Le jet convient aussi bien aux poursuites qu’aux fuites face à un danger.
+Le lanceur démarre le compagnon sur **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**. Ouvrez cette adresse pour accéder au cockpit, renseignez le code du salon puis utilisez ses cartes pour ouvrir les outils et copier les URL OBS.
 
-### Jouer en salon
+Pour arrêter le compagnon, lancez `DiceForge_Stop.bat`.
 
-1. Saisissez votre nom.
-2. Le MJ crée le salon avec **Créer** ; les joueurs entrent le code reçu puis cliquent sur **Rejoindre**.
-3. Partagez le code du salon avec la table.
+> Le cockpit utilise la base de production par défaut. Les modalités d’accès à la base de recette sont décrites dans [BASE_TEST.md](BASE_TEST.md).
 
-Les jets sont synchronisés en temps réel et la session est restaurée après rechargement de la page. Le créateur du salon peut purger l'historique et consulter le résultat des jets cachés.
+## Jouer et gérer ses personnages
+
+### Lancer des dés et effectuer un test
+
+Dans **Lancer de dés**, composez une expression avec les dés proposés, ajoutez un modificateur puis cliquez sur **Lancer les Dés**. Par exemple : `2D6 + 1D8 + 5`. Le compositeur accepte jusqu’à dix dés de chaque type.
+
+Pour un **test BRP**, sélectionnez une compétence ou un sort de la fiche, ou saisissez un score libre. Choisissez la difficulté et le malus demandé par le MJ, puis cliquez sur **Tester**. L’application affiche le D100 et le niveau de réussite : critique, spéciale, normale, échec ou maladresse.
+
+Les boutons de caractéristiques utilisent les valeurs du personnage lié. **Jet de Course** calcule `(DEX + MOV) × 3`, avec un seuil maximal de 95 %.
+
+Les tirages génériques utilisent la Web Crypto API. Les jets de compétences, de sorts et de progression liés à la fiche en ligne sont contrôlés côté Supabase.
+
+### Rejoindre un salon et retrouver sa campagne
+
+Le MJ crée un salon avec **Créer** et partage son code. Les joueurs saisissent ce code puis utilisent **Rejoindre**. Le nom affiché est lié au compte connecté ; la connexion au salon est mémorisée dans le navigateur.
+
+Le MJ dispose du flux **Jets en direct** et peut purger l’historique du salon. Un **jet caché** réserve son résultat complet au propriétaire/MJ du salon.
+
+Un personnage possède une **identité permanente**. Ses compétences, ses sorts, sa progression et son inventaire sont suivis **par campagne**. Lorsque le MJ crée un nouveau salon depuis une campagne dont il est propriétaire, les deux salons partagent cet état. Changer de code de salon ne signifie donc pas nécessairement changer de campagne.
 
 ### Créer un personnage
 
-Ouvrez l'onglet **Fiche personnage**, rejoignez d'abord un salon, puis renseignez l'identité, l'espèce et la profession du personnage. La génération utilise :
+1. Rejoignez un salon, puis ouvrez **Création de personnage** ou utilisez **Nouveau personnage**.
+2. Renseignez le nom, l’espèce, le genre, l’âge et la profession.
+3. Générez les caractéristiques : `3D6` pour FOR, CON, POU, DEX et CHA ; `2D6 + 6` pour TAI et INT, avec les modificateurs de l’espèce.
+4. Ajustez le tirage : deux relances au maximum et jusqu’à trois points déplacés entre caractéristiques.
+5. Enregistrez la génération, puis complétez les compétences et les sorts dans la fiche.
+6. Répartissez les points professionnels et personnels, puis validez la création lorsque tous les points sont attribués.
 
-- `3D6` pour FOR, CON, POU, DEX et CHA ;
-- `2D6 + 6` pour TAI et INT ;
-- les modificateurs propres à l'espèce sélectionnée.
+Un brouillon peut être sauvegardé avant la fin de la répartition. La validation contrôle les budgets et les contraintes de profession côté serveur, puis verrouille les éléments de création. Les compteurs de la fiche et du grimoire indiquent les réserves restantes.
 
-Le tirage initial et les deux relances possibles sont enregistrés dans Supabase. Vous pouvez ensuite déplacer jusqu'à trois points entre les caractéristiques, enregistrer le personnage et continuer vers la fiche complète.
+L’import/export **JSON** concerne les données de génération. Il ne remplace pas la sauvegarde de la fiche complète et de son inventaire.
 
-La fiche complète permet notamment de gérer les compétences, les sorts, l'équipement et les notes. Elle conserve un brouillon local et propose :
+### Suivre la fiche, les sorts et l’expérience
 
-- la synchronisation forcée de l’identité, des caractéristiques et du MOV depuis le personnage généré, sans effacer le reste de la fiche complète ;
-- l'ouverture et l'enregistrement au format Markdown ;
-- la sauvegarde et le chargement par salon dans Supabase ;
-- le transfert vers un autre salon ;
-- un aperçu A4 à imprimer ou enregistrer en PDF.
+La fiche rassemble les onglets **Fiche**, **Inventaire**, **Sorts et Pouvoirs** et **Progression**. Elle propose un brouillon local, la sauvegarde dans Supabase et l’import/export Markdown.
 
-Pour un guide détaillé, consultez l'[aide joueurs](https://kithain.github.io/Dice-Forge/help.html).
+Une réussite sur une compétence ou un sort sélectionné peut accorder sa coche d’expérience en ligne. La progression utilise ensuite les tentatives et le pool de points de la session ; une coche seule n’attribue pas de points.
 
-### Supprimer un personnage depuis le suivi MJ
+Le grimoire affiche les sorts connus. Pendant la création, les sorts proposés dépendent de la profession. Après validation, l’apprentissage d’un nouveau sort demande une étude et l’accord oral du MJ ; un tirage unique de `20 + 3D6` détermine son score initial, sans dépense d’XP.
 
-Le créateur du salon ouvre **Suivi MJ**, puis **Disponibilité et attribution des PJ**.
-Le bouton **Supprimer** demande confirmation et retire le personnage des listes
-et des fiches accessibles en ligne. **Corbeille MJ → Restaurer** récupère sa fiche,
-son inventaire et son état précédent ; un personnage mort reste mort. Le joueur
-doit le sélectionner à nouveau. Les notes du carnet sont conservées pour la restauration.
-Pour un personnage partagé entre plusieurs campagnes, la suppression et la
-restauration demandent d'être le MJ de toutes ces campagnes.
+Les modifications d’inventaire en attente restent dans le navigateur et sont renvoyées dans l’ordre après reprise du réseau. Si deux versions modifient le même champ, **Résoudre le conflit** permet de traiter le désaccord. **Exporter l’historique** fournit la file en attente et les derniers envois réussis.
 
-**Retirer du carnet local**, dans une fiche du carnet, enlève seulement la note
-de ce navigateur et ne supprime pas le personnage en ligne.
+Le catalogue propose **16 potions** avec effets et contrecoups. Chaque potion distingue les doses transportées du stock ; le total transporté est limité à **quatre doses**.
 
-## Pages et références
+### Exporter une fiche en PDF
 
-Les [aides de jeu](aides-jeu.html) regroupent les livrets, écrans joueur/MJ,
-le catalogue et le guide de l’application. Chaque aide propose un sommaire,
-une recherche sans distinction d’accents et une impression A4 portrait ;
-les détails repliés sont ouverts pour l’impression puis restaurés.
-L’économie d’encre est activée par défaut. Le texte BRP complet conserve
-ses règles d’origine ; son annexe Dice Forge et les aides de campagne
-précisent les adaptations prioritaires.
+**Créer le PDF** prépare un aperçu A4 avec les compétences, les sorts, l’inventaire disponible, les monnaies, les potions, l’histoire et les notes.
 
-« Créer le PDF » prépare un instantané dans le stockage de l’onglet :
-compétences, tous les sorts connus, inventaire local du personnage choisi,
-monnaies, potions (transport/stock, effets et contrecoups), histoire et notes.
-Ouvrir l’onglet Inventaire et attendre son chargement avant l’export pour
-inclure ses données. Un inventaire absent est signalé dans l’aperçu.
-L’export ne sauvegarde rien en ligne. Dans la boîte d’impression, choisir
-A4 portrait, échelle 100 %, sans en-têtes ni pieds de page du navigateur.
+Avant l’export, ouvrez l’onglet **Inventaire** et attendez son chargement. Dans la boîte d’impression du navigateur, choisissez **A4 portrait**, une échelle de **100 %** et désactivez les en-têtes et pieds de page. La préparation du PDF ne sauvegarde pas la fiche en ligne.
 
-Le livret joueur présente les règles essentielles. Les listes et tables détaillées sont regroupées dans `livret_reference.html`. L’ancien lien `livret_joueurV2.html` redirige vers le livret principal.
+Les parcours détaillés sont disponibles dans le [guide des joueurs](https://kithain.github.io/Dice-Forge/help.html).
 
-La fiche propose trois onglets : Fiche, Inventaire, Sorts et Pouvoirs. Dans Inventaire, l’onglet Potions démarre vide. Choisir l’une des 16 préparations du catalogue remplit son effet et son contrecoup. Chaque ligne distingue les doses transportées des doses en stock ; le total transporté est limité à 4. Les modifications sont sauvegardées avec l’inventaire ; les consommables existants sont conservés. Au chargement d’une sauvegarde incohérente, les doses transportées excédentaires sont conservées dans le stock.
+## Outils du MJ
 
-« Sorts et Pouvoirs » affiche tous les sorts de la fiche Supabase, sans limite de six lignes, avec leur nom fixe et leurs points répartis. « Ajouter un sort » propose les sorts autorisés pour la profession enregistrée, en excluant ceux déjà présents ; il faut attribuer des points avant l’ajout. « Sauvegarder les sorts » actualise seulement les sorts, leurs coches et les notes de magie dans la fiche existante. Les autres champs sont conservés depuis la dernière version Supabase, avec contrôle du budget commun et protection contre une écriture concurrente. Les lignes de sorts et leurs totaux dérivés sont également actualisés dans le Markdown enregistré. Sans partie connectée, la sauvegarde reste locale.
+### Suivi du groupe en ligne
 
-Les règles d’alchimie retenues sont celles du référentiel Obsidian : catégories de réactifs, recettes de degrés I/II, critique doublant les doses et limite de quatre doses transportées. Les références contiennent les 16 recettes et leurs contrecoups ; les écrans joueur/MJ et la fiche renvoient à ce même chapitre.
+La page [Suivi MJ](https://kithain.github.io/Dice-Forge/suivi-mj.html) permet au propriétaire du salon de consulter les personnages de la campagne et de gérer leur disponibilité, les prétirés et leur attribution.
 
-L’inventaire conserve un historique local des modifications par compte et salon.
-Les changements en attente sont envoyés dans l’ordre, un par un ; une erreur
-réseau conserve la file pour une reprise lors du prochain chargement, du retour
-en ligne ou d’un clic sur « Sauvegarder en ligne ». Les modifications faites
-pendant un chargement sont conservées et rejouées sur les données reçues. Un
-conflit sur un même champ bloque la file : « Résoudre le conflit » permet de
-confirmer l’application de ses changements, sans modifier les autres champs.
-Les listes d’équipement sont comparées dans leur ensemble pour éviter une
-fusion ambiguë. « Exporter l’historique » fournit les changements en attente et
-les 100 derniers envois réussis. Cet historique reste dans le navigateur et
-n’est pas un journal partagé dans Supabase.
+Le **carnet MJ** conserve ses notes dans le navigateur. **Retirer du carnet local** enlève uniquement une note locale. **Supprimer**, dans la gestion des PJ, retire le personnage des listes en ligne après confirmation ; la **Corbeille MJ** permet de retrouver sa fiche, son inventaire et son statut précédent. Restaurer un personnage mort ne le rend pas vivant. Pour un PJ partagé entre plusieurs campagnes, la suppression et la restauration exigent les droits MJ dans toutes ces campagnes.
 
-Les compétences inutilisées sont retirées de la fiche active ; leurs anciennes
-valeurs sont conservées dans `retiredSkills` pour compatibilité. Une
-caractéristique laissée vide signifie N/A. Les corrections SQL pour une base
-de campagne v2 déjà installée sont dans
-[`migrations/character-v2/save-fixes.sql`](migrations/character-v2/save-fixes.sql).
+### Cockpit et outils locaux
 
-Pour les mettre à jour, modifier le fichier Obsidian `50 - OUTILS/52 - Regles/alchimie.md`, puis l’importer avec `python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"`. Le script conserve sa copie dans `data/alchimie.md`, génère la section `#alchimie` de `livret_reference.html` et le catalogue `js/alchemy-potions.js`. Ne pas modifier ces sorties séparément : `python scripts/validate_project.py` vérifie leur synchronisation, également dans GitHub Actions. Sans `--source`, le script régénère ces sorties depuis la copie du dépôt. Les sauvegardes historiques ne sont pas des règles actives.
+| Outil | Adresse locale |
+| --- | --- |
+| Cockpit MJ | `http://127.0.0.1:5000/` |
+| Application Dice Forge | `http://127.0.0.1:5000/dice/index.html` |
+| Tracker de combat | `http://127.0.0.1:5000/tracker` |
+| Vue joueurs du tracker | `http://127.0.0.1:5000/view` |
+| Battle Map | `http://127.0.0.1:5000/battlemap` |
+| Commandes du timer | `http://127.0.0.1:5000/timer` |
 
-| Page | Description |
-|---|---|
-| [`index.html`](https://kithain.github.io/Dice-Forge/) | Lanceur de dés, salons et génération de personnage |
-| [`pj.html`](https://kithain.github.io/Dice-Forge/pj.html) | Fiche de personnage complète |
-| [`help.html`](https://kithain.github.io/Dice-Forge/help.html) | Guide d'utilisation destiné aux joueurs |
-| [`livret_joueur.html`](https://kithain.github.io/Dice-Forge/livret_joueur.html) | Livret du joueur |
-| [`livret_reference.html`](https://kithain.github.io/Dice-Forge/livret_reference.html) | Création détaillée, compétences, sorts et recettes |
-| [`inventaire.html`](https://kithain.github.io/Dice-Forge/inventaire.html) | Armes, armures et équipement |
-| [`ecran_joueur_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html) | Écran de référence joueur |
-| [`ecran_MJ_BRP_ORC.html`](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html) | Écran de référence meneur de jeu |
-| [`BRP_ORC_traduction_FR_complete.html`](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html) | Traduction française complète des règles |
+Le **tracker** suit l’ordre d’attaque par DEX, le combattant actif, les rounds, les PV et les états. Les boutons de PV appliquent les valeurs saisies ; le tracker marque automatiquement un participant mort à zéro PV. Les dégâts et l’armure restent à calculer lors de la résolution du combat.
 
-## Overlays OBS
+La **Battle Map** permet d’importer une image, de placer des tokens et de synchroniser la vue OBS. Son générateur procédural propose des donjons, forêts, cavernes et ruines, avec une graine reproductible et un export PNG.
 
-### Joute verbale
+L’**import Obsidian** lit les fiches Markdown des dossiers PJ, PNJ et Bestiaire pour ajouter des participants au tracker. Configurez le chemin du coffre avant le lancement :
 
-Dans l’onglet **Joute verbale**, tire les mots : l’affichage dans OBS est automatique. L’overlay affiche le personnage, l’approche, les mots, les jokers et les repères « placé », sans verdict automatique. Le dernier tirage reste affiché jusqu’au suivant, même si le joueur change d’approche ou de personnage, ou ferme sa page. Les mots placés et les jokers de ce tirage sont synchronisés. Une seule aide est affichée à la fois par salon : un nouveau tirage remplace le précédent ; modifier un ancien tirage ne peut pas reprendre la place.
+```powershell
+$env:DICE_FORGE_VAULT = "C:\chemin\vers\MonCoffre"
+.\DiceForge.bat
+```
 
-Depuis le cockpit local, utilise la carte **Joute verbale**, ou ajoute cette source Navigateur à OBS (dimensions conseillées : **700 × 550**) :
+Les fichiers sources du coffre sont consultés en lecture seule.
+
+Le **timer dramatique** propose des durées de cinq, deux ou une minute, synchronisées avec sa vue OBS.
+
+Consultez le [guide du compagnon MJ](Roll20/Webtracker/README.md) pour les détails de ces outils.
+
+## Diffuser dans OBS
+
+Ajoutez une **source Navigateur** dans OBS. Pour les outils locaux, démarrez d’abord le compagnon, saisissez le code du salon dans le cockpit puis utilisez **Copier l’URL** sur la carte souhaitée.
+
+Remplacez `ABCD` par le code de votre salon :
+
+| Source | URL du compagnon local |
+| --- | --- |
+| Résultats des jets | `http://127.0.0.1:5000/overlays/rolls?room=ABCD` |
+| Animation 3D des dés | `http://127.0.0.1:5000/overlays/dice?room=ABCD` |
+| Joute verbale | `http://127.0.0.1:5000/overlays/verbal?room=ABCD` |
+| Battle Map | `http://127.0.0.1:5000/overlays/map` |
+| Portrait actif | `http://127.0.0.1:5000/portrait_view` |
+| Timer | `http://127.0.0.1:5000/overlays/timer` |
+
+Les résultats et les animations de dés disposent aussi de sources hébergées sur GitHub Pages, sans compagnon local :
 
 ```text
-http://127.0.0.1:5000/overlays/verbal?room=ABCD
+https://kithain.github.io/Dice-Forge/obs.html?room=ABCD
+https://kithain.github.io/Dice-Forge/obs-dice.html?room=ABCD
 ```
 
-Pour la prévisualisation locale autonome, lance `python scripts/serve_local.py` à la racine du dépôt puis ouvre `http://127.0.0.1:8765/`. L’URL OBS est `http://127.0.0.1:8765/obs-verbal.html?room=ABCD`, ou `?room=LOCAL` sans salon. La carte **Joute verbale** du cockpit fournit le lien OBS ; aucun contrôle de diffusion n’est affiché sur l’écran joueur. Ajoute `&bg=1` pour tester avec un fond visible.
+Ces deux overlays lisent un flux Supabase public dédié et ne demandent pas de connexion. **Le résultat d’un jet caché n’est jamais diffusé** : l’historique peut afficher une indication masquée, et l’overlay 3D ignore ces jets.
 
-Cette V1 transmet l’état au serveur local, ce qui permet à OBS de le recevoir dans son propre navigateur, sans compte ni stockage navigateur partagé. Le lanceur et la source OBS doivent utiliser le même serveur local et le même code de salon. Les joueurs utilisant uniquement le site en ligne ne transmettent pas encore leurs mots au serveur du MJ. L’état est conservé en mémoire jusqu’au prochain tirage ou au redémarrage du serveur ; aucun schéma Supabase n’est modifié.
+Paramètres facultatifs :
 
-Saisissez le code de la partie dans le cockpit puis utilisez **Copier l'URL** sur l'overlay souhaité. Les adresses ont désormais des noms explicites :
+- `&limit=3` : limiter le nombre de résultats affichés dans l’historique ;
+- `&bg=1` : afficher un fond de test sur les overlays de jets, de dés et de joute verbale ;
+- `&hold=400` : conserver les dés à l’écran pendant 400 ms après l’animation.
 
-```text
-http://127.0.0.1:5000/overlays/rolls?room=ABCD
+### Joute verbale : fonctionnement local
+
+Dans l’onglet **Joute verbale**, choisissez l’approche puis utilisez **Tirer les mots**. L’overlay affiche **le nom du PJ et ses mots sur une seule ligne**, ajustée à la largeur de la source. Les mots placés sont cochés en vert ; les mots écartés sont barrés. L’outil accompagne le jeu de rôle sans produire de verdict automatique.
+
+Le dernier tirage reste affiché jusqu’au suivant. Un nouveau tirage remplace celui du salon ; le changement de personnage ou la fermeture de la page du joueur n’efface pas l’affichage.
+
+**La page de jeu et OBS doivent utiliser le même serveur local et le même code de salon.** Les joueurs qui utilisent uniquement GitHub Pages ne transmettent pas leurs mots au serveur du MJ. L’état de cet overlay est conservé en mémoire jusqu’au prochain tirage ou au redémarrage du serveur.
+
+Pour une prévisualisation avec le serveur léger :
+
+```powershell
+python scripts/serve_local.py
 ```
 
-Pour afficher uniquement l'animation 3D des dés sur fond transparent :
+Ouvrez `http://127.0.0.1:8765/`, puis utilisez dans OBS `http://127.0.0.1:8765/obs-verbal.html?room=ABCD`. Sans salon connecté, utilisez `?room=LOCAL`. Ce serveur fournit l’application web et le relais verbal ; les outils du cockpit restent sur le compagnon Flask.
 
-```text
-http://127.0.0.1:5000/overlays/dice?room=ABCD
-```
+## Livrets et références
 
-La carte et le portrait actif sont disponibles sur :
+| Page | Contenu |
+| --- | --- |
+| [Aides de jeu](https://kithain.github.io/Dice-Forge/aides-jeu.html) | Point d’entrée vers les livrets, écrans et guides |
+| [Livret du joueur](https://kithain.github.io/Dice-Forge/livret_joueur.html) | Règles essentielles et déroulement du jeu |
+| [Références du joueur](https://kithain.github.io/Dice-Forge/livret_reference.html) | Création détaillée, compétences, sorts et alchimie |
+| [Catalogue d’équipement](https://kithain.github.io/Dice-Forge/inventaire.html) | Armes, armures et matériel ; l’inventaire personnel se trouve dans la fiche |
+| [Écran joueur](https://kithain.github.io/Dice-Forge/ecran_joueur_BRP_ORC.html) | Repères rapides pour les joueurs |
+| [Écran MJ](https://kithain.github.io/Dice-Forge/ecran_MJ_BRP_ORC.html) | Tables et repères pour le meneur de jeu |
+| [Règles BRP complètes en français](https://kithain.github.io/Dice-Forge/BRP_ORC_traduction_FR_complete.html) | Texte de référence et annexe Dice Forge |
 
-```text
-http://127.0.0.1:5000/overlays/map
-http://127.0.0.1:5000/portrait_view
-```
+Les aides proposent un sommaire, une recherche sans distinction d’accents et une impression A4 avec économie d’encre. Les adaptations de campagne sont précisées dans les aides et l’annexe Dice Forge. L’ancien lien `livret_joueurV2.html` redirige vers le livret principal.
 
-Le timer se pilote depuis `http://127.0.0.1:5000/timer`. Ajoutez cette URL comme source navigateur dans OBS :
+## Développement et maintenance
 
-```text
-http://127.0.0.1:5000/overlays/timer
-```
-
-Paramètres facultatifs :
-
-- `&limit=3` limite le nombre de jets affichés ;
-- `&bg=1` ajoute un fond de test, utile hors OBS.
-- sur `obs-dice.html`, `&hold=400` règle en millisecondes la durée d'affichage des dés après l'animation.
-
-Les overlays sont publics en lecture seule et ne demandent aucune connexion. Ils utilisent un flux séparé qui ne contient jamais les jets cachés. Le code de la room dans l'URL sélectionne uniquement les jets à afficher.
-
-## Configuration Supabase
-
-Supabase est facultatif pour les lancers en solo, mais nécessaire pour les salons, l'historique partagé et les fiches en ligne.
-
-### 1. Créer les comptes joueurs
-
-Dice Forge utilise Supabase Auth : le mot de passe est vérifié par Supabase et n'est jamais enregistré dans le code du site.
-
-1. Dans **Supabase > Authentication > Users**, créez chaque joueur avec **Add user > Create new user**.
-2. Transformez son nom en minuscules, sans accents, avec les espaces remplacés par des points, puis ajoutez `@diceforge.app`. Exemple : `Jean Pierre` devient `jean.pierre@diceforge.app`.
-3. Attribuez votre mot de passe initial de test dans Supabase, sans l'enregistrer dans le dépôt, et marquez l'adresse comme confirmée.
-4. Désactivez les inscriptions publiques dans les réglages Auth afin que seuls les comptes créés par l'administrateur puissent entrer.
-
-Le joueur se connecte avec son nom, puis peut choisir son propre mot de passe depuis **Menu > Mon compte**.
-
-Les personnages, fiches complètes et inventaires sont rattachés à l'identifiant permanent du compte Auth. Ils sont donc retrouvés après un changement de room. Le joueur peut modifier ses propres données ; le propriétaire/MJ d'une room commune peut les consulter en lecture seule.
-
-### 2. Créer la table des jets
-
-Dans le **SQL Editor** de votre projet Supabase, exécutez :
-
-```sql
-create table if not exists public.rolls (
-  id bigint generated always as identity primary key,
-  created_at timestamptz not null default now(),
-  room_code text not null,
-  player_name text not null,
-  expression text not null,
-  rolls_detail text not null default '',
-  total integer not null default 0,
-  is_crit boolean not null default false,
-  is_fail boolean not null default false,
-  is_hidden boolean not null default false
-);
-
-create index if not exists rolls_room_created_idx
-  on public.rolls (room_code, created_at desc);
-
-alter table public.rolls enable row level security;
-
-drop policy if exists "Allow authenticated read rolls" on public.rolls;
-create policy "Allow authenticated read rolls"
-  on public.rolls for select to authenticated using (true);
-drop policy if exists "Allow authenticated insert rolls" on public.rolls;
-create policy "Allow authenticated insert rolls"
-  on public.rolls for insert to authenticated with check (true);
-drop policy if exists "Allow authenticated delete rolls" on public.rolls;
-create policy "Allow authenticated delete rolls"
-  on public.rolls for delete to authenticated using (true);
-
-grant select, insert, delete on public.rolls to authenticated;
-grant usage, select on sequence public.rolls_id_seq to authenticated;
-
-do $$
-begin
-  if not exists (
-    select 1 from pg_publication_tables
-    where pubname = 'supabase_realtime'
-      and schemaname = 'public'
-      and tablename = 'rolls'
-  ) then
-    alter publication supabase_realtime add table public.rolls;
-  end if;
-end $$;
-```
-
-Si vous migrez une ancienne installation, vérifiez en particulier que la colonne `is_hidden` existe :
-
-```sql
-alter table public.rolls
-  add column if not exists is_hidden boolean not null default false;
-```
-
-> Après l'exécution de `supabase-auth.sql`, chaque room possède un propriétaire Supabase. Seul le propriétaire peut lire le résultat d'un jet caché, y compris lorsque le jet a été lancé par un autre joueur. Les visiteurs non connectés ont uniquement accès au flux OBS filtré en lecture seule.
-
-### 3. Créer les tables de fiches
-
-Exécutez ensuite, dans cet ordre :
-
-1. [`supabase-personnages.sql`](supabase-personnages.sql) pour les personnages générés ;
-2. [`supabase-pj-sheets.sql`](supabase-pj-sheets.sql) pour les fiches complètes ;
-3. [`supabase-inventory.sql`](supabase-inventory.sql) pour les inventaires.
-
-Le premier script sert aussi de migration : vous pouvez le réexécuter après une mise à jour de Dice Forge.
-
-Exécutez ensuite [`supabase-auth.sql`](supabase-auth.sql) afin de créer les propriétaires et membres des rooms, retirer les anciennes autorisations publiques et créer le flux OBS filtré. Les anciennes rooms sont automatiquement rattachées au compte Auth correspondant lorsque leur ancien nom de créateur correspond à l'adresse interne, par exemple `MJ` avec `mj@diceforge.app`. Toutes les nouvelles rooms ont automatiquement un propriétaire.
-
-### 4. Renseigner la configuration
-
-Complétez `supabase-config.js` avec l'URL du projet et sa clé anonyme :
-
-```javascript
-window.SUPABASE_CONFIG = {
-  url: 'https://VOTRE-PROJET.supabase.co',
-  anonKey: 'VOTRE_CLE_ANON'
-};
-```
-
-La clé `anon` est destinée aux applications clientes et sera visible dans le navigateur. N'utilisez jamais la clé `service_role` dans ce fichier.
-
-## Architecture
+### Organisation du dépôt
 
 ```text
 Dice-Forge/
-├── DiceForge.bat                 # Lance le compagnon local unique
-├── index.html                    # Application web joueurs / GitHub Pages
-├── pj.html                       # Fiche complète
-├── obs.html                      # Overlay des résultats de jets
-├── help.html                     # Aide joueurs
-├── js/
-│   ├── app.js                    # Dés, tests BRP et personnages
-│   ├── dice3d*.js                # Rendu et animation 3D
-│   ├── supabase-room.js          # Salons, jets et personnages en ligne
-│   ├── pj-sheet.js               # Fiche complète et synchronisation
-│   └── obs-overlay.js            # Flux OBS
-├── supabase-config.js            # URL et clé anon Supabase
-├── supabase-personnages.sql      # Schéma et migration des personnages
-├── supabase-pj-sheets.sql        # Schéma des fiches complètes
-├── Roll20/Webtracker/
-│   ├── run.py                    # Serveur local unique, port 5000
-│   └── app/                      # Cockpit, tracker et Battle Map
-├── audio/                        # Effets sonores
-└── img/                          # Illustrations d'équipement
+├── index.html, pj.html          # Lanceur, création et fiche personnage
+├── inventory-sheet.html        # Inventaire du personnage
+├── suivi-mj.html                # Suivi du groupe et carnet MJ
+├── obs*.html                    # Sources navigateur pour OBS
+├── js/                         # Modules JavaScript de l’application
+├── data/alchimie.md             # Copie du référentiel d’alchimie
+├── scripts/                    # Validation, tests et synchronisation des règles
+├── supabase-*.sql               # Socle historique Supabase et autorisations
+├── supabase-config.js           # Configuration cliente et choix d’environnement
+├── migrations/character-v2/     # Schéma v2, API et migrations de campagne
+├── Roll20/Webtracker/           # Serveur Flask et outils locaux du MJ
+├── DiceForge.bat                # Lanceur Windows du compagnon
+└── DiceForge_Stop.bat           # Arrêt du compagnon
 ```
 
-Le serveur local Flask sert le cockpit, l'application Dice Forge, le tracker, la Battle Map et les overlays sur la même origine. La version GitHub Pages continue de servir l'application aux joueurs. Supabase reste la source officielle des comptes, rooms, jets et fiches ; Obsidian reste une source locale en lecture seule.
+Le site utilise **HTML, CSS et JavaScript natifs**, avec Three.js pour la 3D et le client Supabase pour les services en ligne. Il n’a pas d’étape de compilation npm. Le compagnon utilise Flask et Flask-SocketIO ; ses dépendances sont déclarées dans `Roll20/Webtracker/requirements.txt`.
+
+Pour lancer manuellement le compagnon depuis la racine :
+
+```powershell
+python -m pip install -r Roll20/Webtracker/requirements.txt
+python Roll20/Webtracker/run.py
+```
+
+Pour la prévisualisation du site et du relais verbal, utilisez `python scripts/serve_local.py`. Servez les pages en HTTP pour charger les modules JavaScript.
+
+### Supabase et comptes joueurs
+
+La version actuelle active **`characterV2: true`** dans `supabase-config.js`. Elle dépend du schéma v2, de ses fonctions RPC et de leur activation côté serveur, en plus de Supabase Auth, des salons et des jets. Les seuls scripts `supabase-*.sql` à la racine ne suffisent pas à reproduire cette installation.
+
+Pour administrer une instance :
+
+- renseignez l’URL du projet et sa clé cliente `anon` dans `supabase-config.js` ; cette clé est visible dans le navigateur, tandis que `service_role` doit rester côté serveur ;
+- créez les comptes dans **Supabase → Authentication → Users**, avec une adresse confirmée au format `nom.du.joueur@diceforge.app` ; le nom est normalisé en minuscules, sans accents, et les séparateurs deviennent des points ;
+- désactivez les inscriptions publiques si seuls les comptes préparés par l’administrateur doivent accéder à la table ;
+- dans le modèle v2, les comptes autorisés à créer des campagnes sont enregistrés par leur identifiant Auth dans la table privée `diceforge_v2.mj_users` ; un nom de joueur « MJ » ne suffit pas à accorder ce rôle.
+
+La préparation des environnements et les migrations sont documentées dans :
+
+| Document | Rôle |
+| --- | --- |
+| [Migrations personnages v2](migrations/character-v2/README.md) | Modèle de données, ordre des migrations, contrôles et retour arrière |
+| [Base de test](BASE_TEST.md) | Accès à la recette et préparation d’un projet Supabase neuf réservé aux tests |
+| [Mise en production](MISE_EN_PRODUCTION.md) | Livraison de référence, migrations appliquées et restauration |
+| [Cahier de test](CAHIER_DE_TEST.md) | Scénarios de recette fonctionnelle |
+| [Évolutions](EVOLUTIONS.md) | Historique des changements du projet |
+
+Ces documents conservent aussi des étapes de préparation historiques ; leur statut est précisé en introduction. Le générateur `scripts/build_supabase_test.py` prépare une **base de recette vide**, avec des comptes synthétiques. Ses fichiers SQL et identifiants doivent être conservés hors du dépôt.
+
+### Vérifications
+
+Avec Python 3 et Node.js disponibles, depuis la racine :
+
+```powershell
+python scripts/validate_project.py
+python -B -m unittest discover -s Roll20/Webtracker/tests -v
+```
+
+La validation contrôle les fichiers publics, la syntaxe JavaScript et la cohérence du référentiel d’alchimie. Le workflow [Qualité](.github/workflows/quality.yml) exécute également les tests métier JavaScript, les scénarios SQL sur PostgreSQL isolé et les tests de reprise des personnages.
+
+### Mettre à jour les règles d’alchimie
+
+Le référentiel provient de la note Obsidian `50 - OUTILS/52 - Regles/alchimie.md`. Pour importer une nouvelle version :
+
+```powershell
+python scripts/sync_alchemy_rules.py --source "chemin/vers/alchimie.md"
+```
+
+Le script met à jour `data/alchimie.md`, la section alchimie de `livret_reference.html` et le catalogue `js/alchemy-potions.js`. Modifiez le référentiel puis régénérez ces sorties ensemble. Sans `--source`, le script utilise la copie du dépôt.
 
 ## Dépannage
 
-| Problème | Piste de résolution |
-|---|---|
-| Le cockpit local ne s'ouvre pas | Lancez `DiceForge.bat` et vérifiez que le port 5000 est disponible |
-| Le son ne démarre pas | Cliquez une fois dans la page avant le premier lancer et vérifiez l'option **Son MP3** |
-| Les dés 3D ne s'affichent pas | Vérifiez WebGL et l'accès au CDN, ou désactivez les animations |
-| Impossible de rejoindre un salon | Vérifiez `supabase-config.js`, les politiques RLS et la présence d'au moins un jet dans le salon |
-| Les jets n'apparaissent pas en direct | Vérifiez que `rolls` appartient à la publication `supabase_realtime` |
-| Une sauvegarde de personnage échoue | Réexécutez `supabase-personnages.sql` pour appliquer les migrations |
-| Une fiche complète en ligne est introuvable | Vérifiez le compte connecté et exécutez les migrations Supabase à jour |
+| Symptôme | Vérification |
+| --- | --- |
+| Connexion refusée | Vérifiez le compte créé par l’administrateur, le nom normalisé, le mot de passe et la configuration Supabase. |
+| Salon introuvable | Vérifiez le code et l’environnement sélectionné : production et recette ont des salons distincts. |
+| Une fiche ou un inventaire semble absent | Vérifiez le compte, la campagne et le PJ sélectionné, puis rechargez les données en ligne. |
+| Une sauvegarde est bloquée | Lisez le message : budget invalide, création verrouillée, PJ indisponible ou conflit de révision demandent des corrections différentes. |
+| Une fonction Supabase est introuvable | Vérifiez les migrations v2 de l’instance et le cache de schéma PostgREST avec l’administrateur. |
+| Le cockpit ne répond pas | Vérifiez Python, les messages de démarrage et la disponibilité du port 5000. |
+| L’import Obsidian ne trouve rien | Vérifiez `DICE_FORGE_VAULT` et les dossiers de fiches dans le coffre. |
+| Les dés 3D ou le son sont absents | Vérifiez WebGL, l’accès aux CDN et les réglages du menu ; cliquez dans la page pour autoriser le son. |
+| OBS ne montre pas les jets | Vérifiez le code du salon, la source Navigateur et le flux Supabase Realtime `obs_rolls`. |
+| La joute verbale reste vide dans OBS | Ouvrez le jeu et l’overlay sur le même serveur local, avec le même code de salon. Un tirage depuis GitHub Pages seul ne l’alimente pas. |
+| Le PDF n’inclut pas l’inventaire | Chargez l’onglet Inventaire avant de préparer à nouveau le PDF. |
 
-## Crédits et licence
+## Crédits
 
-Projet personnel. Les icônes de dés provenant de [Game-icons.net](https://game-icons.net/) sont distribuées sous licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+Projet personnel destiné aux parties BRP-ORC et aux besoins de la table.
+
+Les icônes de dés provenant de [Game-icons.net](https://game-icons.net/) sont distribuées sous licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Cette mention concerne ces ressources graphiques.
