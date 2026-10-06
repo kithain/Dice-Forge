@@ -52,6 +52,7 @@
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
       <a class="room-leave room-obs-link" id="obs-feed-link" href="obs.html" target="_blank" rel="noopener">OBS : jets</a>
       <a class="room-leave room-obs-link" id="obs-dice-link" href="obs-dice.html" target="_blank" rel="noopener">OBS : animation des dés</a>
+      <button class="room-btn" id="new-session-btn" type="button" onclick="createRoom()" style="display:none" title="Créer une nouvelle room dans cette campagne, en conservant les fiches des PJ disponibles">Nouvelle room</button>
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
       <button class="room-btn" id="new-character-btn" type="button" onclick="resetCharacterSheet()">Nouveau personnage</button>
@@ -272,7 +273,7 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js?v=20261003-production"></script>
-<script type="module" src="js/app.js?v=20261006-professions"></script>
+<script type="module" src="js/app.js?v=20261006-new-session"></script>
 <script type="module" src="js/verbal.js?v=20261005-selected-character"></script>
 </body>
 </html>

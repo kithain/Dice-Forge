@@ -253,6 +253,8 @@ function updateCreatorUi() {
   const creator = !!roomState.isCreator;
   document.getElementById('live-feed').style.display = creator ? '' : 'none';
   document.getElementById('purge-btn').style.display = creator ? '' : 'none';
+  const newSessionButton = document.getElementById('new-session-btn');
+  if (newSessionButton) newSessionButton.style.display = creator ? '' : 'none';
   document.getElementById('obs-feed-link').style.display = creator ? '' : 'none';
   document.getElementById('obs-dice-link').style.display = creator ? '' : 'none';
   if (!creator) document.getElementById('live-list').innerHTML = '';

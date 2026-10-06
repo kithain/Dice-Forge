@@ -73,6 +73,7 @@ jobs:
         run: |
           node scripts/test_pdf_data.mjs
           node scripts/test_mj_room.cjs
+          node scripts/test_session_room.cjs
           node scripts/test_mj_notebook.cjs
           node scripts/test_character_store.cjs
           node scripts/test_experience_save.cjs
