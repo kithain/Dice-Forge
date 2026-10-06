@@ -1,5 +1,10 @@
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
+import { readVerbalOverlay } from './verbal-overlay-client.js?v=20261006-cloud';
+
 const params = new URLSearchParams(location.search);
-const room = params.get('room') || 'LOCAL';
+const room = (params.get('room') || 'LOCAL').trim().toUpperCase();
+const supabase = getSupabaseClient({ optional: true });
+const local = ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
 const preview = params.get('bg') === '1' || params.get('preview') === '1';
 const panel = document.getElementById('verbal-overlay');
 const line = document.getElementById('overlay-line');
@@ -36,17 +41,15 @@ export function renderOverlay(state) {
 
 async function poll() {
   try {
-    const response = await fetch(`/api/verbal-overlay?room=${encodeURIComponent(room)}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Connexion indisponible');
-    const state = await response.json();
-    if (revision !== state.revision) { renderOverlay(state); revision = state.revision; }
+    const state = await readVerbalOverlay(room, { client: supabase, localFetch: local ? fetch : null });
+    const nextRevision = `${state.draw_id || ''}:${state.revision}`;
+    if (revision !== nextRevision) { renderOverlay(state); revision = nextRevision; }
     status.hidden = !preview || state.visible;
     status.textContent = 'En attente du premier tirage dans l’onglet Joute verbale.';
   } catch {
-    panel.hidden = true;
-    revision = -1;
-    status.hidden = !preview;
-    status.textContent = 'Serveur local indisponible. Lance le cockpit Dice Forge ou scripts/serve_local.py.';
-  } finally { setTimeout(poll, 400); }
+    // Keep the last draw visible during a temporary connection failure.
+    status.hidden = !preview || !panel.hidden;
+    status.textContent = 'Diffusion indisponible. Vérifie la connexion et le code du salon.';
+  } finally { setTimeout(poll, supabase ? 1000 : 400); }
 }
 poll();

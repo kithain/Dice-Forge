@@ -51,6 +51,7 @@ jobs:
         run: |
           node scripts/test_verbal_skills.cjs
           node scripts/test_verbal_obs.cjs
+          node scripts/test_verbal_cloud.mjs
 
       - name: Tester les sauvegardes sur PostgreSQL isolé
         run: |
@@ -68,6 +69,7 @@ jobs:
           node scripts/test_unplayed_presets_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
           node scripts/test_character_deletion_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
           node scripts/test_campaign_copy_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
+          node scripts/test_verbal_cloud_sql.mjs "$RUNNER_TEMP/diceforge-postgres"
 
       - name: Tester les campagnes et la reprise
         run: |

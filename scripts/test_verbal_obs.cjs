@@ -3,18 +3,20 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { webcrypto } = require('node:crypto');
-const source = fs.readFileSync(path.join(__dirname, '../js/verbal-obs-control.js'), 'utf8').replace('export function', 'function');
+const source = fs.readFileSync(path.join(__dirname, '../js/verbal-obs-control.js'), 'utf8').replace(/^import .*;\r?\n/gm, '').replace('export function', 'function');
 const sent = [];
 const states = new Map();
-function player() {
+function player(origin='http://127.0.0.1:8765/index.html') {
   const elements = {};
-  const control = { room: 'TEST_A', fail: false, copied: null };
+  const control = { room: 'TEST_A', fail: false, copied: null, cloud: null };
+  const toasts = [];
   const context = {
     document: { getElementById() { throw new Error('La synchronisation OBS ne doit pas dépendre de contrôles sur l’écran joueur'); } },
     localStorage: { getItem: () => JSON.stringify({ code: control.room }) },
-    location: { href: 'http://127.0.0.1:8765/index.html' },
+    location: { href: origin },
     navigator: { clipboard: { writeText: async text => { control.copied = text; } } },
     URL, AbortSignal, crypto: webcrypto,
+    getSupabaseClient: () => control.cloud, showToast: message => toasts.push(message),
     fetch: async (url, options) => {
       const payload = JSON.parse(options.body);
       sent.push({ url, payload });
@@ -29,8 +31,8 @@ function player() {
     }
   };
   vm.createContext(context);
-  vm.runInContext(source + '\nthis.update = createVerbalObs();', context);
-  return { ...control, elements, update: context.update, control };
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/verbal-overlay-client.js'),'utf8').replace(/export /g,'') + '\n' + source + '\nthis.update = createVerbalObs();', context);
+  return { ...control, elements, update: context.update, control, toasts };
 }
 const settle = () => new Promise(resolve => setImmediate(resolve));
 (async () => {
@@ -97,5 +99,19 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
   assert.equal(states.get('TEST_B').character, 'Dernier');
   assert.equal(first.elements['verbal-obs-show'], undefined);
   assert.equal(first.elements['verbal-obs-hide'], undefined);
+  const online = player('https://kithain.github.io/Dice-Forge/index.html');
+  const cloudCalls = [];
+  online.control.cloud = { rpc: async (name, args) => { cloudCalls.push({name,args}); return {data:args.p_payload,error:null}; } };
+  const localBeforeOnline = sent.length;
+  online.update(payload, true);
+  await settle();
+  assert.equal(cloudCalls.length,1);
+  assert.equal(cloudCalls[0].name,'df_publish_verbal_overlay');
+  assert.equal(cloudCalls[0].args.p_room,'TEST_A');
+  assert.equal(sent.length,localBeforeOnline,'GitHub Pages never posts to a nonexistent local API');
+  online.control.cloud = { rpc: async () => ({error:{message:'Offline'}}) };
+  online.update(payload, true);
+  await settle();
+  assert.equal(online.toasts.length,1,'Online publication failure is visible to the player');
   console.log('OK : tirage automatique, suivi des mots et jokers, priorité au dernier tirage, salons isolés, erreur réseau et annulation des envois périmés.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

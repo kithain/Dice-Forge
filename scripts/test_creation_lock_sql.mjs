@@ -345,6 +345,10 @@ try {
   const {runCampaignCopyChecks}=await import('./campaign_copy_sql_checks.mjs');
   await runCampaignCopyChecks({client,root,uid,outsider,check});
  }
+ if(process.env.DF_TEST_VERBAL_OBS==='1') {
+  const {runVerbalCloudChecks}=await import('./verbal_cloud_sql_checks.mjs');
+  await runVerbalCloudChecks({client,root,uid,outsider,check});
+ }
  console.log(`PASS creation/progression boundary: ${checks} checks, ${originals.length} real fixtures preserved; local PostgreSQL only.`);
 } catch(error) {
  console.error(error);

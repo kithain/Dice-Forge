@@ -1,7 +1,12 @@
+import { getSupabaseClient } from './supabase-client.js?v=20261003-roster';
+import { showToast } from './toast.js?v=20261002-safe-confirm';
+import { publishVerbalOverlay } from './verbal-overlay-client.js?v=20261006-cloud';
+
 export function createVerbalObs() {
   let drawId = null;
   let activeRoom = null;
   let queue = Promise.resolve();
+  let reportedFailure = false;
 
   function roomCode() {
     try { return JSON.parse(localStorage.getItem('diceforge_room'))?.code || 'LOCAL'; }
@@ -12,13 +17,14 @@ export function createVerbalObs() {
     queue = queue.then(async () => {
       if (room !== activeRoom || payload.draw_id !== drawId) return;
       try {
-        const response = await fetch(`/api/verbal-overlay?room=${encodeURIComponent(room)}`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-DiceForge-Overlay': '1' },
-          body: JSON.stringify(payload), signal: AbortSignal.timeout(5000)
+        const local = ['127.0.0.1', 'localhost', '[::1]'].includes(new URL(location.href).hostname);
+        await publishVerbalOverlay(room, payload, {
+          client: getSupabaseClient({ optional: true }), localFetch: local ? fetch : null
         });
-        if (!response.ok) throw new Error('Publication indisponible');
+        reportedFailure = false;
       } catch {
-        // La diffusion locale peut être indisponible sur le site joueur en ligne.
+        if (!reportedFailure) showToast('Diffusion OBS de la joute verbale indisponible. Vérifie la connexion au salon.', 'error');
+        reportedFailure = true;
       }
     });
   }

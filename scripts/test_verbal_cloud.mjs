@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const {publishVerbalOverlay,readVerbalOverlay}=await import('data:text/javascript;base64,'+Buffer.from(await fs.readFile(new URL('../js/verbal-overlay-client.js',import.meta.url),'utf8')).toString('base64'));
+const calls=[],states=new Map();
+const client={rpc:async(name,args)=>{calls.push({name,args});states.set(args.p_room,{state:args.p_payload,revision:calls.length});return {data:args.p_payload,error:null};},
+ from(table){assert.equal(table,'obs_verbal_states');let room;return {select(){return this;},eq(key,value){assert.equal(key,'room_code');room=value;return this;},async maybeSingle(){return {data:states.get(room)||null,error:null};}};}};
+const payload={visible:true,draw_id:'a'.repeat(32),new_draw:true,character:'Ilya',approach:'Persuader',words:Array.from({length:5},(_,i)=>({word:'Mot '+i,used:false,discarded:false}))};
+await publishVerbalOverlay('5XHZ',payload,{client});
+assert.equal(calls[0].name,'df_publish_verbal_overlay');assert.equal(calls[0].args.p_room,'5XHZ');
+let localCalls=0;
+const localFetch=async()=>{localCalls++;return {ok:true,json:async()=>({visible:false,revision:0})};};
+assert.equal((await readVerbalOverlay('5XHZ',{client,localFetch})).character,'Ilya');
+assert.equal(localCalls,0,'Cloud state wins over an empty local cockpit');
+assert.equal((await readVerbalOverlay('OTHER',{client,localFetch})).visible,false,'Rooms isolated');
+const offline={rpc:async()=>({error:{message:'offline'}}),from(){return {select(){return this;},eq(){return this;},maybeSingle:async()=>({error:{message:'offline'}})};}};
+const visibleLocal=async()=>({ok:true,json:async()=>({...payload,revision:8})});
+await publishVerbalOverlay('5XHZ',payload,{client:offline,localFetch:visibleLocal});
+assert.equal((await readVerbalOverlay('5XHZ',{client:offline,localFetch:visibleLocal})).revision,8,'Local offline fallback retained');
+await assert.rejects(publishVerbalOverlay('5XHZ',payload,{client:offline}));
+await assert.rejects(readVerbalOverlay('5XHZ',{client:offline}));
+console.log('PASS verbal cloud: online publication, room isolation, local OBS cloud read, local fallback and surfaced connection errors.');

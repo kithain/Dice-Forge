@@ -176,13 +176,13 @@ Paramètres facultatifs :
 - `&bg=1` : afficher un fond de test sur les overlays de jets, de dés et de joute verbale ;
 - `&hold=400` : conserver les dés à l’écran pendant 400 ms après l’animation.
 
-### Joute verbale : fonctionnement local
+### Joute verbale : joueurs en ligne et OBS local
 
 Dans l’onglet **Joute verbale**, choisissez l’approche puis utilisez **Tirer les mots**. L’overlay affiche **le nom du PJ et ses mots sur une seule ligne**, ajustée à la largeur de la source. Les mots placés sont cochés en vert ; les mots écartés sont barrés. L’outil accompagne le jeu de rôle sans produire de verdict automatique.
 
 Le dernier tirage reste affiché jusqu’au suivant. Un nouveau tirage remplace celui du salon ; le changement de personnage ou la fermeture de la page du joueur n’efface pas l’affichage.
 
-**La page de jeu et OBS doivent utiliser le même serveur local et le même code de salon.** Les joueurs qui utilisent uniquement GitHub Pages ne transmettent pas leurs mots au serveur du MJ. L’état de cet overlay est conservé en mémoire jusqu’au prochain tirage ou au redémarrage du serveur.
+**La page de jeu et OBS doivent utiliser le même code de salon.** Les joueurs sur GitHub Pages publient leurs mots et leur suivi dans Supabase ; l’overlay local les récupère automatiquement. Le dernier tirage est conservé en ligne et reste disponible après un rechargement d’OBS. Le fonctionnement local reste disponible lorsque la connexion en ligne est indisponible. La migration `supabase-verbal-overlay.sql` installe la table publique de lecture OBS et la publication réservée aux membres du salon.
 
 Pour une prévisualisation avec le serveur léger :
 

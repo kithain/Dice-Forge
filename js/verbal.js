@@ -1,5 +1,5 @@
 import { BRP_SKILLS } from './brp-skills.js?v=20260925-medfan';
-import { createVerbalObs } from './verbal-obs-control.js?v=20261004-player-verbal';
+import { createVerbalObs } from './verbal-obs-control.js?v=20261006-cloud';
 import { characterDraftKey } from './character-store.js?v=20261003-roster';
 
 export const APPROACH_SKILLS = {
