@@ -6,7 +6,7 @@
 <title>Dice Forge — Lanceur de Dés JDR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261003-age-help">
+<link rel="stylesheet" href="styles.css?v=20261007-campaigns">
 <link rel="stylesheet" href="site-menu.css?v=20260725-dice-settings">
 <style>.auth-pending body{visibility:hidden}</style>
 <script src="supabase-config.js?v=20261003-production"></script>
@@ -35,15 +35,15 @@
   <div id="room-join">
     <div class="room-row">
       <div class="room-field">
-        <label>Nom du joueur</label>
+        <label for="player-name">Nom du joueur</label>
         <input class="room-input wide" id="player-name" placeholder="Nom..." maxlength="20" onfocus="if(!this.value)this.placeholder=randomFantasyName()">
       </div>
       <div class="room-field">
-        <label>Code de la partie</label>
+        <label for="room-code">Code de la partie</label>
         <input class="room-input" id="room-code" placeholder="ABCD" maxlength="6" style="text-transform:uppercase">
       </div>
       <button class="room-btn" id="join-btn" onclick="joinRoom()">Rejoindre</button>
-      <button class="room-btn" id="create-btn" onclick="createRoom()" style="background:var(--goldd)">Créer</button>
+      <button class="room-btn" id="create-btn" type="button" onclick="createRoom()" style="background:var(--goldd);display:none">Créer une room</button>
     </div>
   </div>
   <div id="room-connected" style="display:none">
@@ -52,11 +52,12 @@
       <span class="room-badge" id="player-badge-text">Joueur: —</span>
       <a class="room-leave room-obs-link" id="obs-feed-link" href="obs.html" target="_blank" rel="noopener">OBS : jets</a>
       <a class="room-leave room-obs-link" id="obs-dice-link" href="obs-dice.html" target="_blank" rel="noopener">OBS : animation des dés</a>
-      <button class="room-btn" id="new-session-btn" type="button" onclick="createRoom()" style="display:none" title="Créer une nouvelle room dans cette campagne, en conservant les fiches des PJ disponibles">Nouvelle room</button>
+      <button class="room-btn" id="new-session-btn" type="button" onclick="createRoom()" style="display:none" title="Choisir une campagne et créer une nouvelle room">Nouvelle room</button>
       <button class="room-leave" id="purge-btn" onclick="purgeRoom()" style="display:none">Purger</button>
       <button class="room-leave" onclick="leaveRoom()">Quitter</button>
       <button class="room-btn" id="new-character-btn" type="button" onclick="resetCharacterSheet()">Nouveau personnage</button>
     </div>
+    <p class="room-campaign" aria-live="polite"><strong id="room-campaign-name">Campagne en cours de chargement…</strong><span>ID campagne : <code id="room-campaign-id">—</code></span></p>
     <div class="room-character-card" id="room-character-card" style="display:none">
       <div class="room-character-head">
         <span class="room-character-label">Fiche liée</span>
@@ -64,7 +65,35 @@
       </div>
     </div>
   </div>
+  <div class="campaign-tools"><button class="room-leave" id="campaign-manager-btn" type="button" onclick="openCampaignManager()" hidden>Campagnes MJ</button><span id="campaign-status" role="status" aria-live="polite"></span></div>
 </div>
+
+<dialog class="campaign-dialog" id="room-create-dialog" aria-labelledby="room-create-title">
+  <form id="room-create-form">
+    <h2 id="room-create-title">Créer une room</h2>
+    <p>Choisissez la campagne qui accueillera cette séance et ses personnages.</p>
+    <label for="room-campaign-select">Campagne <span aria-hidden="true">*</span></label>
+    <select class="room-input" id="room-campaign-select" required><option value="">Sélectionner une campagne</option></select>
+    <p class="campaign-hint" id="room-create-campaign-id">Une campagne est obligatoire.</p>
+    <p id="room-create-status" role="status" aria-live="polite"></p>
+    <div class="campaign-actions"><button class="room-leave" type="button" onclick="openCampaignManager()">Créer ou modifier une campagne</button><button class="room-leave" id="room-create-cancel" type="button">Annuler</button><button class="room-btn" id="room-create-submit" type="submit">Créer la room</button></div>
+  </form>
+</dialog>
+
+<dialog class="campaign-dialog" id="campaign-manager-dialog" aria-labelledby="campaign-manager-title">
+  <form id="campaign-manager-form">
+    <h2 id="campaign-manager-title">Campagnes MJ</h2>
+    <label for="campaign-editor-select">Campagne à gérer</label>
+    <select class="room-input" id="campaign-editor-select"><option value="">Nouvelle campagne</option></select>
+    <p class="campaign-hint" id="campaign-editor-id">L’ID unique est attribué à la création.</p>
+    <label for="campaign-name-input">Nom <span aria-hidden="true">*</span></label>
+    <input class="room-input" id="campaign-name-input" required maxlength="120" placeholder="Nom de la campagne">
+    <label for="campaign-description-input">Description</label>
+    <textarea class="room-input" id="campaign-description-input" rows="4" maxlength="10000" placeholder="Univers, intrigue et repères de la campagne"></textarea>
+    <p id="campaign-editor-status" role="status" aria-live="polite"></p>
+    <div class="campaign-actions"><button class="room-leave" id="campaign-manager-close" type="button">Fermer</button><button class="room-btn" id="campaign-save-btn" type="submit">Créer la campagne</button></div>
+  </form>
+</dialog>
 
 <div class="tabs" role="tablist" aria-label="Navigation principale">
   <button class="tab-btn active" id="tab-dice" type="button" role="tab" aria-selected="true" aria-controls="panel-dice" onclick="switchTab('dice')">Lancer de dés</button>
@@ -273,7 +302,7 @@
 <audio id="roll-sfx" preload="auto" src="audio/dice.mp3"></audio>
 
 <script src="supabase-config.js?v=20261003-production"></script>
-<script type="module" src="js/app.js?v=20261006-new-session"></script>
+<script type="module" src="js/app.js?v=20261007-campaigns"></script>
 <script type="module" src="js/verbal.js?v=20261006-cloud"></script>
 </body>
 </html>

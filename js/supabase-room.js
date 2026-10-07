@@ -7,6 +7,182 @@ let sb = null;
 let roomState = { code: null, player: null, userId: null, connected: false };
 let liveSub = null;
 let currentPlayerCharacter = null;
+let campaignAccess = { isMj: false, campaigns: [] };
+let campaignUiInitialized = false;
+let campaignRoomCreating = false;
+let campaignSaving = false;
+
+function campaignErrorMessage(error) {
+  if (/df_campaigns|df_create_session_room|schema cache|function.*not found/i.test(error?.message || '')) {
+    return 'Gestion des campagnes indisponible : appliquez la migration Supabase des campagnes.';
+  }
+  return error?.message || 'Connexion aux campagnes indisponible.';
+}
+
+function campaignStatus(id, message = '') {
+  const element = document.getElementById(id);
+  if (element) element.textContent = message;
+}
+
+function managedCampaigns() {
+  return campaignAccess.campaigns.filter(campaign => campaign.can_manage);
+}
+
+function renderCampaignSelects({ selectedRoom = '', selectedEditor = '' } = {}) {
+  const roomSelect = document.getElementById('room-campaign-select');
+  const editorSelect = document.getElementById('campaign-editor-select');
+  if (!roomSelect || !editorSelect) return;
+  const roomValue = selectedRoom || roomSelect.value;
+  const editorValue = selectedEditor || editorSelect.value;
+  roomSelect.replaceChildren();
+  editorSelect.replaceChildren();
+  const option = (value, label) => {
+    const node = document.createElement('option');
+    node.value = value;
+    node.textContent = label;
+    return node;
+  };
+  roomSelect.append(option('', 'Sélectionner une campagne'));
+  editorSelect.append(option('', 'Nouvelle campagne'));
+  for (const campaign of managedCampaigns()) {
+    const label = `${campaign.name} · ${campaign.id}`;
+    roomSelect.append(option(campaign.id, label));
+    editorSelect.append(option(campaign.id, label));
+  }
+  roomSelect.value = managedCampaigns().some(campaign => campaign.id === roomValue) ? roomValue : '';
+  editorSelect.value = managedCampaigns().some(campaign => campaign.id === editorValue) ? editorValue : '';
+  updateRoomCampaignHint();
+}
+
+function updateCampaignUi() {
+  const managerButton = document.getElementById('campaign-manager-btn');
+  const createButton = document.getElementById('create-btn');
+  if (managerButton) managerButton.hidden = !campaignAccess.isMj;
+  if (createButton) createButton.style.display = campaignAccess.isMj ? '' : 'none';
+  const newSessionButton = document.getElementById('new-session-btn');
+  if (newSessionButton) newSessionButton.style.display = roomState.connected && campaignAccess.isMj ? '' : 'none';
+}
+
+function acceptCampaignAccess(data) {
+  campaignAccess = {
+    isMj: data?.is_mj === true,
+    campaigns: Array.isArray(data?.campaigns) ? data.campaigns : []
+  };
+  updateCampaignUi();
+  renderCampaignSelects();
+}
+
+export async function refreshCampaigns() {
+  sbInit();
+  if (!sb || !await authenticatedUserId()) {
+    acceptCampaignAccess(null);
+    return false;
+  }
+  try {
+    const { data, error } = await sb.rpc('df_campaigns', { p_operation: 'list' });
+    if (error) throw error;
+    acceptCampaignAccess(data);
+    campaignStatus('campaign-status');
+    return true;
+  } catch (error) {
+    acceptCampaignAccess(null);
+    campaignStatus('campaign-status', campaignErrorMessage(error));
+    return false;
+  }
+}
+
+async function loadRoomCampaign(code) {
+  const { data, error } = await sb.rpc('df_campaigns', { p_operation: 'room', p_room: code });
+  if (error) {
+    campaignStatus('campaign-status', campaignErrorMessage(error));
+    return false;
+  }
+  acceptCampaignAccess(data);
+  if (!data?.campaign?.id) {
+    campaignStatus('campaign-status', 'Cette room n’a pas de campagne. La migration des rooms existantes est requise.');
+    return false;
+  }
+  roomState.campaignId = data.campaign.id;
+  roomState.campaignName = data.campaign.name;
+  localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+  campaignStatus('campaign-status');
+  return true;
+}
+
+function updateRoomCampaignHint() {
+  const selected = document.getElementById('room-campaign-select')?.value;
+  campaignStatus('room-create-campaign-id', selected ? `ID campagne : ${selected}` : 'Une campagne est obligatoire.');
+}
+
+export function selectManagedCampaign() {
+  const id = document.getElementById('campaign-editor-select')?.value;
+  const campaign = managedCampaigns().find(candidate => candidate.id === id);
+  const name = document.getElementById('campaign-name-input');
+  const description = document.getElementById('campaign-description-input');
+  if (name) name.value = campaign?.name || '';
+  if (description) description.value = campaign?.description || '';
+  campaignStatus('campaign-editor-id', campaign ? `ID campagne : ${campaign.id} · ${campaign.room_count || 0} room(s)` : 'L’ID unique est attribué à la création.');
+  campaignStatus('campaign-editor-status');
+  const button = document.getElementById('campaign-save-btn');
+  if (button) button.textContent = campaign ? 'Enregistrer les modifications' : 'Créer la campagne';
+}
+
+export function initCampaignUi() {
+  if (campaignUiInitialized) return;
+  campaignUiInitialized = true;
+  document.getElementById('room-create-form')?.addEventListener('submit', submitCampaignRoom);
+  document.getElementById('campaign-manager-form')?.addEventListener('submit', saveCampaign);
+  document.getElementById('room-campaign-select')?.addEventListener('change', updateRoomCampaignHint);
+  document.getElementById('campaign-editor-select')?.addEventListener('change', selectManagedCampaign);
+  document.getElementById('room-create-cancel')?.addEventListener('click', () => document.getElementById('room-create-dialog')?.close());
+  document.getElementById('campaign-manager-close')?.addEventListener('click', () => document.getElementById('campaign-manager-dialog')?.close());
+}
+
+export async function openCampaignManager() {
+  initCampaignUi();
+  if (!await refreshCampaigns() || !campaignAccess.isMj) return;
+  selectManagedCampaign();
+  const dialog = document.getElementById('campaign-manager-dialog');
+  if (dialog && !dialog.open) dialog.showModal();
+}
+
+export async function saveCampaign(event) {
+  event?.preventDefault();
+  if (campaignSaving || !campaignAccess.isMj) return;
+  const form = document.getElementById('campaign-manager-form');
+  if (form && !form.reportValidity()) return;
+  const id = document.getElementById('campaign-editor-select')?.value || null;
+  const name = document.getElementById('campaign-name-input')?.value.trim();
+  const description = document.getElementById('campaign-description-input')?.value.trim() || '';
+  if (!name) { campaignStatus('campaign-editor-status', 'Le nom de campagne est obligatoire.'); return; }
+  if (id && !managedCampaigns().some(campaign => campaign.id === id)) return;
+  campaignSaving = true;
+  const button = document.getElementById('campaign-save-btn');
+  if (button) button.disabled = true;
+  campaignStatus('campaign-editor-status', 'Enregistrement…');
+  try {
+    const { data, error } = await sb.rpc('df_campaigns', {
+      p_operation: id ? 'update' : 'create', p_campaign: id, p_name: name, p_description: description
+    });
+    if (error) throw error;
+    const campaign = data?.campaign;
+    acceptCampaignAccess(data);
+    renderCampaignSelects({ selectedRoom: campaign?.id, selectedEditor: campaign?.id });
+    selectManagedCampaign();
+    if (campaign?.id === roomState.campaignId) {
+      roomState.campaignName = campaign.name;
+      localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+      showConnected();
+    }
+    campaignStatus('campaign-editor-status', id ? 'Campagne mise à jour.' : 'Campagne créée. Vous pouvez maintenant la sélectionner pour une room.');
+    showToast(id ? 'Campagne mise à jour' : 'Campagne créée', 'success');
+  } catch (error) {
+    campaignStatus('campaign-editor-status', campaignErrorMessage(error));
+  } finally {
+    campaignSaving = false;
+    if (button) button.disabled = false;
+  }
+}
 
 async function authenticatedUserId() {
   sbInit();
@@ -131,8 +307,10 @@ export async function joinRoom() {
   }, { onConflict: 'room_code,user_id' });
   if (membershipError) { showToast('Impossible de rejoindre la partie: ' + membershipError.message, 'error'); return; }
 
+  clearPlayerCharacter();
   roomState = { code, player: name, userId, connected: true };
   localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+  await loadRoomCampaign(code);
   showConnected();
   await loadPlayerCharacter(name);
   await checkCreator(code);
@@ -140,65 +318,60 @@ export async function joinRoom() {
 }
 
 export async function createRoom() {
-  const sourceRoom = roomState.code;
   const name = document.getElementById('player-name').value.trim();
   if (!name) { showToast('Entre ton nom de joueur', 'error'); return; }
-  sbInit();
-  if (!sb) { showToast('Supabase non configuré. Voir instructions.', 'error'); return; }
+  initCampaignUi();
+  if (!await refreshCampaigns() || !campaignAccess.isMj) return;
+  renderCampaignSelects({ selectedRoom: roomState.campaignId });
+  campaignStatus('room-create-status', managedCampaigns().length ? '' : 'Créez d’abord une campagne pour pouvoir créer une room.');
+  const dialog = document.getElementById('room-create-dialog');
+  if (dialog && !dialog.open) dialog.showModal();
+}
 
-  const code = genCode();
-  const userId = await authenticatedUserId();
-  if (!userId) { showToast('Session expirée. Reconnecte-toi.', 'error'); return; }
-
-  let sessionCreated = false;
-  if (window.SUPABASE_CONFIG?.characterV2) {
+export async function submitCampaignRoom(event) {
+  event?.preventDefault();
+  if (campaignRoomCreating || !campaignAccess.isMj) return;
+  const form = document.getElementById('room-create-form');
+  if (form && !form.reportValidity()) return;
+  const campaignId = document.getElementById('room-campaign-select')?.value || '';
+  const selectedCampaign = managedCampaigns().find(campaign => campaign.id === campaignId);
+  if (!selectedCampaign) { campaignStatus('room-create-status', 'Sélectionnez une campagne de rattachement.'); return; }
+  const name = document.getElementById('player-name').value.trim();
+  if (!name) { campaignStatus('room-create-status', 'Entre ton nom de joueur.'); return; }
+  campaignRoomCreating = true;
+  const button = document.getElementById('room-create-submit');
+  if (button) button.disabled = true;
+  campaignStatus('room-create-status', 'Création de la room…');
+  try {
+    const userId = await authenticatedUserId();
+    if (!userId) throw new Error('Session expirée. Reconnecte-toi.');
+    const code = genCode();
     const { data, error } = await sb.rpc('df_create_session_room', {
-      p_source: sourceRoom, p_code: code, p_name: name
+      p_source: campaignId === roomState.campaignId && roomState.isCreator ? roomState.code : null,
+      p_code: code, p_name: name, p_campaign: campaignId
     });
-    if (error) { showToast('Création du salon impossible : ' + error.message, 'error'); return; }
-    sessionCreated = !data?.legacy;
+    if (error) throw error;
+    if (data?.legacy) throw new Error('Migration Supabase des campagnes requise pour créer une room.');
+    if (liveSub) { liveSub.unsubscribe(); liveSub = null; }
+    clearPlayerCharacter();
+    roomState = {
+      code, player: name, userId, connected: true, isCreator: true,
+      campaignId, campaignName: selectedCampaign.name
+    };
+    localStorage.setItem('diceforge_room', JSON.stringify(roomState));
+    document.getElementById('room-code').value = code;
+    showConnected();
+    document.getElementById('room-create-dialog')?.close();
+    await loadPlayerCharacter(name);
+    await configureLiveFeed(code, name);
+    showToast(`Room ${code} créée dans ${selectedCampaign.name}`, 'success');
+  } catch (error) {
+    campaignStatus('room-create-status', campaignErrorMessage(error));
+    showToast('Création de la room impossible : ' + campaignErrorMessage(error), 'error');
+  } finally {
+    campaignRoomCreating = false;
+    if (button) button.disabled = false;
   }
-
-  if (!sessionCreated) {
-    const { error: roomError } = await sb.from('rooms').insert({
-      room_code: code,
-      owner_id: userId,
-      owner_name: name
-    });
-    if (roomError) { showToast('Erreur création de la partie: ' + roomError.message, 'error'); return; }
-
-    const { error: membershipError } = await sb.from('room_members').insert({
-      room_code: code,
-      user_id: userId,
-      player_name: name
-    });
-    if (membershipError) { showToast('Erreur inscription du MJ: ' + membershipError.message, 'error'); return; }
-
-    if (window.SUPABASE_CONFIG?.characterV2) {
-      const { error: campaignError } = await sb.rpc('df_link_campaign_room', { p_source: sourceRoom, p_target: code });
-      if (campaignError) { showToast('Rattachement à la campagne impossible : ' + campaignError.message, 'error'); return; }
-    }
-  }
-
-  const { error } = await sb.from('rolls').insert({
-    room_code: code,
-    user_id: userId,
-    player_name: name,
-    expression: '— Partie créée —',
-    rolls_detail: '',
-    total: 0,
-    is_crit: false,
-    is_fail: false
-  });
-  if (error) { showToast('Erreur: ' + error.message, 'error'); return; }
-
-  roomState = { code, player: name, userId, connected: true, isCreator: true };
-  localStorage.setItem('diceforge_room', JSON.stringify(roomState));
-  document.getElementById('room-code').value = code;
-  showConnected();
-  document.getElementById('purge-btn').style.display = '';
-  await loadPlayerCharacter(name);
-  await configureLiveFeed(code, name);
 }
 
 export async function purgeRoom() {
@@ -223,6 +396,7 @@ export function leaveRoom() {
   document.getElementById('live-feed').style.display = 'none';
   document.getElementById('live-list').innerHTML = '';
   clearPlayerCharacter();
+  updateCampaignUi();
 }
 
 function obsUrl(page) {
@@ -245,6 +419,8 @@ function showConnected() {
   document.getElementById('room-connected').style.display = '';
   document.getElementById('room-badge-text').textContent = 'Room: ' + roomState.code;
   document.getElementById('player-badge-text').textContent = 'Joueur: ' + roomState.player;
+  campaignStatus('room-campaign-name', roomState.campaignName ? `Campagne : ${roomState.campaignName}` : 'Campagne indisponible');
+  campaignStatus('room-campaign-id', roomState.campaignId || '—');
   updateObsLinks();
   updateCreatorUi();
 }
@@ -254,7 +430,7 @@ function updateCreatorUi() {
   document.getElementById('live-feed').style.display = creator ? '' : 'none';
   document.getElementById('purge-btn').style.display = creator ? '' : 'none';
   const newSessionButton = document.getElementById('new-session-btn');
-  if (newSessionButton) newSessionButton.style.display = creator ? '' : 'none';
+  if (newSessionButton) newSessionButton.style.display = campaignAccess.isMj ? '' : 'none';
   document.getElementById('obs-feed-link').style.display = creator ? '' : 'none';
   document.getElementById('obs-dice-link').style.display = creator ? '' : 'none';
   if (!creator) document.getElementById('live-list').innerHTML = '';
@@ -543,6 +719,8 @@ export async function saveCharacterSheet(nom, details, stats, generation = null,
 }
 
 export async function restoreSession() {
+  initCampaignUi();
+  await refreshCampaigns();
   const requestedRoom = new URLSearchParams(window.location.search)
     .get('room')?.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || '';
   if (requestedRoom) document.getElementById('room-code').value = requestedRoom;
@@ -583,6 +761,7 @@ export async function restoreSession() {
             showToast('Impossible de restaurer la partie: ' + membershipError.message, 'error');
             return;
           }
+          await loadRoomCampaign(r.code);
           showConnected();
           await loadPlayerCharacter(authenticatedName);
           await checkCreator(r.code);

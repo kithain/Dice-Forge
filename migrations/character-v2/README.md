@@ -1,5 +1,35 @@
 # Reprise personnages v2
 
+## Campagnes identifiées — 7 octobre 2026
+
+`campaign-valombre.sql` reprend les rooms historiques vers la campagne liée à
+**4SSU**, renommée **Valombre**, en conservant son UUID. Les fiches, leurs UUID,
+révisions, inventaires et historiques sont conservés. Une seconde fiche d’une
+même identité reste intacte dans sa campagne archivée, sans room active.
+La reprise est marquée dans `campaign_migrations` ; sa répétition ne rattache
+pas les nouvelles campagnes à Valombre.
+
+`campaign-management.sql`, appliquée ensuite, rend `rooms.campaign_id`
+obligatoire, synchronise la liaison historique `campaign_rooms` et empêche
+son déplacement. `df_campaigns` expose création, modification, liste filtrée
+et identité de la campagne d’une room. `df_create_session_room` reçoit un
+UUID de campagne explicite, vérifie les droits MJ et crée room et adhésion
+dans la même transaction. Les RPC de personnages filtrent les états selon
+la campagne courante ; les identités permanentes restent compatibles avec
+une reprise explicite dans plusieurs campagnes.
+
+La production utilise le lot atomique généré par
+`scripts/build_campaign_release.py`, incluant une sauvegarde privée côté
+serveur des seules tables concernées et des contrôles d’intégrité.
+`campaign-verification.sql` vérifie les lectures, sauvegardes authentifiées,
+le contexte du lore et l’isolation d’une nouvelle campagne, puis annule
+toutes les écritures de test par `ROLLBACK`.
+
+Tests locaux : `test_campaign_management_sql.mjs`,
+`test_campaign_production_copy.mjs`, `test_session_room.cjs` et
+`test_campaign_browser.cjs`. Le second test accepte le lot atomique généré
+en troisième argument pour répéter exactement le SQL de livraison.
+
 Livraison du 3 octobre 2026 : les migrations incrémentales de création,
 progression, roster et corrections de recette sont installées en production.
 Le bilan et le retour arrière correspondant sont dans

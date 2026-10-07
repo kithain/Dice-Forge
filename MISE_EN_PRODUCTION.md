@@ -1,5 +1,48 @@
 # Livraison 2026.10.03
 
+## Ajout : campagnes identifiées — 7 octobre 2026
+
+Migration Supabase `campaign_management_valombre_20261007` installée en
+production sur `bwrylcvkplonkfhnegvm`. **Valombre** conserve l’ID
+`96ad32a9-c444-5c93-8559-7d2757534b2c` et la référence **4SSU**.
+Les **8 rooms**, les données historiques de personnages/fiches/inventaires
+et les **140 fiches de lore** sont rattachées à cet ID.
+
+Les **6 états de personnage** sont conservés. La fiche d’origine d’Ilya
+reste active dans Valombre avec son inventaire ; sa seconde version demeure
+intacte dans une campagne archivée, sans room active. Les deux campagnes
+automatiques supplémentaires sont archivées. Les identités permanentes,
+notes, scores, objets, monnaies, révisions et historiques ne sont pas écrasés.
+
+Une room porte désormais un `campaign_id` obligatoire et immuable.
+L’interface MJ permet de créer/modifier une campagne (nom, description,
+UUID) et impose sa sélection à la création d’une room. Les lectures et
+sauvegardes de fiches ainsi que le roster respectent la campagne courante.
+Le carnet affiche son identité serveur et distingue son titre local.
+
+Sauvegarde côté serveur : schéma privé `diceforge_campaign_20261007`,
+10 tables concernées, définitions des fonctions remplacées et empreintes
+des contenus à préserver. Les rôles applicatifs n’y ont aucun accès.
+L’export complet de la base a été refusé par l’approbation automatique ;
+aucune donnée Auth ni contenu de la base n’a été exporté pour cette livraison.
+
+Vérifications : **68 contrôles SQL métier**, **10 contrôles sur copie locale
+de la sauvegarde existante**, formulaires MJ et affichage mobile, tests de
+rooms/carnet/roster et validation de **52 scripts JavaScript**.
+Le lot exact avec sauvegarde et contrôles d’intégrité a été répété avant
+installation. Les sauvegardes authentifiées de production utilisent une
+room dont la session est encore ouverte ; **4SSU reste la référence**, même
+si la session XP d’un PJ y est clôturée. Les écritures de vérification,
+campagne et room temporaires incluses, sont terminées par `ROLLBACK`.
+
+La publication de l’interface sur GitHub Pages a été autorisée dans cette
+conversation. Les fichiers SQL source sont `campaign-valombre.sql` et
+`campaign-management.sql` ; le lot atomique est généré par
+`scripts/build_campaign_release.py`. Une répétition de la migration complète
+ne remplace jamais la sauvegarde existante.
+
+---
+
 Recette acceptée et production autorisée par l'utilisateur le 3 octobre 2026.
 Version : tag Git `diceforge-release-20261003`. Publication depuis `main` par
 GitHub Pages : https://kithain.github.io/Dice-Forge/.

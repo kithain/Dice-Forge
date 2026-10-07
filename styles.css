@@ -476,6 +476,25 @@ select.room-input{appearance:none}
   .hidden-roll-control{margin-left:0}
   .roll-btn{padding:.8rem 1.8rem;font-size:.95rem}
 }
+/* Campagnes et rattachement obligatoire des rooms. */
+.room-campaign{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin:.7rem 0 0;font-size:.78rem;line-height:1.5}
+.room-campaign strong{color:var(--gold2)}
+.room-campaign code,.campaign-hint{overflow-wrap:anywhere;font-size:.75rem}
+.campaign-tools{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;font-size:.74rem}
+.campaign-tools:has(button[hidden]):has(span:empty){display:none}
+.campaign-dialog{width:min(520px,calc(100% - 2rem));max-height:calc(100vh - 3rem);margin:auto;overflow:auto;padding:1.5rem;border:1px solid var(--brd2);border-radius:12px;background:var(--s1);color:var(--txt);font-family:'Cinzel',serif}
+.campaign-dialog::backdrop{background:rgba(7,7,26,.8)}
+.campaign-dialog h2{margin:0 0 1rem;color:var(--gold2);font-size:1.2rem}
+.campaign-dialog p{font-size:.8rem;line-height:1.6}
+.campaign-dialog label{display:block;margin:.8rem 0 .4rem;font-size:.8rem}
+.campaign-dialog .room-input{width:100%;box-sizing:border-box;min-width:0}
+.campaign-dialog select option{background:var(--s1);color:var(--txt)}
+.campaign-dialog textarea{resize:vertical;font-family:inherit}
+.campaign-hint{color:var(--txt2)}
+.campaign-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.75rem;margin-top:1.2rem}
+.campaign-actions button:disabled{opacity:.55;cursor:wait}
+#campaign-editor-status,#room-create-status,#campaign-status{color:var(--txt2)}
+
 /* Joute verbale : mots et suivi du défi RP. */
 .verbal-panel > p { line-height: 1.6; }
 .verbal-panel select { display: block; width: 100%; max-width: 420px; margin: 12px 0; }

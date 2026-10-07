@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="site-menu.css">
   <script src="js/site-menu.js" defer></script>
   <script src="supabase-config.js?v=20261003-production"></script>
-  <script src="js/suivi-mj.js?v=20261003-notebook-identities" defer></script>
+<script src="js/suivi-mj.js?v=20261007-campaigns" defer></script>
 </head>
 <body>
   <main>
@@ -18,7 +18,9 @@
     <p id="room-status" role="status" aria-live="polite"></p>
     <section id="mj-character-roster" aria-label="Disponibilité des personnages"></section>
     <p class="notice">Les fiches sauvegardées en ligne sont chargées à l’ouverture pour le créateur de la room. Actualisez pour récupérer leurs dernières modifications. Vos corrections et notes MJ restent locales et sont conservées. PV actuels et informations absentes des fiches sont à compléter. Chaque room a son carnet ; sans code, vous retrouvez le carnet manuel. Exportez vos notes pour les conserver ailleurs.</p>
-    <label class="campaign-label">Campagne / groupe<input id="campaign" placeholder="Le nom de votre campagne" maxlength="200"></label>
+    <p id="mj-campaign-info" class="hint" aria-live="polite"></p>
+    <p><a id="campaign-management-link" href="index.html">Gérer les campagnes et créer une room</a></p>
+    <label class="campaign-label">Titre du carnet local<input id="campaign" placeholder="Votre titre pour ce carnet" maxlength="200"></label>
     <nav class="anchors" aria-label="Rubriques"><a href="#overview">Vue d’ensemble</a><a href="#characters">Fiches PJ</a><a href="#group">Ressources et campagne</a></nav>
     <section id="overview"><div class="section-heading"><h2>À la table</h2><span id="count"></span></div><p id="empty">Votre groupe attend ses héros. Ajoutez un premier PJ pour commencer.</p><div class="table-scroll"><table><caption class="sr-only">Repères essentiels des personnages</caption><thead><tr><th>PJ / rôle</th><th>Niveau</th><th>PV</th><th>Défense / CA</th><th>Vitesse</th><th>Perception</th><th>Initiative</th><th>État</th></tr></thead><tbody id="roster"></tbody></table></div></section>
     <section id="characters"><h2>Les personnages</h2><p class="hint">Ouvrez une fiche pour la modifier. Les champs sans objet pour votre système peuvent rester vides.</p><div id="cards"></div></section>

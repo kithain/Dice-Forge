@@ -2,7 +2,7 @@
 import { makeSVG } from './dice-shapes.js?v=20260705-game-icons-inline';
 import * as D3D from './dice3d-box.js?v=20260725-low-latency-obs';
 import { totalResultHtml } from './dice-stage.js?v=20261003-xp-frame';
-import { sendRoll, joinRoom, createRoom, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261006-new-session';
+import { sendRoll, joinRoom, createRoom, openCampaignManager, purgeRoom, leaveRoom, randomFantasyName, initPlaceholder, restoreSession, saveCharacterSheet, loadPlayerCharacter, getPlayerCharacter, isRoomConnected, isRoomCreator } from './supabase-room.js?v=20261007-campaigns';
 import { showToast, showConfirm } from './toast.js?v=20261002-safe-confirm';
 import { BRP_SPECIES, BRP_PROFESSIONS, speciesByName, professionByName } from './brp-data.js?v=20261004-professions-r2';
 import { BRP_ACTIVE_SKILLS } from './brp-skills.js?v=20260925-medfan';
@@ -1933,6 +1933,7 @@ window.continueCharacterCreation = continueCharacterCreation;
 window.importCharacterSheet = importCharacterSheet;
 window.joinRoom = joinRoom;
 window.createRoom = createRoom;
+window.openCampaignManager = openCampaignManager;
 window.purgeRoom = purgeRoom;
 window.leaveRoom = leaveRoom;
 window.randomFantasyName = randomFantasyName;

@@ -161,6 +161,8 @@
   } catch { $('save-state').textContent = 'Carnet local illisible ou stockage indisponible. Exportez vos nouvelles notes pour les conserver.'; }
   render();
   $('room-code').value = room;
+  const campaignLink = $('campaign-management-link');
+  if (campaignLink) campaignLink.href = `index.html${room ? `?room=${encodeURIComponent(room)}` : ''}`;
   $('refresh-room').disabled = !room;
   $('room-login').href = `login.html?return=${encodeURIComponent(window.location.pathname + window.location.search)}`;
   async function refreshRoom(options = {}) {
@@ -179,6 +181,11 @@
       const { data: owner, error: ownerError } = await client.from('rooms').select('owner_id').eq('room_code', room).maybeSingle();
       if (ownerError) throw ownerError;
       if (!owner || owner.owner_id !== auth.user.id) throw new Error('Cette room est introuvable ou vous n’en êtes pas le créateur.');
+      const metadata = await client.rpc('df_campaigns', { p_operation: 'room', p_room: room });
+      const campaignInfo = $('mj-campaign-info');
+      if (campaignInfo) campaignInfo.textContent = metadata.data?.campaign
+        ? `Campagne : ${metadata.data.campaign.name} · ID : ${metadata.data.campaign.id}`
+        : 'Identité de campagne indisponible. Ouvrez la gestion des campagnes pour vérifier la connexion.';
       const { mountCharacterRoster } = await import('./character-roster.js?v=20261003-deletion');
       const rosterData = options.rosterData || await mountCharacterRoster($('mj-character-roster'), {
         room: { code: room, userId: auth.user.id }, manager: true,

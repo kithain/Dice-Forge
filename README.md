@@ -71,11 +71,13 @@ Les tirages génériques utilisent la Web Crypto API. Les jets de compétences, 
 
 ### Rejoindre un salon et retrouver sa campagne
 
-Le MJ crée un salon avec **Créer** et partage son code. Les joueurs saisissent ce code puis utilisent **Rejoindre**. Le nom affiché est lié au compte connecté ; la connexion au salon est mémorisée dans le navigateur.
+Le MJ ouvre **Campagnes MJ** pour créer ou modifier une campagne : nom, description et ID unique attribué automatiquement. Il crée ensuite un salon avec **Créer** ou **Nouvelle room**, sélectionne obligatoirement sa campagne puis confirme. Le nom et l’ID de campagne sont affichés une fois connecté. Les joueurs saisissent le code du salon puis utilisent **Rejoindre**. La connexion est mémorisée dans le navigateur.
 
 Le MJ dispose du flux **Jets en direct** et peut purger l’historique du salon. Un **jet caché** réserve son résultat complet au propriétaire/MJ du salon.
 
-Un personnage possède une **identité permanente**. Ses compétences, ses sorts, sa progression et son inventaire sont suivis **par campagne**. Lorsque le MJ crée un nouveau salon depuis une campagne dont il est propriétaire, les deux salons partagent cet état. Changer de code de salon ne signifie donc pas nécessairement changer de campagne.
+Un personnage possède une **identité permanente**. Ses compétences, ses sorts, sa progression et son inventaire sont suivis **par campagne**. Deux salons rattachés au même ID de campagne partagent cet état. Une autre campagne commence avec ses propres personnages et fiches ; une reprise de personnage doit être explicite. Une room ne peut pas changer de campagne. Les sessions de progression restent distinctes : une ancienne session clôturée conserve sa fiche en lecture seule.
+
+Les rooms historiques appartiennent à **Valombre**, ID `96ad32a9-c444-5c93-8559-7d2757534b2c`, avec **4SSU** comme room de référence. Le titre du carnet MJ reste une note locale et ne remplace pas cette identité serveur.
 
 ### Créer un personnage
 
