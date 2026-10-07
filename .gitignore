@@ -4,6 +4,10 @@ __pycache__/
 .venv/
 *.log
 
+# Lanceurs de publication conservés uniquement sur le poste local
+/publier.cmd
+/scripts/commit-push.ps1
+
 # Données locales générées par le cockpit MJ
 Roll20/Webtracker/data/
 Roll20/Webtracker/app/static/maps/current_map.*

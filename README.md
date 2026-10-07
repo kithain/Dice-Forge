@@ -276,7 +276,7 @@ La validation contrôle les fichiers publics, la syntaxe JavaScript et la cohér
 
 ### Publier les changements sur GitHub
 
-Sous Windows, double-cliquez sur `publier.cmd` à la racine du dépôt. Le lanceur affiche les fichiers concernés, demande un message de commit puis une confirmation avant d’envoyer les changements de `main` vers `origin/main`.
+Si les scripts de publication sont installés sur votre poste Windows, double-cliquez sur `publier.cmd` à la racine du dépôt. Le lanceur affiche les fichiers concernés, demande un message de commit puis une confirmation avant d’envoyer les changements de `main` vers `origin/main`. Les fichiers `publier.cmd` et `scripts/commit-push.ps1` restent locaux : ils sont exclus par `.gitignore` et ne sont pas fournis avec un clone du dépôt.
 
 Pour afficher uniquement l’aperçu, sans commit, push ni accès réseau :
 
