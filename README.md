@@ -274,6 +274,18 @@ python -B -m unittest discover -s Roll20/Webtracker/tests -v
 
 La validation contrôle les fichiers publics, la syntaxe JavaScript et la cohérence du référentiel d’alchimie. Le workflow [Qualité](.github/workflows/quality.yml) exécute également les tests métier JavaScript, les scénarios SQL sur PostgreSQL isolé et les tests de reprise des personnages.
 
+### Publier les changements sur GitHub
+
+Sous Windows, double-cliquez sur `publier.cmd` à la racine du dépôt. Le lanceur affiche les fichiers concernés, demande un message de commit puis une confirmation avant d’envoyer les changements de `main` vers `origin/main`.
+
+Pour afficher uniquement l’aperçu, sans commit, push ni accès réseau :
+
+```powershell
+.\publier.cmd -Preview
+```
+
+Le script `scripts/commit-push.ps1` inclut tous les changements et les fichiers non suivis qui ne sont pas ignorés par `.gitignore`. Il s’arrête si une opération Git est en cours, si des conflits subsistent ou si la branche distante contient des commits absents en local. Après l’envoi, consultez les tests dans GitHub Actions et le déploiement GitHub Pages pour suivre la mise à jour du site.
+
 ### Mettre à jour les règles d’alchimie
 
 Le référentiel provient de la note Obsidian `50 - OUTILS/52 - Regles/alchimie.md`. Pour importer une nouvelle version :
